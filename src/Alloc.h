@@ -14,6 +14,7 @@
 #define SIZE_MAX_IN_POOL  0x100   /* maximum memory allocation size to put in
 				     a memory pool! */
 
+#include "compat.h"
 
 /************************************************
 *

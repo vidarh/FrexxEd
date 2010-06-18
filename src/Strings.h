@@ -7,6 +7,8 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include "compat.h"
+
 /****************************************************************
  *
  * String.h
