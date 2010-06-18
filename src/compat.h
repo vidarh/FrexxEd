@@ -24,6 +24,8 @@
 #undef __asm
 #define __asm
 
+#define __stackext
+
 #endif
 
 #endif
