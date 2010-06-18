@@ -21,9 +21,7 @@
 #include <clib/graphics_protos.h>
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
-#include <libraries/xpk.h>
 #include <proto/dos.h>
-#include <dos.h>
 
 #include "Buf.h"
 #include "Alloc.h"
