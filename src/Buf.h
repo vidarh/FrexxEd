@@ -324,7 +324,7 @@ struct FrexxHook {
 
 typedef struct BufStruct BufStruct;
 
-typedef struct WindowStruct {
+struct WindowStruct {
   ULONG DisplayID;	/* Display ID for your screen */
   char *PubScreen;	/* Public screen to put FrexxEd on */
   char *FrexxScreenName;/* The name of the screen FrexxEd is on */

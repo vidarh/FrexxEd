@@ -319,5 +319,5 @@ typedef struct FrexxEdFunction {
   char ret;
   char *format;
   char type;	// Initieringen ska ske i 'första gruppen'
-};
+} FrexxEdFunction;
 

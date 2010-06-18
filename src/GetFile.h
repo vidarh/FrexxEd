@@ -14,7 +14,7 @@
 typedef struct Files {
   char *name;
   struct Files *next;
-};
+} Files;
 
 int __regargs GetFile(BufStruct *Storage,  char *path, char *filename);
 

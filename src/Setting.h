@@ -113,7 +113,7 @@ typedef struct Setting {
   int mask;	/* Maskvärde för settingen. */
   char *FPLsave_string;	/* The string that will be used if the setting shall be saved. */
   int menucounter; /* Number of times the setting is used in the menues. */
-};
+} Setting;
 
 typedef struct SettingSaved {
   char *name;
@@ -121,7 +121,7 @@ typedef struct SettingSaved {
   long value;
   char *string;
   struct SettingSaved *next;
-};
+} SettingSaved;
 
 
 int __regargs InitDefaultSetting(void);
