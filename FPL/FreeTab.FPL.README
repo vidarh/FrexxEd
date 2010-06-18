@@ -1,0 +1,31 @@
+############################################
+File: FreeTab.FPL
+Author: Daniel Stenberg
+Email: dast@sth.frontec.se, FidoNet 2:201/328
+Short description: Lets the user define custom tab stops to move between
+Version: 1.0
+Date: 1.5.94
+Local settings: "freetab"
+Global settings:
+Keysequence: "shift tab", "tab" and "amiga tab"
+Type: function, key
+Prereq:
+############################################
+
+FUNCTION
+
+  This program defines several function that together lets the user define tab
+stops and then makes a tab press jump to the next defined tab stop instead of
+the standard "tab_with" style stepping. All tab-presses will then insert
+spaces intead of "real" tab characters. Otherwise this wouldn't be possible!
+
+  Enable the free tabs by setting the local "freetab" setting. "Shift tab"
+will add the current column to the list of tab stops. "Amiga tab" will display
+all current tab stops in a window. "Tab" will jump to the next tab stop in the
+list. (If you have three tab stops at column 5, 22 and 63 and press tab
+standing in column 20, two spaces are inserted.)
+
+BUGS
+  There is currently a maximum of 20 tab stops but no limit check! There
+should be no such stupid limit!
+  There is also a missing function: removal of tab stop positions!

@@ -1,0 +1,37 @@
+#############################################################################
+File:		FrexxTool.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Interactive tool to create a FrexxTool setup file
+Version:	1.0
+Date:		17.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		file
+Prereq:
+Copyright:	FrexxWare
+#############################################################################
+
+FUNCTION
+  On the first invoke, this program will let the user select menu items that
+should be added to the toolbox window as buttons. When the user aborts the
+adding by pressing 'backspace', the setup file is stored and FrexxTool is
+started with the new setup file.
+  On the following invokes, FrexxTool will simply get invoked with the
+constructed setup file.
+
+HISTORY
+ 1.0	New.
+
+BUGS
+ Doesn't check if it really is the first FrexxEd, FrexxTool will use FREXXED.1
+by default.
+
+TODO
+ Make it possible to re-create the setup file in case of the user would like
+to change it.
+ Make it close down the FrexxTool window when FrexxEd quits.
+
+SEE ALSO
+ FrexxEd:bin/FrexxTool.doc

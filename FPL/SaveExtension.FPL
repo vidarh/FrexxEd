@@ -1,0 +1,57 @@
+
+export int LoadExtSettings(string path, string name)
+{
+  int column;
+  string filename;
+
+  column=strstr(name, ".");
+  if (column>=0) {
+    filename=sprintf("FrexxEd:FPL/%s.SETTING.FPL", substr(name, column, -1));
+    ExecuteFile(filename);
+  }
+}
+
+
+export int SaveExtSettings()
+{
+  int column;
+  int tempid;
+  int oldid;
+  int count, max;
+  string filename;
+  string extension;
+  string settings[1];
+  string types[1];
+  string tempstring;
+
+  oldid=GetEntryID();
+  filename=ReadInfo("file_name");
+  column=strstr(filename, ".");
+  if (column>=0) {
+    filename=sprintf("FrexxEd:FPL/%s.SETTING.FPL", substr(filename, column, -1));
+    tempid=New();
+    if (tempid) {
+      CurrentBuffer(tempid);
+      Rename(filename);
+      max=GetList("setting", &settings, -1, "(read)(hidden)(global)", &types);
+      for (count=0; count<max; count++) {
+        if (strstr(types[count], "w")>=0) {  // writeable
+          tempstring="SetInfo(-1, \""+settings[count]+"\", ";
+          if (strstr(types[count], "s")>=0)  // string type
+            tempstring+=joinstr("\"",ReadInfo(settings[count], oldid),"\"");
+          else
+            tempstring+=ltostr(ReadInfo(settings[count], oldid));
+          tempstring+=");\n";
+          Output(tempstring);
+        }
+      }
+      Clean("Save();");
+      CurrentBuffer(oldid);
+      Clean(sprintf("Kill(%d);", tempid));
+    }
+  }
+}
+
+Hook("GotFile", "LoadExtSettings");
+MenuAdd("i", "Save extension", " SaveExtSettings();", "", 6, 8);
+MenuBuild();

@@ -1,0 +1,31 @@
+#############################################################################
+File: MegaIndent.FPL
+Author: Linus Nielsen
+Email: erenie@ere.ericsson.se
+Short: Calls GNU indent on the current block when 'Amiga a' is pressed.
+Version: 1.0
+Date: 8.11.94
+Local settings:
+Global settings:
+Keysequence: Amiga a
+Type: Key
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ Saves the current block in a temp file and calls 'indent' on it, then
+ reads the file back into the block.
+
+HISTORY
+
+
+BUGS
+
+
+TODO
+
+
+SEE ALSO
+
+

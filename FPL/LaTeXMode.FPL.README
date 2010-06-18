@@ -1,0 +1,34 @@
+#############################################################################
+File:		LaTeXMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Minor mode for LaTeX documents.
+Version:	1.0
+Date:		15.06.95
+Local settings:
+Global settings:Comment settings
+Keysequence:
+Type:		Minor mode
+Prereq:		CommentMode.FPL, FMC.FPL
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  A minor mode for LaTeX documents. At the moment only comments and tabulator
+  size is being initialized. No real functionality. 
+
+HISTORY (REV)
+ 15.06.95 (0)	Made primarily as an example of mode programming.
+
+BUGS
+  None known.
+
+TODO
+  I'd like to see this file give just about the same functionallity as
+  provided by the AUCTeX system. Luckily I've enough brains to know that
+  making/porting an ELisp interpretor to FrexxEd would be much simpler :)
+
+SEE ALSO
+  If you plan to add some functionallity to this mode you should check out
+  AUCTeX first! It is without comparison the best (La)TeX environment
+  available (it is made for Emacs).

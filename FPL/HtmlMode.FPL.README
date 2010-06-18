@@ -1,0 +1,32 @@
+#############################################################################
+File:		HtmlMode.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Colours HTML tags
+Version:	1.0
+Date:		17.11.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		mode
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+  Simply colours all HTML-tags.
+
+HISTORY
+  1.0	Made it today to show Polarn in #AmigaSwe how it could be done. I
+	made a complete mode out of it since someone else might actually
+	like it too.
+
+BUGS
+	None? ;)
+
+TODO
+ - Make it a complete mode. What should it do?
+
+SEE ALSO
+  Whatever relavant information you can find! ;)
+

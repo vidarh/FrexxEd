@@ -1,0 +1,37 @@
+#############################################################################
+File:		StatusLineClock.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Updates a clock-string on the status line or window title.
+Version:	1.1
+Date:		6.8.95
+Local settings:
+Global settings: 'clock'
+Keysequence:
+Type:		timer
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ Switch on the global info variable 'clock' and you'll get a clock at the
+right end of your status line or in the window title in the format HH:MM,
+updated every 10th second!
+
+HISTORY
+ 1.0	Fixed and tested
+ 1.1	Possibility to get the clock in the window title
+
+BUGS
+ not any known
+
+TODO
+ Make it still possible to change status line while running. Perhaps it
+should search for special code (like '#C') and replace that with the time...
+
+NOTE
+ You have to register FrexxEd to be able to get the clock in the window title,
+otherwise you will get the annoying requester very often.
+
+SEE ALSO
+ TimerAdd() and the 'status_line' and 'window_title' info variables.

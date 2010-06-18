@@ -1,0 +1,82 @@
+/*************************************************
+ *
+ *  SaveFACT.FPL
+ *
+ *  Prompt for a file, and make a FPL program that will generate the
+ *  current FACT setup.
+ *
+ ***********/
+{
+  int counter;
+  string result;
+  int temp;
+  string tempstring;
+  int oldid=GetEntryID();
+  int newid;
+  string file, factname;
+  string facts[1];
+  int fact_no;
+
+  fact_no=GetList("FACT", &facts);
+  Sort(&facts);
+  if ((fact_no==1 || RequestWindow("Save FACT", "", "a", &facts, &factname, -1)) &&
+      strlen(file=PromptFile("","FACT file name"))) {
+    newid=New();
+
+    if (newid) {
+      CurrentBuffer(newid);
+      Rename(file);
+      SetInfo(-1, "undo", 0);
+  
+      if (strlen(factname))
+        Output("FACTCreate(\""+factname+"\");\n");
+      for (counter=-6; counter<256; counter++) {
+        Status(oldid, "Countdown: "+ltostr(256-counter));
+        Output("FACT(\""+factname+"\", "+ltostr(counter)+", 'E', '-'");
+        tempstring=FACTString(counter);
+        if (strlen(tempstring)!=1 || counter!=tempstring[0])
+          Output(", 'S', \""+ CConvertString(tempstring)+ "\"");
+  
+        if (counter>=0) {
+          temp=Isopen(counter);
+          if (temp>=0)
+            Output(", '(', "+ltostr(temp));
+    
+          temp=Isclose(counter);
+          if (temp>=0)
+            Output(", ')', "+ltostr(temp));
+    
+          temp=Islower(counter);
+          if (temp>=0)
+            Output(", 'L', "+ ltostr(temp));
+    
+          temp=Isupper(counter);
+          if (temp>=0)
+            Output(", 'U', "+ ltostr(temp));
+    
+          if (Isnewline(counter))
+            Output(", 'N'");
+    
+          if (Isspace(counter))
+            Output(", ' '");
+    
+          if (Issymbol(counter))
+            Output(", '!'");
+    
+          if (Isword(counter))
+            Output(", 'W'");
+    
+          if (Istab(counter))
+            Output(", 'T'");
+        }
+        Output(");\n");
+      }
+      Save(file);
+      CurrentBuffer(oldid);
+      Kill(newid);
+      Status();
+    }
+  } else
+    ReturnStatus("Function canceled!");
+}
+

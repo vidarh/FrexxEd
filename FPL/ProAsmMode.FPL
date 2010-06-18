@@ -1,0 +1,797 @@
+// $Id: ProAsmMode.FPL 1.16 1996/08/01 13:36:28 jskov Exp $
+// $VER: ProAsmMode.FPL 1.2 (01.08.96) © Jesper Skov
+
+export int infoBufferParent;
+
+int equBuffer;
+int errBuffer;
+int listBuffer;
+
+export int paError;							// set by some f to signal error
+string paErrorText;
+
+int assemblerError = 0;
+int newError;								// new error occur since info entered?
+int lastErrorLine;
+string lastErrorDescription;
+string lastMainFile;						// main file last assembled
+string lastErrorFile;						// error occured in this file
+string lastOutName;
+
+string daemon;
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» proAssemble() ««
+export void proAssemble(string opts)
+{
+  int parent = GetBufferID();
+  int assembleBuffer = parent;				// default is current buffer
+  string path = ReadInfo("file_path");
+  string topLine = GetLine(1);
+  string fileName = ReadInfo("full_file_name");
+  int stat;
+
+  int packedText;
+  string result;
+
+  // Check for assembly of master file (identified by <;$"name"> at line 1)
+  if(!strncmp(topLine, ";$\"", 3)){
+	fileName = substr(topLine,3, strstr(topLine, "\"", 3)-3);
+
+	if(-1 == strstr(fileName, ":"))
+	  fileName = ReadInfo("file_path")+fileName;
+	
+	assembleBuffer = GetBufferID(fileName);
+  }
+  
+  lastMainFile = Stcgfn(fileName);
+
+  // Compute output name
+  // If no . in name, panic!
+  // Else construct as path and first part of name (i.e. up till first .)
+  lastOutName = lastMainFile;
+  if(-1 == (stat = strstr(lastOutName, "."))){
+	paError = 1;
+	paErrorText = "ProAsm expects an extension of the filename! Aborting...";
+	return;
+  } else
+	lastOutName = Stcgfp(fileName) + substr(lastOutName, 0, stat);
+
+  // Insert output name in opts (replacing `$n')
+  if(-1 != (stat = stristr(opts, "$n")))
+	opts = substr(opts, 0, stat) + lastOutName + substr(opts, stat+2, -1);
+	
+	
+  if(ReadInfo("proasm_use_server")){
+  	// Check ASX server
+	if(!FindPort("asx_rexx")){
+	  // Server not running; start it!
+	  System("proasm:asx");
+	  if(!FindPort("asx_rexx", 10)){
+		paError = 1;
+		paErrorText = "Can't start asx!";
+		return;
+	  }
+	}
+
+	// Get daemon spawned
+	if(!strlen(daemon))
+	  if(!strlen(daemon = ARexxSend("asx_rexx", "BegOfAssembly", 5))){
+		paError = 1;
+		paErrorText = "Could not get deamon running!";
+		return;
+	  }
+  }
+
+  // Hereafter the daemon will need to be freed at exit time!
+
+  if(ReadInfo("proasm_use_server")){
+	// SERVER
+
+	if(assembleBuffer){
+	  // pack buffer to a memory block
+	  if(!(packedText = System("packText "+itoa(assembleBuffer)))){
+		paError = 1;
+		paErrorText = "Could not pack buffer text.. Aborted!";
+		return;
+	  }
+
+	  // ** Add opts and output name!
+	  result = ARexxSend(daemon, "ADDRESS "+itoa(packedText));
+
+	  System("packText f"+itoa(packedText));	// free packed text
+
+	} else {
+	  // assemble file
+	  Save();
+  	}
+
+  } else {
+	// PROGRAM
+	int parent = GetBufferID();
+
+	string list = "-p t:proAsmList ";
+	if(!ReadInfo("proasm_make_list"))
+	  list = "";
+	
+	Save();
+	
+	CurrentBuffer(GetBufferID("- AsmPro Info Buffer -"));
+	Output("\n");
+	System("delete t:proAsmErr");
+	stat = System(ReadInfo("proasm_assembler")+" "+fileName+" -q t:proAsmEqu "+list+"-e t:proAsmErr "+opts+" "+ReadInfo("proasm_asm_options")+" >> \""+ReadInfo("disk_name")+":- AsmPro Info Buffer -\"");
+	GotoLine(-1);
+	Backspace();
+  }
+
+  if(stat){
+	assemblerError = 1;
+	paUpdateErr();
+	if(paError)
+	  ReturnStatus("There were errors, but error file could not be loaded!");
+	else {
+	  newError = 1;
+	  paNextError(1);
+	  ReturnStatus("There were errors!");
+	}
+  } else {
+	assemblerError = 0;
+    ReturnStatus("Successful operation!");
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paMake ««
+void paMake(string opts)
+{
+  SaveString("t:makeit", "/bin/make -C\""+ReadInfo("file_path")+"\" "
+             +opts+" >>\"/"+ReadInfo("disk_name")+"/- AsmPro Info Buffer -\"\n");
+
+  CurrentBuffer(GetBufferID("- AsmPro Info Buffer -"));
+  GotoLine(-1, -1);
+  Output("\n");
+  System("bin:sh /t/makeit");
+  GotoLine(-1, -1);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Errors ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paNextError ««
+export void paNextError(int reset)
+{
+  int parent;
+  
+  if(!assemblerError){
+	ReturnStatus("No errors in last assembly!");
+	return;
+  }
+	
+  parent = CurrentBuffer(errBuffer);
+  
+  if(reset)
+	GotoLine(1);
+  
+  if(!Search("^[0-9]","=wf+")){
+	int offset;
+	
+	lastErrorLine = atoi(GetWord());
+	lastErrorDescription = substr(GetLine(), 10, -1);
+	lastErrorDescription = substr(lastErrorDescription, 0, strlen(lastErrorDescription)-1);
+	if(-1 == (offset = strstr(lastErrorDescription, " in file ")))
+	  lastErrorFile = lastMainFile;
+	else {
+	  lastErrorFile = substr(lastErrorDescription, offset+9, -1);
+	  // If file name is not absolute, add path of main file.
+//	  if(-1 == strstr(lastErrorFile, ":"))
+//		lastErrorFile = Stcgfp(lastMainFile)+lastErrorFile;
+	  lastErrorDescription = substr(lastErrorDescription, 0, offset);
+	}
+  } else {
+	GotoLine(1);
+	lastErrorDescription = "No more errors. Wrapping buffer!";
+  }
+  CurrentBuffer(parent);
+  
+  if(!reset)
+	paThisError();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paThisError ««
+export void paThisError()
+{
+  int id;
+	
+  if(!assemblerError){
+	ReturnStatus("No errors in last assembly!");
+	return;
+  }
+
+  if(id = GetBufferID(lastErrorFile)){
+	// Replace current view with buffer containing erroneous file
+	int old = GetBufferID();
+	if(old != id){
+	  if(ReadInfo("proasm_nexterr_save"))
+		Save();
+	}
+	CurrentBuffer(id);
+	Activate(id, 0, old);
+  } else {
+	if(ReadInfo("proasm_nexterr_save"))
+	  Save();
+
+	// Ask if erroneous file should be loaded.
+	if(Request("Error in file not currently loaded.\nShould "
+	           +lastErrorFile+" be loaded?",
+			   "ProAsm request",
+			   "Yes|No")){
+	  if(Check(lastErrorFile))
+		Open(lastErrorFile);
+	  else {
+		string name = PromptFile(lastErrorFile, "Find file...");
+		if(strlen(name))
+		  Open(name);
+		else {
+		  ReturnStatus("Erroneous file not found!");
+		  return;
+		}
+	  }
+	} else
+	  return;
+  }
+  GotoLine(lastErrorLine);
+  ReturnStatus(lastErrorDescription);
+}
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Windows ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+export void proAsmInfoWindow()
+{
+  int infoBuffer = GetBufferID("- AsmPro Info Buffer -");
+  
+  Visible(0);
+  
+  infoBufferParent = GetBufferID();
+
+  if(!infoBuffer){
+	int face = FaceGet("proAsmInfo", 1);
+
+	SetInfo(-1, "filehandler", 1);
+	
+	infoBuffer = New();
+	WindowOpen(WindowAlloc(infoBuffer));
+	CurrentBuffer(infoBuffer);
+	SetInfo(-1,"file_path", "t:");
+	Rename("- AsmPro Info Buffer -");
+	SetInfo(-1, "_proasmInfoBuffer_", 1);
+	SetInfo(-1, "window_height", ReadInfo("proasm_info_height"));
+	SetInfo(-1, "window_ypos", ReadInfo("screen_height"));
+	
+	FACTDelete("proAsmInfoFact");
+	FACTCreate("proAsmInfoFact");
+	FACT("proAsmInfoFact",-1, 'S', "");
+	SetInfo(infoBuffer, "fact", "proAsmInfoFact");
+	
+	if(face) {
+	  int style;
+
+	  style = FaceStyle("infoCmds", "", 2, 0);
+	  FaceAdd(face, style, ".", "1nonspace", "\n");
+	}
+	SetInfo(infoBuffer, "face", "proAsmInfo");
+	
+	Output(".");
+  }
+  CurrentBuffer(infoBuffer);
+  WindowToFront(0,infoBuffer);
+
+  Visible(1);
+  
+  newError = 0;
+}
+  
+export void proAsmParentWindow()
+{
+  WindowToFront(0,infoBufferParent);
+  CurrentBuffer(infoBufferParent);
+  
+  if(newError)
+	paThisError();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CLI High Level Commands ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+void paCmdError(string reason)
+{
+  Output("\n"+reason+"\n.");
+  paError = 0;
+}
+
+void paDoError()
+{
+  paCmdError(paErrorText);
+}
+
+void paPrompt()
+{
+  Output("\n.");
+  SetInfo(-1,"changes",0);
+}
+
+export void proAsmCmd()
+{
+  string cmd = GetLine();
+  string args = substr(cmd, 2, -1);
+
+  if(strlen(cmd) == 1){
+	paZap("");
+	return;
+  }
+  
+  switch(cmd[1]){
+	case '=':
+	  paList(args);
+	  return;
+	case '?':
+	  paEval(args);
+	  return;
+	case 'a':
+	  CurrentBuffer(infoBufferParent);
+	  if(strlen(args)){
+		switch(args[0]){
+		  case 'o':							// ao : Make object
+			args = "-O \"$n.o\" -L";
+			break;
+		  case 'a':							// aa=opts : parse opts to ass
+			args = substr(args, 2, -1);
+			break;
+		  case 's':							// as : Syntax check
+			args = "-N";
+			break;
+		  default:							// a? : Make executable
+			args = "-O \"$n\"";
+			break;
+		}
+		
+	  } else
+		args = "-O \"$n\"";
+	  proAssemble(args);
+	  CurrentBuffer(GetBufferID("- AsmPro Info Buffer -"));
+	  if(paError)
+		paDoError();
+	  else
+	    paPrompt();
+	  return;
+	case 'd':
+	  Output("\nStarting debugger...");
+	  WindowToFront(-1);
+	  System(ReadInfo("proasm_debugger")+" "+ReadInfo("proasm_dbg_options")+" \""+lastOutName+"\""+args);
+	  WindowToFront(0);
+	  paPrompt();
+	  return;
+	case 'j':
+	  Output("\nRunning command "+lastOutName+"...");
+	  Output("\nReturned "+itoa(System(lastOutName+args)));
+	  paPrompt();
+	  return;
+	case 'l':
+	  paListing();
+	  return;
+	case 'm':
+	  CurrentBuffer(infoBufferParent);
+	  paMake(args);
+	  CurrentBuffer(GetBufferID("- AsmPro Info Buffer -"));
+	  if(paError)
+		paDoError();
+	  else
+	    paPrompt();
+	  return;
+	case 'z':
+	  paZap(args);
+	  return;
+  }
+  paCmdError("Unknown command prefix!");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Lists ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+void paList(string arg)
+{
+  string newArg = substr(arg, 1, -1);
+  switch(arg[0]){
+	case 'l':
+	  paListing();
+	  break;
+	case 'r':
+	  paGrep(newArg, 0);
+	  break;
+	case 'R':
+	  paGrep(newArg, 1);
+	  break;
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paGrep ««
+// Find variables matching regular expression
+// Default operation equals the "=r<str>" operator found in Asm1
+void paGrep(string pattern, int casesense)
+{
+  int id = GetBufferID();
+  string lastLine;
+
+  if(!Check("t:proAsmEqu")){
+	paCmdError("No equate file... Try assembling!");
+	return;
+  }
+
+  GotoLine(-1,-1);
+  Output("\nGrep on \""+pattern+"\"\n");
+  
+  if(ReadInfo("proasm_extern_grep")){
+	//external grep (faster?!?)
+	System("tail +9 t:proAsmEqu > t:proAsmEqu.strip");
+	System("grep "+ (casesense)?"":"-i " + "-e \"^"+pattern+"\" t:proAsmEqu.strip > t:proAsmEqu.grep");
+	InsertFile("t:proAsmEqu.grep");
+	System("delete t:proAsmEqu.#?");
+  } else {
+	// get file for internal processing
+	int tmp = New();
+	CurrentBuffer(tmp);
+	Load("t:proAsmEqu");
+	  
+	DeleteLine(8);							// strip off proAsm pads
+
+	if(strlen(pattern)){
+	  // internal grep
+	  SearchSet("=fw+c"+(casesense)?'+':'-', "^"+pattern);
+
+	  while(!Search())
+		BlockCopyAppend(id, 1, ReadInfo("line"), 1, ReadInfo("line")+1);
+	} else
+	  // Copy all
+	  BlockCopyAppend(id, 1, 1, 1, ReadInfo("lines"));
+
+	Clean("Kill("+itoa(tmp)+");");
+  }
+
+  CurrentBuffer(id);
+  GotoLine(-1);
+  Backspace();
+
+/*
+  lastLine = GetLine();						// Strip off a possible "end"
+  if(lastLine[0]==' '){						// line in an ugly manner :)
+	DeleteLine();
+	BackSpace();
+  }
+*/
+  paPrompt();
+}
+
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Dump Listing ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+void paListing()
+{
+  int parent;
+  
+  if(!ReadInfo("proasm_make_list")){
+	paError = 1;
+	paErrorText = "Listing not enabled!";
+	paPrompt();
+	return;
+  }
+  
+  if(!(listBuffer = GetBufferID("_proasmListBuffer_")))
+	listBuffer = New();
+  
+  parent = CurrentBuffer(listBuffer);
+  Clean("paError = Load(\"T:proAsmList\");");
+  Rename("_proasmListBuffer_");
+  if(0 > paError){
+	paError = 1;
+	paErrorText = "Error loading list file!";
+	CurrentBuffer(parent);
+	Clean("Kill("+itoa(listBuffer)+");");
+	paPrompt();
+	return;
+  }
+  SetInfo(-1,"proasm_list",1);
+  Activate(listBuffer, 0, parent);
+  WindowToFront(0,listBuffer);
+}
+
+export void proAsmListExit()
+{
+  int infoBuffer = GetBufferID("- AsmPro Info Buffer -");
+  
+  SetInfo(-1,"type",8);
+
+  Activate(infoBuffer, 0, CurrentBuffer(infoBuffer));
+  WindowToFront(0,infoBuffer);
+  paPrompt();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Evaluate ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+// Evaluate expression.
+// Will consult the equate file for variable substitution and replace
+// "$" with "0x" to ease usage. Output in standard Asm1 form.
+export void paEval(string arg)
+{
+  int parent;
+  int val;
+
+  paUpdateEqu();
+
+/* Delay error checking of paUpdateEqu so that expressions not containing
+ * variables may be evaluated.
+ *
+  if(paError){
+	paDoError();
+	return;
+  }
+*/  
+  parent = CurrentBuffer(New());
+  
+  Output("0+"+arg);							// need extra space for regexp!
+  GotoLine(1,0);
+
+  while((0 <= Search("\\W[$_a-z]", "=fw+"))){
+	CursorRight();
+	switch(GetChar()){
+	  case '$':
+		Delete();
+		Output("0x");
+		break;
+	  default:
+		if(!paError)						// Delayed check of paUpdateEqu
+		  val = paGetVariable(GetWord());
+		if(paError){
+		  Clean("Kill("+itoa(CurrentBuffer(parent))+");");
+		  paDoError();
+		  return;
+		}
+		DeleteWord();
+		Output(itoa(val));
+		break;
+	}
+  }	
+  paError = 0;								// Cancel error from paUpdateEqu
+
+  val = eval(GetLine());
+  Clean("Kill("+itoa(CurrentBuffer(parent))+");");
+  Output(sprintf("\n$%08X %10d `%c%c%c%c' %%%08b.%08b.%08b.%08b", val, val, (((val>>24)&255)>31)?(val>>24):0x2e, (((val>>16)&255)>31)?(val>>16):0x2e, (((val>>8)&255)>31)?(val>>8):0x2e, ((val&255)>31)?val:0x2e, (val>>24)&255, (val>>16)&255, (val>>8)&255, val&255));
+  paPrompt();
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paGetVariable ««
+// Get variable value from equate file which must already be in a buffer!
+// Variables are sought case sensitive, starting on a line and ending
+// with a non-word character.
+// FACT should mark "_" as a word character!
+//
+// If paError is set, the variable could not be found.
+int paGetVariable(string name)
+{
+  int parent = CurrentBuffer(equBuffer);
+  int res;
+  
+  GotoLine(1);
+  if(0 > Search("^"+name+"\\W", "=fwc+")){
+	paErrorText = "Unknown variable `"+name+"'!";
+	paError = 1;
+  } else
+	res = eval("0x"+substr(GetLine(), 41, -1));
+  CurrentBuffer(parent);
+  return res;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paUpdateEqu ««
+// (Re)Load the equate file.
+//
+// If paError (return value) is set and error occured.
+int paUpdateEqu()
+{
+  int parent;
+  
+  if(!(equBuffer = GetBufferID("_proasmEquBuffer_")))
+	equBuffer = New();
+  
+  parent = CurrentBuffer(equBuffer);
+  Clean("paError = Load(\"T:proAsmEqu\");");
+  Rename("_proasmEquBuffer_");
+  if(0 > paError){
+	paError = 1;
+	paErrorText = "Error loading equate file!";
+  } else
+    paError = 0;
+  CurrentBuffer(parent);
+  
+  return paError;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» paUpdateErr ««
+// (Re)Load the error file.
+//
+// If paError (return value) is set and error occured.
+int paUpdateErr()
+{
+  int parent;
+  
+  if(!(errBuffer = GetBufferID("_proasmErrBuffer_")))
+	errBuffer = BlockCreate("_proasmErrBuffer_");
+  
+  parent = CurrentBuffer(errBuffer);
+  Clean("paError = Load(\"T:proAsmErr\");");
+  Rename("_proasmErrBuffer_");
+  SetInfo(-1,"type",8);
+  if(0 > paError){
+	paError = 1;
+	paErrorText = "Error loading error file!";
+  } else
+    paError = 0;
+  CurrentBuffer(parent);
+  
+  return paError;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ZAP ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+void paZap(string arg)
+{
+  Clean("Clear();");
+  Output(".");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» proAsmPrefs() ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+export void ProAsmModePrefs()
+{
+  string assembler = ReadInfo("proasm_assembler");
+  string asm_options = ReadInfo("proasm_asm_options");
+
+  string debugger = ReadInfo("proasm_debugger");
+  string dbg_options = ReadInfo("proasm_dbg_options");
+
+  int nexterr_save = ReadInfo("proasm_nexterr_save");
+  
+  string key_nexterror = ReadInfo("proasm_key_nexterror");
+  string key_thiserror = ReadInfo("proasm_key_thiserror");
+
+  int extern_grep = ReadInfo("proasm_extern_grep");
+  int use_server = ReadInfo("proasm_use_server");
+  int make_list = ReadInfo("proasm_make_list");
+  int info_height = ReadInfo("proasm_info_height");
+  
+  RequestWindow("ProAsmMode Preferences",20,
+    "Assembler", "s", &assembler,
+    "Asm Options", "s", &asm_options,
+    "Debugger", "s", &debugger,
+    "Dbg Options", "s", &dbg_options,
+    "Info height", "i", &info_height,
+    "Next error save", "b", &nexterr_save,
+    "Key: Next Error", "s", &key_nexterror,
+    "Key: This Error", "s", &key_thiserror,
+    "External grep", "b", &extern_grep,
+    "Use ASX server", "b", &use_server,
+    "Make lists", "b", &make_list
+  );
+
+  SetInfo(0, "proasm_assembler", assembler);
+  SetInfo(0, "proasm_asm_options", asm_options);
+  SetInfo(0, "proasm_debugger", debugger);
+  SetInfo(0, "proasm_dbg_options", dbg_options);
+  SetInfo(0, "proasm_nexterr_save", nexterr_save);
+  SetInfo(0, "proasm_key_nexterror", key_nexterror);
+  SetInfo(0, "proasm_key_thiserror", key_thiserror);
+  SetInfo(0, "proasm_extern_grep", extern_grep);
+  SetInfo(0, "proasm_use_server", use_server);
+  SetInfo(0, "proasm_make_list", make_list);
+  SetInfo(0, "proasm_info_height", info_height);
+   
+  AssignKey("paNextError(0);",ReadInfo("proasm_key_nexterror"),"proasm_mode");
+  AssignKey("paThisError();",ReadInfo("proasm_key_thiserror"),"proasm_mode");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ProAsmMode settings ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ! ««
+
+ConstructInfo("proasm_assembler", "","", "GSHW","", 0,0,"proasm");
+ConstructInfo("proasm_asm_options", "","", "GSHW","", 0,0,"");
+ConstructInfo("proasm_debugger", "","", "GSHW","", 0,0,"");
+ConstructInfo("proasm_dbg_options", "","", "GSHW","", 0,0,"");
+
+ConstructInfo("proasm_extern_grep", "","", "GBWH","", 0,0,0);
+ConstructInfo("proasm_use_server", "","", "GBWH","", 0,0,0);
+ConstructInfo("proasm_make_list", "","", "GBWH","", 0,0,0);
+
+ConstructInfo("proasm_info_height", "", "", "GIHW", "", 4, 1000, 200);
+
+ConstructInfo("proasm_nexterr_save", "","", "GBWH","", 0,0,1);
+
+ConstructInfo("proasm_key_nexterror", "","", "GSHW","", 0,0,"control c '0x2a'");
+ConstructInfo("proasm_key_thiserror", "","", "GSHW","", 0,0,"control c shift '0x2a'");
+
+ConstructInfo("proasm_list", "","", "LBH","", 0,0,0);
+
+
+ConstructInfo("_proasmInfoBuffer_","","","LBH","",0,1,0);
+
+ConstructInfo("proasm_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("proasm_mode_ext", "","", "GSHW","", 0,0,"*s*i*asm*");
+ConstructInfo("proasm_mode_exe", "","", "GSHW","", 0,0,"AsmModeInit();");
+
+AddMode(1, "proasm_mode", "proasm_mode_ext", "proasm_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» key bindings ««
+AssignKey("proAsmInfoWindow();","'escape'","proasm_mode");
+AssignKey("proAsmListExit();","'escape'","proasm_list");
+AssignKey("paNextError(0);",ReadInfo("proasm_key_nexterror"),"proasm_mode");
+AssignKey("paThisError();",ReadInfo("proasm_key_thiserror"),"proasm_mode");
+
+// Keys for the info buffer
+AssignKey("proAsmParentWindow();", "'escape'", "_proasmInfoBuffer_");
+AssignKey("if(GetChar(0)=='.'){proAsmCmd();}else{Output(\"\\n\");};", "'return'", "_proasmInfoBuffer_");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ProAsm menu ««
+MenuAdd("i", "ProAsm", "", "", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Assemble", "if(ReadInfo(\"_proasmInfoBuffer_\")) proAssemble();","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "This error", "if(ReadInfo(\"proasm_mode\")) paThisError();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Next error", "if(ReadInfo(\"proasm_mode\")) paNextError(0);","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Info Buffer", "if(!ReadInfo(\"_proasmInfoBuffer_\")) proAsmInfoWindow();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Parent Buffer", "if(ReadInfo(\"_proasmInfoBuffer_\")) proAsmParentWindow();","",ReadInfo("Program_Menu"), -1);
+
+MenuAdd("s", "ProAsm...", "ProAsmModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1);
+MenuBuild();
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Ideas ««
+/*
+== DONE ==
+
+o Assemble directly from memory (a tool is needed to compact the native
+  FrexxEd line form to full source).
+
+o Assemble subField (";$ <name of main file>" on first line)
+
+o High-light assembler directives (FrexxEd faces).
+
+o Check Syntax (via ProAsm)
+
+o Next/Previous error (Get errors from listing).
+
+o Info window:
+- ESC goto text window
+- ?<expr> evaluate expression - using variable values from last assembly
+- =r<feed> replace text-window with list of variable values [search <feed>]
+- =l show listing
+- a assemble source, display resulting text (same as <C-c C-c> in text win)
+- z/clr clear buffer.
+
+o User defined keys
+
+== TODO ==
+  
+o Display listing, cross-references and equate-file (get needed files from
+  ProAsm).
+
+o Control of config file (Remember to get new Gadget interface!)
+
+o Info window:
+- =s show cross-ref file (statistics)
+
+o Control of include cache
+
+*/
+

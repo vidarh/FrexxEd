@@ -1,0 +1,168 @@
+#############################################################################
+File:		RCSControl
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Easy RCS control from FrexxEd
+Version:	1.7
+Date:		24.07.96
+Local settings:
+Global settings:
+Keysequence:	'C-x C-q' and 'C-x C-Q'
+Type:		function
+Prereq:
+Copyright:	© 1994-1996, Jesper Skov
+#############################################################################
+
+PREFACE
+  RCS is a nice thing, but I have experienced a few situations where I was
+  not 100% sure that this interface did its job properly. A couple of times I
+  even had to "rescue" a file by hand. This was not *acceptable*! Therefore
+  this update which checks the result of the RCS calls.
+
+
+FUNCTION
+  This RCS control interface will give you a very easy way of bumping and
+  describing your code/text revisions.
+  The backbone of this control is the possibility of write protecting a
+  buffer, which (by ways of incredible luck :) is provided by
+  FrexxEd. With this write protection (wp) it is _very_ simple for
+  you to see if you have "control" over a given buffer - you will not be
+  able to change the buffer if not. Now you may wonder what wp has to do with
+  revision control... Um, very good question actually. I guess the answer is
+  >nothing< :) Oh well, maybe a little; on UN*X machines (multi user
+  environment) where (many) different people may work with the same files, it
+  is often desirable to lock out other users while a file is changed. To
+  control this "who's-changing-what-and-when" problem some smart guys invented
+  'revision control systems', which also keep track of changes and history.
+  Now, such a system has been ported to the Amiga and why not use what is at
+  hand? I know that there exist "history control systems" and RC systems
+  written for the Amiga, but I just happen to know this system from school:
+  GNU RCS. The Amiga port is done by Heinz Wrobel and is called `HWGRCS'.
+  You can find the archive on AmiNet (and Fish, I guess) where it is called
+  `HWGRCSp?f.lha'. The '?' indicates the latest patch level number (I use
+  level 10). You will have to put the RCS files in a directory accessible
+  with the assign "bin:" (e.g. copy them to C: and assign bin: to C:).
+
+  Wow, lotsa text about nothing... Still with me? OK, operation:
+  First time invoked on a (non-wp) file: You will be asked if the file should
+  be put under RCS control.
+    -- NO : buffer will be writeprotected.
+    -- YES: You will be asked if an RCS directory should be created if not
+            already there (this will keep your directory tiddier :)
+            Then you will be told (or reminded, whatever) that the first
+            comment entry is used for file description.
+  2nd+ time invoked (non-wp):
+    A comment buffer will be opened where you may enter revision specific
+    information. Only when you press C-c C-c will the revision update take
+    effect, in which case the file is locked (checked in) and the buffer is
+    write protected (the comment buffer disappears). You may explicit cancel
+    the locking by pressing C-g, which will kill the comment buffer.
+  If invoked on a write protected buffer, the buffer is made changeable
+  (de-wp'ed =) and if the file is under RCS control it will be unlocked,
+  checked out (see TO DO).
+
+  You can also use the sequence C-x C-Q which will do a normal check in,
+  followed immediately by a check out. Use this to bump the revision when
+  you want to continue editing.
+
+  If you want to use this system you should also have a good long look at
+  the RCS documentation (and perhaps one at my code so you know what's
+  going on :)
+
+  Invoke the function RCSMakeHistory to extract a file's history. The output
+  is by default redirected to filename.history.
+
+
+  As of version 1.4 the result of the check in and check out operations is
+  checked. 
+
+  Check out failure
+  ~~~~~~~~~~~~~~~~~  
+  If a check out failed, it is most likely because there was already a lock
+  on the file. The easy way to get around this is to force a check out (you
+  will be given this option), but this may also be dangerous if the locked
+  file has been changed. If there has not been any hiccup in the check in/out
+  cycle prior to this point, you would probably have the changed file in
+  FrexxEd (i.e. it's OK to force a check out). On the other hand; if you are
+  not sure, you should definitely do some checking by hand (i.e. compare the
+  file with what RCS claim to be the latest revision - consult the RCS
+  documentation).
+
+  Check in failure
+  ~~~~~~~~~~~~~~~~
+  Maybe you forgot to check out and changed the write protection flag by
+  hand. Or another program did it. Or..? You will be asked if the file should
+  be checked out before saving the buffer and checking in again. This should
+  be perfectly safe to do. If you choose not to do this, remember that the
+  changes you made were not registered with RCS.
+
+
+  As of version 1.5 you may now control the RCS interface via a sub menu of
+  "Project":
+
+  Check Out/In:	For those who can't seem to remeber good old C-x C-q.
+  Rename:	You will be asked for the new name. The reason for using this
+		specific RCS function and not just rename is that this
+		function also renames the RCS file.
+  Locked files:	This function will prompt you for a path and then scan it for
+		locked RCS files, presenting the result in a buffer. If you
+		start a scan high in a directory structure, it may take some
+		time to complete.
+  History:	Will extract the RCS log of the current file and clean it a up
+		a bit. The log will then be presented in a buffer.
+  Extract time:	Will extract the RCS log of the current file and strip out
+		everything but the time logs (see below). These are added up
+		and the	result is presented in a buffer.
+
+  Since I have needed a handy way of keeping track of the time spend on
+  various projects, and don't think much of the tools available for this
+  task, I figured it was about time to add a little extra to this RCS
+  interface. The result is time tracker which is based on the "check
+  out"-"check in" cycle, thus adding another good reason for using RCS.
+  However, since RCS does not log the time of check out I've had to use the
+  file's comment field for this information.
+
+  You may control if the co/ci cycles should be timed by the variable
+  "RCStimeWork" in Globals->IO.
+
+  If you wan't to use this new feature effectively for calculating project
+  time, you'll have to be careful about *always* checking in when you're done
+  working (I usually forget to check in a few files during a week). For the
+  same reason, the Lock list comes in handy.
+ 
+
+TO DO
+ Check out specific revision.
+ Re-check out this revision (thus cancelling work)
+ Warning at exit if any files are still checked out (possibly auto-ci).
+
+HISTORY (REV)
+ 24.07.96 (7)	The declaration of the function calculating the time used
+		on a project failed (due to an FPL bug I reckon), so I
+		had to remove it. 
+		Also cleaned a bit up.
+ 20.04.96 (6)	The check-in comment buffer required the default popup_view
+		to be "split". Now this method is forced.
+ 01.01.96 (5)	Added menu.
+ 		Added time log (I just *love* this one!)
+		Added lock list.
+		Added Rename.
+ 04.10.95 (4)	Made the check in/out a bit safer.
+ 26.02.95 (3)	Check in speed up (see bugs).
+		Code cleaned up.
+ 05.02.95 (2)	Problems with FrexxEd's writeprotection fixed.
+ 26.10.94 (1)	Added the RCSMakeHistory function.
+ 25.10.94 (0)	Initial revision.
+
+BUGS
+ When you bump a file (C-x C-Q) FrexxEd will complaint (when you try to save
+ it again) that the file has been changed on disk. This is because check in
+ is now done without re-loading the file (speed up). You'll have to do a
+ "manual override" for now... I'll have a chat with Daniel about a proper
+ solution =)
+ 
+ Other bug reports to my EMail address, thanks.
+
+SEE ALSO
+ RCS documentation (not included)
+ Michael Crichton's "Congo" (ISBN:0-14-00-5863-X)

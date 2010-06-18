@@ -1,0 +1,38 @@
+
+export void SplitWindow(int type)
+{
+  int curr_win=GetWindowID();
+  int new_win;
+
+  new_win=WindowAlloc(0, curr_win);
+  if (new_win) {
+    if (type==0) {
+      SetInfo(new_win, "window_xpos", ReadInfo("window_xpos", curr_win)+ReadInfo("window_width", curr_win)/2);
+      SetInfo(new_win, "window_width", ReadInfo("window_width", curr_win)/2);
+      SetInfo(curr_win, "window_width", ReadInfo("window_width", curr_win)/2);
+    } else {
+      SetInfo(new_win, "window_ypos", ReadInfo("window_ypos", curr_win)+ReadInfo("window_height", curr_win)/2);
+      SetInfo(new_win, "window_height", ReadInfo("window_height", curr_win)/2);
+      SetInfo(curr_win, "window_height", ReadInfo("window_height", curr_win)/2);
+    }
+    WindowOpen(new_win);
+  }
+}
+
+/*
+  WindowAlloc syntax:
+
+WindowID = WindowAlloc(EntryID, DefaultWindow);
+
+EntryID = Entry to be placed in the new window.
+          '0' or illigal ID gives a new buffer.
+
+DefaultWindow = WindowID to copy layout from.  '0' for default.
+
+ return:
+
+WindowID.  ID for the new window.
+
+
+*/
+

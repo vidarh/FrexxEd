@@ -1,0 +1,39 @@
+#############################################################################
+File:		GCCMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		Interface to GCC
+Version:	1.1
+Date:		01.04.96
+Local settings:
+Global settings:
+Keysequence:	C-c C-c
+Type:		interface
+Prereq:
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+ Just a simple major mode for GCC. There will be added a "next-error"
+ function in the near future (hopefully).
+ Very likely this interface will expand when I start working on the gdb
+ interface.
+
+ Key bindings
+ ~~~~~~~~~~~~
+
+ C-c C-c	Make
+ C-C C-C	Change make options
+
+
+HISTORY (REV)
+ 01.04.96 (1)	Added menu.
+		Now the output from make/gcc is actually captured!
+
+BUGS
+
+
+TODO
+ "next-error" stuff
+
+SEE ALSO

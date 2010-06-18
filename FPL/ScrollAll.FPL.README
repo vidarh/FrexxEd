@@ -1,0 +1,19 @@
+############################################
+File: ScrollAll.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Scroll all visible views at the same time.
+Version: 1.1
+Date: 1.8.94
+Local settings:
+Global settings:
+Keysequence: 'Shift num8' and 'Shift num2'
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+
+  This function will scroll all visible views at the same time.
+It is trigged by pressing 'Shift' and 2 or 8 at the numeric key board.
+

@@ -1,0 +1,26 @@
+############################################
+File:           AppQuery.FPL
+Author:         Daniel Stenberg, Nicolas S Dade
+Email:          Daniel.Stenberg@sth.frontec.se
+Short:          Pop up requester when icon is dropped on AppIcon/AppWindow
+Version:        1.3
+Date:           22.8.96
+Local settings:
+Global settings:
+Keysequence:
+Type:           hook
+Prereq:
+############################################
+
+FUNCTION
+  Whenever one or more icons are dropped on the FrexxEd AppIcon or AppWindow,
+this program brings up a requester for a each of the icons and query the user
+whether to open the file into a new buffer, insert it at current position,
+always open dropped files in new buffers or cancel the operation.
+
+HISTORY
+	1.1 Added WindowToFront()
+        1.2 Nicolas S Dade added the "cancel" button in the requester
+	1.3 FrexxEd v2 adjusted (reported by C.H. Chee)
+	    Added the info AppQuery variable for prefs
+	    Added an extra button to the query requester

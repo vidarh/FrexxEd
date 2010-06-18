@@ -1,0 +1,34 @@
+/******************************
+ * Read Backup.FPL.README!    *
+ * Written by Daniel Stenberg *
+ ******************************/
+export int Save_hook(string filename, string packmode)
+{
+  if(ReadInfo("backup")) {
+    string command;
+    string dest;
+    int ret;
+    if(!strlen(filename)) {
+      filename = ReadInfo("full_file_name");
+    }
+    dest = joinstr("\"", filename, ReadInfo("backup_suffix"), "\"");
+
+    /* check for the file */
+    if(Check(joinstr(filename, ReadInfo("backup_suffix")))) {
+      ret=Request(joinstr("Backup file ", dest, " already exists!\n"
+                          "Do you want to replace it?"));
+    }
+    if(ret) {
+      Status(0, "Backuping...");
+      System(joinstr("copy >NIL: CLONE \"", filename, "\" ", dest));
+    }
+    SetInfo(-1, "_backup", 1); /* backuped or selected not to become so! */
+  }
+}
+
+ConstructInfo("_backup", "", "", "HBL", "", 0, 1);
+ConstructInfo("backup", "", "", "WBL(io)", "", 0, 1, -1); /* default is enabled */
+ConstructInfo("backup_suffix", "", "", "WSG(io)", "", 0, 0, ".bak"); /* default is enabled */
+
+ /* Make Save() call Save_hook() if '_backup' isn't set! */
+Hook("Save", "Save_hook", "!_backup");

@@ -1,0 +1,19 @@
+############################################
+File: FACT.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Defines a useful FACT
+Version: 1.0
+Date: 1.3.94
+Local settings:
+Global settings:
+Keysequence:
+Type: FACT
+Prereq:
+############################################
+
+FUNCTION
+  Run this file to get a new look on the characters. ASCII code 0-31 and
+129-159 will be displayed as reversed "\xx", the 'ContinuedLine' character
+will be set to '»' and the EndOfFile character will be set to a reversed
+"End of file!".

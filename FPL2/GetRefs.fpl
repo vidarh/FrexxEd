@@ -1,0 +1,69 @@
+export void GetRefs(void)
+{
+string temp;
+int buffer, prevbuf;
+int x;
+
+Visible(0);
+temp=GetWord();
+
+buffer=New();
+prevbuf=CurrentBuffer(buffer);
+Load(joinstr(ReadInfo("manual_path"), ReadInfo("manual_file")));
+
+x=Search(temp,"=f+c+o+");
+
+if(x>=0)
+	{
+	/* Line found. Work todo */
+
+	string trash, file, row;
+	temp=GetLine();
+	sscanf(temp,"%s%s%s%s", &trash, &trash, &file, &row);
+	row=substr(row, 2, -1);
+
+	Clear();
+	SetInfo(buffer, "changes", 0);
+
+	file=joinstr(ReadInfo("manual_path"),file);
+	Load(file);
+	GotoLine(0,0);
+	CursorRight(atoi(row));
+	BlockMark(1);
+	Search("\x0c", "=f+w+");
+	BlockCopy(0);
+	BlockMark(0);
+
+	Clear();
+	SetInfo(buffer,"changes", 0);
+	CurrentBuffer(buffer);
+
+	BlockPaste(0);
+	
+	GotoLine(0,0);
+	SetInfo(buffer, "changes",0);
+	Visible(1);
+	}
+else
+	{
+	CurrentBuffer(prevbuf);
+	Kill(buffer);
+	Request("Function not found","Error");
+	}
+}
+
+export void ManualPrefs()
+{
+PromptInfo(-1, "Manual preferences", -1 , -1,
+	"manual_path",
+	"manual_file"
+	);
+}
+
+{
+AssignKey("GetRefs();", "Control ]");
+ConstructInfo("manual_path", "", "", "WHLS", "", 0, 0, "MAN:");
+ConstructInfo("manual_file", "", "", "WHLS", "", 0, 0, "dme.refs");
+MenuAdd("s", "Manual...", "ManualPrefs();", "", 6, 6, -1);
+MenuBuild();
+}

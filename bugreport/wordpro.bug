@@ -1,0 +1,18 @@
+To reproduce the bug, load the file with the standard open function, then
+enable the wordwrap for that buffer (to be in the same state as I was when
+writing that text) (wall_right = 79 by default), then press <space> twice,
+then backspace once, and you will see that you get some garbage. I hope you
+will be able to reproduce the bug. If you can't, just try some simple
+insertions/deletions on that little text, and you will surely obtain the
+bug.
+
+I also get the simple bug when typing a character in a word, the cursor goes
+after the next character, specially when the insertion implies a wraping.
+For example, when typing this message I had to undo some bad changes done by
+the wraping. I re-read this message twice to be sure of its integrity.
+
+In fact, this WordPro function doesn't work very well. Despite the fact I
+choose 78 for wall_right in the Prefs, I always get 79 when loading with the
+Open item of the WordWrap menu. I have to put 78 again for each loaded
+buffer. And it doesn't always wrap at 78, sometimes at 79.
+

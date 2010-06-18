@@ -1,0 +1,7 @@
+Open:Open("");
+Save:Save();
+Save _As:SaveAs();
+Search...:{ int ret; SearchSet("f+"); if ((ret=SearchSet())>=0) { if (Search()<0) DisplayBeep(); } else ReturnStatus(GetReturnMsg(ret)); }
+Search:Search();
+Srch/Repl:ReplaceSet();
+About:About();

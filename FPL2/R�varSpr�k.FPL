@@ -1,0 +1,13 @@
+{
+  string konsonant="BCDFGHJKLMNPQRSTVWXZbcdfghjklmnpqrstvwxz";
+  int pekare=0;
+  int counter;
+
+  Visible(0);
+  for(counter=0; counter<256; counter++) {
+    if (counter==konsonant[pekare]) {
+      FACT(counter, 'S', joinstr(itoc(counter), "o", itoc(counter)));
+      pekare++;
+    }
+  }
+}

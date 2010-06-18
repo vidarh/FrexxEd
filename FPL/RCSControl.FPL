@@ -1,0 +1,307 @@
+// $Id: RCSControl.FPL 1.19 1996/07/24 22:53:16 jskov Exp jskov $
+// $VER: RCSControl.FPL 1.7 (24.07.96) © Jesper Skov $
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Check Out ««
+export void RCSCheckOut()
+{
+  int oldLine = ReadInfo("line");			// Grab cursor position
+  int oldByte = ReadInfo("byte_position");
+  int success=1;
+
+  Status(0,"Checking out...");				// Tell user we're working
+  if (System("bin:co -l \""+ReadInfo("full_file_name")+"\"")){
+	success = 0;
+	if(Request("Check out error!\nProbably the file is already check out!\n(Consult the readme for more help)","RCS request","Force check out!|OK"))
+	  if (System("bin:co -l -f \""+ReadInfo("full_file_name")+"\"")){
+		if(!Request("Check out error again!\nTry to check the file out by hand!\n(Consult the readme for more help)","RCS request","Sigh!|Just change that bloody w-flag, will ya'!")){
+		  SetInfo(-1,"protection",ReadInfo("protection")+"w");
+		  return;
+		}
+	  } else
+		success=1;
+  }
+  if (success){
+	if(ReadInfo("RCStimeWork"))				// Attach co-time
+	  System("Filenote \""+ReadInfo("full_file_name")+"\" \""+GetDate(-1,0x30)+"\"");
+	
+	Status(0,"Reloading...");				// Tell user we're working
+	SetInfo(-1,"protection",ReadInfo("protection")+"w");
+	Load(ReadInfo("full_file_name"));		// Reload to get protection bit
+   											// and ensure correct contents
+	GotoLine(oldLine, oldByte);				// Reposition cursor
+	CenterView();
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Setup comment buffer ««
+export void EnterRCSComment(int ReLock)
+{
+  int RevisionID = New();					// Make comment buffer
+  int OrgBuffer = CurrentBuffer(RevisionID);
+
+  if(ReadInfo("RCStimeWork")){
+	string from, to=GetDate(-1,0x30);
+	System("List > t:RCSTime \""+ReadInfo("full_file_name",OrgBuffer)+"\" lformat \"%c\"");
+	from = LoadString("t:RCSTime");
+	if(strlen(from)==24)					// RAM: comments
+	  from = substr(from,1,17);
+	else if(strlen(from)==18)				// Disk devices
+	  from = substr(from,0,17);
+	else from="";
+	if(strlen(from)){
+	  int f = atoi(substr(from,9,2))*3600+atoi(substr(from,12,2))*60+atoi(substr(from,15,2));
+	  int t = atoi(substr(to,9,2))*3600+atoi(substr(to,12,2))*60+atoi(substr(to,15,2));
+	  string total;
+	  
+	  if ((t -= f)<0)
+		t += 24*60*60;							// add a day
+  
+	  total = sprintf("%.2d:%.2d:%.2d",(t/3600),((t%3600)/60),(t%3600)%60);
+	  
+	  Output("Time: "+from+" - "+to+" = "+total+"\n\n");
+	}
+  }
+  Output("\n");
+  CursorUp();
+  Rename("*RCS Comment*");					// rename it
+  SetInfo(RevisionID, "_IsRCSBuffer", 1);	// and fill parent data
+  SetInfo(RevisionID, "_RCSParentBuffer", OrgBuffer);
+  SetInfo(RevisionID, "_RCSReLock", ReLock);
+
+  Activate(0,1);
+  
+  ReturnStatus("Press C-c C-c when comment is complete!");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Check In ««
+export void RCSCheckIn()
+{
+  int ParentID = ReadInfo("_RCSParentBuffer");
+  int thisID = CurrentBuffer(ParentID);
+  int reLock = ReadInfo("_RCSReLock",thisID);
+  string CommentName = "T:RCSComment"+itoa(thisID); // build temp name
+  string ParentName  = ReadInfo("full_file_name", ParentID); // get parent name
+  string lock = "-u";						// How the file should be locked
+
+  if (reLock)								// If user wants to reLock,
+    lock = "-l";							// change lock-mode.
+
+  Save();									// Save parent buffer
+  CurrentBuffer(thisID);					// and get back to comment buffer
+
+  Rename(CommentName);						// Rename
+  Save();									// and save comment buffer
+  CurrentBuffer(ParentID);					// return control to parent
+
+  Status(0,"Checking in...");				// Tell user we're working...
+
+
+  if (System("bin:ci "+lock+" \""+ParentName+"\" < "+CommentName)) // Check In
+	if(Request("Check in error!\nShould I try to check the file out first?\n(Consult the readme for more help)","RCS request","Yes|No!"))
+	  if(System("bin:co -l \""+ParentName+"\"")){ // try to lock file
+		Request("Check out error!\n(Consult the readme for more help)","RCS request","Panic!");
+		reLock = 1;
+	  } else {
+		Save();								// save again (protection bits changed)
+	    if (System("bin:ci "+lock+" \""+ParentName+"\" < "+CommentName)){ // retry Check In
+		  Request("New attept to check in failed!\n(Consult the readme for more help)","RCS request","Panic!");
+		  reLock = 1;
+		}
+	  }
+	else {
+	  Request("OK, master. Remember that your changes are not checked in!","RCS request","Panic!");
+	  reLock = 1;
+	}
+
+
+  MaximizeView();							// Make parent only view
+
+  System("delete "+CommentName);			// Delete comment file
+  Clean("Kill("+itoa(thisID)+");");				    // and the comment buffer
+
+  if (!reLock)								// If lock not retained
+    SetInfo(-1,"protectionbits", ReadInfo("protectionbits")|4);
+      		  								// writeprotect parent buffer
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ChangeWFlag ««
+export void ChangeWFlag(int ReLock)
+{
+  int isRCS;
+  isRCS = Check(ReadInfo("full_file_name")+",v","");
+  isRCS = isRCS || Check(ReadInfo("file_path")+"RCS/"+ReadInfo("file_name"),"");
+
+  if ((ReadInfo("protectionbits")&4)){
+    if (isRCS){
+      RCSCheckOut();
+    } else {
+      SetInfo(-1,"protectionbits",ReadInfo("protectionbits")&0xfffb);
+											// if not an RCS file, just alter
+    }										// the write protection flag.
+  } else {
+    if (isRCS)
+      EnterRCSComment(ReLock);
+    else {
+      if (Request("Should I put the file under RCS control?","RCS request","Yes|No")){
+        if (!Check(ReadInfo("file_path")+"RCS")){
+          // Ask to create RCS dir
+          if (Request("Do you want me to create an RCS directory?","RCS request","Yes|No")){
+            // Creat RCS dir
+            System("makedir "+ReadInfo("file_path")+"RCS");
+          }
+        }
+        Request("This first comment will be used for file description.\nDo not enter revision specific information!", "RCS info","Um, OK!");
+        EnterRCSComment(ReLock);
+      } else {
+        SetInfo(-1,"protectionbits",ReadInfo("protectionbits")|4);
+											// if not an RCS file, just alter
+      }						 				// the write protection flag.
+    }
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Make history ««
+export void RCSMakeHistory()
+{
+  System("bin:rlog \""+ReadInfo("full_file_name")+"\" >t:RCSHistory"); // Get history created
+  CurrentBuffer(New());
+  Load("T:RCSHistory");
+	  
+  DeleteLine(11);						// and make it a bit more readable:
+  while (!Search("date:","=of+")){
+	Search(";");
+	DeleteEol();
+  }
+  GotoLine(1);
+
+  System("Delete T:RCSHistory");
+  SetInfo(-1,"changes",0);
+  Visible(1);
+  RedrawScreen();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» RCSRename() ««
+export void RCSRename()
+{
+  string newName = PromptString(ReadInfo("file_name"),"Enter new name...");
+
+  if(strlen(newName)){
+	string oldName = ReadInfo("full_file_name");
+	
+	Rename(Stcgfp(ReadInfo("full_file_name"))+newName);
+	System("Rename \""+oldName+"\" TO \""+ReadInfo("full_file_name")+"\"");
+	
+	if(Check(oldName+",v"))					// RCS file in same directory
+	  System("Rename \""+oldName+",v\" TO \""+ReadInfo("full_file_name")+",v\"");
+	  
+	newName = ReadInfo("full_file_name");
+	newName = Stcgfp(newName)+"RCS/"+Stcgfn(newName);
+
+	oldName = Stcgfp(oldName)+"RCS/"+Stcgfn(oldName); // check <file> in RCS dir
+	if(Check(oldName))
+	  System("Rename \""+oldName+"\" TO \""+newName+"\"");
+
+	oldName += ",v";						// check <file>,v in RCS dir
+	if(Check(oldName)){
+	  newName += ",v";
+	  
+	  System("Rename \""+oldName+"\" TO \""+newName+"\"");
+	}
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» RCSMakeTimeLog() ««
+export void RCSMakeTimeLog()
+{
+  int t=0;
+  string l = ReadInfo("full_file_name");
+  
+  System("rlog >t:RCSTime \""+ReadInfo("full_file_name")+"\"");
+  CurrentBuffer(New());
+  Load("t:RCSTime");
+  
+  GotoLine(0);								// Delete all non-time lines
+  while(ReadInfo("line")<ReadInfo("lines")){
+	if(strncmp(GetLine(),"Time: ",6))
+	  DeleteLine();
+	else
+	  CursorDown();
+  }
+
+  GotoLine(0);
+  Output("Time log for file \""+l+"\"\n\n");
+  
+  while(ReadInfo("line")<ReadInfo("lines")){
+	l = GetLine();
+	t += atoi(substr(l,46,2))*3600+atoi(substr(l,49,2))*60+atoi(substr(l,52,2));
+	CursorDown();
+  }
+  
+  Output("                                              --------\n");
+  l = sprintf("%d:%.2d:%.2d",(t/3600),((t%3600)/60),(t%3600)%60);
+  for(t=54-strlen(l);t>0;t--)
+    Output(" ");
+  Output(l+"\n");
+  SetInfo(-1,"changes",0);
+  System("Delete t:RCSTime");
+  
+  Activate(0,1);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» RCSShowLocked() ««
+export void RCSShowLocked()
+{
+  string path = PromptFile("","Find locked files in...","","d");
+  
+  if(!GetErrNo()){
+	SaveString("t:RCSLocks.exe", "failat 25\n");
+	System("Delete t:RCSLocks");
+	System("List >>t:RCSLocks.exe \""+path+"\" files all lformat \"rlog >>t:RCSLocks -R -L %p%n\"");
+	System("Resident `which rlog` PURE");
+	System("Execute t:RCSLocks.exe");
+	
+	CurrentBuffer(New());
+	Output("Files locked in \""+path+"\":\n");
+	InsertFile("t:RCSLocks");
+
+	GotoLine(1);
+
+	while(CursorDown())						// delete every 2nd line
+	  DeleteLine();
+	
+	GotoLine(0);
+	SetInfo(-1,"changes",0);
+	Activate(0,1);
+	System("Delete t:RCSLocks");
+	System("Delete t:RCSLocks.exe");
+	System("Resident rlog REMOVE");
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+//AssignKey("ChangeWFlag(0);","control x control q","");
+AssignKey("ChangeWFlag(1);","control x control Q","");
+AssignKey("RCSCheckIn();","control c control c", "_IsRCSBuffer");
+AssignKey("Clean(\"Kill();\");","control g", "_IsRCSBuffer");
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info variables ««
+ConstructInfo("RCStimeWork","","", "WBG(io)", "",0,1,1);
+
+ConstructInfo("_IsRCSBuffer","","", "LBH", "",0,1,0);
+ConstructInfo("_RCSReLock","","", "LBH", "",0,1,0);
+ConstructInfo("_RCSParentBuffer","","", "LIH", "",0,0x7fffffff,0);
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» RCS Menu ««
+MenuAdd("i","RCS","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","Check Out/In","ChangeWFlag(0);","control x control q",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","Rename...","RCSRename();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","Locked files...","RCSShowLocked();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","History...","RCSMakeHistory();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s","Extract time...","RCSMakeTimeLog();","",ReadInfo("Program_Menu"), -1);
+
+MenuBuild();

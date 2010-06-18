@@ -1,0 +1,253 @@
+
+string stars="OOOO";
+
+string s_figure[4*4*5]={
+ "    ", "**  ", "**  ", "    ", 	// block
+ "    ", "**  ", "**  ", "    ", 
+ "    ", "**  ", "**  ", "    ", 
+ "    ", "**  ", "**  ", "    ", 
+
+ "    ", "*** ", " *  ", "    ",	// hake
+ " *  ", " ** ", " *  ", "    ",
+ " *  ", "*** ", "    ", "    ",
+ " *  ", "**  ", " *  ", "    ",
+
+ "    ", "****", "    ", "    ",	// stake
+ " *  ", " *  ", " *  ", " *  ",
+ "    ", "****", "    ", "    ",
+ " *  ", " *  ", " *  ", " *  ",
+
+ "    ", "*** ", "*   ", "    ",	// pinne-v
+ "    ", " *  ", " *  ", " ** ",
+ "    ", "  * ", "*** ", "    ",
+ "    ", " ** ", "  * ", "  * ",
+
+ "    ", "*** ", "  * ", "    ",	// pinne-h
+ "    ", " ** ", " *  ", " *  ",
+ "    ", "*   ", "*** ", "    ",
+ "    ", "  * ", "  * ", " ** "
+
+};
+                 //0 1 2 3 4 5 6 7 8 9 a b c d e f
+int fast_len[16] ={0,1,1,2,1,0,2,3,1,0,0,0,2,0,3,4};
+int fast_strt[16]={0,0,1,0,2,0,1,0,3,0,0,0,2,0,1,0};
+
+int i_figure[4*4*5];
+int score;
+
+string emptystr=" #          # ";
+string name;
+
+int yard[24];
+string s_yard[24];
+
+void init()
+{
+  int count1, count2;
+  int sum;
+
+  for (count1=0; count1<4*4*5; count1++) {
+    sum=0;
+    for (count2=0; count2<4; count2++) {
+      sum=sum<<1;
+      if (s_figure[count1][count2]!=' ')
+        sum++;
+    }
+    i_figure[count1]=sum;
+  }
+
+}
+
+void update()
+{
+  int count, sum;
+  string str;
+  PrintLine(s_yard[1]=" /##########\\ ", 1);
+  for (count=2; count<19; count++) {
+    str=emptystr;
+    sum=yard[count];
+    if (sum&0xffc) {
+      if(sum&0x04) str[2]='*';
+      if(sum&0x08) str[3]='*';
+      if(sum&0x10) str[4]='*';
+      if(sum&0x20) str[5]='*';
+      if(sum&0x40) str[6]='*';
+      if(sum&0x80) str[7]='*';
+      if(sum&0x100)str[8]='*';
+      if(sum&0x200)str[9]='*';
+      if(sum&0x400)str[10]='*';
+      if(sum&0x800)str[11]='*';
+    }
+    PrintLine(str, count);
+    s_yard[count]=str;
+  }
+  PrintLine(" \\##########/ ", count);
+  PrintLine(sprintf(" score:%6d ",score), count+1);
+}
+
+
+void check()
+{
+  int count, move;
+  for (count=18; count>0; count--) {
+    if (yard[count]==0x1ffe) {
+      for(move=count; move>1; move--) {
+        yard[move]=yard[move-1];
+        s_yard[move]=s_yard[move-1];
+        score+=5;
+      }
+      yard[1]=0x1002;
+      s_yard[2]=emptystr;
+      count++;
+    }
+  }
+  update();
+}
+
+
+int test(int fig, int x, int y)
+{
+  int ret;
+  ret=(i_figure[fig]<<x)&yard[y];
+  ret|=(i_figure[fig+1]<<x)&yard[y+1];
+  ret|=(i_figure[fig+2]<<x)&yard[y+2];
+  ret|=(i_figure[fig+3]<<x)&yard[y+3];
+  return ret;
+}
+
+void set(int fig, int x, int y)
+{
+  int count, sum;
+  string str;
+  PrintLine(s_yard[y-1], y-1);
+  for (count=0; count<4; count++) {
+    if (count+y<19) {
+      str=s_yard[count+y];
+      sum=i_figure[count+fig];
+      str=substr(str, 0, x+fast_strt[sum])+
+          substr(stars, 0, fast_len[sum])+
+          substr(str, x+fast_strt[sum]+fast_len[sum], -1);
+      PrintLine(str, y+count);
+    }
+  }
+}
+
+int addhighscore()
+{
+  int id=New();
+  int oldid=GetEntryID();
+  int ret=0;
+
+  if (id) {
+    CurrentBuffer(id);
+    System("makedir FrexxEd:FPL/highscore", "", "NIL:");
+    Load("FrexxEd:FPL/highscore/Tetris.score");
+    GotoLine(-1);
+    Output(sprintf("%8d - %s\n", score, name));
+    BlockSort(id,0,2);
+    while (ReadInfo("lines")>11) {
+      GotoLine(11);
+      DeleteLine();
+    }
+    Save();
+    ret=Request(sprintf("Your score: %d\n\n HIGHSCORES:\n%s",score,GetBlock(id)), "TETRIS HIGHSCORE", "Play again!|I give up!");
+    Clean("Kill();");
+    CurrentBuffer(oldid);
+  }
+  return ret;
+}
+
+
+{
+  int x=4, y=1, rot, symbol;
+  int temp;
+  int count;
+  string key;
+  int drop=0;
+  int loop;
+  int delay=0, dcount=0;
+
+  delay=PromptInt("Delay", 0, "Enter delay of game");
+
+  symbol=abs(Random()%5)*4*4;
+  rot=symbol;
+  CursorActive(0);
+  init();
+
+  do {
+    for (count=0; count<19; count++)
+      yard[count]=0x1002;
+    yard[19]=-2;
+  
+    for (count=0; count<26; count++) {
+      PrintLine("#########################################", count);
+      GetKey(1);
+    }
+    score=0;
+    update();
+
+    name=PromptString(name, "TETRIS", "Enter name:");
+    if (!strlen(name)) {
+      if (GetErrNo()<0) {
+        RedrawScreen();
+        return;
+      }
+      name="Unknown";
+    }
+    while (1) {
+      loop=3;
+      while (--loop && strlen(key=GetKey(1))) {
+        if (key[0]==0x9b) {
+          switch(key[1]) {
+          case 'A': //up
+            temp=((rot+4)&12)+symbol;
+            if (!test(temp, x, y))
+              rot=temp;
+            break;
+          case 'B': //down
+            temp=((rot-4)&12)+symbol;
+            if (!test(temp, x, y))
+              rot=temp;
+            break;
+          case 'C': //right
+            if (!test(rot, x+1, y))
+              x++;
+            break;
+          case 'D': //left
+            if (x>0 && !test(rot, x-1, y))
+              x--;
+            break;
+          }
+        } else if (key[0]==' ') {
+          while (!test(rot, x, ++y))
+            score+=3;
+          drop=1;
+          y--;
+        }
+      }
+      if (drop || test(rot, x, y+1)) {
+        score+=10;
+        for (count=0; count<4; count++)
+          yard[y+count]|=i_figure[count+rot]<<x;
+        symbol=abs(Random()%5)*4*4;
+        rot=symbol;
+        x=4;
+        y=1;
+        drop=0; 
+        check();
+        if (test(symbol, x, y))
+          break; //exit
+        set(rot, x, y);
+      } else {
+        if (++dcount>=delay) {
+          dcount=0;
+          y++;
+        }
+        set(rot, x, y);
+      }
+    }
+  } while (addhighscore());
+  RedrawScreen();
+}
+
+

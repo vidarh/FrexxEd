@@ -1,0 +1,40 @@
+
+export int he_oldval;
+export int he_oldcount=-2;
+
+export void HexEdit(string input)
+{
+  if (strlen(input)==1) {
+    int val=strtol(input, 16);
+    int oldchar=0, oldinsert=ReadInfo("insert_mode");
+    if (val!=0 || input[0]=='0') {
+      oldchar=GetChar();
+      if (he_oldcount==ReadInfo("counter")-1) {
+        he_oldval=(oldchar&240)+val;
+        he_oldcount=-2;
+      } else {
+        he_oldval=(oldchar&15)+(val<<4);
+        he_oldcount=ReadInfo("counter");
+      }
+      if (he_oldval!=oldchar) {
+        Visible(0);
+        input[0]=he_oldval;
+        SetInfo(-1, "insert_mode", 0);
+        Clean(joinstr("Output(\"",CConvertString(input),"\");"));
+        SetInfo(-1, "insert_mode", oldinsert);
+        if (he_oldcount!=-2)
+          CursorLeft();
+        else if (Isnewline(he_oldval))
+          Delete();
+      } else if (he_oldcount==-2)
+        CursorRight();
+      ReturnStatus("");
+      return(1);
+    }
+  }
+  return(0);
+}
+
+ConstructInfo("hex_edit", "", "", "LB(system)", "", 0, 1, 0);
+Hook("Output", "HexEdit", "hex_edit");
+

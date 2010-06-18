@@ -1,0 +1,12 @@
+ExecuteFile("FrexxEdMain.FPL");
+ExecuteFile("Menu.FPL");
+ExecuteFile("ExtraIO.FPL");
+ExecuteFile("Window.FPL"); /* multi-window support functions */
+ExecuteFile("SameName.FPL");
+ExecuteFile("QueryKillChanges.FPL");
+ExecuteFile("MacroIO.FPL");
+ExecuteFile("FMC.FPL");
+		/* This file contains the execution of your FPL files */
+ExecuteFile("User.FPL");
+		/* Execute files and load macros from 'FrexxEd:Startup/' */
+ExecuteFile("Startup.FPL");

@@ -1,0 +1,27 @@
+############################################
+File:		Cmode.FPL
+Author:		Linus Nielsen/Daniel Stenberg
+Email:		<look elsewhere>
+Short:		Easy-to-use frontend to CIndent.FPL
+Version:	1.0
+Date:		19.7.96
+Local settings:
+Global settings:
+
+Keysequence:
+Type:		Mode
+Prereq:
+############################################
+
+FUNCTION
+  Sets up and execute CIndent.FPL for you. Nothing else required but to
+execute this. If you want it from startup, add ExecuteFile("Cmode.FPL");
+to your User.FPL or make a soft-link in your FrexxEd:Startup/ drawer to the
+FrexxEd:FPL/Cmode.FPL file.
+
+  Edit the prefs for your pleasure and taste. Read a lot further in the
+CIndent.FPL.README. Combine with the FaceEdit program.
+
+NOTE
+  There was a previous file with this name. Don't bother about that, this
+is the new and cool one ;)

@@ -1,0 +1,167 @@
+export int JumpToETag(string enter, int req)
+{
+  int originid = GetEntryID();
+  string etagfile = ReadInfo("ETags_file");
+  int etagid = GetBufferID(etagfile);
+  int ret;
+
+  Visible(0); /* let's do it in the dark! */
+
+  if(req && !strlen(enter))
+    req = 0;
+
+  if(!etagid) {
+    /* no etag buffer loaded, try loading it! */
+    if(!Check(etagfile)) {
+      ret = Request("No file called '" + etagfile + "' " + "was found!\n" +
+                    "You can select another file, generate a new file or\n" +
+                    "cancel the whole operation!",
+                    "ETAGS requester",
+                    "Another file|Generate file|Cancel");
+      switch(ret) {
+        case 0:
+          /* cancel */
+          ReturnStatus("forget it then!");
+          return 0;
+        case 1:
+          /* select new file */
+          while(!Check(etagfile)) {
+            /* failed loading, try asking for a new file! */
+            etagfile = PromptFile(etagfile, "Enter new tag file!");
+            if(!strlen(etagfile)) {
+              ReturnStatus("forget it then!");
+              return 0; /* cancel or error */
+            }
+            SetInfo(-1, "ETags_file", etagfile);
+          }
+          break;
+        case 2:
+          /* generate a new ETAGS file to use within the project! */
+          do {
+            etagfile = PromptFile(etagfile, "Enter new ETAGS file name!");
+            if(!strlen(etagfile)) {
+              ReturnStatus("forget it then!");
+              return 0; /* cancel or error */
+            }
+          } while(Check(etagfile) &&
+                  !Request("File already exists! Overwrite it?"));
+          {
+            int num, count;
+            string files[1];
+            string commandline;
+            num = PromptFile("",
+                             "Select files in project",
+                             "#?.(c|a|h|i)",
+                             "m", /* multi-requester! */
+                             &files);
+            if (!num) {
+              Request("No files selected for ETAGS", "OK");
+              return 0;
+            }
+            Status(0, "Working...");
+            System("delete \""+etagfile+"\" >NIL:");
+            while(num) {
+              commandline = "etags >>" + etagfile + " -ewTXa";
+              for (count=0; num && count<10; count++)
+                commandline+=" \""+files[--num]+"\"";
+              if (System(commandline)) {
+                Request("The 'etags' program failed, most probably\n" +
+                        "because it wasn't in your system path!");
+                return 0;
+              }
+            }
+          }
+          SetInfo(-1, "ETags_file", etagfile);
+          break;
+      }
+    }
+    etagid = New();
+    if(!etagid) {
+      ReturnStatus("Messed up!");
+      return 0;
+    }
+    CurrentBuffer(etagid);
+    Load(etagfile);
+    if(!ReadInfo("size")) {
+      CurrentBuffer(originid);
+      Kill(etagid);
+      Request("Loaded an empty file, exiting!", "ETAGS.FPL");
+      return 0;
+    }
+    SetInfo(-1, "type", ReadInfo("type") | 8);  /* make it hidden! */
+  }
+
+  CurrentBuffer(etagid);
+  GotoLine(1);
+
+  {
+    int lines = ReadInfo("lines")-1;
+    string texts[lines+1]; /* to prevent 0-arrays! */
+
+    if(!req) {
+      int a;
+      Status(0, "Building list of tags...");
+      while(a<lines) {
+        texts[a] = GetWord();
+        CursorDown();
+        a++;
+      }
+    }
+    Status(0);
+    Sort(&texts, lines, 1);
+    if(req || RequestWindow("Tags:",
+                            "", "A", &texts, &enter, lines)) {
+      int line;
+      string source;
+      int id;
+      string bufline;
+      string pattern;
+      int column;
+      GotoLine(1);
+      if(Search(sprintf("^%s ", enter), "wf+")) {
+        ReturnStatus("Couldn't find that tag!");
+        CurrentBuffer(originid);
+        return 0;
+      }
+      Search(":F:", "f+");
+      CursorRight(5);
+      source = ReplaceMatch("[^\"]*", "\\&");
+      Search(":L:", "f+");
+      CursorRight(4);
+      line = atoi(GetWord());
+      bufline = GetLine();
+      column = strstr(bufline, ":P:");
+      pattern = substr(bufline, column+4, -1);
+      id = GetBufferID(source);
+      if(!id) {
+        id = New();
+        CurrentBuffer(id);
+        Load(source);
+      }
+      CurrentBuffer(originid);
+      Activate(id);
+      CurrentBuffer(id);
+      GotoLine(1);
+      if(Search(pattern, "f+")) {
+        Request(sprintf("didn't fint pattern\n'%s'", pattern));
+        GotoLine(line);
+      }
+    }
+    else {
+      CurrentBuffer(originid);
+    }
+  }
+  if(ReadInfo("ETags_savemem"))
+    /*
+     * Let's save the memory the thing occupies!
+     */
+    Kill(etagid);
+}
+
+FACT('_', 'W'); /* just for now anyway! */
+
+AssignKey("JumpToETag(GetWord(), 0);", "alt shift .");
+AssignKey("JumpToETag(GetWord(), 1);", "alt .");
+
+ConstructInfo("ETags_file", "", "", "GS", "", 0, 0, "TAGS");
+ConstructInfo("ETags_savemem", "", "", "BGW", "", 0, 0, 0);

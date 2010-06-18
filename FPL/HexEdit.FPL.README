@@ -1,0 +1,26 @@
+############################################
+File: HexEdit.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: edit the buffer by typing hexadecimal values
+Version: 1.0
+Date: 16.9.94
+Local settings: hex_edit
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+############################################
+
+FUNCTION
+  HexEdit() is hooked to 'Output()' and is called when the local setting
+'hex_edit' is set and you press a key.
+
+  HexEdit() translates the hexadecimal number you press and change the
+current nybble (high first).  The cursor will be moved when the low nybble
+is changed.
+
+
+SEE ALSO
+  FACT_hex.FPL
+

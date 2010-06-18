@@ -1,0 +1,20 @@
+############################################
+File:		BufferInfo.FPL
+Author:		Kjell Ericson
+Email:		FidoNet 2:201/328, kjer@netcom.se
+Short:		Show a requester with some helpfull buffer information.
+Version:	1.2
+Date:		20.1.95
+Local settings:
+Global settings:
+Keysequence:	Amiga 'help'
+Type:		function
+Prereq:
+############################################
+
+FUNCTION
+  A requester will be made to give you some usefull information about the 
+buffer.
+
+HISTORY
+  1.2 - Daniel Stenberg, Replaced all Sprintf()s with sprintf()s.

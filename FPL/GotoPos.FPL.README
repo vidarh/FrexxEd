@@ -1,0 +1,17 @@
+############################################
+File: GotoPos.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Moves the cursor to the specified byte position
+Version: 1.0
+Date: 1.5.94
+Local settings:
+Global settings:
+Keysequence: "alt p"
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  Presents an integer requester to the user, and moves the cursor to the
+entered byte position of the current buffer.

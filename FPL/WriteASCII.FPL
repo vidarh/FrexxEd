@@ -1,0 +1,7 @@
+export int WriteASCII()	/* Enter a ASCII value */
+{
+  string ascii=PromptString("Give ASCII");
+  if (strlen(ascii))
+    Output(itoc(strtol(ascii, 0)));
+}
+AssignKey("WriteASCII();", "Amiga Control a");

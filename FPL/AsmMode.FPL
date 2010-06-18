@@ -1,0 +1,235 @@
+// $Id: AsmMode.FPL 1.13 1996/08/13 09:00:05 jskov Exp $
+// $VER: AsmMode.FPL 1.0 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» AsmModePrefs() ««
+void export AsmModePrefs()
+{
+  string comment_start_skip = ReadInfo("Asm_comment_start_skip");
+  string comment_start = ReadInfo("Asm_comment_start");
+  string comment_end = ReadInfo("Asm_comment_end");
+  string line_comment_start = ReadInfo("Asm_line_comment_start");
+  string line_comment_body = ReadInfo("Asm_line_comment_body");
+  string line_comment_end = ReadInfo("Asm_line_comment_end");
+  
+  int tab_size = ReadInfo("Asm_tab_size");
+  int comment_column = ReadInfo("Asm_comment_column");
+  int auto_indent =  ReadInfo("Asm_auto_indent");
+  int face_mode =  ReadInfo("Asm_face_mode");
+  
+  RequestWindow("AsmMode Preferences",20,
+    "comment_start_skip", "s", &comment_start_skip,
+    "comment_start", "s", &comment_start,
+    "comment_end", "s", &comment_end,
+    "line_comment_start", "s", &line_comment_start,
+    "line_comment_body", "s", &line_comment_body,
+    "line_comment_end", "s", &line_comment_end,
+    "tab_size", "i", &tab_size,
+    "comment_column", "i", &comment_column,
+    "auto_indent", "b", &auto_indent,
+    "face_mode", "b", &face_mode
+  );
+  
+  SetInfo(0,"Asm_comment_start_skip", comment_start_skip);
+  SetInfo(0,"Asm_comment_start",comment_start);
+  SetInfo(0,"Asm_comment_end",comment_end);
+  SetInfo(0,"Asm_line_comment_start",line_comment_start);
+  SetInfo(0,"Asm_line_comment_body",line_comment_body);
+  SetInfo(0,"Asm_line_comment_end",line_comment_end);
+  SetInfo(0,"Asm_tab_size",tab_size);
+  SetInfo(0,"Asm_comment_column",comment_column);
+  SetInfo(0,"Asm_auto_indent",auto_indent);
+  SetInfo(0,"Asm_face_mode",face_mode);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» FindMatch() ««
+// This function is used when searching for registers.
+//»»»»»»»»»»»»»»»»»»»»»»»»»»
+/*
+string FindMatch(string src)
+{
+  if (0==Search(src, "=flbw+")){			// Use search until b+ in ReplaceMatch()
+	if ((ReadInfo("line")>=ReadInfo("block_end_y"))&&(ReadInfo("column")>=ReadInfo("block_end_x"))) return ""; // BUG FIXER
+
+	string result="";						// gets fixed!
+	CursorLeft();
+	result=ReplaceMatch(src, "\\&", -1, "=flw+");
+	CursorRight(strlen(result));
+	return result
+  } else return "";
+
+}
+*/
+
+string FindMatch2(string src)				// Use BUG to gain speed!
+{
+  string result=ReplaceMatch(src, "\\&", -1, "=flw+");
+  if ((ReadInfo("line")>=ReadInfo("block_end_y"))&&(ReadInfo("column")>=ReadInfo("block_end_x"))) return "";
+  CursorRight(strlen(result));
+  return result;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» UsedRegisters() ««
+export void UsedRegisters()
+
+{
+  if (!ReadInfo("block_exist")){			// Make sure that a block is marked
+	ReturnStatus("No block marked!");
+  } else {
+	int registers[16];
+	int beg,end, i, used;
+	string match;
+	string output="Used registers:";
+	int x=ReadInfo("byte_position");
+	int y=ReadInfo("line");
+	int oldVis=Visible(0);
+
+	if (ReadInfo("block_exist")==1) BlockMark(2); // Release block if needed
+
+	GotoLine(ReadInfo("block_begin_y"),ReadInfo("block_begin_x")); // start of block
+
+	// Search for "Rx" or "Rx-Ry"
+	while (strlen(match=FindMatch2("(\\<[da][01234567]-[da][01234567]\\>)|(\\<[da][01234567]\\>)"))){
+	  beg=match[1]-'0'+8*(match[0]=='a'||match[0]=='A');
+	  if (strlen(match)==2){
+		// A single register
+		registers[beg]=1;
+	  } else {
+		end=match[4]-'0'+8*(match[3]=='a'||match[3]=='A');
+		while (beg<=end) registers[beg++]=1;
+	  }
+	}
+
+	for (i=0;i<8;i++)
+	if (registers[i]){
+	  output+=" D"+itoc(0x30+i);
+	  used++;
+	}
+
+	for (i=8;i<16;i++)
+	if (registers[i]){
+	  output+=" A"+itoc(0x28+i);
+	  used++;
+	}
+
+	if (!used) output+=" NONE";
+
+	GotoLine(y,x);
+
+	Visible(oldVis);
+
+	ReturnStatus(output);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» autoIndent() ««
+void export autoIndent()
+{
+  if (ReadInfo("byte_position")){
+	string s = GetLine();
+	int i;
+
+	for(i=0;(!Isnewline(s[i])&&(Isspace(s[i])));i++);
+
+	if (Isnewline(s[i])){						// Empty line?
+	  // Empty line
+	  GotoLine(ReadInfo("line"));
+	  DeleteEol();
+	  Output("\n");
+	} else
+      // non-empty line
+	  Output("\n"+substr(s,0,i));
+  } else
+    Output("\n");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» AssemblerModeInit() ««
+export void AsmModeInit()
+{
+  // Set comment strings for assembler mode
+  SetInfo(-1,"comment_start_skip",ReadInfo("Asm_comment_start_skip"));
+  SetInfo(-1,"comment_start",ReadInfo("Asm_comment_start"));
+  SetInfo(-1,"comment_end",ReadInfo("Asm_comment_end"));
+  SetInfo(-1,"line_comment_start",ReadInfo("Asm_line_comment_start"));
+  SetInfo(-1,"line_comment_body",ReadInfo("Asm_line_comment_body"));
+  SetInfo(-1,"line_comment_end",ReadInfo("Asm_line_comment_end"));
+  SetInfo(-1,"comment_column",ReadInfo("Asm_comment_column")); // set comment col
+  SetInfo(-1,"comment_mode",1);				// enable comment mode
+
+  SetInfo(-1,"comment_begin",";");			// Set fold comment
+
+  if(ReadInfo("Asm_face_mode"))
+	SetInfo(-1, "face", "asm");
+  else
+    SetInfo(-1, "face", "");
+  
+  SetInfo(-1,"tab_size",ReadInfo("Asm_tab_size")); // Set tabulator size
+
+  SetInfo(-1,"asm_mode",1);					// enable self
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Face ««
+{
+  int face = FaceGet("asm", 1); /* create one if missing */
+  if(face) {
+    int style;
+
+    /* Get the style named "asm-directives" OR create one that is bold with
+       foreground pen 3 and background pen 0. If none matched and none
+       could be created, it will return the style of the best match and
+       no style will be named like this. */
+    style = FaceStyle("asm-directives", "bold", 1, 0);
+    FaceAdd(face,  /* add word(s) to this face */
+            style, /* use the asm-directives style */
+			/* Specify all words we want to add to this face with this
+               particular style, we can of course add more words at a
+			   later time */
+			   "INCLUDE|INCEQU|INCBIN|OPT|"
+			   "MACRO|ENDM|MEXIT|"
+			   "CNOP|EVEN|ODD|"
+			   "REPT|ENDR|"
+			   "IF|IFEQ|IFNE|IFD|IFND|IFC|ELSE|ENDIF|ENDC|ENDASM|ASM|"
+			   "EQU|SET|EQUR|REG|"
+			   "XREF|XDEF|PUBLIC|"
+			   "RCRESET|RCSET",
+			   "word" /* these are word-only matches, that must be surrounded
+                      with non-word letters to get recognized */
+            );
+			
+    style = FaceStyle("asm-comments", "", 2, 0);
+    FaceAdd(face, style, "*", "1nonspace", "\n");
+    FaceAdd(face, style, ";", "anywhere|strong", "\n");
+    FaceAdd(face, style, "/*", "anywhere|strong", "*/");
+  }
+  /* else
+    face is 0, which means GetFace() failed somehow! */
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("UsedRegisters();","control c r", "asm_mode");
+AssignKey("autoIndent();","'return'","asm_mode&Asm_auto_indent");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» AsmMode preferences ««
+ConstructInfo("Asm_comment_start_skip","","","WHGS","",0,0,"; *");
+ConstructInfo("Asm_comment_start","","","WHGS","",0,0,"; ");
+ConstructInfo("Asm_comment_end","","","WHGS","",0,0,"");
+ConstructInfo("Asm_line_comment_body","","","WHGS","",0,0,"»");
+ConstructInfo("Asm_line_comment_end","","","WHGS","",0,0,"««");
+ConstructInfo("Asm_line_comment_start","","","WHGS","",0,0,"*");
+
+ConstructInfo("Asm_comment_column","","","WHGI","",0,9999,49);
+
+ConstructInfo("Asm_tab_size","","","WHGI","",0,9999,8);
+
+ConstructInfo("Asm_auto_indent","","","WBGH","",0,1,1);
+
+ConstructInfo("Asm_face_mode","","","WBGH","",0,1,1);
+
+ConstructInfo("asm_mode","","","LBH","",0,1,0);
+
+AddMode(0,"asm_mode", "", "");				// Add as minor mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» AsmMode menu ««
+MenuAdd("s", "AsmMode...", "AsmModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();
+

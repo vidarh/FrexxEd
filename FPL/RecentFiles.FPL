@@ -1,0 +1,101 @@
+string menuname="Recent files";
+int    menupos=-1;
+
+string files[11];
+int myitem,existitems;
+
+int FindEntry(string name,int menu)
+{
+ string title,anme,fpl,key;
+ int myentry;
+ myentry=0;anme="";
+ while ((strcmp(anme,name))&&(myentry<64)){
+ myentry++;
+ MenuRead(&title,&anme,&fpl,&key,menu,myentry);
+ }
+ return(myentry);
+
+}
+
+void ReadProjectMenu()
+{
+ int cnt;
+ string title,fpl,key,iname;
+ if (64==(myitem=FindEntry(menuname,1)))
+ {
+ MenuAdd("i","Recent files","","",1,menupos);
+ MenuBuild();myitem=FindEntry(menuname,1);
+ }
+ existitems=0;
+ for(cnt=1;cnt<11;cnt++){files[cnt]="";};
+ for(cnt=1;cnt<64;cnt++)
+ {
+  MenuRead(&title,&iname,&fpl,&key,1,myitem,cnt);
+  if (! strcmp(title,"subitem"))
+   {
+    if (cnt<11){files[cnt]=iname;};
+    existitems++;
+   } ;
+ }
+}
+
+void AddFile(string name)
+{
+ int cnt,ispresent;
+ ReadProjectMenu();
+ ispresent=0;
+ for (cnt=1;cnt<10;cnt++){if (! strcmp(name,files[cnt])){ispresent=1;};}
+ if (! ispresent){
+ files[0]=name;
+ for (cnt=0;cnt<existitems;cnt++){MenuDelete(1,myitem,1);};
+ for (cnt=0;cnt<10;cnt++)
+ {
+  if (strlen(files[cnt]))
+   {
+     MenuAdd("s",files[cnt],
+     joinstr("Open(\"",files[cnt],"\");")
+     ,"",1,myitem,cnt+1);
+   }
+ }
+ MenuBuild();
+ }
+}
+
+export int SaveHotList()
+{
+  int cnt,bid,obid;
+  ReadProjectMenu();
+  obid=CurrentBuffer(PrevBuffer());
+  bid=New();
+  CurrentBuffer(bid);
+  for (cnt=1;cnt<11;cnt++){Output(files[cnt]);Output("\n");};
+  Clean("Save(\"FrexxEd:FilesHotList\");");
+  CurrentBuffer(obid);Kill(bid);
+  return(0);
+}
+
+export int NewHotEntry()
+{
+ AddFile(ReadInfo("full_file_name"));
+ return(0);
+}
+
+void InitMenuAndList()
+{
+ int bid,obid,done;
+ string filename;
+ ReadProjectMenu();
+ obid=CurrentBuffer(PrevBuffer());
+ bid=New();
+ CurrentBuffer(bid);done=1;Clean("Load(\"FrexxEd:FilesHotList\");");
+ while (done)
+ {
+  filename=GetLine();CursorDown();filename=substr(filename,0,strlen(filename)-1);
+  if (strlen(filename)) { AddFile(filename);}else{done=0;}; 
+ }
+ CurrentBuffer(obid);Kill(bid);
+}
+
+Hook("QuitAll", "SaveHotList();");
+Hook("Save", "NewHotEntry();");
+InitMenuAndList();

@@ -1,0 +1,1664 @@
+;#############################################################################
+;
+; $VER: 3.2 install_FrexxEd (6.6.95)
+;
+; Start this installer script by double-clicking on one of its icons, or by
+; running one of the "install_XXXXXX.sh" scripts in a shell.
+;
+; Copyright (C) by FrexxWare 1994
+; Written by Daniel Stenberg and Per-Anders Josefsson
+;
+; Polish by Robert Ramiega (robert@magnum.lodz.pl)
+; Dutch by Michiel Willems (Michiel@aobh.hacktic.nl)
+; Italian by Massimiliano De Otto (deotto@cs.unibo.it)
+; German by Rolf Kunisch (obelhawk@cs.tu-berlin.de)
+; French by Stephane ZERMATTEN (zed@amigazed.alphanet.ch)
+; Norwegian by Jon-Inge Paulsen.
+;
+; Thank you - *very* much - dudes!
+;
+; * Added norwegian texts.
+; * Asks the user and if yes is answered, all FPL files that is to be
+;   replaced are copied to the oldFPL/ directory!
+; * Creates a directory with the proper name when installing french
+;   catalog.
+;
+; 3.2 - no longer installs fastgraphics.library, it doesn't work with v2
+;       anyway
+;
+;#############################################################################
+
+;;;;;;;;;;;;;;;;;;;;;; NEW FOR FREXXED 1.8 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(set txt_alreadyinstalled "%s is already installed!")
+
+(set txt_askbackup "Backup FPL-programs that are replaced with new ones?")
+
+(set txt_askbackuphelp (cat "Installer is about to copy a lot of FPL-programs "
+    "to the FrexxEd:FPL/ directory. If you have done some changes to any "
+    "of the programs in the distribution, and would like to keep those "
+    "changes, press 'yes' now, and all FPL programs that are replaced with "
+    "a different one will be copied into FrexxEd:oldFPL/.  NOTE: This "
+    "doesn't include User.FPL. User.FPL is meant to get changed and won't "
+    "be updated by installer!"))
+
+(set txt_backupfilestext (cat "The following files were copied to "
+                              "this directory when FrexxEd "
+                              "was updated:\n"))
+
+;;;;;;;;;;;;;; two new strings from version 0.97!! ;;;;;;;;;;;;;;;;;;
+
+(set txt_MagicWBIcons "Would you like to install MagicWB Icons?")
+
+(set txt_MagicWBHelp (cat "Magic WB is an application that enhances the "
+    "look of your Workbench. It gives oppurtunity to use extra fancy icons "
+    "due to more colors."))
+
+;;;;;;;;;;;; Let's make the default phrases in English! ;;;;;;;;;;;;;;
+
+(set txt_NoVersion (cat
+  "FrexxEd can't run under version %ld of AmigaDOS! "
+  "Select \"Install\" if you still want to install FrexxEd "
+  "or press \"Cancel\" to "
+  "stop the installation process.")
+)
+(set txt_NoVersionHelp (cat
+  "If you intend to run a newer version of AmigaDOS within a limited "
+  "period, it might make sense to install FrexxEd even if it can't "
+  "be used until that upgrade. If you are not considering upgrading "
+  "to at least version 2.04, then you should cancel the installation "
+  "right now and forget about using FrexxEd!")
+)
+(set txt_AbortMsg
+  "Nothing was installed!"
+)
+(set txt_Install
+  "Install"
+)
+(set txt_Cancel
+  "Cancel"
+)
+(set txt_Destination (cat
+  "Your current copy of the FrexxEd package seems to be located in "
+  "the drawer \"%s\". Do you want the update to be "
+  "installed there?")
+)
+(set txt_DestinationHelp (cat
+  "The installer has determined that you already have a copy "
+  "of FrexxEd installed on your system (you have the FREXXED: "
+  "assign set to \"%s\"). If this is wrong, or "
+  "you want the update installed elsewhere, select NO as an "
+  "answer. Otherwise, select YES.")
+)
+(set txt_DrawerPrompt (cat
+  "In which drawer do you want your FrexxEd files to be installed? (No "
+  "directory will be made by the installer.) The "
+  "executable file is _not_ included, it will be copied separately. ")
+)
+(set txt_OutOfSpace (cat
+  "A complete FrexxEd installation requires at least 900 kb "
+  "free space, but the selected target device " 
+   "%s: has only %ld kb available. "
+  "Restart installation and select a new target, or clean "
+  "this one up so that more disk space will become "
+  "available!")
+)
+(set txt_SelectLangs
+  "Select the languages that you want installed!"
+)
+(set txt_SelectLangsHelp (cat
+  "From AmigaDOS version 2.1, there is locale support "
+  "for software to keep databases for different "
+  "languages to support output in your native language.\n"
+  "Select the languages that you think you will use, now or "
+  "in the future. You can of course install more/different "
+  "catalogs at a later time. More catalogs are likely to "
+  "appear in future releases and revisions!")
+)
+(set txt_FrexxEddir
+  "Specify a drawer to put the FrexxEd executable in! "
+)
+(set txt_FrexxEddirHelp (cat
+  "The FrexxEd executable is the actual editor. FrexxEd: is used "
+  "by the editor to find the rest of the FrexxEd files, but this "
+  "does not have to be placed among the other in the file tree.\n"
+  "Selecting a drawer which you already have included in your "
+  "path will enable you to run FrexxEd from anywhere without "
+  "changing your path.")
+)
+(set txt_PromptStartup (cat
+  "Add these lines to s:user-startup?\n\n"
+  "assign FrexxEd: \"%s\"\n")
+)
+(set txt_And
+  "and "
+)
+(set txt_PackersAvail (cat
+  "FrexxEd can take advantage of the custom libraries found in your "
+  "LIBS: partition/drawer named %s for file compression/"
+  "decompression and encryption/decryption. Files compressed with "
+  "such a library will be unpacked at load time!")
+)
+(set txt_PackersNonAvail (cat
+  "To be able to use such goodies as file compression/decompression "
+  "and encryption/decryption, FrexxEd requires the custom libraries "
+  "xpkmaster.library and/or powerpacker.library! They are not present "
+  "in your system, so to use the functions mentioned, get them!")
+)
+(set txt_LocaleDir (cat
+  "Would you like to put the catalogs in the LOCALE:catalogs/ "
+  "or in the FREXXED:catalogs/ drawer/partition? (putting it in the "
+  "latter drawer will force the executable file to be stored in "
+  "FREXXED:) ")
+)
+(set txt_LocaleDirHelp (cat
+  "The installer has to know where you want the catalogs installed. "
+  "The system will look for them in Locale:Catalogs/ and in "
+  "PROGDIR:Catalogs/ (which in this case means FREXXED:Catalogs/). "
+  "You choose where to put them! Remember that if you choose to put "
+  "them in FREXXED:Catalogs/, the installer will have to put the "
+  "FrexxEd executable in FREXXED:.")
+)
+(set txt_LibsDir
+  "Enter drawer/partition to install the libraries in!"
+)
+
+
+(if (= @language "english")
+  (
+    (set langbit 2)	; used below when selecting language to install
+
+  )
+)
+
+(if (= @language "polski")
+  (
+    (set langbit 32)
+    (set txt_NoVersion (cat
+	"FrexxEd nie bëdzie dziaîaî z wersjâ %ld AmigaDOS! "
+	"Wybierz \"Instaluj\" jeûeli chcesz zainstalowaê "
+	"FrexxEd\'a mimo to lub wybierz \"Zaniechaj\" by "
+	"przerwaê instalacjë.")
+    )
+    (set txt_NoVersionHelp (cat
+	"Jeûeli w najbliûszym czasie masz zamiar zainstalowaê "
+	"nowszâ wersjë AmigaDos, to zainstalowanie FrexxEd\'a "
+	"moûe byê dobrym pomysîem (mimo, ûe do czasu upgrade'u "
+	"nie bëdziesz mógî go uûywaê). Jeûeli, natomiast nie "
+	"masz zamiaru zainstalowaê AmigaDos w wersji co najmniej "
+	"2.04, to wybierz \"Zaniechaj\" i zapomnij o FrexxEd\'zie.")
+    )
+    (set txt_AbortMsg 
+	"Nic nie zostaîo zainstalowane!"
+    )
+    (set txt_Install
+	"Instalowaê"
+    )
+    (set txt_Cancel
+	"Zaniechaj"
+    )
+    (set txt_Destination (cat
+	"Wydaje sië, ûe masz zainstalowanego FrexxEd\'a w "
+	"katalogu \"%s\". Chcesz by nowsza wersja byîa "
+	"tam zainstalowana ?")
+   )
+   (set txt_DestinationHelp (cat
+	"Installer ustaliî, ûe juû masz zainstalowanâ kopië "
+	"FrexxEd\'a w swoim systemie (przypisanie FREXXED: "
+	"wskazuje na katalog \"%s\"). Jeûei nie jest to prawdâ "
+	"lub chcesz nowszâ wersjë zainstalowaê w innym miejscu,"
+	"wybierz NIE. W przeciwnym przypadku wybierz TAK")
+   )
+   (set txt_DrawerPrompt (cat
+	"Gdzie chcesz zainstalowaê zbiory FrexxEd\'a? Nie "
+	"dotyczy to samego programu (bëdzie on skopiowany osobno)")
+   )
+   (set txt_OutOfSpace (cat
+	"Peîna instalacja FrexxEd\'a wymaga przynajmniej 900 kb "
+	"wolnego miejsca, a na wskazanym urzâdzeniu "
+	"%s wolnych jest tylko %ld kb."
+	"Wystartuj program instalacyjny ponownie i wybierz "
+	"inne miejsce lub wyczyôê to miejsce tak, by "
+	"byîo wiëcej miejsca!")
+   )
+   (set txt_SelectLangs
+	"Wybierz wersje jëzykowe, do zainstalowania"
+   )
+   (set txt_SelectLangsHelp (cat
+	"Od wersji 2.1 wzwyû AmigaDOS pozwala na wykorzystywanie "
+	"tzw. lokalizacji. Pozwala to aplikacjom na uûywanie "
+	"twojego ojczystego jëzyka\n "
+	"Wybierz te wersje jëzykowe, które chcesz uûywaê, teraz "
+	"lub w przyszîoêi. Oczywiôcie w kaûdej chwili moûesz "
+	"doinstalowaê pozostaîe/inne katalogi. W nastëpnych "
+	"wersjach FrexxEd\'a ich liczba moûe wzrosnâê.")
+   )
+   (set txt_FrexxEddir (cat
+	"Wskaû gdzie ma zostaê skopiowany program FrexxEd")
+   )
+   (set txt_FrexxEddirHelp (cat
+	"Zbiór wykonywalny FrexxEd\'a to wîaôciwy edytor."
+	"FREXXED: jest przez niego uûywane by znaleúê "
+	"pozostaîe zbiory, ten zbiór natomiast nie musi "
+	"sië znajdowaê wôród nich.\n"
+	"Wybierajâc katalog, który jet juû umieszczony "
+	"w ôcieûce pozwoli ci na wywoîanie FrexxEd'a "
+	"z dowolnego miejsca bez potrzeby jej zmiany.")
+   )
+   (set txt_PromptStartup (cat
+	"Dodaê poniûsze linie do S:User-Startup?\n\n"
+	"assign FrexxEd: \"%s\"\n")
+   )
+   (set txt_And
+	"i "
+   )
+   (set txt_PackersAvail (cat
+	"FrexxEd moûe korzystaê z pewnych niestandardowych "
+	"bibliotek znalezionych w katalogu LIBS: o nazwie "
+	"%s (do kompresji/dekompresji zbiorów oraz do ich "
+	"utajnienia). Takie skompresowane, przy uûyciu tych "
+	"bibliotek, zbiory bëdâ automatycznie rozpakowywane "
+	"w trakcie wczytywania!")
+   )
+   (set txt_PackersNoAvail (cat
+	"By móc uûywaê takich dobrodziejstw jak (de)kompresja "
+	"i utajnianie zbiorów, FrexxEd potrzebuje biblotek "
+	"xpkmaster.library i/lub powerpacker.library! Nie ma "
+	"ich jednak zainstalowanych w Twoim systemie, zatem by "
+	"móc uûywaê wymienionych wczeôniej funkcji zdobâdú je!")
+   )
+   (set txt_LocaleDir (cat
+	"Czy chciaîbyô zbiory katalogowe skopiowaê do LOCALE:catalogs/ "
+	"czy teû do FREXXED:catalogs? (wybranie tej drugiej moûliwoôci "
+	"wymusi umieszczenie w FREXXED: zbioru wykonywalnego edytora) ")
+   )
+   (set txt_LocaleDirHelp (cat
+	"Installer musi wiedzieê gdzie ma skopiowaê zbiory katalogowe."
+	"System bëdzie ich szukaî w katalogu LOCALE:Catalogs/ a "
+	"nastëpnie w PROGDIR:Catalogs/ (co w tym wypadku oznacza "
+	"FREXXED:Catalogs). Ty musisz wybraê gdzie majâ zostaê "
+	"skopiowane! Pamiëtaj, ûe w tym drugim przypadku zbiór "
+	"wykonywalny FrexxEd musi zostaê skopiowany do FREXXED:")
+   )
+   (set txt_LibsDir 
+	"Wskaû gdzie zainstalowaê biblioteki."
+   )
+  )
+)
+
+(if (= @language "italiano")
+  (
+    (set langbit 8)     ; used below when selecting language to install
+    (set txt_NoVersion (cat            
+      "FrexxEd non può funzionare con la versione %ld di AmigaDOS! "
+      "Seleziona \"Installa\" se hai ancora intenzione di installare FrexxEd "
+      "o premi \"Cancella\" per "
+      "interrompere l'installazione.")
+    )
+    (set txt_NoVersionHelp (cat
+
+      "Se hai intenzione di montare una versione più recente di AmigaDOS entro "
+      "breve potrebbe aver senso installare FrexxEd anche se non potrà essere "
+      "utilizzato fino all'aggiornamento. Se non hai intenzione di aggiornarti "
+      "almeno alla versione 2.04, allora è  meglio che cancelli subito l'installazione "
+      "e rinunci all'idea di utilizzare FrexxEd!")
+    )
+    (set txt_AbortMsg
+      "Non ho installato niente!"
+    )
+    (set txt_Install
+      "Installa"
+    )
+    (set txt_Cancel
+      "Annulla"
+    )
+    (set txt_Destination (cat
+      "La tua copia attuale di FrexxEd sembra essere memorizzata nel "
+      "cassetto \"%s\". Vuoi che anche l'aggiornamento venga installato lì?")
+    )
+    (set txt_DestinationHelp (cat
+      "Installer ha determinato che hai già una copia installata di "
+      "FrexxEd nel tuo sistema (hai FREXXED: settato a \"%s\"). "
+      "Se questo non è vero, o se vuoi installare altrove l'aggiornamento, "
+      "seleziona NO. Altrimenti, seleziona SI.")
+    )
+    (set txt_DrawerPrompt (cat
+      "Dove vuoi che vengano installati i file di FrexxEd? Il "
+      "file eseguibile _non_ è incluso, verrà copiato separatamente.")
+    )
+    (set txt_OutOfSpace (cat
+      "Un'installazione completa di FrexxEd richiede almeno 900 Kb "
+      "liberi su disco, ma il dispositivo scelto %s: possiede solo "
+      "%ld Kb disponibili. "
+      "Riesegui l'installazione e seleziona una nuova destinazione, oppure "
+      "'ripulisci' questa così da rendere disponibile più spazio!")
+    )
+    (set txt_SelectLangs
+      "Seleziona i linguaggi che vuoi installare!"
+    )
+    (set txt_SelectLangsHelp (cat
+      "A partire dalla versione 2.1 di AmigaDOS, esiste un "
+      "supporto locale che permette al software di mantenere degli "
+      "archivi per diversi linguaggi, per avere l'output nel "
+      "tuo linguaggio di origine.\n"
+      "Seleziona i linguaggi che ritieni che utilizzerai, ora o "
+      "in seguito. Ovviamente potrai installare più/differenti "
+      "cataloghi più avanti. E` probabile che appariranno altri "
+      "cataloghi in future versioni e revisioni!")
+    )
+    (set txt_FrexxEddir
+      "Specifica un cassetto dove inserire l'eseguibile! "
+    )
+    (set txt_FrexxEddirHelp (cat
+      "L'eseguibile FrexxEd è l'editor effettivo. FrexxEd: è usato "
+      "dall'editor per trovare il resto dei file, ma non deve essere "
+      "inserito tra gli altri nella lista dei file.\n"
+      "Se selezioni un cassetto che hai già incluso nel tuo path "
+      "potrai eseguire FrexxEd senza aver bisogno di cambiare path.")
+    )
+    (set txt_PromptStartup (cat
+      "Inserisco queste linee in s:user-startup?\n\n"
+      "assign FrexxEd: \"%s\"\n")
+    )
+    (set txt_And
+      "e "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd può trarre vantaggio dalle librerie %s trovate "
+      "nel tuo cassetto/partizione LIBS: per la compressione/decompressione "
+      "e la codifica/decodifica dei file. I file compressi con questa libreria "
+      "saranno decompressi durante il caricamento!")
+    )
+    (set txt_PackersNonAvail (cat
+      "Per poter utilizzare le caratteristiche di compressione/decompressione "
+      "e di codifica/decodifica dei file, FrexxEd richiede la xpkmaster.library "
+      " e/o la powerpacker.library! Esse non sono presenti nel tuo sistem, perciò "
+      "te le devi procurare per sfruttare le caratteristiche menzionate!")
+    )
+    (set txt_LocaleDir (cat
+      "Vuoi inserire i cataloghi nel cassetto/partizione LOCALE:Catalogs/ "
+      "oppure in FREXXED: ? (Inserirli in quest'ultimo comporterà l'installazione "
+      "dell'eseguibile in FREXXED:) ")
+    )
+    (set txt_LocaleDirHelp (cat
+      "Installer deve sapere dove vuoi installare i cataloghi."
+      "Il sistema li cercherà in Locale:Catalogs/ ed in "
+      "PROGDIR:Catalogs/ (In questo caso FREXXED:Catalogs/). "
+      "Scegli dove inserirli! Ricorda che se scegli di metterli in "
+      "FREXXED:Catalogs/, installer dovrà mettere l'eseguibile in FREXXED:.")
+    )
+    (set txt_LibsDir
+      "Inserisci il cassetto/partizione dove installare le librerie!"
+    )
+
+
+    (set txt_MagicWBIcons "Vuoi installare le icone stile MagicWB?")
+
+    (set txt_MagicWBHelp (cat "Magic WB è un'applicazione che migliora l'aspetto del "
+     "tuo Workbench. Essa offre l'opportunità di usare icone extra (molto carine) in quanto "
+     "vengono utilizzati più colori."))
+  )
+)
+
+(if (= @language "deutsch")
+  (
+    (set langbit 4)     ; used below when selecting language to install
+    (set txt_NoVersion (cat
+      "FrexxEd läuft nicht mit der Version %ld von AmigaDOS! "
+      "Wählen Sie \"Fortfahren\", um FrexxEd dennoch zu installieren, "
+      "oder \"Abbruch\", um die Installation zu beenden.")
+    )
+    (set txt_NoVersionHelp (cat
+      "Wenn Sie beabsichtigen, in kürzerer Zeit auf eine neuere Version "
+      "des AmigaDOS umzusteigen, kann es sinnvoll sein, FrexxEd dennoch "
+      "zu installieren, auch wenn man ihn bis dahin nicht benutzen kann. "
+      "Sollten Sie nicht daran denken wenigstens auf Version 2.04 des "
+      "AmigaDOS umzusteigen, brechen Sie die Installation hier ab "
+      "und verzichten Sie auf die Benutzung von FrexxEd ganz.")
+    )
+    (set txt_AbortMsg
+      "Die Installation wurde abgebrochen, ohne etwas zu installieren."
+    )
+    (set txt_Install
+      "Fortfahren"
+    )
+    (set txt_Cancel
+      "Abbruch"
+    )
+    (set txt_Destination (cat
+      "Ihre aktuelle Version des FrexxEd-Pakets scheint sich in dem "
+      "Verzeichnis \"%s\" zu befinden. Wollen Sie die "
+      "neue Version dorthin kopieren?")
+    )
+    (set txt_DestinationHelp (cat
+      "Der Installer hat festgestellt, daß Sie bereits eine Version "
+      "des FrexxEd in Ihrem System installiert haben (Sie haben das "
+      "logische Laufwerk FREXXED: dem Verzeichnis \"%s\" zugewiesen). "
+      "Wollen Sie die neue Version dorthin kopieren, dann wählen Sie "
+      "\"Ja\" ansonsten wählen Sie \"Nein\", um ein anderes "
+      "Verzeichnis anzugeben.")
+    )
+    (set txt_DrawerPrompt (cat
+      "Wohin sollen die FrexxEd Dateien kopiert werden? "
+      "Die ausführbare Datei wird extra kopiert und ist hier "
+      "nicht enthalten.")
+    )
+    (set txt_OutOfSpace (cat
+      "Eine komplette FrexxEd-Installation benötigt wenigstens "
+      "900 KByte freien Speicherplatz. Auf dem ausgewählten "
+      "Ziellaufwerk %s sind jedoch nur %ld KByte "
+      "freier Speicherplatz verfügbar. "
+      "Starten Sie die Installation erneut mit einem anderen "
+      "Ziellaufwerk oder sorgen Sie dafür, daß auf diesem "
+      "Laufwerk 900 KByte Speicherplatz zur Verfügung stehen.")
+    )
+    (set txt_SelectLangs
+      "Wählen Sie die Sprachen, die installiert werden sollen."
+    )
+    (set txt_SelectLangsHelp (cat
+      "Ab der Version 2.1 des AmigaDOS werden unterschiedliche "
+      "Sprachen vom System unterstützt. Die Texte werden dann "
+      "in der gewünschten Sprache ausgegeben.\n"
+      "Wählen Sie bitte die Sprachen aus, von denen Sie der "
+      "Meinung sind, sie jetzt oder in Zukunft zu benutzen. "
+      "Natürlich können Sie auch mehr oder andere Sprachen "
+      "später noch installieren. In zukünftigen Versionen "
+      "werden noch weitere Sprachen folgen.")
+    )
+    (set txt_FrexxEddir (cat
+      "Wählen Sie das Verzeichnis, in das sie die ausführbare "
+      "Datei von FrexxEd kopieren wollen.")
+    )
+    (set txt_FrexxEddirHelp (cat
+      "Die ausführbare Datei von FrexxEd ist der aktuelle Editor. "
+      "Die Zuweisung \"FrexxEd:\" wird vom Editor benutzt, um die "
+      "restlichen Dateien zu finden, jedoch muß die ausführbare "
+      "Datei mit den anderen nicht zusammen gespeichert sein.\n"
+      "Wenn Sie ein Verzeichnis wählen, das schon zu Ihrem aktuellen "
+      "Suchpfad gehört, können Sie FrexxEd von überall aus starten, "
+      "ohne Ihren Suchpfad zu ändern.")
+    )
+    (set txt_PromptStartup (cat
+      "Wollen Sie, daß die folgende Zeile an Ihre Datei "
+      "S:User-Startup angehangen wird?\n\n"
+      "Assign FrexxEd: \"%s\"\n")
+    )
+    (set txt_And
+      "und "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd kann die Bibliotheken mit den Namen %s, "
+      "die sich in Ihrem LIBS:-Verzeichnis befinden zum Ver- und "
+      "Entschlüsseln sowie zum Komprimieren/Dekomprimieren von Dateien "
+      "benutzen. Derart komprimierte Dateien werden beim Laden "
+      "automatisch dekomprimiert.")
+    )
+    (set txt_PackersNonAvail (cat
+      "Um den Vorteil von Dateikomprimierung/-dekomprimierung und Ver- "
+      "und Entschlüsselung zu haben, benötigt FrexxEd die Bibliotheken "
+      "xpkmaster.library und/oder powerpacker.library. Diese sind in "
+      "Ihrem System nicht vorhanden. Um die erwähnten Funktionen nutzen "
+      "zu können, müssen Sie sich die Bibliotheken erst beschaffen.")
+    )
+    (set txt_LocaleDir (cat
+      "Wollen Sie die Sprachanpassungsdateien in das LOCALE:Catalogs/-"
+      "oder in das FREXXED:Catalogs/-Verzeichnis kopieren (bei "
+      "letzterem muß die ausführbare Datei sich in dem Verzeichnis "
+      "FREXXED: befinden)?")
+    )
+    (set txt_LocaleDirHelp (cat
+      "Der Installer muß wissen, wohin Sie die Sprachanpassungsdateien "
+      "kopiert haben wollen. Das System sucht diese Dateien sowohl im "
+      "LOCALE:Catalogs/-Verzeichnis als auch im PROGDIR:Catalogs/-"
+      "Verzeichnis. Dies bedeutet, daß in dem Verzeichnis, in dem sich "
+      "die ausführbare Datei befindet nach einem Verzeichnis Catalogs "
+      "gesucht wird. In diesem Fall heißt das, daß sowohl die "
+      "ausführbare Datei als auch das Catalogs-Verzeichnis in dem "
+      "FREXXED:-Verzeichnis befinden.")
+    )
+    (set txt_LibsDir (cat
+      "Bitte geben Sie das Verzeichnis oder Laufwerk an, in das die "
+      "Bibliotheken kopiert werden sollen.")
+    )
+  )
+)
+
+(if (= @language "svenska")
+  (
+    (set langbit 1)	; used below when selecting language to install
+    (set txt_NoVersion (cat
+      "FrexxEd kan inte köras i version %ld av AmigaDOS! "
+      "Välj \"Installera\" om du vill installera FrexxEd ändå, "
+      "eller välj \"Avbryt\" för "
+      "att avsluta installationsprocessen.")
+    )
+    (set txt_NoVersionHelp (cat
+      "Bara om du tänker uppgradera till en nyare version av AmigaDOS inom "
+      "den närmaste tiden är det vettigt att installer FrexxEd. Det kan "
+      "dock inte användas förrän du uppgraderar till minst 2.04. Om du inte "
+      "planerar att uppgradera, så avsluta på en gång och glöm FrexxEd!")
+    )
+    (set txt_AbortMsg
+      "Ingenting installerades!"
+    )
+    (set txt_Install
+      "Installera"
+    )
+    (set txt_Cancel
+      "Avbryt"
+    )
+    (set txt_Destination (cat
+      "Din nuvarande kopia av FrexxEd verkar befinna sig i "
+      "lådan \"%s\". Vill du ha uppdateringen installerad "
+      "där?")
+    )
+    (set txt_DestinationHelp (cat
+      "Installer upptäckte att du redan har en kopia av FrexxEd installerad "
+      "i ditt system (du har assignat FREXXED: till \"%s\"). Om "
+      "det är fel eller om du vill ha uppdatering installerad någon annan "
+      "stans, välj NEJ som svar. Annars, svara JA.")
+    )
+    (set txt_DrawerPrompt (cat
+      "I vilken låda vill du att dina FrexxEd filer skall installeras? "
+      "(Ingen låda kommer att skapas av installer.) Den "
+      "körbara filen är _inte_ inkluderad, utan den kopieras separat.")
+    )
+    (set txt_OutOfSpace (cat
+      "En komplett FrexxEd installation kräver ungefär 900 kb "
+      "ledigt utrymme, men den valda destinationen " 
+      "%s: har bara %ld kb tillgängligt! "
+      "Starta om installationen och välj en ny destination, eller rensa "
+      "upp på den här så att mer diskutrymme blir tillgängligt!")
+    )
+    (set txt_SelectLangs
+      "Välj de språk du vill ha installerade!"
+    )
+    (set txt_SelectLangsHelp (cat
+      "Från och med AmigaDOS version 2.1, finns det stöd "
+      "för program att hålla databaser för olika språk, för att stödja "
+      "texter skrivna på ditt eget språk.\n"
+      "Välj de språk som du tror att du kommer att använda, nu "
+      "eller i framtiden. Du kan förstås installera fler/annorlunda "
+      "kataloger vid ett senare tillfälle. Fler kataloger kommer troligen "
+      "i framtiden versioner!")
+    )
+    (set txt_FrexxEddir
+      "Välj en låda att lägga den exekverbara FrexxEd filen i! "
+    )
+    (set txt_FrexxEddirhelp (cat
+      "Den exekverbara filen FrexxEd är själva editorn. FrexxEd: används "
+      "av editorn för att hitta resten av FrexxEd:s filer, men den här filen "
+      "behöver inte vara placerad bland de andra i filträdet.\n"
+      "Om du väljer en låda som du redan har i din path, "
+      "så kommer du kunna starta FrexxEd varifrån som helst utan att ändra "
+      "din nuvarande path.")
+    )
+    (set txt_PromptStartup (cat
+      "Lägga till denna rad till s:user-startup?\n\n"
+      "assign FrexxEd: \"%s\"\n")
+    )
+    (set txt_And
+      "och "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd kan dra nytta av de bibliotek som finns i din LIBS: "
+      "låda vid namn %s för komprimering/"
+      "dekomprimering och för kryptering/dekryptering. Filer packade med "
+      "ett sådant bibliotet kommer att packas upp när de laddas in!")
+    )
+    (set txt_PackersNonAvail (cat
+      "För att kunna dra nytta av såna saker som komprimering/dekomprimering "
+      "och kryptering/dekryptering kräver FrexxEd biblioteken "
+      "xpkmaster.library och/eller powerpacker.library! De finns inte i ditt "
+      "system, så för att kunna använda de nämnda funktionerna måste du "
+      "skaffa dem!")
+    )
+    (set txt_LocaleDir (cat
+      "Vill du lägga locale-katalogerna i LOCALE:catalogs/ "
+      "eller i FREXXED:catalogs/ ? (lägger du dem i den senare lådan "
+      "tvingar du den exekverbara filen att placeras i FREXXED:)")
+    )
+    (set txt_LocaleDirHelp (cat
+      "Installer måste veta var du vill lägga locale-katalogerna. "
+      "Systemet kommer att leta efter dem i LOCALE:Catalogs/ och i "
+      "PROGDIR:Catalogs/ (vilket i det här fallet betyder FREXXED:Catalogs/). "
+      "Du väljer var du vill ha dem! Kom ihåg att ifall du väljer att lägga "
+      "dem i FREXXED:Catalogs/, så kommer installer att lägga den exekverbara "
+      "filen Fred i FREXXED:.")
+    )
+    (set txt_LibsDir
+      "Ange låda att installera biblioteken i!"
+    )
+    (set txt_MagicWBIcons "Vill du installera MagicWB-ikoner?")
+
+    (set txt_MagicWBHelp (cat "Magic WB är en applikation som förbättrar "
+       "din Workbenchs utseende. Den ger bl a möjlighet till extra snygga "
+       "ikoner med flera färger."))
+    (set txt_alreadyinstalled "%s är redan installerad!")
+
+    (set txt_askbackup "Säkerhetskopiera FPL-program som ersätts med nya versioner?")
+
+    (set txt_askbackuphelp (cat "Installer ska precis till att kopiera ett antal "
+    "FPL-program till FrexxEd:FPL/ katalogen. Om du har ändrat i någon av "
+    "de programmen som ingår i distributionen och vill behålla dem efter den "
+    "här installationen, tryck 'ja', och alla FPL-program som blir ersatta av "
+    "nyare versioner kommer att kopieras till FrexxEd:oldFPL/.  OBS: Detta "
+    "inkluderar inte User.FPL. User.FPL är till för att ändras och uppdateras "
+    "inte av installer!"))
+
+    (set txt_backupfilestext (cat "Följande filer kopierades till den här "
+                                  "katalogen när FrexxEd uppdaterades:\n"))
+  )
+)
+
+(if (= @language "nederlands")
+  (
+    (set langbit 16)	; used below when selecting language to install
+    (set txt_NoVersion (cat            
+      "FrexxEd kan niet onder versie %ld van AmigaDOS draaien! Kies \"Installeer\" als U nog steeds FrexxEd wilt installeren "
+      "of kies \"Annuleer\" om "
+      "de installatie procedure te annuleren.")
+    )
+    (set txt_NoVersionHelp (cat
+      "Als U van plan bent een nieuwere versie van AmigaDOS te gebruiken "
+      "binnen een bepaalde periode, zal het slim zijn om FrexxEd te "
+      "installeren, zelfs als U het nog niet kan gebruiken tot de upgrade. "
+      "Als U er niet eens over nadenkt om tenminste versie 2.04 te "
+      "installeren, stop deze installatie dan meteen, en vergeet het om "
+      "FrexxEd te gebruiken!")
+    )
+    (set txt_AbortMsg
+      "Niks was geinstalleerd!"
+    )
+    (set txt_Install
+      "Installeer"
+    )
+    (set txt_Cancel
+      "Annuleer"
+    )
+    (set txt_Destination (cat
+      "Uw huidige kopie van het FrexxEd pakket blijkt geplaatst te zijn "
+      "in de lade \"%s\". Wilt U de update daar installeren?")
+    )
+    (set txt_DestinationHelp (cat
+      "De installer heeft bepaald dat U al een kopie van FrexxEd "
+      "geinstalleerd heeft op Uw systeem (U heeft een assign FREXXED: "
+      "op \"%s\" staan). Als dit verkeerd is, of U wilt de update ergens "
+      "anders hebben, kies dan NEE als antwoord. Kies anders JA.")
+    )
+    (set txt_DrawerPrompt (cat
+      "Waar wilt U de FrexxEd bestanden geinstalleerd hebben? Het "
+      "bestand zelf is _niet_ hierbij ingesloten, het zal apart "
+      "gekopieerd worden.")
+    )
+    (set txt_OutOfSpace (cat
+      "Een komplete installatie van FrexxEd heeft minstens 900 kb"
+      "aan vrije ruimte nodig, maar de aangegeven eenheid "
+      "%s: heeft alleen maar %ld kb over. "
+      "Herstart de installatie en kies een nieuwe eenheid, of "
+      "maak deze schoon, zodat er meer ruimte over zal zijn!")
+    )
+    (set txt_SelectLangs
+      "Kies de talen die U geinstalleerd wilt hebben!"
+    )
+    (set txt_SelectLangsHelp (cat
+      "Vanaf AmigaDOS versie 2.1, is er lokale ondersteuning "
+      "voor software om gegevens te bewaren voor verschillende "
+      "talen.\n"
+      "Kies de taal die U het liefst gebruikt, nu of later in "
+      "de toekomst. U kunt altijd meer/andere talen installeren "
+      "voor later gebruik. Meerdere talen zullen zeker verschijnen "
+      "in toekomstige uitgaven van FrexxEd!")
+    )
+    (set txt_FrexxEddir
+      "Kies een lade waar het bestand FrexxEd in komt! "
+    )
+    (set txt_FrexxEddirHelp (cat
+      "Het bestand FrexxEd is de uiteindelijke editor. FrexxEd: wordt "
+      "gebruikt door de editor om de rest van de FrexxEd bestanden te "
+      "vinden.\n"
+      "Kies een lade die U al in Uw path heeft staan, zodat U "
+      "makkelijker FrexxEd kunt laden.")
+    )
+    (set txt_PromptStartup (cat
+      "Deze regels toevoegen aan Uw S:User-Startup?\n\n"
+      "Assign FrexxEd: \"%s\"\n")
+    )
+    (set txt_And
+      "en "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd kan gebruik maken van de libraries gevonden in Uw LIBS: "
+      "partitie/lade genoemd %s voor bestand compressie/"
+      "decompressie en encryptie/decryptie. Bestanden gecomprimeerd met "
+      "zo'n library zal uitgepakt worden tijdens het laden!")
+    )
+    (set txt_PackersNonAvail (cat
+      "Om zulke leuke dingen te gebruiken, zoals bestand compressie/"
+      "decompressie en encryptie/decryptie, heeft FrexxEd de libraries "
+      "xpkmaster.library en/of powerpacker.library nodig! Deze zijn niet "
+      "aanwezig op Uw systeem, dus om de functies te kunnen gebruiken, "
+      "haal ze dan ergens vandaan!")
+    )
+    (set txt_LocaleDir (cat
+      "Wilt U de catalogs in de LOCALE:catalogs/ of in de "
+      "FREXXED:catalogs/ lade/partitie? (Als U ze in de laatste "
+      "lade stopt, dan word het hoofdbestand opgeslagen in FREXXED:)")
+    )
+    (set txt_LocaleDirHelp (cat
+      "De installer wil graag weten waar de catalogs geplaatst moeten "
+      "worden. Het systeem zal kijken in LOCALE:Catalogs/ en in "
+      "PROGDIR:Catalogs/ (wat dus FREXXED:Catalogs/ betekend). "
+      "U kiest waar U ze wil hebben. Denk eraan dat wanneer U ze kiest "
+      "ze in FREXXED:Catalogs/ te plaatsen, de installer het hoofdbestand "
+      "in FREXXED: plaatst!")
+    )
+    (set txt_LibsDir
+      "Kies lade/partitie om de libraries te installeren!"
+    )
+  )
+)
+
+(if (= @language "français")
+  (
+    (set langbit 64)    ; used below when selecting language to install
+
+    (set txt_alreadyinstalled "%s a déjà été installé !")
+
+    (set txt_askbackup "Faut-il faire une copie de sauvegarde des programmes FPL à remplacer ?")
+
+    (set txt_askbackuphelp (cat "Installer est sur le point de copier beaucoup"
+           "de programmes FPL dans le répertoire FrexxEd:FPL. Si vous avez "
+           "modifié certains des programmes de la distribution standard "
+           "et voulez conservez ces changements, répondez 'Oui' et tous les "
+           "programmes FPL qui seront replacés par des nouvelles versions "
+           "seront copiés dans FrexxEd:oldFPL.  ATTENTION : Cela ne concerne "
+           "pas User.FPL, fait pour être modifié, et qui ne sera pas touché "
+           "par Installer !"))
+
+    (set txt_backupfilestext (cat "Les fichiers suivants ont été copiés dans "
+				  "ce répertoire quand FrexxEd a été mis "
+				  "à jour :\n"))
+
+    (set txt_MagicWBIcons "Désirez-vous installer les icones MagicWB ?")
+
+    (set txt_MagicWBHelp (cat "MagicWB est une application qui essaie "
+	"d'améliorer le look de votre Workbench. Il permet d'utiliser "
+        "des icones plus jolies et plus colorées."))
+
+    (set txt_NoVersion (cat
+      "FrexxEd ne peux pas tourner sous AmigaDOS version %ld !\n"
+      "Sélectionnez \"Installer\" si vous désirez "
+      "tout de même installer FrexxEd "
+      "ou appuyez sur \"Annuler\" pour "
+      "mettre fin à l'installation.")
+    )
+
+    (set txt_NoVersionHelp (cat
+      "Si vous prévoyez d'utiliser bientôt une version d'AmigaDOS plus récente, "
+      "vous pouvez tout de même installer FrexxEd, même s'il ne pourra "
+      "être utilisé avant la mise à jour.\nPar contre, si vous ne pensez pas installer "
+      "au moins la version 2.04 d'AmigaDOS avant longtemps, vous pouvez mettre fin "
+      "à l'installation. Mais oubliez FrexxEd !")
+    )
+    (set txt_AbortMsg
+      "Rien n'a été installé !"
+    )
+    (set txt_Install
+      "Installer"
+    )
+    (set txt_Cancel
+      "Annuler"
+    )
+    (set txt_Destination (cat
+      "Votre copie actuelle de FrexxEd semble se trouver dans le "
+      "répertoire \"%s\".\nVoulez vous installer la mise à jour "
+      "à cet endroit ?")
+    )
+    (set txt_DestinationHelp (cat
+      "Le programme d'installation pense vous avez déjà une version "
+      "de FrexxEd installée dans votre système, car FREXXED: est assigné "
+      "au répertoire \"%s\".\n\nSi ce n'est pas le cas, ou si vous voulez "
+      "installer la mise à jour dans un autre répertoire, appuyez sur "
+      "\"Non\", sinon répondez \"Oui\".")
+    )
+    (set txt_DrawerPrompt (cat
+      "Dans quel répertoire voulez-vous installer les fichier de FrexxEd ?\n"
+      "(Le programme d'installation ne créera pas de nouveau répertoire.)\n"
+      "L'exécutable sera installé séparément.")
+    )
+    (set txt_OutOfSpace (cat
+      "L'installation complète de FrexxEd nécessite au moins 900 kb "
+      "de libre, mais le périphérique choisis (%s) n'a que %ld Kb "
+      "de disponible.\n"
+      "Relancez l'installation ou choisissez un nouveau périphérique."
+      "Vous pouvez également effacer quelques fichier situés sur ce "
+      "même support pour faire de la place à FrexxEd")
+    )
+    (set txt_SelectLangs
+      "Choisissez les catalogues à installer!"
+    )
+    (set txt_SelectLangsHelp (cat
+      "A partir de la version 2.1 d'AmigaDOS, le système peut gérer "
+      "plusieurs catalogues pour chaque programmes, définissant ainsi "
+      "les différentes langues supportée par celui-ci.\n"
+      "Sélectionnez les langues que vous pensez utiliser, maintenant "
+      "ou plus tard. Bien sûr, vous pouvez installer d'autres "
+      "catalogues après l'installation, permettant de choisir d'autres langues.\n"
+      "D'autres catalogues vont certainement apparaître dans des "
+      "version futures de FrexxEd")
+    )
+    (set txt_FrexxEddir
+      "Où voulez-vous placer l'exécutable de FrexxEd ?"
+    )
+    (set txt_FrexxEddirHelp (cat
+      "L'exécutable de FrexxEd est le programme qui lance l'éditeur. FrexxEd: est "
+      "utilisé par celui-ci afin de trouver les fichier dont il a "
+      "besoin. L'exécutable lui-même peut très bien être placé ailleurs.\n"
+      "Sélectionner un répertoire que vous avez déjà inclus dans le "
+      "chemin de recherche d'AmigaDOS (PATH) vous permettra de lancer "
+      "FrexxEd quel que soit le répertoire courant.")
+    )
+    (set txt_PromptStartup (cat
+      "Dois-je ajouter ces lignes à s:user-startup ?\n\n"
+      "Assigner FrexxEd à \"%s\"\n")
+    )
+    (set txt_And
+      "et "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd peut utiliser les bibliothèques présentes dans votre "
+      "répertoire LIBS:, nommées %s pour compresser/décompresser les fichiers.\n"
+      "Les fichiers compressés par ces bibliothèques seront décompressées "
+      "automatiquement lorsque FrexxEd les chargera !")
+    )
+    (set txt_PackersNonAvail (cat
+      "Afin d'être en mesure de compresser/décompresser ou coder/décoder "
+      "des fichiers, FrexxEd a besoin des bibliothèques xpkmaster.library "
+      "et/ou powerpacker.library ! Elles ne sont pas présentes dans votre "
+      "sytème. Donc, si vous désirez utiliser de telles fonctions, "
+      "procurez vous ces merveilles !")
+    )
+    (set txt_LocaleDir (cat
+      "Voulez-vous placer les catalogues dans LOCALE:catalogs/ "
+      "ou dans FREXXED:catalogs/ ?\n(Dans ce dernier cas, l'exécutable "
+      "'Fred' devra également être placé dans FREXXED:)")
+    )
+    (set txt_LocaleDirHelp (cat
+      "Le programme d'installation a besoin de savoir ou vous désirez "
+      "installer les catalogues. (qui peuvent rendre FrexxEd polyglote !)\n"
+      "Le système les cherchera dans locale:Catalogs/, puis dans "
+      "PROGDIR:Catalogs/ (Dans ce cas, FREXXED:Catalogs/).\n\n"
+      "Vous avez le choix, mais souvenez-vous que si vous décidez de "
+      "les placer dans FREXXED:Catalogs/, il sera nécessaire de copier "
+      "l'exécutable de FrexxEd dans FREXXED:.")
+    )
+    (set txt_LibsDir
+      "Sélectionnez le répertoire ou la partition où installer les bibliothèques !"
+    )
+
+  )
+)
+
+(if (= @language "norsk")
+  (
+    (set langbit 128)	; used below when selecting language to install
+    (set txt_NoVersion (cat
+      "FrexxEd kan ikke kjøres i versjon %ld av AmigaDOS! "
+      "Velg \"Installere\" om du likevel vil installere FrexxEd, "
+      "eller velg \"Avbryt\" for "
+      "å avslutte installasjonsprosessen.")
+    )
+    (set txt_NoVersionHelp (cat
+      "Det er ikke fornuftig å installere FrexxEd dersom du ikke i den nærmeste"
+      "tiden har tenkt å oppgradere til en nyere versjon av AmigaDos."
+      "FrexxEd kan ikke brukes før du har oppgradert til minst v.2.04."
+      "Dersom du ikke har tenkt å oppgradere, avslutt nå og glem FrexxEd.")
+    )
+    (set txt_AbortMsg
+      "Ingenting ble installert!"
+    )
+    (set txt_Install
+      "Installere"
+    )
+    (set txt_Cancel
+      "Avbryt"
+    )
+    (set txt_Destination (cat
+      "Den forrige versjonen av FrexxEd pakken ser ut til å befinne seg i "
+      "skuffen \"%s\". Vil du ha oppdateringen installert "
+      "der?")
+    )
+    (set txt_DestinationHelp (cat
+      "Installer oppdaget at du alt har en kopi av FrexxEd installert "
+      "i ditt system (du har assignet FREXXED: til \"%s\"). Om "
+      "det er feil eller om du vil ha oppdateringen installert et annet "
+      "sted, svar NEI. Ellers, svar JA.")
+    )
+    (set txt_DrawerPrompt (cat
+      "I hvilken skuff vil du att dine FrexxEd filer skal installeres? "
+      "(Ingen skuff kommer til å bli laget av installer.) Den "
+      "kjørbare filen er _ikke_ inkludert, denne kopieres separat.")
+    )
+    (set txt_OutOfSpace (cat
+      "En komplett FrexxEd installasjon krever omtrent 900 kb "
+      "ledig plass, men den valgte destinasjonen " 
+      "%s: har bare %ld kb tilgjengelig! "
+      "Start installasjonen på nytt, og velg en ny destinasjon, eller rydd"
+      "opp på denne slik at mer diskplass blir tilgjengelig!")
+    )
+    (set txt_SelectLangs
+      "Velg de språk du vil ha installert!"
+    )
+    (set txt_SelectLangsHelp (cat
+      "Fra og med AmigaDOS versjon 2.1, finnes det støtte "
+      "for programmer til å ha databaser for ulike språk, for å støtte "
+      "tekster skrevet på ditt eget språk.\n"
+      "Velg de språk som du tror du kommer til å bruke, nå "
+      "eller i fremtiden. Du kan installere flere/annerledes "
+      "kataloger ved et senere tilfelle. Flere kataloger kommer trolig "
+      "i framtidige versjoner!")
+    )
+    (set txt_FrexxEddir
+      "Velg en skuffe å legge den kjørbare FrexxEd filen i! "
+    )
+    (set txt_FrexxEddirhelp (cat
+      "Den kjørbare filen FrexxEd er selve editoren. FrexxEd: brukes "
+      "av editoren for å finne resten av FrexxEd:s filer, men denne filen "
+      "trenger ikke være plassert blant de andre i filtreet.\n"
+      "Om du velger en skuffe som du alt har i din path, "
+      "så kan du starte FrexxEd hvor som helst uten å endre "
+      "din nåværende path.")
+    )
+    (set txt_PromptStartup (cat
+      "Legge til denne linjen i s:user-startup?\n\n"
+      "assign FrexxEd: \"%s\"\n")
+    )
+    (set txt_And
+      "og "
+    )
+    (set txt_PackersAvail (cat
+      "FrexxEd kan dra nytte av de biblioteker som finnes i din LIBS: "
+      "skuffe ved navn %s for komprimering/"
+      "dekomprimering og for kryptering/dekryptering. Filer pakket med "
+      "et slikt bibliotek blir pakket opp når de hentes inn!")
+    )
+    (set txt_PackersNonAvail (cat
+      "For å kunne dra nytte av funksjoner som komprimering/dekomprimering "
+      "og kryptering/dekryptering krever FrexxEd bibliotekene "
+      "xpkmaster.library og/eller powerpacker.library! De finnes ikke i ditt "
+      "system, så for å kunne anvende de nevnte funksjonene må du "
+      "skaffe dem tilveie!")
+    )
+    (set txt_LocaleDir (cat
+      "Vil du legge locale-katalogene i LOCALE:catalogs/ "
+      "eller i FREXXED:catalogs/ ? (legger du dem i den siste skuffen "
+      "tvinger du den kjørbare filen til å plasseres i FREXXED:)")
+    )
+    (set txt_LocaleDirHelp (cat
+      "Installer må vite hvor du vil legge locale-katalogene. "
+      "Systemet kommer til å lete etter dem i LOCALE:Catalogs/ og i "
+      "PROGDIR:Catalogs/ (hvilket i dette tilfellet betyr FREXXED:Catalogs/). "
+      "Du velger hvor du vil ha dem! Husk at dersom du velger å legge "
+      "dem i FREXXED:Catalogs/, så vil installer legge den kjørbare "
+      "filen FrexxEd i FREXXED:.")
+    )
+    (set txt_LibsDir
+      "Angi skuff å installere bibliotekene i!"
+    )
+    (set txt_MagicWBIcons "Vil du installere MagicWB-ikoner?")
+
+    (set txt_MagicWBHelp (cat "Magic WB er en applikasjon som forbedrer "
+       "Workbenchs utseende. Den gir bl a mulighet til ekstra vakre "
+       "ikoner med flere farger."))
+    )
+)
+
+(if (= @language "português")
+	(
+		(set langbit 256)
+		(set txt_NoVersion (cat
+			"O FrexxEd não pode ser executado usando a versão %ld do AmigaDOS! "
+			"Escolha \"Instalar\" se ainda quiser instalar o FrexxEd "
+			"ou carregue em \"Cancelar\" para "
+			"parar o processo de instalação.")
+		)
+		(set txt_NoVersionHelp (cat
+			"Se pretende usar uma versão mais recente do AmigaDOS num tempo "
+			"próximo, é capaz de fazer sentido instalar o FrexxEd mesmo que "
+			"não possa ser usado até essa altura. Se não está a considerar "
+			"usar uma versão mais recente (pelo menos 2.04) então deve "
+			"cancelar a instalação já e esquecer o FrexxEd!")
+		)
+		(set txt_AbortMsg
+			"Não foi instalado nada!"
+		)
+		(set txt_Install
+			"Instalar"
+		)
+		(set txt_Cancel
+			"Cancelar"
+		)
+		(set txt_Destination (cat
+			"A sua cópia corrente do FrexxEd parece estar localizada na "
+			"directoria \"%s\". Quer que o upgrade seja "
+			"instalado aí?")
+		)
+		(set txt_DestinationHelp (cat
+			"O programa de instalação determinou que já tem uma cópia "
+			"do FrexxEd instalado no seu sistema (Você tem o FREXXED: "
+			"assignado para \"%s\"). Se isto estiver errado, ou "
+			"você quer o upgrade instalado noutro sítio, escolha NÃO como "
+			"resposta. Caso contrário, escolha SIM.")
+		)
+		(set txt_DrawerPrompt (cat
+			"Em que directoria quer que os ficheiros do FrexxEd sejam instalados? "
+			"(Nenhuma directoria será criada pelo programa de instalação.) O "
+			"ficheiro executável _não_ é incluido, será copiado separadamente. ")
+		)
+		(set txt_OutOfSpace (cat
+			"Uma instalação completa do FrexxEd necessita de pelo menos 900 kB de "
+			"espaço livra, mas o device de destino escolhido "
+			"%s: tem apenas %ld kB livres. "
+			"Recomeçar a instalação e selecionar um novo destino, ou limpar "
+			"este para que haja mais espaço livre!")
+		)
+		(set txt_SelectLangsHelp (cat
+			"Desde o AmigaDOS versão 2.1, existe suporte de várias linguagens "
+			"desde que os programas sejam feitos com isso em mente.\n"
+			"Escolha as linguagens que pensa usar, agora ou de futuro. Claro "
+			"que pode instalar mais/diferentes catálogos num tempo futuro. "
+			"Mais catálogos irão aparecer em revisões futuras!")
+		)
+		(set txt_FrexxEddir
+			"Escolha a directoria para colocar o executável do FrexxEd! "
+		)
+		(set txt_FrexxEddirHel (cat
+			"O executável do FrexxEd é o próprio editor. FrexxEd: será usado "
+			"pelo editor para procurar o resto dos ficheiros do sistema, mas "
+			"este não necessita de ser colocado junto com os outros ficheiros.\n"
+			"Escolhendo uma directoria que você tenha já incluido no seu Path, "
+			"permitirá que execute o FrexxEd de qualquer local sem modificar o "
+			"seu Path.")
+		)
+		(set txt_PromptStartup (cat
+			"Adicionar estas linhas ao seu ficheiro s:user-startup?\n\n"
+			"Assign FrexxEd: \"%s\"\n")
+		)
+		(set txt_And
+			"e "
+		)
+		(set txt_PackersAvail (cat
+			"O FrexxEd pode tomar vantagem das livrarias existentes na sua "
+			"partição/directoria LIBS: chamadas %s para (des)compactação e "
+			"(des)encriptação. Ficheiros compactados com tal livraria "
+			"serão descompactados no processo de leitura!")
+		)
+		(set txt_PackersNonAvail (cat
+			"Para que possa usar estes utilitários como (des)compactação e "
+			"(des)encriptação de ficheiros, o FrexxEd necessita das livrarias "
+			"xpkmaster.library e/ou powerpacker.library! Estas não estâo "
+			"presentes no seu sistema. Assim, para usar as funções mencionadas, "
+			"vá procuralos a algum lugar!")
+		)
+		(set txt_LocaleDir (cat
+			"Gostaria de colocar os catálogos em LOCALE:catalogs/ "
+			"ou em FREXXED:catalogs/ ? (escolhendo a última forçará "
+			"a colocação do executável em FREXXED:) ")
+		)
+		(set txt_LocaleDirHelp (cat
+			"O programa de instalação necessita de saber onde colocar os "
+			"catálogos a instalar. O sistema procurará por eles em "
+			"Locale:Catalogs/ e em "
+			"PROGDIR:Catalogs/ (que neste caso é FREXXED:Catalogs/). "
+			"Você é que tem de escolher onde! Lembre-se que se escolher "
+			"colocalos em FREXXED:Catalogs/, o programa de instalação irá "
+			"colocar o executável FrexxEd em FREXXED:.")
+		)
+		(set txt_LibsDir
+			"Indique a partição/directoria onde instalar as livrarias!"
+		)
+	)
+)
+
+
+;*****************************************************************************
+;
+; END OF LANGUAGE DEFINES, START OF *REAL* INSTALLATION
+;
+;*****************************************************************************
+
+; Prompt users running anything lower than V37 whether installing FrexxEd
+; since it won't run on such machines!
+
+(set amigaversion (/ (getversion) 65536))
+
+(if (< amigaversion 37)
+   (if (not (askbool
+               (prompt (txt_NoVersion amigaversion))
+               (choices txt_Install txt_Cancel)
+               (help txt_NoVersionHelp)
+            )
+       )
+       (abort txt_AbortMsg)
+   )
+)
+
+(complete 5)
+
+(set previnstall (getassign "FrexxEd" "a"))
+
+; Get FrexxEd: directory
+(set frexxdest (getassign "FrexxEd" "a"))
+
+; Get destination directory from user
+(if (getassign "FrexxEd" "a")
+   (if (not (askbool
+               (prompt (txt_Destination frexxdest))
+               (help (txt_DestinationHelp frexxdest))
+               (default 1)
+            )
+       )
+       (set frexxdest
+        "non-existant file name"
+       )
+       (set samedir 1)     ; Don't bother with startup part
+    )
+    (set frexxdest
+      "non-existant file name"
+    )
+)
+
+; Keep on until the entered directory really exists!
+
+(while
+   (not (exists frexxdest))
+   (set frexxdest
+      (askdir
+         (prompt txt_DrawerPrompt)
+         (help @askdir-help)
+         (default @default-dest)
+      )
+   )
+)
+
+(if (= 0 @user-level)
+  (
+  ; Only novices get this!
+    (makedir (tackon frexxdest "FrexxEd"))
+    (set frexxdest (tackon frexxdest "FrexxEd"))
+  )
+)
+
+(complete 10)
+
+; if not installed in RAM, check disk space
+(if (<> (getdevice frexxdest) "RAM")
+  (
+    ; Check that there is enough disk space
+    (set size (getdiskspace frexxdest))
+
+    ; Don't do this if this is an update!
+    (if previnstall
+      (working)
+      (
+        ; Require 940000 bytes free before installation, otherwise: abort!
+        (if (< size 940000)
+          (abort (txt_OutOfSpace (getdevice frexxdest) (/ size 1024)))
+        )
+      )
+    )
+  )
+)
+
+(if (= 2 @user-level)
+; Only experts have the advantage of changing LIBS:!
+   (set libdir (askdir
+                  (prompt txt_LibsDir)
+                  (help @askdir-help)
+                  (default "LIBS:")
+                )
+   )
+   (set libdir "LIBS:")
+)
+
+(complete 15)
+
+; Get locale information
+(set catalog (askoptions
+               (prompt txt_SelectLangs)
+               (choices "Svenska" "English" "Deutsch" "Italiano" "Nederlands" "Polski" "Français" "Norsk" "Português")
+               (help txt_SelectLangsHelp)
+               (default langbit)
+             )
+)
+
+; Get MagicWB icons installation information
+(set magicwb (askbool
+               (prompt txt_MagicWBIcons)
+               (help txt_MagicWBHelp)
+             )
+)
+
+(complete 20)
+
+(if catalog
+   (
+      (set localedir
+         (askbool
+            (prompt txt_LocaleDir)
+            (choices "LOCALE:" "FREXXED:")
+            (default 1)
+            (help txt_LocaleDirHelp)
+         )
+      )
+      (if localedir
+         (
+            (if (not (exists "locale:" (noreq)))
+               (
+                (makedir "sys:Locale")
+                (makeassign  "locale" "sys:locale")
+               )
+            )
+       
+            (if (not (exists "Locale:Catalogs"))
+               (makedir "Locale:Catalogs")
+            )
+            (set catalogdest "Locale:Catalogs/")
+         )
+         (
+            (set catalogdest (tackon frexxdest "Catalogs"))
+            (makedir catalogdest)
+         )
+      )
+
+      ; If FrexxEd was installed previously, we delete all old catalogs!
+      (if previnstall
+         (
+           (delete "LOCALE:catalogs/#?/FrexxEd.catalog")
+           (delete (tackon frexxdest "catalogs/#?/FrexxEd.catalog"))
+           (delete (tackon previnstall "catalogs/#?/FrexxEd.catalog"))
+         )
+      )
+
+      (if (IN catalog 0)
+         (
+            (makedir (tackon catalogdest "Svenska"))
+            (copyfiles
+               (source "Catalogs/Svenska")
+               (dest (tackon catalogdest "Svenska"))
+               (infos)
+               (all)
+            )
+         )
+      )
+
+      (if (IN catalog 2)
+         (
+            (makedir (tackon catalogdest "Deutsch"))
+            (copyfiles
+               (source "Catalogs/Deutsch")
+               (dest (tackon catalogdest "Deutsch"))
+               (infos)
+               (all)
+            )
+         )
+      )
+
+      (if (IN catalog 3)
+         (
+            (makedir (tackon catalogdest "Italiano"))
+            (copyfiles
+               (source "Catalogs/Italiano")
+               (dest (tackon catalogdest "Italiano"))
+               (infos)
+               (all)
+            )
+         )
+      )
+
+      (if (IN catalog 4)
+         (
+            (makedir (tackon catalogdest "Nederlands"))
+            (copyfiles
+               (source "Catalogs/Nederlands")
+               (dest (tackon catalogdest "Nederlands"))
+               (infos)
+               (all)
+            )
+         )
+      )
+
+      (if (IN catalog 5)
+         (
+            (makedir (tackon catalogdest "Polski"))
+            (copyfiles
+               (source "Catalogs/Polski")
+               (dest (tackon catalogdest "Polski"))
+               (infos)
+               (all)
+            )
+         )
+      )
+
+      (if (IN catalog 6)
+         (
+            (makedir (tackon catalogdest "Français"))
+            (copyfiles
+                (source "Catalogs/Francais")
+                (dest (tackon catalogdest "Français"))
+                (infos)
+                (all)
+            )
+         )
+      )
+
+      (if (IN catalog 7)
+         (
+            (makedir (tackon catalogdest "Norsk"))
+            (copyfiles
+                (source "Catalogs/Norsk")
+                (dest (tackon catalogdest "Norsk"))
+                (infos)
+                (all)
+            )
+         )
+      )
+
+  )
+)
+
+(if localedir
+   (set frexxeddir
+      (askdir
+         (prompt txt_FrexxEddir)
+         (help txt_FrexxEddirHelp)
+         (default frexxdest)
+      )
+   )
+   (set frexxeddir frexxdest)
+)
+
+
+(complete 25)
+
+
+; Start copying files to destination!
+(set @default-dest frexxdest)
+
+(complete 30)
+
+(makedir (tackon frexxdest "Projects"))
+
+(makedir (tackon frexxdest "Macros"))
+
+(makedir (tackon frexxdest "Startup"))
+
+(makedir (tackon frexxdest "Docs"))
+
+(if (exists "docs")
+  (
+    (copyfiles
+       (source "docs/")
+       (dest (tackon frexxdest "docs/"))
+       (infos)
+       (pattern "#?" )
+    )
+  )
+)
+
+(complete 35)
+
+; copy the keyfile if there is any!
+;(copyfiles
+;   (source "")
+;   (dest frexxdest)
+;   (pattern "FrexxEd.key" )
+;)
+
+
+; Make an FPL directory and copy all FPL files
+(makedir (tackon frexxdest "FPL"))
+
+(complete 40)
+
+(if previnstall
+   ; Yes, it was previously installed...
+   (
+     ; Make a backup-directory and copy all modified files (to preserve
+     ; changes done by the user!) to that!
+     (set backupdir (tackon frexxdest "oldFPL"))
+     (makedir backupdir)
+     (set destdir (tackon frexxdest "FPL/"))
+     (set origdir "FPL/")
+     (set backupchanged (askbool
+                           (prompt txt_askbackup)
+                           (help txt_askbackuphelp)
+                        )
+     )
+     (foreach origdir "~(User.FPL)"
+       (if (< @each-type 0)
+          ; only do this stuff with FILES. Not DIRECTORIES.
+          (
+            (set destfile (tackon destdir @each-name))
+            (set origfile (tackon "FPL" @each-name))
+            (if (and backupchanged (exists destfile))
+                ; Backuping is wanted and
+                ; they both exist. Let's check if they're identical!
+                (if (= (getsum destfile) (getsum origfile))
+                    ; Identical! Tell 'em it's already here!
+                    (working (txt_alreadyinstalled @each-name))
+                    ; Different, backup the previous file and copy the
+                    ; new one
+                    (
+                       (copyfiles
+                          (source destfile)
+                          (dest backupdir)
+                          (infos)
+                       )
+                       (copyfiles
+                          (source origfile)
+                          (dest destdir)
+                          (infos)
+                       )
+                       (set allfiles (cat allfiles origfile "\n"))
+                    )
+                )
+                ; This is obviously a new file, it was not previously
+                ; present! Just copy it.
+                (copyfiles
+                   (source origfile)
+                   (dest destdir)
+                   (infos)
+                )
+            )
+          )
+        )
+     )
+     (if allfiles
+        ; There has been some files backuped!
+        (textfile
+           (dest (tackon backupdir "README"))
+           (append (cat txt_backupfilestext allfiles))
+        )
+     )   
+   )
+   (
+      ; Njet, not previously seen in this system!
+      (copyfiles
+         (source "FPL/")
+         (dest (tackon frexxdest "FPL/"))
+         (infos)
+         (pattern "#?" )
+      )
+     ; Make an 'icons' directory and copy all icons there!
+     (makedir (tackon frexxdest "icons"))
+     (complete 45)
+     
+     (copyfiles
+        (source "icons/")
+        (dest (tackon frexxdest "icons/"))
+        (infos)
+        (pattern "#?.info" )
+     )
+   )
+)
+
+(if (exists (tackon frexxdest "FPL/User.FPL"))
+   (working)
+   ; If the User.FPL doesn't exist in the destination directory,
+   ; copy it!
+   (copyfiles
+      (source "FPL/User.FPL")
+      (dest (tackon frexxdest "FPL/"))
+      (infos)
+   )
+)
+
+
+; Make a bin directory and copy all bin packages!
+(makedir (tackon frexxdest "Bin"))
+
+(complete 50)
+
+(copyfiles
+   (source "bin/")
+   (dest (tackon frexxdest "bin/"))
+   (infos)
+   (pattern "#?" )
+)
+
+; Make a 'rexx' directory and copy all rexx scripts there!
+(makedir (tackon frexxdest "Rexx"))
+(complete 55)
+
+(copyfiles
+   (source "rexx/")
+   (dest (tackon frexxdest "rexx/"))
+   (infos)
+   (pattern "#?" )
+)
+
+; Copy the FrexxEdStart.rx frontend
+(copyfiles
+   (help @copyfiles-help)
+   (source "")
+   (dest frexxeddir)
+   (infos)
+   (pattern "Freds" )
+)
+
+(protect (tackon frexxeddir "Freds") "s");
+
+(complete 58)
+
+(protect (tackon frexxdest "FPL/#?.FPL#?") "-e");
+
+(complete 63)
+
+
+; Copy fpl.library to LIBS:
+(copylib
+   (prompt (cat txt_Install " fpl.library?"))
+   (help @copylib-help)
+   (source "libs/fpl.library")
+   (dest libdir)
+   (confirm)
+)
+
+(complete 65)
+
+; Copy reqtools.library to LIBS:
+(copylib
+   (prompt (cat txt_Install " reqtools.library (© by Nico Francois)?"))
+   (help @copylib-help)
+   (source "libs/reqtools.library")
+   (dest libdir)
+   (confirm)
+)
+
+(complete 73)
+
+; Copy the executable editor
+(copyfiles
+   (help @copyfiles-help)
+   (source "")
+   (dest frexxeddir)
+   (infos)
+   (pattern "FrEd" )
+)
+
+(protect (tackon frexxeddir "Fred") "p");
+
+(complete 78)
+; Make a 'Libs' directory and copy frexxed.library and fastgraphics.library
+; to that one!
+(makedir (tackon frexxdest "Libs"))
+(copylib
+   (dest (tackon frexxdest "Libs/"))
+   (infos)
+   (source "frexxed.library")
+)
+
+;(complete 80)
+;(copylib
+;   (dest (tackon frexxdest "Libs/"))
+;   (infos)
+;   (source "fastgraphics.library")
+;)
+
+
+(complete 85)
+(if magicwb
+   (copyfiles
+     (source "mwb/")
+     (all)
+     (infos)
+     (dest frexxdest)
+   )
+)
+
+(complete 90)
+
+; Prompt for S:user-startup modification
+(if (not samedir)
+   (startup "FrexxEd"
+      (prompt (txt_PromptStartup frexxdest))
+      (help @startup-help)
+      (command "assign FrexxEd: " frexxdest "\n")
+   )
+)
+
+(complete 99)
+
+; Check if the XPK library is available
+(if (>= (getversion "LIBS:xpkmaster.library") 1)
+     (set library "xpkmaster.library ")
+)
+
+; Check if powerpacker is available
+(if (>= (getversion "LIBS:powerpacker.library") 20)
+     (
+      (if library
+          (set library (cat library txt_And))
+      )
+      (set library (cat library "powerpacker.library"))
+     )
+)
+
+; If any of the packer libraries were avaialable, tell the user about them
+(if library
+     (message (txt_PackersAvail library))
+     (message txt_PackersNonAvail)
+)
+
+(if (and (not @pretend) (not samedir))
+   (makeassign "FrexxEd" frexxdest)
+)
+(textfile
+   (dest "T:temporary_file")
+   (append "cd FrexxEd:docs\nrun sys:utilities/amigaguide first.guide")
+)
+(run "execute T:temporary_file")
+(delete "T:temporary_file")
+(complete 100)

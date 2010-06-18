@@ -1,0 +1,16 @@
+export BlockSum()
+{
+  int newid;
+  int sum=0;
+
+  newid=New();
+  if (newid) {
+    int count;
+    StringToBlock(GetBlock(), newid);
+    for (count=ReadInfo("lines", newid); count>0; count--)
+      sum+=atoi(GetLine(count, newid));
+    Clean("Kill("+ltostr(newid)+");");
+    Request("Sum is: "+ltostr(sum), "BlockSum", "OK");
+  }
+}
+AssignKey("BlockSum();", "Amiga i +");

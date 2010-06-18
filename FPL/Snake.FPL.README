@@ -1,0 +1,32 @@
+############################################
+File: Snake.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Play a snake game on FrexxEd.
+Version: 1.2
+Date: 31.8.95
+Local settings:
+Global settings:
+Keysequence:
+Type: game
+Prereq:
+############################################
+
+FUNCTION
+
+  The current view will be changed to a game board, where you can play a snake
+game.  You control the snake with the cursor keys.  Eat as many blubbers you
+can, and stay alive.
+
+  The first requester will let you start from a higher level, and with same 
+extra points at the same time.  If a negative value is placed here, you will
+loose 100 points every time you bite yourself.
+
+  Execute the file to play.
+
+
+HISTORY
+
+v1.1 Functional game.
+v1.2 Removed an out of range bug.
+

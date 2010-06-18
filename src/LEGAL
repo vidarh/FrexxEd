@@ -1,0 +1,42 @@
+Preamble
+========
+
+The term 'The Program' refers to this software and associated
+examples and documentation files.
+
+The term 'Freely Available' refers to anonymous availability on the
+Internet through a commonly used, non-propritary protocol (for example,
+HTTP, FTP, NNTP, SMTP) without any restrictions or registration
+requirements.
+
+
+Conditions
+==========
+
+Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
+
+1. The Program, with or without modifications, must always be
+   distributed with the copyright notice, the licensing conditions,
+   and the disclaimer.
+
+2. The Program, with or without modifications, must remain Freely
+   Available.
+
+3. Distribution of the Program must be done in source code form.
+   Distribution in executable form is allowed if it includes a valid
+   notice of where and how to obtain the source code.
+
+4. The names of the authors and contributors may not be used to endorse
+   or promote Derived Work without the prior written permission.
+
+5. External scripts developed by contributers are not subject to these
+   licensing terms unless explicitly stated.
+
+
+Disclaimer
+==========
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
+CONTRIBUTORS ACCEPTS NO RESPONSIBILITY IN ANY CONCEIVABLE MANNER.

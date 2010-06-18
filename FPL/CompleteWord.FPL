@@ -1,0 +1,90 @@
+// $Id: CompleteWord.FPL 1.8 1996/01/17 19:10:05 jskov Exp $
+// $VER: CompleteWord.FPL 1.3 (17.01.96) © Jesper Skov
+
+int export WC_prevCall;
+
+// Preserve for next call
+string WC_hitString, WC_orgWord, WC_Direction;
+int	WC_prevHitLine, WC_prevHitByte;
+
+void export WordComplete()
+{
+  string searchString, tempString;
+  int searchResult;
+  int byte, line;
+  int currentID = GetEntryID();
+
+  Visible(0);
+  if ((ReadInfo("counter")!=(WC_prevCall+1))){
+    // First entry
+    Output(" "); // So in-word completion may be made
+    if (strlen(WC_orgWord = GetWord(-1,ReadInfo("byte_position")-2))){
+      // string not empty - init data
+      WC_hitString = "*"+WC_orgWord+"*";
+      WC_prevHitLine = ReadInfo("line");
+      WC_prevHitByte = ReadInfo("byte_position")-1;
+      WC_Direction = "";					// start searching backwards
+    } else {
+      Backspace();							// fix space from above
+	  Visible(1);
+	  ReturnStatus("No word to complete!");
+      exit;
+    }
+  }
+
+  BackspaceWord();
+
+  byte = ReadInfo("byte_position")-1;
+  line = ReadInfo("line");
+
+  CurrentBuffer(WC_prevCall = DuplicateEntry());
+  // internal use of WC_prevCall - search buffer ID. Exported var needed in clean kill below
+
+  GotoLine(WC_prevHitLine, WC_prevHitByte);
+
+  searchString = joinstr("\\<", WC_orgWord);
+
+  do {
+    searchResult = Search(searchString, joinstr("=w", WC_Direction, "+"), ReadInfo("size"));
+    if (searchResult == -9){
+      // not found in this direction
+      if (strlen(WC_Direction) == 0){
+        // try searching down
+        WC_Direction = "f";
+        GotoLine(line, byte);
+      } else {
+        // not found at all...
+        ReturnStatus("Not found!");
+        searchResult = 0;
+        CurrentBuffer(currentID);
+        Clean("Kill(WC_prevCall);");
+        Output(WC_orgWord);					// re-insert org word
+		Visible(1);
+        exit;
+        // WC_pC not updated, thus no problems at next call - will reset
+      }
+    } else {								// Yeah, we struck metal
+      tempString = GetWord();
+      if (stristr(WC_hitString, joinstr("*",tempString,"*"))==-1){
+        // Did not appear in hitString! This is gold!
+        WC_prevHitLine = ReadInfo("line");
+        WC_prevHitByte = ReadInfo("byte")-1;
+        WC_hitString = joinstr(WC_hitString, tempString, "*");
+        CurrentBuffer(currentID);
+        Clean("Kill(WC_prevCall);");
+        Output(tempString);
+		Visible(1);
+		RedrawScreen();
+      } else {
+        // User already canned this word... Try again
+        searchResult = 1;
+      }
+    }
+
+  } while (searchResult != 0);
+
+  WC_prevCall=ReadInfo("counter");
+}         
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key binding ««
+AssignKey("WordComplete();", "amiga /");

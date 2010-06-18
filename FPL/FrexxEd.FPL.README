@@ -1,0 +1,33 @@
+############################################
+File:		FrexxEd.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		FidoNet 2:201/328
+Short:		Executes a collection of FPL scripts
+Version:	1.4
+Date:		26.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		program
+Prereq:
+############################################
+
+FUNCTION
+  This file simply runs a few FPL scripts. Useful to run at startup time.
+
+Executed scripts in order of execution:
+
+     FrexxEdMain.FPL
+     Menu.FPL
+     ExtraIO.FPL
+     SameName.FPL
+     QueryKillChanges.FPL
+     User.FPL
+     Startup.FPL
+
+HISTORY
+
+  1.1	Makes a MenuBuild() in the end of the file.
+  1.2   MenuBuild() is removed! Updated this file.
+  1.3   Executes all FPL files in the StartupFPL drawer too!
+  1.4   Fixed it to actually execute the files in the order described above!

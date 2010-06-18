@@ -1,0 +1,211 @@
+
+export int WindowNew(int window)
+{
+  int id=New();
+  int newid = WindowAlloc(id);
+  if(window) {
+    int code=ReadInfo("window", newid);
+    if(0 == code) {
+      /* We did this is on a screen, make the new one a window */
+      SetInfo(newid, "window", 1);
+    }
+    /* on this screen */
+    SetInfo(newid, "public_screen", ReadInfo("current_screen", GetWindowID()));
+  }
+  else {
+    /* Make this a new screen! */
+    SetInfo(newid, "window", 0);
+  }
+  WindowOpen(newid);
+  CurrentBuffer(id);
+}
+
+
+/*
+ Split window either horizontal (1) or vertical (0)
+*/
+export void SplitWindow(int type)
+{
+  int curr_win=GetWindowID();
+  int new_win;
+
+  if (ReadInfo("window")==0) {  // If screen then deny the operation
+    Request("You can't split a screen!", "Failure", "OK");
+    return;
+  }
+
+  new_win=WindowAlloc(DuplicateEntry(), curr_win);
+  if (new_win) {
+    if (type==0) {
+      SetInfo(new_win, "window_xpos", ReadInfo("real_window_xpos", curr_win)+ReadInfo("real_window_width", curr_win)/2);
+      SetInfo(new_win, "window_width", ReadInfo("real_window_width", curr_win)/2);
+      SetInfo(curr_win, "window_width", ReadInfo("real_window_width", curr_win)/2);
+    } else {
+      SetInfo(new_win, "window_ypos", ReadInfo("real_window_ypos", curr_win)+ReadInfo("real_window_height", curr_win)/2);
+      SetInfo(new_win, "window_height", ReadInfo("real_window_height", curr_win)/2);
+      SetInfo(curr_win, "window_height", ReadInfo("real_window_height", curr_win)/2);
+    }
+    WindowOpen(new_win);
+  }
+}
+
+
+/*
+  Enlarge a window to use maximum screen space
+*/
+export void WindowMaximum(int win)
+{
+  SetInfo(win, "window_xpos", 0,
+               "window_ypos", 0,
+               "window_width", ReadInfo("real_screen_width", win),
+               "window_height", ReadInfo("real_screen_height", win));
+}
+
+/*
+  Minimize a window
+*/
+export void WindowMinimize(int win)
+{
+  SetInfo(win, "window_width", 0, "window_height", 0);
+}
+
+/*
+  Resize a window to normal/default screen size
+*/
+
+export void WindowNormal(int win)
+{
+  SetInfo(win, "window_xpos", ReadInfo("window_xpos", 0),
+               "window_ypos", ReadInfo("window_ypos", 0),
+               "window_width", ReadInfo("window_width", 0),
+               "window_height", ReadInfo("window_height", 0));
+}
+
+/*
+  Rearrange all windows to be placed as tiles.
+*/
+export void WindowsTile()
+{
+  int x_number=1, y_number=1;
+  int count;
+  int width, height;
+  int winid;
+  int windows=ReadInfo("windows_open");
+  int x_count, y_count;
+
+  if (ReadInfo("window")==0) {  // If screen then deny the operation
+    Request("You can't tile a screen!", "Failure", "OK");
+    return;
+  }
+
+  for (count=1; count<10; count++) {
+    y_number=windows;
+    x_number=y_number/count;
+    y_number=windows-x_number*count+1;
+    x_number++;
+    if (x_number<=y_number)
+      break;
+  }
+  width=ReadInfo("real_screen_width")/x_number;
+  height=ReadInfo("real_screen_height")/y_number;
+  winid=PrevWindow(0);
+  for (x_count=0; x_count<x_number && windows; x_count++) {
+    for (y_count=0; y_count<y_number && windows; y_count++) {
+      SetInfo(winid, "window_xpos", x_count*width,
+                     "window_ypos", y_count*height,
+                     "window_width", width,
+                     "window_height", height);
+      WindowToFront(1, winid);
+      do {
+        winid=PrevWindow(winid);
+      } while (ReadInfo("iconify", winid));
+      windows--;
+    }
+  }
+}
+
+/*
+  Makes the windows cascaded (0) or stacked (1)
+*/
+export void WindowsCascade(int stack)
+{
+  int count;
+  int width, height;
+  int winid;
+  int windows=ReadInfo("windows_open");
+  int x_count, y_count;
+  int dimension=10;
+
+  if (ReadInfo("window")==0) {  // If screen then deny the operation
+    Request("You can't cascade a screen!", "Failure", "OK");
+    return;
+  }
+
+  width=ReadInfo("real_screen_width");
+  if (!stack)
+    width/=2;
+  height=ReadInfo("real_screen_height")/2;
+  winid=PrevWindow(0);
+  count=0;
+  while (windows) {
+    if (!ReadInfo("iconify", winid)) {
+      if (!count) {
+        y_count=0;
+        x_count=0;
+      } else {
+        if (!stack)
+          x_count++;
+        y_count++;
+      }
+      count++;
+      if (count==dimension)
+        count=0;
+      SetInfo(winid, "window_xpos", x_count*width/dimension,
+                     "window_ypos", y_count*height/dimension,
+                     "window_width", width,
+                     "window_height", height);
+      WindowToFront(1, winid);
+      windows--;
+    }
+    winid=PrevWindow(winid);
+  }
+}
+
+
+/*
+  Hook to make a window to be freed when the close gadget is hit.
+*/
+export int hook_CloseGadget()
+{
+  if (ReadInfo("windows_allocated")==1) {
+    if (ReadInfo("query_closegadget") && Request("Do you want to quit FrexxEd?"))
+      QuitAll();
+  } else {
+    WindowFree();
+
+    /* If buffer is nonamed and empty, then kill it */
+    if (!strcmp(ReadInfo("file_name"), "") && ReadInfo("size")==0)
+      Kill();
+  }
+}
+Hook("CloseGadget", "hook_CloseGadget();");
+ConstructInfo("query_closegadget", "", "", "BG(System)", "", 0, 1, 1);
+
+
+/*
+  WindowAlloc syntax:
+
+WindowID = WindowAlloc(EntryID, DefaultWindow);
+
+EntryID = Entry to be placed in the new window.
+          '0' or illigal ID gives a new buffer.
+
+DefaultWindow = WindowID to copy layout from.  '0' for default.
+
+ return:
+
+WindowID.  ID for the new window.
+
+
+*/
+

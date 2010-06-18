@@ -1,0 +1,27 @@
+############################################
+File: FileType.FPL
+Author: Peter Carlsson
+Email: ei94134@ios.chalmers.se
+Short description: Do specific actions upon different filetypes
+Version: 1.0
+Date: 21.4.95
+Local settings:
+Global settings:
+Keysequence:
+Type: hook/function
+Prereq:
+############################################
+
+FUNCTION
+
+    Hooks the GetFile exception to check the filename extension.
+    Do some special work on different filetypes (i.e load some
+    C-specific functions).
+
+
+BUGS
+    No known
+
+
+HISTORY
+    1.0  21.4.95  First release

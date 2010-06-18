@@ -1,0 +1,37 @@
+
+string history_list[20];
+int history_items;
+
+export int cCalcresult;
+
+export void cCalc()
+{
+  string expression;
+  int list=history_items;
+  if(!list) {
+    list=1;
+    history_list[0]=" ";
+  }
+  if(RequestWindow("Expression",
+                   "C-style expression", "a", &history_list, &expression,
+                   list)) {
+    if(!ExecuteString(sprintf("cCalcresult = %s;", expression))) {
+      Request(sprintf("%s =\n\nDec: %d\nHex: %X\nBin: %b\nOct: %o",
+                      expression,
+                      cCalcresult, cCalcresult, cCalcresult, cCalcresult),
+              "Result", "Wow!");
+    }
+    if(history_items++) {
+      int a;
+      if(history_items>20)
+        history_items--;
+
+      a = history_items-1;
+      while(a>0) {
+        history_list [a] = history_list [a-1];
+        a--;
+      }
+    }
+    history_list [0] = expression;
+  }
+}

@@ -1,0 +1,31 @@
+############################################
+File: MouseMark.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: block marking by mouse dragging
+Version: 1.0
+Date: 1.4.94
+Local settings:
+Global settings:
+Keysequence: "MouseLeftDrag", "MouseLeft", "MouseLeftUp"
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+/**************************************************************
+ *
+ *  Name:  MouseMark()
+ *
+ *  Function:  The 'MouseMark()' function will start to mark a block
+ *             when you press the left mouse button and move the mouse.
+ *
+ *  Assigns:   'MouseMark(1)' is assigned to 'MouseLeftDrag'.
+ *             'BlockMark(2)' is assigned to 'MouseLeftUp'.
+ *             'MouseMark(0)' is assigned to 'MouseLeft' in
+ *                            order to place the cursor and
+ *                            remove the block mark.
+ *
+ *
+ *  Author:  Kjell Ericson
+ *********/

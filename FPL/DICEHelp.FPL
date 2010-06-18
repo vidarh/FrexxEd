@@ -1,0 +1,89 @@
+// $Id: DICEHelp.FPL,v 1.1 1996/02/14 17:16:38 av Rel $
+
+export DICEHelp_lookup()
+{
+	string a, res, oldfact, file, newfile;
+	int newid, oldid, env;
+
+	env = ReadInfo("DICEHelp_activation");
+	
+	oldfact = ReadInfo("fact");
+	if (FACTCreate("dicehelp") < 0)
+		Request("Couldn't create local FACT!", "", "OK");
+	
+	if (FACT("dicehelp", '.', 'W') < 0)
+		Request("Couldn't change . FACT!","","OK");
+	if (FACT("dicehelp", '_', 'W') < 0)
+		Request("Couldn't change _ FACT!","","OK");
+	
+	SetInfo(-1, "fact", "dicehelp");
+
+	a = GetWord();
+	
+	SetInfo(-1, "fact", oldfact);
+	FACTDelete("dicehelp");
+	
+	if (strlen(a) == 0)
+	{
+		a = PromptString("", "Request", "Please enter lookup keyword");
+		if (strlen(a) == 0)
+			return;
+	}
+	
+	if (!FindPort("DICEHELP", 0))
+	{
+		file = ReadInfo("DICEHelp_executable");
+		if (strlen(file) == 0)
+			file = "DCC:bin/DICEHelp";
+		if (System("Run >NIL: "+file+" REXXSTARTUP", "", "") == -1)
+		Request("Couldn't start DICEHelp!", "Error!", "OK");
+	}
+
+	if (!FindPort("DICEHELP", 10))
+		return;
+
+	res = ARexxSend("DICEHELP", joinstr("T ", a), 60);
+	file = substr(res, 2, -1);
+	if (res[0] == 'T')
+	{
+		oldid = GetEntryID();	  /* Save current view id */
+		newid = New();				  /* Create new view */
+		
+		Activate(newid, -1, newid);	/* Split current view into two parts */
+		CurrentBuffer(newid);	  /* Activate new view */
+		
+		SetInfo(newid, "tab_size", 8);
+		
+		newfile = Stcgfp(file)+a+".lup";
+		
+		if (System("rename "+file+" "+newfile, "", "") != -1)
+			file = newfile;
+		Load(file);
+		
+		SetInfo(newid, "read_only", 1);
+
+		System("delete >NIL: "+file, "", "");
+
+		if (env == 1)
+			CurrentBuffer(oldid);	  /* Activate old view */
+	}
+	else if (res[0] == 'E')
+	{
+		ReturnStatus(file);
+		DisplayBeep();
+	}
+}
+
+void export DICEHelpPrefs()
+{
+  PromptInfo(-1,"DICEHelp preferences",-1,-1,
+	"DICEHelp_executable",
+	"DICEHelp_activation");
+}
+
+ConstructInfo("DICEHelp_executable", "", "", "GWHS", "", 0, 0, "DCC:bin/DICEHelp");
+ConstructInfo("DICEHelp_activation", "", "", "GWHC", "New|Old", 0, 0, "Old");
+
+// DICEHelp Program menu
+MenuAdd("s", "DICEHelp...", "DICEHelpPrefs();", "", 6, 6, -1);
+MenuBuild();

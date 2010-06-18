@@ -1,0 +1,53 @@
+// $Id: LaTeXMode.FPL 1.6 1996/04/02 18:34:26 jskov Exp $
+// $VER: LaTeXMode.FPL 1.0 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXModePrefs() ««
+void export LaTeXModePrefs()
+{
+  PromptInfo(-1,"LaTeXMode preferences",-1,-1,
+   "LaTeX_comment_start_skip",
+   "LaTeX_comment_start",
+   "LaTeX_comment_end",
+   "LaTeX_line_comment_body",
+   "LaTeX_line_comment_start",
+   "LaTeX_line_comment_end",
+   "LaTeX_comment_column"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXModeInit() ««
+export void LaTeXModeInit()
+{
+  // Set comment strings for LaTeX mode
+  SetInfo(-1,"comment_start_skip",ReadInfo("LaTeX_comment_start_skip"));
+  SetInfo(-1,"comment_start",ReadInfo("LaTeX_comment_start"));
+  SetInfo(-1,"comment_end",ReadInfo("LaTeX_comment_end"));
+  SetInfo(-1,"line_comment_start",ReadInfo("LaTeX_line_comment_start"));
+  SetInfo(-1,"line_comment_body",ReadInfo("LaTeX_line_comment_body"));
+  SetInfo(-1,"line_comment_end",ReadInfo("LaTeX_line_comment_end"));
+  SetInfo(-1,"comment_column",ReadInfo("LaTeX_comment_column"));
+  SetInfo(-1,"comment_mode",1);				// enable comment mode
+
+  SetInfo(-1,"wordwrap",1);					// enable wordwrap
+  SetInfo(-1,"latex_mode",1);				// enable self
+
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXMode settings ««
+ConstructInfo("LaTeX_comment_start_skip","","","WHGS","",0,0,"% *");
+ConstructInfo("LaTeX_comment_start","","","WHGS","",0,0,"% ");
+ConstructInfo("LaTeX_comment_end","","","WHGS","",0,0,"");
+ConstructInfo("LaTeX_line_comment_body","","","WHGS","",0,0,"»");
+ConstructInfo("LaTeX_line_comment_end","","","WHGS","",0,0,"««");
+ConstructInfo("LaTeX_line_comment_start","","","WHGS","",0,0,"%");
+ConstructInfo("LaTeX_comment_column","","","WHGI","",0,999,49);
+ConstructInfo("LaTeX_tab_size","","","WHGI","",0,999,8);
+
+ConstructInfo("latex_mode","","","LBH","",0,1,0);
+
+AddMode(0,"latex_mode", "", "");			// Add as minor mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXMode menu ««
+MenuAdd("s", "LaTeXMode...", "LaTeXModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();
+

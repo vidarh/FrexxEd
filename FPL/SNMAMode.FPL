@@ -1,0 +1,153 @@
+// $Id: SNMAMode.FPL 1.14 1996/04/02 18:34:56 jskov Exp $
+// $VER: SNMAMode.FPL 1.0 (15.06.95) © Jesper Skov
+
+// The name of the SNMA ARexx port
+string SNMAddress="SNMA";
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMA Preference Interface ««
+void export SNMAPrefs()
+{
+  PromptInfo(-1,"SNMA mode preferences",-1,-1,
+   "SNMA_auto_save",
+   "SNMA_assemble_dir",
+   );
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» checkSNMA() ««
+// Check that the SNMA port is present. Otherwise print error.
+//»»»»»»»»»»»»»
+int checkSNMA()
+{
+  if (!FindPort(SNMAddress,1)){
+	ReturnStatus("SNMA's AREXX port not found!");
+	return 0;
+  } else
+	return 1;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» getVar() ««
+// Get ARexx STEM variable contents.
+// This should be available directly from FrexxEd!
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»
+string getVar(string varName)
+{
+  string t;
+  System(joinstr("rx >T:SNMAVarTmp \"address ",SNMAddress,"; INFO temp; say temp.",varName));
+  t=LoadString("T:SNMAVarTmp");
+  return substr(t,0,strlen(t)-1);
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMAAssemble() ««
+export void SNMAAssemble()
+{
+  if (checkSNMA()){
+	string path;
+	Status(-1,"Assembling, please wait...");
+
+	if (!strlen(path=ReadInfo("SNMA_assemble_dir"))) // Find assembly location
+	  path=ReadInfo("file_path");			         // If none specified, use current
+	ARexxSend(SNMAddress, joinstr("CHDIR ",path));   // Tell SNMA
+
+	Save(joinstr(path,ReadInfo("file_name")));       // Save source
+
+	ARexxSend(SNMAddress, joinstr("ASM ",ReadInfo("file_name"))); // Start assembly
+
+	if (ReadInfo("SNMA_auto_save"))
+	  Save(ReadInfo("full_file_name"));
+
+	if (!strcmp(getVar("STATUS"),"FAIL"))	         // Wait for the result
+	  ReturnStatus(joinstr("SNMA Failure: ",getVar("FAILSTR")));
+	else
+	  ReturnStatus(joinstr("SNMA Result: ",getVar("STATUS"),". ",getVar("LINES")," lines, ",getVar("ERRORS")," errors."));
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMABuildGB() ««
+// Build includefile that will register needed includes in global table.
+// Problem: SNMA does not check for nested includes.
+// Solutions: 1) I get my slimy hand on the SNMA source.
+//            2) I make a FPL/C program which expands the nested includes to one file.
+//=====
+// Includes to be considered in main file must be inside a
+// ";;;;IncludeStart"
+// ";;;;IncludeEnd"
+// pair
+//»»»»»»»»»»»»»»»»»»»
+export void SNMABuildGB()
+{
+  if (checkSNMA()){
+	int y;
+	int incID=New();
+	GotoLine(1);
+	while(0<=Search(";;;;IncludeStart","=f+")){
+	  y=ReadInfo("line")+1;
+	  if (0<=Search(";;;;IncludeEnd","=f+"))
+		BlockCopyAppend(incID,1,y,1,ReadInfo("line"));
+	  else
+	    break;
+	};
+	incID=CurrentBuffer(incID);
+	Save("T:includeFile.gbt");
+	incID=CurrentBuffer(incID);
+	Kill(incID);
+	ARexxSend(SNMAddress, "CHDIR T:");
+	ARexxSend(SNMAddress, "ADDGB includeFile.gbt");
+	System("delete T:includeFile.gtb");
+    if (!strcmp(getVar("STATUS"),"FAIL"))
+	  ReturnStatus(joinstr("SNMA Failure: ",getVar("FAILSTR")));
+	else
+      ReturnStatus(joinstr("SNMA Res: ",getVar("STATUS"),". ",getVar("LINES")," lines, ",getVar("ERRORS")," errors."));
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMAExtractAllErrors() ««
+export void SNMAExtractAllErrors()
+{
+  if (checkSNMA()){
+	int newID=GetBufferID("T:allErrors");
+	System("rx >T:allErrors frexxed:zmisc/SNMAAllErrors.rexx");
+	if (!newID) newID=New();
+	newID=CurrentBuffer(newID);
+	Clean("Load(\"T:allErrors\");");
+	SetInfo(-1,"tab_size",8);
+	Activate(newID);
+	CurrentBuffer(newID);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMAExtractAllWarnings() ««
+export void SNMAExtractAllWarnings()
+{
+  if (checkSNMA()){
+	int newID=GetBufferID("T:allWarnings");
+	System("rx >T:allWarnings frexxed:zmisc/SNMAAllWarnings.rexx");
+	if (!newID) newID=New();
+	newID=CurrentBuffer(newID);
+	Clean("Load(\"T:allWarnings\");");
+	SetInfo(-1,"tab_size",8);
+	Activate(newID);
+	CurrentBuffer(newID);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("SNMAAssemble();", "control c control c", "snma_mode");
+AssignKey("SNMAExtractAllErrors();", "control c control e", "snma_mode");
+AssignKey("SNMAExtractAllWarnings();", "control c control E", "snma_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMAMode preferences ««
+
+ConstructInfo("SNMA_auto_save","","","GBWH","",0,1,1);
+ConstructInfo("SNMA_assemble_dir","","","GSWH","",0,0,"T:");
+
+ConstructInfo("snma_mode","","","LBH","",0,1,0);
+ConstructInfo("snma_mode_ext","","","GSWH","",0,0,"*asm*s*i*");
+ConstructInfo("snma_mode_exe","","","GSWH","",0,0,"AsmModeInit();");
+
+AddMode(1,"snma_mode", "snma_mode_ext", "snma_mode_exe"); // Add as major mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SNMA menu ««
+MenuAdd("s", "SNMA...", "SNMAPrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();

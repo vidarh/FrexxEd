@@ -1,0 +1,22 @@
+export int MouseMark(int blockonoff)
+{
+  int x, y;
+  x=ReadInfo("mouse_x");
+  y=ReadInfo("mouse_y");
+  if (x>=0 && y>=0) {
+    BlockMark(blockonoff);
+    PlaceCursor(x, y);
+  }
+}
+
+/* Attach the 'MouseMark(1)' function to the 'MouseLeftDrag' action */
+AssignKey("MouseMark(1);", "MouseLeftDrag");
+
+/* Attach the 'MouseMark(0)' function to the 'MouseLeftDrag' action */
+AssignKey("MouseMark(0);", "MouseLeft", "block_exist");
+
+
+/* Attach the 'BlockMark(2)' function to the 'MouseLeftUp' action and
+   let it be depended of the 'block_exist' flag. */
+AssignKey("BlockMark(2);", "MouseLeftUp", "block_exist");
+

@@ -1,0 +1,18 @@
+int export DeleteSpaceEOL()
+{
+  int line = ReadInfo("line");
+  int byte = ReadInfo("byte_position");
+  int visible = Visible(0);
+
+  GotoLine(1);
+  Status(0, "Removing trailing white spaces...");
+  Replace(1, "( |\t)+\n", "\n", "wf+");
+  Status(0, "Removing trailing white spaces... done!");
+  GotoLine(line, byte);
+  Visible(visible);
+}
+
+ConstructInfo("cut_trails", "", "", "WGB", "", 0, 1, 1);
+Hook("Save", "DeleteSpaceEOL();", "cut_trails");
+MenuAdd("subse", "delete space-eols", "cut_trails", "", 6, 6, -1);
+MenuBuild();

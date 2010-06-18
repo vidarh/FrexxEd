@@ -1,0 +1,13 @@
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CModeInit() ««
+void export CModeInit()
+{
+   SetInfo(-1, "c_indent_mode", 1);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CMode settings ««
+ConstructInfo("c_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("c_mode_ext", "","", "GSHW","", 0,0,"*c*h*fpl*");
+ConstructInfo("c_mode_exe", "","", "GSHW","", 0,0,"CModeInit();");
+
+AddMode(1, "c_mode", "c_mode_ext", "c_mode_exe");
+ExecuteFile("CIndent.FPL");

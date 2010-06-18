@@ -1,0 +1,108 @@
+/*
+ * CHelp script for FrexxEd - Lookup keywords in includes and
+ * autodocs using CHelp.
+ *
+ * Written by Mathias Axelsson 940209
+ * Updated 940924 to work without any external ARexx script
+ * Updated July '95 to add a lot of features that Niclas
+ * Angare suggested. Also added setup possibilities for
+ * CHelp.
+ *
+ */
+
+export CHelp_lookup()
+{
+	string a, res, oldfact, outfile, newoutfile, cmd;
+	int newid, oldid, res1, env;
+	
+	env = ReadInfo("CHelp_activation");
+	
+	oldfact = ReadInfo("fact");
+	if (FACTCreate("chelp") < 0)
+		Request("Couldn't create locale FACT!", "", "OK");
+	
+	if (FACT("chelp", '.', 'W') < 0)
+		Request("Couldn't change . FACT!","","OK");
+	if (FACT("chelp", '_', 'W') < 0)
+		Request("Couldn't change _ FACT!","","OK");
+	
+	SetInfo(-1, "fact", "chelp");
+
+	a = GetWord();
+	
+	SetInfo(-1, "fact", oldfact);
+	FACTDelete("chelp");
+	
+	if (strlen(a) == 0)
+	{
+		a = PromptString("", "Request", "Please enter lookup keyword");
+		if (strlen(a) == 0)
+			return;
+	}
+	
+	if (!FindPort("CHELP1", 10))
+		if (System("run >NIL: CHelp -s", "", "") == -1)
+			Request("Couldn't start Chelp!", "Error!", "OK");
+	
+	if (!FindPort("CHELP1", 10))
+		return;
+	
+	res1 = ReadInfo("CHelp_lookup_case");
+	if (res1 == 0)
+		cmd = "lookup ";
+	else
+		cmd = "clookup ";
+	
+	res = ARexxSend("CHELP1", joinstr(cmd, a), 60);
+	if (!strcmp(res, "1"))
+	{
+		oldid = GetEntryID();	  /* Save current view id */
+		newid = New();				  /* Create new view */
+		
+		Activate(newid, -1, newid);	/* Split current view into two parts */
+		CurrentBuffer(newid);	  /* Activate new view */
+		
+		SetInfo(newid, "tab_size", 8);
+		
+		res = ARexxSend("CHELP1", "GETVAR OUTPUTFILE", 60);
+		if (!strlen(res))
+			outfile = "T:chelp.lup";
+		else
+			outfile = res;
+		
+		newoutfile = ReadInfo("CHelp_outdir");
+		if (!strlen(newoutfile))
+			newoutfile = Stcgfp(outfile);
+		
+		newoutfile = newoutfile+a+".lup";
+		
+		if (System("copy "+outfile+" "+newoutfile, "", "") == -1)
+			Load(outfile);		/* Load original lookup file into view */
+		else
+			Load(newoutfile);	/* Load renamed lookup file into view */
+		
+		System("delete >NIL: "+outfile, "", "");
+		
+		if (env == 1)
+			CurrentBuffer(oldid);	  /* Activate old view */
+	}
+	else
+		ARexxSend("CHELP1", "DISPBEEP", 60);
+}
+
+void export CHelpPrefs()
+{
+  PromptInfo(-1,"CHelp preferences",-1,-1,
+	"CHelp_activation",
+	"CHelp_lookup_case",
+	"CHelp_outdir"
+   );
+}
+
+ConstructInfo("CHelp_activation", "", "", "GWHC", "New|Old", 0, 0, "Old");
+ConstructInfo("CHelp_lookup_case", "", "", "GWCH", "Don't_care|Case_sensitive", 0, 0, "Don't_care");
+ConstructInfo("CHelp_outdir", "", "", "GWSH", "", 0, 0, "T:");
+
+// CHelp Program menu
+MenuAdd("s", "CHelp...", "CHelpPrefs();", "", 6, 6, -1);
+MenuBuild();

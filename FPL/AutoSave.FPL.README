@@ -1,0 +1,36 @@
+############################################
+File: AutoSave.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Autosaves the buffer
+Version: 1.1
+Date: 17.12.94
+Local settings:
+Global settings: autosave_time
+Keysequence:
+Type: hook and function
+Prereq:
+############################################
+
+FUNCTION
+
+  A hook is set to that whenever 'autosave_interval' changes have been done 
+to the buffer that has 'autosave' enabled, the buffer will be saved using 
+the regular Save.  (Both settings are FrexxEd internal).
+
+  A global setting is made, 'autosave_time'.  A timer will is set to enable
+the 'AutoTimeSave' function when 'autosave_time' has gone out.  All changed 
+buffers with the 'autosave' flag on will be saved.
+
+  If 'autosave_time' is set to zero, no timed autosave will be trigged.
+The default is 15 minutes.
+
+NOTES
+  When you change the 'autosave_time' value, the timer will be reset.  No autosave
+will be done before the new timer is timed out.
+
+  The timed autosave function is NOT individual for each buffer, all buffers will
+be saved at the same time, regardless of when it were loaded.
+
+SEE ALSO
+  SafeAuto.FPL

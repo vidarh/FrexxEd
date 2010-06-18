@@ -1,0 +1,26 @@
+###############################################################################
+ This program uses Frexx Programming Language (fpl.library/fpl.DLL/fpllib.a)!
+###############################################################################
+
+  Frexx Programming Language, FPL, is a shared library interpreting language
+copyright (C) 1992-1996 by FrexxWare. FPL is Freeware and freely distributable
+for non-commercial purposes only, including extensive documentation and source
+code. Use within commercial products must be done with written permission from
+the author.
+
+  FPL is entirely isolated from the rest of the software. FPL is only the
+programming language and nothing else. FPL is OS independent. It can (and will)
+be used under other Operating Systems than this.
+
+  For more information about FPL, fpl.library (Amiga shared library), fpl.DLL
+(OS/2 dynamically linked library), fpllib.a (UNIX System V shared library),
+other FPL versions, porting issues, bug reports, enhancement requests or
+anything else regarding this subject, don't hesitate to get in touch with the
+author.
+
+ Author:
+   Daniel Stenberg
+   Ankdammsgatan 36, 4tr
+   S-171 43 SOLNA
+   FidoNet 2:201/328
+   email: Daniel.Stenberg@sth.frontec.se

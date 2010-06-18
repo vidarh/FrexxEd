@@ -1,0 +1,25 @@
+{
+  string array[1];
+  string name, newname;
+  int antal;
+  int loop=1;
+  
+  while (loop) {
+    antal=GetList("symbols", &array);
+    Sort(&array);
+    if (RequestWindow("Rename/Delete symbol",
+                      "Old symbol", "a", &array, &name, antal,
+                      "New name", "a", &newname)) {
+      if (rename(name, newname))
+        loop=Request("Symbol already defined!", "", "Mistake|ignore");
+      else {
+        if (!strlen(newname))
+          ReturnStatus("Symbol deleted!");
+        else
+          ReturnStatus("Symbol renamed!");
+        loop=0;
+      }
+    } else
+      loop=0;
+  }
+}

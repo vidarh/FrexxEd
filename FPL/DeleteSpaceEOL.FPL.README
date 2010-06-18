@@ -1,0 +1,23 @@
+############################################
+File:		DeleteSpaceEOL.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se, FidoNet 2:201/328
+Short:		Cleans off traling white spaces from every line in a buffer
+Version:	1.0
+Date:		1.3.95
+Local settings:
+Global settings: "cut_trails"
+Keysequence:
+Type:		function/hook/menu
+Prereq:		Menu.FPL
+############################################
+
+FUNCTION
+  Scans the buffer for lines that ends with white spaces and removes those.
+The scan is done at save time and only if the 'cut_trails' boolean is
+enabled.
+  This program also adds a boolean sub menu item under the
+'customizing->program' item in a regular (no too much changed) Menu.FPL menu.
+
+HISTORY
+  1.0 - New! I removed the previous version of this file!!

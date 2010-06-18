@@ -1,0 +1,149 @@
+// $VER: LaTeXCompile.FPL 1.2 (02.03.95) © Jesper Skov $
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeX Preference Interface ««
+void export LaTeXPrefs()
+{
+  PromptInfo(-1,"LaTeX mode preferences",-1,-1,
+   "LaTeX_auto_save",
+   "LaTeX_compile_dir",
+   "LaTeX_style",
+   "LaTeX_port_name",
+   "LaTeX_log_restart"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ShowDVI to front ««
+void export LaTeXShow()
+{
+  if (!FindPort("showdvi")){
+    Request("ShowDVI not running!", "LaTeX info", "Huh?");
+  } else {
+    ARexxSend("showdvi", "tofront");
+    ARexxSend("showdvi", "activate");
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXCompile() ««
+void export LaTeXCompile()
+{
+  string TeXname = joinstr(ReadInfo("LaTeX_compile_dir"),ReadInfo("file_name"));
+
+  if (strcmp("tex",substr(TeXname,strlen(TeXname)-3,3))){ // Check that name ends with ".tex"
+    Request("The file name must have a .tex suffix!","LaTeX info","Blast!");
+    return(0);
+  }
+
+  if (!FindPort(ReadInfo("LaTeX_port_name"))){
+    Request("Could not find LaTeX port!","LaTeX info","Huh?");
+  } else {
+    Save(TeXname);
+    ARexxSend(ReadInfo("LaTeX_port_name"), joinstr("compile ",ReadInfo("LaTeX_style")," ",TeXname));
+
+    if (ReadInfo("LaTeX_auto_save")){		// Also update file to disk
+      Save();
+    }
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXFail() ««
+void export LaTeXFail(string LogName)
+{
+  int texID = GetBufferID(joinstr(substr(LogName,0,strlen(LogName)-3),"tex"));
+
+  WindowToFront();
+
+  if (texID){								// Only proceed if tex file was found
+    int logID = GetBufferID(LogName);
+
+    if (!logID){
+      logID = New();
+    }
+
+    logID = CurrentBuffer(logID);			// logID now previous
+    Load(joinstr(GetCompileDir(texID),LogName));
+    CurrentBuffer(logID);				 	// Re-activate previously active buffer
+    LaTeXNextError(texID,1);			 	// Search error from line 1
+  } else {
+    ReturnStatus("Could not find LaTeX buffer!?!");
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeXNextError() ««
+void export LaTeXNextError(int texID, int texLine)
+{
+  string texName = ReadInfo("file_name",texID);
+  string logName = joinstr(substr(texName,0,strlen(texName)-3),"log");
+  int logID = GetBufferID(logName);
+  int errLine = 0;
+
+  if (logID){
+    CurrentBuffer(logID);
+
+    if (ReadInfo("LaTeX_log_restart"))		// goto start of log file if
+      GotoLine(1);							// this flag is set
+
+    SearchSet("=f+","\nl.");
+    while(!Search("\nl.")){
+      CursorRight(3);
+      errLine = atoi(GetWord());
+      if (errLine > texLine){
+        SearchSet("=","\n!");
+        if (!Search("\n!")){			 	// From this point texName is reused
+          CursorRight(2);			 		// for speed reasons
+          texName = GetLine();
+          texName = substr(texName,0,strlen(texName)-1);
+        } else {
+          texName = "Error description not found!";
+        }
+
+        CurrentBuffer(texID);
+        GotoLine(errLine);
+        ReturnStatus(texName);		 		// Show error text
+        break;
+      }
+    }
+
+    if (errLine <= texLine){		 		// If no valid error line found
+      CurrentBuffer(texID);
+      ReturnStatus("No more errors found!");
+    }
+  } else {
+    ReturnStatus(joinstr("Log file \"",logName,"\" not loaded!"));
+  }
+}
+
+
+
+string GetCompileDir(int texID)
+{
+  string dir = ReadInfo("LaTeX_compile_dir");
+  if (strlen(dir)==0)
+    dir = ReadInfo("file_path");
+  return(dir);
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("LaTeXCompile();",	"control c control c","latex_mode");
+AssignKey("LaTeXNextError(GetBufferID(),ReadInfo(\"line\",GetBufferID()));","control c '0x2a'","latex_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeX mode preferences ««
+ConstructInfo("latex_mode","","","LB","",0,1,0);
+ConstructInfo("LaTeX_auto_save","","","LBWH","",0,1,1);
+ConstructInfo("LaTeX_log_restart","","","LBWH","",0,1,1);
+ConstructInfo("LaTeX_compile_dir","","","LSWH","",0,0,"PrimeTeX:");
+ConstructInfo("LaTeX_port_name","","","LSWH","",0,0,"Start_TeX");
+ConstructInfo("LaTeX_style","","","LSWH","",0,0,"&latex");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LaTeX menu ««
+MenuAdd("t", "LaTeX");
+ MenuAdd("i", "Compile", "LaTeXCompile();");
+ MenuAdd("i", "ShowDVI", "LaTeXShow();");
+ MenuAdd("i", "---");
+ MenuAdd("i", "Next error", "LaTeXNextError(GetBufferID(),ReadInfo(\"line\",GetBufferID()));");
+
+MenuAdd("s", "LaTeX...", "LaTeXPrefs();", "", 6,6,-1); // Add to PackageSettings
+MenuBuild();

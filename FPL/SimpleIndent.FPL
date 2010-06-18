@@ -1,0 +1,18 @@
+export void Indent()
+{
+  int counter=0;
+  int column=ReadInfo("byte_position");
+  int chara;
+  string output="\n";
+
+  while (counter<column) {
+    chara=GetChar(counter);
+    if (chara==' ' || chara=='\t')
+      output=joinstr(output, itoc(chara));
+    else
+      break;
+    counter++;
+  }
+  Output(output);
+}
+AssignKey("Indent();", "Shift 'Return'");

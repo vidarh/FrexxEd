@@ -1,0 +1,219 @@
+// Assemble.FPL by Bjorn Reese <breese@imada.ou.dk>
+
+// Assemble
+
+export void Asm_Assemble(void)
+{
+	string file = ReadInfo("file_name");
+	string command = sprintf("CD %s\n%s >%s %s %s",
+		ReadInfo("file_path"),
+		ReadInfo("_Assembler"),
+		ReadInfo("_Errorfile"),
+		ReadInfo("_Asm_opt"),
+		file);
+
+	SaveChanges();
+	Status(0, sprintf("Assembling %s ...", file));
+	System(command);
+	Asm_LoadErrors();
+}
+
+// Assemble with debug informations
+
+export void Asm_AssembleDebug(void)
+{
+	string file = ReadInfo("file_name");
+	string command = sprintf("CD %s\n%s >%s %s %s %s",
+		ReadInfo("file_path"),
+		ReadInfo("_Assembler"),
+		ReadInfo("_Errorfile"),
+		ReadInfo("_Asm_opt"),
+		file,
+		ReadInfo("_Asm_debug_opt"));
+
+	SaveChanges();
+	Status(0, sprintf("Assembling %s ...", file));
+	System(command);
+	Asm_LoadErrors();
+}
+
+// Make
+
+export void Asm_Make(void)
+{
+	string command = sprintf("CD %s\n%s >%s",
+		ReadInfo("file_path"),
+		ReadInfo("_Make"),
+		ReadInfo("_Errorfile"));
+
+	SaveChanges();
+	Status(0, "Make...");
+	System(command);
+	Status(0, "");
+	Asm_LoadErrors();
+}
+
+// Launch debugger
+
+export void Asm_Debug(void)
+{
+	System(sprintf("CD %s\nRun >NIL: %s %s", ReadInfo("file_path"), ReadInfo("_Debugger"), stripExt(ReadInfo("file_name"))));
+}
+
+// Execute program
+
+export void Asm_Execute(void)
+{
+	int ret;
+
+	Status(0, "Executing...");
+	if (ret = System(sprintf("CD %s\n%s", ReadInfo("file_path"), stripExt(ReadInfo("file_name")))))
+		ReturnStatus(sprintf("Error code: %ld", ret));
+}
+
+// Load and filter errors
+
+export void Asm_LoadErrors(void)
+{
+	string errFile = ReadInfo("_Errorfile");
+	string convFile = joinstr(errFile, ".list");
+	string command = sprintf("%s <%s >%s %s", ReadInfo("_Filter"), errFile, convFile, ReadInfo("file_name"));
+
+	errLine = 0;
+	System(command);
+	LoadBlock(convFile);
+	if (strlen(GetBlockLine(0))) {
+		maxLines = ReadInfo("lines", errorID)-1;
+		Asm_NextError();
+	} else
+		ReturnStatus("No Errors");
+}
+
+// Jump to error
+
+export void Asm_NextError(void)
+{
+	if (++errLine > maxLines) {
+		errLine = maxLines+1;
+		DisplayBeep();
+		ReturnStatus("Last error.");
+	} else
+		JumpError();
+}
+
+export void Asm_PrevError(void)
+{
+	if (--errLine < 1) {
+		errLine = 0;
+		DisplayBeep();
+		ReturnStatus("First error.");
+	} else
+		JumpError();
+}
+
+void JumpError(void)
+{
+	string thisLine=GetBlockLine(errLine);
+	string fileName, errorType, errorMsg;
+	int posCnt=0, posEnd, lineNum;
+
+	while (thisLine[posCnt++]!='>');
+	fileName = substr(thisLine, 1, posCnt-2);
+	while (Isspace(thisLine[posCnt++]));
+	lineNum = atoi(substr(thisLine, posCnt-1, 16));
+	while (!Isspace(thisLine[posCnt++]));
+	errorType = substr(thisLine, posCnt++, 1);
+	while (thisLine[posCnt++]!='<');
+	for(posEnd=posCnt; thisLine[posEnd++]!='>'; );
+	errorMsg = substr(thisLine, posCnt-1, posEnd-posCnt+1);
+
+	if (strcmp(fileName, ReadInfo("file_name"))) {
+		Request(sprintf("(%s) Line %ld %s\n\nFile: %s", errorType, lineNum, errorMsg, fileName), "Error", "OK");
+		ReturnStatus("");
+	} else {
+		GotoLine(lineNum);
+		CenterView();
+		InverseLine();
+		ReturnStatus(sprintf("(%s) Line %ld  %s", errorType, lineNum, errorMsg));
+	}
+}
+
+int LoadBlock(string fileName)
+{
+	if (errorID) {
+		Kill(errorID);
+		errorID = 0;
+	}
+	errorID = BlockCreate("Error List");
+	return (StringToBlock(LoadString(fileName), errorID));
+}
+
+string GetBlockLine(int lineNum)
+{
+	int currentID = GetBufferID();
+	string lineStr;
+
+	CurrentBuffer(errorID);
+	lineStr = GetLine(lineNum);
+	CurrentBuffer(currentID);
+	return (lineStr);
+}
+
+// Strip Extension
+
+string stripExt(string name) {return(substr(name, 0, strstr(name, ".")));}
+
+// Change Settings
+
+export void Asm_Settings(void)
+{
+	string assembler = ReadInfo("_Assembler"), asmopt = ReadInfo("_Asm_opt"),
+		asmdopt = ReadInfo("_Asm_debug_opt"), filter = ReadInfo("_Filter"),
+		debugger = ReadInfo("_Debugger"), make = ReadInfo("_Make"),
+		errfile = ReadInfo("_Errorfile");
+
+	if (RequestWindow("Assembler Settings",
+		"Assembler", "S", &assembler,
+		"Assembler Options", "S", &asmopt,
+		"Assembler Debug Options", "S", &asmdopt,
+		"Filter", "S", &filter,
+		"Debugger", "S", &debugger,
+		"Make", "S", &make,
+		"Error File", "S", &errfile))
+	{
+		SetInfo(0, "_Assembler", assembler, "_Asm_opt", asmopt, "_Asm_debug_opt", asmdopt,
+			"_Filter", filter, "_Debugger", debugger, "_Make", make, "_Errorfile", errfile);
+	}
+}
+
+
+// Globals
+
+export int errorID = 0, errLine = 0;
+export int maxLines = 0;
+
+// Infos
+
+ConstructInfo("_Assembler", "", "", "GSHW", "", 0, 0, "ASM:Barfly/basm");
+ConstructInfo("_Asm_opt", "", "", "GSHW", "", 0, 0);
+ConstructInfo("_Asm_debug_opt", "", "", "GSHW", "", 0, 0, "-sa -sf -s1 -dDEBUG=1");
+ConstructInfo("_Filter", "", "", "GSHW", "", 0, 0, "bin/Barfly2Msg");
+ConstructInfo("_Debugger", "", "", "GSHW", "", 0, 0, "ASM:Barfly/bdebug");
+ConstructInfo("_Make" , "", "", "GSHW", "", 0, 0, "sc:c/smake -s");
+ConstructInfo("_Errorfile", "", "", "GSHW", "", 0, 0, "T:Errorlist");
+
+// Menu shortcuts
+
+MenuAdd("t", "Assembler");
+	MenuAdd("i", "Assemble", "Asm_Assemble();", "Control a");
+	MenuAdd("i", "Assemble w/debug", "Asm_AssembleDebug();", "Control A");
+	MenuAdd("i", "Make", "Asm_Make();", "Control m");
+	MenuAdd("i", "Debug", "Asm_Debug();", "Control d");
+	MenuAdd("i", "Execute", "Asm_Execute();", "Control x");
+	MenuAdd("i", "---");
+	MenuAdd("i", "Load Errors", "Asm_LoadErrors();");
+	MenuAdd("i", "Next Error", "Asm_NextError();", "Control n");
+	MenuAdd("i", "Previous Error", "Asm_PrevError();", "Control p");
+	MenuAdd("i", "---");
+	MenuAdd("i", "Settings...", "Asm_Settings();");
+MenuBuild();

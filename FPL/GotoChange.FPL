@@ -1,0 +1,15 @@
+int lastcounter=0;
+int changenumber=0;
+
+export int MyGotoChange()
+{
+  int counter=ReadInfo("counter");
+  if (counter==lastcounter+1)
+    changenumber++;
+  else
+    changenumber=0;
+  if (changenumber!=GotoChange(changenumber))
+    ReturnStatus("No more changes!");
+  lastcounter=counter;
+}
+AssignKey("MyGotoChange();", "amiga l");

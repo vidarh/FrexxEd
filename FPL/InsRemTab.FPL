@@ -1,0 +1,38 @@
+export void InsTab(void)
+{
+if(ReadInfo("line_length")>1)
+	{
+	int i;
+
+	if(ReadInfo("indent_uses_tabs"))
+		Output("\t");
+	else
+		for(i=0;i<ReadInfo("tab_size");i++)
+			Output(" ");
+
+	CursorLeft(1);
+	}
+
+CursorDown(1);
+}
+
+export void RemTab(void)
+{
+if(ReadInfo("line_length")>1)
+	if(GetChar()=='\t')
+		Delete(1);
+	else
+		{
+		int i;
+		for(i=0;(i<ReadInfo("tab_size") && GetChar()==' ');i++)
+			Delete(1);
+		}
+
+CursorDown(1);
+}
+
+{
+AssignKey("InsTab();", "Control 'Tab'");
+AssignKey("RemTab();", "Shift Control 'Tab'");
+ConstructInfo("indent_uses_tabs", "", "", "WLB", "", 0, 1, 1);
+}

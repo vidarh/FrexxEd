@@ -1,0 +1,18 @@
+export int SearchMark()
+{
+  if (GetErrNo()>=0) {
+    int retval[1];
+    if (Visible(0)) {
+      GetList("extra", &retval);
+      BlockMark(0);
+      CursorStack(-1);
+      GotoLine(retval[1], retval[0]);
+      CursorRight();
+      BlockMark(1);
+      CursorStack(1);
+      BlockMark(2);
+      Visible(1);
+    }
+  }
+}
+HookPast("Search", "SearchMark();");

@@ -1,0 +1,31 @@
+// $Id: DoubleMode.FPL 1.5 1995/07/21 10:33:09 jskov Exp $
+// $VER: DoubleMode.FPL 1.3 (02.04.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» DoubleMode() ««
+int __DMcounter;
+
+void export DoubleMode(int normal, int special)
+{
+  if ((GetChar(ReadInfo("byte_position")-1) == special) && (ReadInfo("counter")-1 == __DMcounter)){
+    Backspace();
+    Output(itoc(normal));
+  } else {
+    Output(itoc(special));
+    __DMcounter = ReadInfo("counter");
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Danish key bindings ««
+AssignKey("DoubleMode('[','å');","[","double_mode");
+AssignKey("DoubleMode('{','Å');","{","double_mode");
+AssignKey("DoubleMode(';','æ');",";","double_mode");
+AssignKey("DoubleMode(':','Æ');",":","double_mode");
+AssignKey("DoubleMode('\'','ø');","'0x2a'","double_mode");
+AssignKey("DoubleMode('\"','Ø');","\"","double_mode");
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» DoubleMode Settings ««
+ConstructInfo("double_mode","","","LBH","",0,1,0);
+
+AddMode(0, "double_mode", "","");

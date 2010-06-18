@@ -1,0 +1,30 @@
+############################################
+File:		QueryKillChanges.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		kjer@netcom.se, Daniel.Stenberg@sth.frontec.se
+Short:		Require confirmation before killing changed buffers
+Version:	1.5
+Date:		14.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type: hook
+Prereq:
+############################################
+
+FUNCTION
+  This function package hooks the functions Load(), Kill(), Clear() and
+QuitAll(). If any of the three first functions are invoked with a modified
+current buffer, a confirmation requester will appear. If QuitAll() is
+invoked with any modified buffer, a confirmation requester will appear.
+
+HISTORY
+ 1.1 -	The clear hook only asks for confirmation if 0 was sent as buffer ID.
+	If any program/user specifies a buffer ID, it probably means it is
+	certain that it's all right! (My MultiBlock.FPL goes weird anyway!)
+ 1.2 -  Now uses string additions.
+	Several of the ReadInfo()s in the functions were incorrect!
+ 1.3 -	New *much* improved QuitAll()-hook!
+ 1.4 -	Added a "Save&kill" button to the "kill buffer" requester.
+ 1.5 -	Fixed the kill and clear requesters to include a buffer name properly
+	even if it is a noname buffer.

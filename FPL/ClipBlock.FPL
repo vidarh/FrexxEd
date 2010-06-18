@@ -1,0 +1,31 @@
+
+export int BlockPasteGet_clip(int blockid)
+{
+  if (!blockid)
+    StringToBlock(ClipToString(0));
+  return(0);
+}
+export int BlockGet_clip(int blockid, int x1, int y1, int x2, int y2)
+{
+  if (!blockid)
+    StringToBlock(ClipToString(0));
+  return(0);
+}
+
+export int BlockStore_clip(int blockid, int x1, int y1, int x2, int y2)
+{
+  if (!blockid)
+    StringToClip(0, GetBlock());
+  return(0);
+}
+
+Hook("BlockPaste", "BlockPasteGet_clip", "!block_exist");
+Hook("BlockPasteRect", "BlockPasteGet_clip", "!block_exist");
+
+Hook("BlockCopyAppend", "BlockGet_clip", "!block_exist");
+HookPast("BlockCopyAppend", "BlockStore_clip");
+Hook("BlockCutAppend", "BlockGet_clip", "!block_exist");
+HookPast("BlockCutAppend", "BlockStore_clip");
+
+HookPast("BlockCopy", "BlockStore_clip");
+HookPast("BlockCut", "BlockStore_clip");

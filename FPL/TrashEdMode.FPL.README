@@ -1,0 +1,44 @@
+#############################################################################
+File:		trashEdMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Provides interface to trashEd (patched Trash'm-One2.0)
+Version:	1.1
+Date:		06.11.95
+Local settings:
+Global settings:
+Keysequence:	ESC, shift ESC
+Type:		function/key
+Prereq:		trashEd
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+ I don't have time to write the doc this time, but it's not really needed.
+ This file makes FrexxEd a controlling editor of trashEd.
+
+ Keys:
+
+  ESC		Starts assembly.
+  shift+ESC	Pops trashEd to front.
+
+
+ If assembly succeeds, trashEd will be popped to front. If assembly failed,
+ you will be presented with the error message.
+
+ There are more documentation in the trashEd readme which you'll have to read
+ anyway :) I'll make some more documentation for the next release of this FPL
+ file!
+
+HISTORY (REV)
+ 06.11.95 (1)	Changed "Next Error". No annoying requester anymore.
+ 02.10.95 (0)	First public release.
+
+BUGS
+ Error lines are not preformatted correctly.
+
+TODO
+
+
+SEE ALSO
+

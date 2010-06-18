@@ -1,0 +1,37 @@
+Ändrat innehållet i STR_TRY_AGAIN i Strings.c
+---------------------------------------------------------------
+I FACT'en kan du skriva "#?" för att få det nuvarande tecknet.
+---------------------------------------------------------------
+FACT(-6) anger style/färg för icke-tecken.  Du måste dock ange
+ett tecken för att kunna ställa om det (trots att det inte visas).
+ex:
+  FACT(-6, 's', "#R ");
+...reverserar bakgrunden där ingen text skrivs.  Observera spacet
+i strängen (utan det ändras inget).  Använd tillsvidare enbart space
+eftersom i framtiden kan det accepteras text där.
+
+---------------------------------------------------------------
+ReadInfo("colour", bufid, color_no);
+
+På det här sättet kan man läsa av de färger som faktiskt finns på
+skärmen.   Den läser alltså inte det som står i colour0-3-settingarna.
+Resultatet är en integer i FrexxEd-färg-style. Dvs 0xrgbRGB där RGB
+är högdelen och rgb är lågdelen av färgen.
+'color_no' måste vara en giltig färg (ingen koll görs för om det är giltigt).
+Ges inget 'color_no' returneras -1 som resultat.
+
+---------------------------------------------------------------
+'directory'-setting sparas inte längre i default-filen.
+
+---------------------------------------------------------------
+*961231
+
+Tagit bort tredje argumentet från FoldDelete (borde inte funnits i manualen heller).
+Klargörande: Om första argumentet till FoldDelete, FoldHide, FoldShow är -1 så
+avses alla rader/folds.
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+

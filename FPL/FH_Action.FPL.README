@@ -1,0 +1,20 @@
+############################################
+File:           FH_Action.FPL
+Author:         Kjell Ericson
+Email:          FidoNet 2:201/328, kjer@netcom.se
+Short:          Activate a buffer whenever the filehandler writes to it
+Version:        1.1
+Date:           22.7.95
+Local settings:
+Global settings:
+Keysequence: 
+Type:           hook
+Prereq:
+############################################
+
+FUNCTION
+
+  A simple hook is trigged whenever the filehandler acts on a buffer.  If the
+action type is 2 (write) or 5 (create) the view of the buffer is activated as
+half of the current active view and the cursor is placed at the bottom of
+the buffer.

@@ -1,0 +1,27 @@
+export void BufferInfo()
+{
+  string info;
+
+  info= "Name: " + ReadInfo("file_name") + "\n" +
+        "Path: " + ReadInfo("file_path") + "\n" +
+        "Time: " + GetDate() + "\n" +
+        "Size:\n" +
+        "          " + ltostr(ReadInfo("size")) + " bytes\n" +
+        "          " + ltostr(ReadInfo("lines")) + " lines\n" +
+        "Changes: " + ltostr(ReadInfo("changes")) + "\n" +
+        "Tabsize: " + ltostr(ReadInfo("tab_size")) + "\n\n" +
+        "Undo buffer:\n" +
+        "          " + ltostr(ReadInfo("undo_lines")+1) + " steps\n" +
+        "          " + ltostr(ReadInfo("undo_memory")) + " bytes\n" +
+        "Fragment:\n" +
+        "          " + ltostr(ReadInfo("fragmentation")) + " holes\n" +
+        "          " + ltostr(ReadInfo("fragmentation_size")) + " bytes";
+  if (ReadInfo("block_exist")) {
+    info+="\nBlock: ";
+    if (ReadInfo("block_type")==2)
+      info+=sprintf("%ld x ", ReadInfo("block_end_x")-ReadInfo("block_begin_x"));
+    info+=ltostr(ReadInfo("block_end_y")-ReadInfo("block_begin_y")+1);
+    info+=" lines";
+  }
+  Request(info, "Buffer Information!", "So what!");
+}  

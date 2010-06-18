@@ -1,0 +1,21 @@
+############################################
+File: GetFile.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: "GetFile" exception usage example
+Version: 1.0
+Date: 1.3.94
+Local settings:
+Global settings:
+Keysequence:
+Type: hook
+Prereq:
+############################################
+
+FUNCTION
+  Interprets the extension from the filename of the file that is to be loaded
+and displays what kind of a file it is.
+
+  Change the displays to something different and, *voila*, you have a filename
+sensitive environment!
+

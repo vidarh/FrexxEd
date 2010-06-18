@@ -1,0 +1,122 @@
+export int FixIndex()
+{
+  int line;
+  int col;
+  int page;
+  string block;
+  int number;
+  int max;
+
+  Visible(0);
+  GotoLine(1);
+  SearchSet("f+");
+  while(!Search("@#"))
+    number++;
+
+  GotoLine(1);
+
+  max = number;
+
+  Rename(""); /* to avoid oversaves by mistake... */
+
+  while(number) {
+    page=1;
+    SearchSet("f+");
+
+    Status(0, sprintf("%ld left!", number));
+
+    if(Search("@#")) {		// block start
+      ReturnStatus("No reference found!");
+      return 0;
+    }
+    CursorRight(2);
+    line = ReadInfo("line");
+    col = ReadInfo("byte_position");
+
+    BlockMark();
+    if(Search("@")) {		// block end
+      ReturnStatus("No end of reference found!");
+      return 0;
+    }
+    BlockCut();
+    block = GetBlock();
+    GotoLine(1);
+    Search(block);
+
+    SearchSet("f-");
+    if(!Search("")) {
+      int line = ReadInfo("line");
+      CursorRightWord(3);
+      if(line != ReadInfo("line")) {
+        while(!Search(""))
+          page++;
+      } else {
+        page = atoi(GetWord());
+      }
+    }
+    GotoLine(line, col); // get back to start
+    Backspace(2);
+    Delete();
+    Output(itoa(page));
+    number--;
+  }
+  return 1;
+}
+
+export int FixHeaders()
+{
+  int page =1;
+  int lastline=0;
+  int nowline=0;
+  Visible(0);
+  GotoLine(1);
+  SearchSet("f+");
+  while(!Search("")) {
+    nowline = ReadInfo("line");
+    if(nowline-lastline > 72) {
+      int ret;
+      ret = Request(sprintf("Page %ld was %ld lines!\nContinue?", page, nowline-lastline), "Info", "Continue|Abort");
+      if(!ret)
+        break;
+    }
+    lastline = nowline;
+    page++;
+    CursorRight();
+    DeleteEol();
+    Output(sprintf("%65lcPage: %ld", ' ', page));
+  }
+}
+
+export int RemoveFormFeeds()
+{
+  Visible(0);
+  GotoLine(1);
+  SearchSet("f+");
+  while(!Search(""))
+    DeleteLine();
+}
+
+export int RemoveGuide()
+{
+  Visible(0);
+  GotoLine(1);
+  SearchSet("f+");
+  while(!Search("@{")) {
+    Delete(3);
+    if(Search("\""))
+      return 1;
+    BlockMark();
+    if(Search("}"))
+      return 1;
+    CursorRight();
+    BlockDelete();
+  }
+  GotoLine(1);
+  while(!Search("^@node|^@endnode", "wf+")) {
+    DeleteLine();
+  }
+}
+
+AssignKey("FixHeaders();", "control I");
+AssignKey("FixIndex();", "control i");
+AssignKey("RemoveFormFeeds();", "control alt i");

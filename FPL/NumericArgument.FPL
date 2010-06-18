@@ -1,0 +1,68 @@
+// $Id: NumericArgument.FPL 1.6 1996/04/20 18:46:10 jskov Exp $
+// $VER: NumericArgument.FPL 1.2 (20.04.96) © Jesper Skov $
+
+
+// Figure repeat/arg by checking for "__NumArg" substring in execution string!
+
+int export __NumArg=0;
+
+void export NumericArgument(int visible)
+{
+  int execute=1;
+  int cont=1;
+  int arg=4;
+  int cuEnds = 0; // ID if C-u should end input (only if 0-9 has been used)
+  string exeString, key, numString;
+
+  while (cont){
+    Status(0,joinstr("Repeat/Arg: (", itoa(arg), ") »", numString, "«"));
+    exeString=KeyPress();
+    if(!strncmp("Output(\"", exeString, 8)){// Check control keys!
+      key=substr(exeString,8,1);
+      if (!strcmp(key,"\x07")){				// C-g -> Cancel
+        cont=0;
+        execute=0;
+      } else if ((0<=strcmp(key, "0"))&&(0>=strcmp(key, "9"))){
+        if (!cuEnds){						// If first num entry, kill arg value!
+          arg=0;
+          cuEnds=1;
+        }
+        numString+=key;
+        arg = arg*10+atoi(key);
+      } else {								// Start (repeated) call
+        cont =0;
+      }
+    } else if (!strcmp(exeString,"NumericArgument(0);") || !strcmp(exeString,"NumericArgument(1);")){// C-u -> End numeric input/Multiply by 4
+      if (cuEnds){
+        cont=0;
+        Status(0,joinstr("Repeat/Arg: (", itoa(arg), ")"));
+        exeString = KeyPress();			// Get function to call/rep
+      } else {
+        arg=arg*4;
+      }
+    } else {								// Function to call!
+      cont=0;
+    }
+  }
+  if (execute){								// Did user chicken out?
+	if(!visible)
+	  Visible(0);
+    if (-1==strstr(exeString, "__NumArg")){	// Argument call OR repeat?
+	   while (arg){							// REPEAT function (arg) times
+        ExecuteString(exeString);
+        arg--;
+      }
+    } else {								// ARGUMENT
+      __NumArg=arg;
+      ExecuteString(exeString);
+      __NumArg=0;
+    }
+	if(!visible){
+	  Visible(1);
+	  RedrawScreen();
+	}
+  }
+}
+
+AssignKey("NumericArgument(1);", "control u");
+AssignKey("NumericArgument(0);", "control U");

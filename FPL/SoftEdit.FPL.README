@@ -1,0 +1,94 @@
+############################################
+File: SoftEdit.FPL
+Author: Linus Nielsen
+Email: emwnie@emw.ericsson.se
+Short description: Emulates X-window/Mac/Windows text marking style
+Version: 1.3
+Date: 20.8.95
+Local settings:
+   "softedit_cursor_marking", BOOLEAN	TRUE when a block is marked
+						with the cursor keys.
+
+Global settings:
+ "softedit_persistent_blocks", BOOLEAN	TRUE if the block mark should not
+					be removed when the cursor is moved
+					and cleared when anything is output.
+ "softedit_cutbutton", STRING		The string used to assign the Cut
+					function to a mouse button.
+ "softedit_copybutton", STRING		The string used to assign the Copy
+					function to a mouse button.
+ "softedit_pastebutton", STRING		The string used to assign the Paste
+					function to a mouse button.
+
+Keysequence:
+	Assigns are made to the following:
+	  "Amiga b", Amiga c", "Amiga x"
+	  "MouseLeft", "MouseLeftDrag", "MouseLeftDouble"
+
+	Other assigns depends on the settings.
+
+	Hooks are set on:
+	  "CursorUp", "CursorDown", "CursorLeft", "CursorRight",
+	  "CursorLeftWord", "CursorRightWord", "PageUp", "PageDown",
+	  "BackSpace", "Delete"
+	  "Output"
+
+	The menu entry "Insert" is changed to call SoftPaste() instead
+	of BlockInsert().
+
+Type: hook, key, menu
+Prereq:
+	If you want the "MouseRight" assign to work, you must set the
+	right_mbutton to TRUE in the Customizing->Globals->IO... menu.
+
+############################################
+
+FUNCTION
+  This one makes it possible to use the mouse when marking blocks of text
+  just like on Mac, Windows, X-Windows and other GUI systems. Just hold
+  the left mouse button down and drag the mouse to mark. If you output
+  anything, i.e pressing a key or pasting from the cut buffer, when a block
+  is marked, this replaces the marked text. When a block is marked with the
+  mouse, the mark will disappear when you move the cursor.
+
+  The block is copied with the original key sequences, and the mouse
+  buttons can be used as well. The default assigns are:
+
+  Right button		- Copy
+  Shift + Right Button	- Cut
+  Middle button		- Paste
+
+  This can be changed with the settings panel in
+  "Customize->Program->SoftEdit..."
+
+  An alternative way of marking large areas of text is to place the cursor
+  at the start of the text and then Shift-click at the end and voila!
+
+  You can also select a word by double-clicking the left mouse button.
+
+  Of course, the original marking method, with Amiga + b, is still possible.
+
+
+HISTORY
+
+1.1	Improved the mouse doubleclick word marking. Now it no longer
+	marks a space character by mistake. Thanks to that, it is slightly
+	slower now.
+
+1.2	Removed a stupid dependency on the AssignKey() for MouseLeft.
+	For some strange reason, this dependency was ignored by FrexxEd
+	in earlier versions of the editor.
+
+1.3	Now SoftEdit uses the new BlockInsert(-1) feature to makes it
+	possible to paste into a marked block of text.
+	The 'Insert' menu option is changed to call SE_Paste() instead of
+	BlockInsert().
+	The double-click word-mark is made smoother with Visible() calls.
+	The mouse button assigns can now be changed with the setup panel
+	from the menu.
+	A new setting, softedit_persistent_blocks prevents clearing of
+	marked blocks.
+
+
+BUGS
+	Bugs? HAHAHA!!!

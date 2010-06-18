@@ -1,0 +1,19 @@
+/* FlipComment.FPL Copyright Niklas Angare */
+
+export void FlipComment() {
+   string line = GetLine();
+
+   if(strlen(line)>1) {
+      if(strcmp(substr(line, 0, 2), "/*"))	/* Add comment */
+         line = sprintf("/*%s*/\n", substr(line, 0, strlen(line)-1));
+      else {					/* Remove comment */
+         line = substr(line, 2, strlen(line)-5);
+         line = joinstr(line, "\n");
+      }
+      DeleteLine(1);
+      Output(line);
+   }
+   else CursorDown(1);
+}
+
+AssignKey("FlipComment();", "alt c");

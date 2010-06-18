@@ -1,0 +1,42 @@
+############################################
+File: CHelp.FPL
+Author: Mathias Axelsson
+Email: FidoNet 2:204/211.0
+       max@coders.ct.se
+       d94matax@isy.liu.se
+       matax@lysator.liu.se
+Short description: Lookup things in autodocs using Chelp
+Version: 1.2
+Date: 28.7.95
+Local settings:
+Global settings:
+Keysequence: Add to your favorite key!
+Type:
+Prereq:
+############################################
+
+FUNCTION
+  By using this script you can lookup any keyword using the external program
+CHelp (written by Robert Wahlström) to find things in the includes and
+autodocs. If you assign this function to a key, then the script will lookup
+the keyword under the cursor. If there isn't any word under the cursor, you're
+prompted witha requester asking you for a keyword. If CHelp isn't running, it will
+try to start CHelp in the background. Please note that CHelp must be in your path,
+otherwise it will not be found. If you don't have it in your path, then edit
+the System("run >NIL: CHelp...") line to include the path to CHelp.
+
+HISTORY:
+
+1.2:  A lot of new stuff included because Niclas Angare came up with a lot of
+      new stuff. I also added a config window to enable setup of CHelp stuff.
+      The script also changes the FACT to use . and _ as word symbol. I
+      intend to add switches for this in the next version.
+
+Install:
+  Add a line with "Execute("Chelp.FPL");" to your User.FPL file. Also add a line
+with AssignKey("CHelp_lookup();", "Alt 1"); after that line to add the function
+to Alt 1 key sequence.
+
+As the script now uses info variables you can set your own preferences. Just start
+the script and check under Settings/Program/CHelp for the settings. When you're
+satisfied save the config.

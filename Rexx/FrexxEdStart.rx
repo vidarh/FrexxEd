@@ -1,0 +1,302 @@
+/*****************************************************************************
+ * $VER: FrexxFrontEd v2.6 (23.7.96)
+ *
+ * Arexx script for FrexxEd as replacement for Ed used with Ced
+ * Also used by "freds" and "bin/startfred".
+ *
+ * Orginally by Daniel Stenberg & Michiel Willems.
+ * Altered by Nicolas Dade (nicolas-dade@uiuc.edu) to be more general.
+ * Altered by Mogens Isager to be even more general :-).
+ * Altered by Nicolas Dade again to fold Mogens' changes into my private version.
+ * Altered by Mathias Axelsson to add some command line options
+ *
+ * NEW FEATURES:
+ * (5.2.95) [Nicolas]
+ *  o correctly handles relative paths in Filename.
+ *  o handles multiple filenames.
+ *  o cleaned up STICKY code.
+ * (18.2.95) [Nicolas]
+ *  o STICKY can appear anywhere in the arguments.
+ * (20.2.95) [Daniel/Kjell]
+ *  o Added the iconfy-stuff!
+ * (23.2.95) [Nicolas]
+ *  o it's ok to open more than one new file at once.
+ *  o starting with no arguments makes Fred pop up a requester.
+ *  o eliminated NOARGS code because NOARGS was never used.
+ *  o moved "run Fred" out of loop.
+ *  o moved "Deiconify(); WindowToFront();" out of loop.
+ * (4.6.95) [Mogens]
+ *  o Made some changes to handle no args or just STICKY.
+ * (6.6.95) [Nicolas]
+ *  o folded some of Mogen's changes into my code
+ *  o changed fpl/KillNotify.FPL to be smarter about multiple files and re-iconifying.
+ *    This meant adding the global info _iconify_when_quit_countdown that counts the total number of buffers that were opened while iconified.
+ *  o ARexxRead()s replaced by having arexx place the variable directly in the FPL code.
+ *  o In order to keep the user from deiconifying while we open the files, the command(s) to FrexxEd are built up in arexx, and then sent as one long command.
+ *
+ * (8.11.95) [Mathias]
+ *  o Added some more command line options:
+ *    x Left=<#>   Sets left edge of window
+ *    x Top=<#>    Sets top edge of window
+ *    x Width=<#>  Sets width of window
+ *    x Height=<#> Sets height of window
+ *    x Window=<#> Sets type of the window. See Functions.guide/ReadInfo()
+ *                 for all the types
+ *    x Screen=<.> Sets public screen name
+ *
+ * (7.22.96) [Mathias]
+ *  o Added a switch that always will create a new window of the specified
+ *    type and close it after you've quit. Option name is FORCENEW.
+ *
+ * (7.23.96) [Daniel]
+ *  o Fixed a little flaw in the opening part that sure made funny FORCENEW
+ *    effects in Mathias' fix.
+ *  o Made it use a much longer timeout when waiting for FrexxEd to start if
+ *    it had to start it itself!
+ *
+ * USAGE/DESCRIPTION:
+ *
+ * Arguments: rx FrexxEdStart.rx {Filenames} [STICKY] [LEFT=#]
+ *                               [TOP=#] [WIDTH=#] [HEIGHT=#] [WINDOW=#] [SCREEN=.]
+ *                               [FORCENEW]
+ *
+ * Example  : rx FrexxEdStart S:Startup-Sequence S:User-Startup
+ *
+ * Note that the shell script Freds calls FrexxEdStart for us, so the above
+ * example could also have been written as
+ *   freds S:Startup-Sequence S:User-Startup
+ *
+ * To use as a tool with Workbench, use 'startfred' which is a binary
+ * executable frontend to this ARexx program.
+ *
+ ****************************************************************************/
+
+OPTIONS RESULTS
+
+IF ~SHOW('L', "rexxsupport.library") THEN DO
+  IF ~ADDLIB('rexxsupport.library', 0, -30, 0)
+  THEN DO
+    SAY "couldn't open rexxsupport.library!"
+    EXIT 10
+  END
+END
+
+/* get Fred running, even if we have no filenames to pass to Fred */
+Tries = 0;
+PortName = 'FREXXED.1'
+DO WHILE ~SHOW(P, PortName)
+  IF Tries > 10 THEN DO
+    EXIT 5
+  END
+  IF Tries = 0 THEN DO
+    ADDRESS COMMAND "Run <nil: >nil: Fred"
+  END
+  ADDRESS COMMAND "WaitForPort "PortName
+END
+
+/* parse the command line. inits NunArgs, Name.nnn and Sticky */
+/* as well as Left, LeftEdge, Top, TopEdge, Width, WidthSize  */
+/* Height, HeightSize                                         */
+
+PARSE ARG CmdLine
+
+NumArgs = 0
+Sticky = 0
+Left = 0
+Top = 0
+Width = 0
+Height = 0
+Window = 0
+Screen = 0
+ForceNew = 0
+
+DO UNTIL CmdLine = ""
+  CmdLine = STRIP(CmdLine)
+  IF LEFT(CmdLine,1) = '"' THEN DO
+    NumArgs = NumArgs + 1
+    PARSE VAR CmdLine '"' Name.NumArgs '"' CmdLine
+  END
+  ELSE DO
+    NumArgs = NumArgs + 1
+    PARSE VAR CmdLine Name.NumArgs CmdLine
+  END
+  
+  IF Name.NumArgs="" THEN
+    NumArgs = NumArgs - 1 /* ignore empty arguments */
+  
+  IF UPPER(Name.NumArgs) = "STICKY" & ~Sticky THEN DO /* if sticky appears twice then the second time it refers to a file */
+    Sticky = 1
+    NumArgs = NumArgs - 1 /* sticky will not be counted in NumArgs */
+  END
+  
+  IF UPPER(Left(Name.NumArgs,4)) = "LEFT" & ~Left THEN DO
+    Left = 1
+    parse var Name.NumArgs'='LeftEdge
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Left(Name.NumArgs,3)) = "TOP" & ~Top THEN DO
+    Top = 1
+    parse var Name.NumArgs'='TopEdge
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Left(Name.NumArgs,5)) = "WIDTH" & ~Width THEN DO
+    Width = 1
+    parse var Name.NumArgs'='WidthSize
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Left(Name.NumArgs,6)) = "HEIGHT" & ~Height THEN DO
+    Height = 1
+    parse var Name.NumArgs'='HeightSize
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Left(Name.NumArgs,6)) = "WINDOW" & ~Window THEN DO
+    Window = 1
+    parse var Name.NumArgs'='WindowType
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Left(Name.NumArgs,6)) = "SCREEN" & ~Screen THEN DO
+    Screen = 1
+    parse var Name.NumArgs'='ScreenName
+    NumArgs = NumArgs - 1
+  END
+  
+  IF UPPER(Name.NumArgs) = "FORCENEW" & ~ForceNew THEN DO
+    ForceNew = 1
+    NumArgs = NumArgs - 1
+  END
+END
+
+/* if Sticky then setup a port for us to use */
+OurPort="ED_FREXXED.no port"
+IF Sticky THEN DO
+  i = 1
+  cont = 0
+  DO while i<100 /* no more than 100 simultaneous startups! */
+    IF ~SHOW("P", "ED_FREXXED."i) THEN DO
+	OurPort = "ED_FREXXED."i
+	cont = OPENPORT(OurPort)
+	IF cont THEN i = 100 /* we might not get the port if someone else creates it between the SHOW() and the OPENPORT() */
+    END
+    i = i + 1
+  END
+  IF ~cont THEN DO
+    SAY "We found no free port to use!"
+    EXIT(5)
+  END
+END
+
+/* Because of problems with the user tweaking the window while the files are being opened, I accumulate all the fpl code in FPLCode and then execute it all at once at the end */
+FPLCode = 'int ID, oldID, ID1=0;'
+
+/* if files where specified, load each file into FrexxEd */
+IF NumArgs > 0 THEN DO
+
+  /* make sure KillNotify.FPL has been loaded, and add our NumArgs to the iconify countdown */
+  IF Sticky THEN DO
+    FPLCode = FplCode||'ID = GetBufferID();
+     ReadInfo("_iconify_when_quit_countdown", ID);
+     if (GetErrNo()) {
+       ExecuteFile("KillNotify.FPL");
+     }
+     if (ReadInfo("iconify", ID)) {
+       SetInfo(ID, "_iconify_when_quit_countdown", 'NumArgs' + ReadInfo("_iconify_when_quit_countdown", ID));
+     }'
+  END
+  
+  DO n=1 TO NumArgs
+    File = Name.n
+
+    /* if File does not contain an absolute path then prepend the current dir to it */
+    IF File~="" & POS(":",File)=0 THEN DO
+      CDir = PRAGMA("D")
+      IF RIGHT(CDir,1)~=":" THEN CDir=CDir"/"
+      File = CDir||File
+    END
+
+    FPLCode = FPLCode||'ID = New();
+     if (ID) {
+       CurrentBuffer(ID);'
+    IF ~ForceNew THEN DO
+       FPLCode = FPLCode||'Activate(ID, -1, oldID);'
+    END
+       FPLCode = FPLCode||'
+       Open("'File'");
+       if ('Sticky') {
+	 SetInfo(ID, "_notifyport", "'OurPort'");
+	 SetInfo(ID, "_iconify_when_quit", ReadInfo("iconify"));
+       }
+     }
+     else {
+       ARexxSet("Sticky", "0");
+     }'
+  END
+END
+
+ELSE DO /* NumArgs = 0 */
+  /* have Fred open a file requester---the user can choose as many files as they like */
+  /* note that Sticky doesn't work with filerequested files */
+  FPLCode = FPLCode||'ID = Open("");'
+END
+
+IF ForceNew THEN DO
+   FPLCode = FPLCode||'ID1 = WindowAlloc(ID, ID);'
+END
+ELSE DO
+  FPLCode = FPLCode||'ID1 = ID;'
+END
+
+IF Left THEN DO
+  FPLCode = FPLCode||'SetInfo(ID1, "window_xpos", 'LeftEdge');'
+END
+IF Top THEN DO
+  FPLCode = FPLCode||'SetInfo(ID1, "window_ypos", 'TopEdge');'
+END
+IF Width THEN DO
+  FPLCode = FPLCode||'SetInfo(ID1, "window_width", 'WidthSize');'
+END
+IF Width THEN DO
+  FPLCode = FPLCode||'SetInfo(ID1, "window_height", 'HeightSize');'
+END
+IF Window | ForceNew THEN DO
+  IF ~Window THEN DO
+    WindowType = 1
+  END
+  
+  FPLCode = FPLCode||'SetInfo(ID1, "window", 'WindowType');'
+END
+
+IF Screen THEN DO
+  FPLCode = FPLCode||'SetInfo(ID1, "public_screen", "'ScreenName'");'
+END
+
+IF ForceNew THEN DO
+   FPLCode = FPLCode||'WindowOpen(ID1);'
+END
+
+/* force the Fred window into view */
+FPLCode = FPLCode||'Deiconify(); WindowToFront();'
+
+/* Uncomment for debugging: */
+
+/* say FPLCode */ 
+
+/* send all the accumulated code to FrexxEd */
+ADDRESS VALUE PortName
+FPLCode
+ADDRESS
+
+/* if Sticky then wait for NumArgs kill notifications to show up in OurPort */
+IF Sticky THEN DO
+  DO n=1 TO NumArgs
+    DO WHILE ~WAITPKT(OurPort) /* wait for a packet */
+    END
+    packet = GETPKT(OurPort) /* get packet, but ignore contents! */
+  END
+END
+
+/*************************************/

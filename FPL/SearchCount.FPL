@@ -1,0 +1,24 @@
+export int SearchCount()
+{
+  int BufferID=DuplicateEntry();
+  int foundcount=0;
+  int currentbuffer=GetBufferID();
+
+  if (BufferID) {
+    CurrentBuffer(BufferID);
+    GotoLine(1, 0);
+    while (Search()>=0)
+      foundcount++;
+    CurrentBuffer(currentbuffer);
+    Kill(BufferID);
+    Request(joinstr("\"", ReadInfo("search_buffer"), "\" is found ",
+                    ltostr(foundcount), " times!"),
+            "SearchCount", "Understood!");
+  }
+
+}
+
+/* Assign "amiga control s" to the function */
+
+AssignKey("SearchCount();", "amiga control s");
+

@@ -1,0 +1,672 @@
+/*
+ * WHAT IS THIS?
+ *
+ * WordPro.FPL is perhaps the most advanced FPL program written for FrexxEd
+ * at this time. It brings interactive word-processor-style word wrap
+ * functionality to the editor.
+ *
+ * "word-processor-style" means that
+ * A. All word wrapping is "paragraph" oriented. All lines within the same
+ *    paragraph are separated with 'soft' newlines (that is a "\x01\n" in my
+ *    program!),
+ * B. If a line is longer than the right margin is set to, the words that are
+ *    "off the edge" are moved down to the line below and a 'soft' newline is
+ *    added to the end of the line. If the line below gets too long by the
+ *    operation, it performs the same with that line...
+ * C. If the first word of the line below would fit at the end of the current,
+ *    it is moved up. (And then the same check is done on the line below.)
+ */
+ 
+/*
+ * Current restrictions:
+ *  o Pretty slow on large paragraphs, perhaps I'll make a limit in amount
+ *    of lines that can get 'fixed' on each invoke.
+ *  o If the first word of a line fits on the line above is only checked for
+ *    if the current line is out of right margin ( and '_fitprev' is on ).
+ *  o If the first word of the line below fits on the current line is only
+ *    checked for when deleting.
+ *  o There is no kind of left margin indentation support
+ */
+
+/*
+ * WordProWrap()
+ *
+ * Checks the current line to see if it is longer than the margin allows.
+ * If it is, it performs actions to word wrap it properly
+ */
+export int WordProWrap(void)
+{
+  string word;
+  int sbyte = ReadInfo("byte_position");
+  int line = ReadInfo("line");
+  int sline=line;
+  int cursorline = line;
+  int jumpback;
+  int wrapped;
+  int len = ReadInfo("line_length");
+  int visible = Visible(0);
+  const int wall = ReadInfo("wall_right");
+  if(wall >= len)
+    return 1;
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1);
+  do {
+    int steps;
+    int backsteps;
+    len = ReadInfo("line_length");
+    if(IsLineWordWrapped(line)) {
+      wrapped=1; /* it is wrapped! */
+      len--; /* don't count the cookie! */
+    }
+    else
+      wrapped=0;
+
+    if(wall >= len)
+      break;
+
+//    Request(sprintf("line %d is %d long wrapped %d", line, len, wrapped));
+    jumpback=1;
+    if(line == cursorline) {
+      /* the cursor-line */
+      if(ReadInfo("column") + (len-sbyte) >= wall) {
+        /* we reached the edge when appending text to the left side
+           of text that is about to get wrapped! */
+        backsteps= len-sbyte;  /* this number of steps from the current
+        				right edge */
+        jumpback=0;
+      }
+
+      if(ReadInfo("WordPro_fitprev")) {
+        /*
+         * This checks if the first word on the line fits on the uppper line
+         */
+        while (IsLineWordWrapped(line-1)) {
+          int uplen;
+          GotoLine(line-1);
+          uplen = ReadInfo("line_length");
+          word = GetWord(line, 0);
+          if(sbyte > strlen(word) &&
+             uplen + strlen(word)+2 < wall) {
+            GotoLine(--line, len);
+            Backspace();
+            Delete();
+            Output(" ");
+            sbyte += uplen;
+            sline--;
+            //Request("We merged the line with the upper one!");
+          }
+          else {
+            GotoLine(line);
+            break;
+          }
+        }
+      }
+      /* ----- */
+      cursorline=-1; /* never ever do this again */
+      
+    }
+
+    GotoLine(line, -1); /* jump to end of line! */
+    do {
+      steps+=CursorLeftWord();
+    } while (line==ReadInfo("line") &&
+             ReadInfo("column")>1 &&
+             wall<ReadInfo("column"));
+
+    if(!jumpback && (steps < backsteps)) {
+      /* then this is a false backstepper! */
+      jumpback=1;
+    }
+    
+/*    Request(sprintf("line %d is %d long\nwrapped %d jumpback %d\nsline %d sbyte %d",
+    		    line, len, wrapped, jumpback, sline, sbyte)); */
+
+    if (line==ReadInfo("line") && ReadInfo("column")>1) {
+      int byte = ReadInfo("byte_position");
+      while(GetChar(--byte) != ' ') {
+         steps++;
+         CursorLeft();
+         if(!byte) {
+            GotoLine(line,wall);
+            Output("\x01\n");
+            break 2;
+         }
+      }
+      byte++;
+      while(GetChar(--byte) == ' ')
+        Backspace();
+      Output("\x01\n");
+    }
+    /*
+    if(wall <= ReadInfo("column")) {
+      Output("\x01\n");
+    }
+    */
+    line++; /* we've come down one line by now! */
+    if(!jumpback) {
+      jumpback=2;
+      sbyte = steps-backsteps;
+      sline = line;
+    }
+    if(wrapped) {
+      //Request("This is a wrapped line, check if next word fits here!");
+      len = ReadInfo("line_length");
+      word = GetWord(line+1, 0); /* get first word on next line */
+      if(strlen(word)+len < wall) {
+        /* we think next word is gonna fit on our line! */
+        GotoLine(line, len); /* jump to end of line! */
+        Backspace(); /* get rid of our 0x01 code! */
+        Delete(); /* Merge next line to our! */
+        if(GetChar()!=' ')
+          Output(" "); /* make us a space! */
+      }
+      else {
+        //Request("Nope! It doesn't...");
+        if(len < wall)
+          wrapped=0;
+      }
+    }
+    else if(1 != jumpback) {
+      /* If it *IS* a jumpback to the original position,
+         we wanna go back to the *SAME* position */
+      if(line < ReadInfo("lines") && !IsLineWordWrapped(line)) {
+//        Request(sprintf("boo %d", jumpback));
+        sbyte++;
+      }
+    }
+    /* Request(sprintf("line %d lines %d wrapped %d",
+                    line, ReadInfo("lines"), wrapped)); */
+  } while(wrapped); /* continue until done! */
+  if(jumpback) {
+//    Request(sprintf("sline %d sbyte %d", sline, sbyte));
+    GotoLine(sline, sbyte); /* jump to start-pos! */
+    // Request(sprintf("%d %d", sbyte, ReadInfo("line_length")));
+    if(IsLineWordWrapped(sline) &&
+       (sbyte>=ReadInfo("line_length")) ) {
+      GotoLine(sline, ReadInfo("line_length")-2);
+    }
+    if(GetCursor(sbyte, sline) < sbyte) {
+      GotoLine(sline+1);
+    }
+  }
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1);
+  Visible(visible);
+}
+
+/*
+ * WordProDelete0x01()
+ *
+ * Called before each invoke of Delete() to make a deletion of the 'soft'
+ * newline character (ASCII 0x01) make a deletion of the following
+ * newline too, and a decent word wrap if the line gets too long!
+ */
+int newlinedelete;
+export int WordProDelete0x01(int number)
+{
+  if(1 == GetChar()) { /* are we standing on a 0x01 character? */
+    int vis=Visible(0);
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1);
+    if(number>1) /* specified number? */
+      number--;
+    Delete(number+2); /* delete the 0x01 and newline too then! */
+    WordProWrap(); /* wrap this long line! */
+    Visible(vis);
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1);
+    return 1; /* quit the actual Delete() */
+  }
+}
+
+/*
+ * WordProDelete()
+ *
+ * Called after each invoke of Delete() to make a decent word wrap if the
+ * line gets short enough to fit the first word on the line below!
+ */
+export int WordProDelete(void)
+{
+  int line=ReadInfo("line");
+  if(IsLineWordWrapped(line)) {
+    int len;
+/*    int sline=line; */
+/* old:    int sbyte=ReadInfo("byte_position"); */
+    int visible=Visible(0);
+    string word;
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1);
+    CursorStack(-1); /* push current position */
+    while(line <= ReadInfo("lines")) {
+      if(!IsLineWordWrapped(line))
+        break;
+      word = GetWord(line+1, 0); /* get first word on next line */
+      if (!strlen(word))
+        /* no point if no string was there */
+        break;
+
+      len = ReadInfo("line_length") + strlen(word)+1; /* a space too! */
+      if(ReadInfo("wall_right") > len) {
+        GotoLine(line++, -1); /* got to end of line */
+        Backspace(); /* remove magic cookie! */
+        Delete(); /* remove newline */
+        Output(" ");
+        WordProWrap(); /* do the dance! */
+      }
+      else
+        break;
+    }
+    CursorStack(1); /* pull previous cursor position */
+/* old:   GotoLine(sline, sbyte); jump to start-pos! */      
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1);
+    Visible(visible);
+  }  
+}
+
+/*
+ * This function is called _before_ a backspace, and the ...Past is called
+ * _after_ it. Compare the line numbers and if there is a change, scan
+ * the line you ended up on for 0x01 chars and replace them with ' '.
+ */
+
+int backspaceline;
+int backspacevis;
+ 
+export int WordProBackspace(void)
+{
+  backspaceline = ReadInfo("line");
+  Visible(0);
+}
+
+export int WordProBackspacePast(void)
+{
+  int line = ReadInfo("line");
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1); /* no recursion */
+  if( backspaceline != line) {
+    /* scan for and replace 0x01 with spaces */
+    int visible=Visible(0);
+    CursorStack(-1); /* push current position */
+    do {
+      CursorLeft();
+//      Request(sprintf("char %c", GetChar()));
+      if(1 == GetChar()) {
+        Delete();
+        Output(" ");
+        break; /* only replace one, we don't count on more than one */
+      }
+    } while( line == ReadInfo("line"));
+    CursorStack(1);  /* pull cursor position */
+    WordProWrap(); /* do the secret wrap trick! */
+    Visible(visible);
+    backspaceline = line;
+  }
+  else {
+    WordProDelete();
+  }
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1); /* back */
+  Visible(1);
+}
+
+/*
+ * WordProSave()
+ *
+ * Called before the actual save is done. If the user confirms the question,
+ * it replaces all soft newlines to spaces and then saves it like that.
+ */
+int oursavehook;
+export int WordProSave(string file, string pack)
+{
+  int new;
+  int savemode = ReadInfo("wordpro_save");
+  if(3 == savemode) {
+    savemode = Request("How do you want it saved?", "Save option",
+                       "Raw|Softs too|Only hards|Cancel");
+    if(!savemode--) {
+      return 1;
+    }
+  }
+  if(!oursavehook && savemode) {
+    int us = GetEntryID();
+    new = New();
+    oursavehook=1; /* prevent us from getting recursive! */
+    if(new) {
+      string filename;
+      string replacedsoft;
+      CurrentBuffer(new); /* jump to the new one */
+      BlockPaste(us); /* paste the original buffer in the new */
+      GotoLine(1); /* go to the top! */
+
+      if(savemode==2) {
+        /* this is "only hard" newlines should be left, replace all softies
+           with a single space! */
+        replacedsoft = " ";
+      }
+      else {
+        /* Keep the soft newlines as newlines in the output! */
+        replacedsoft = "\n";
+      }
+      Replace(1, "\x01\n", replacedsoft, "f+"); /* replace all soft newlines */
+      
+      filename = ReadInfo("full_file_name", us); /* get file name */
+      if(strlen(file))
+        /* done like this to still support Save() with a given name */
+        filename=file;
+      Save(filename, pack); /* save the new buffer to the original file */
+      CurrentBuffer(us); /* jump back to the orignal buffer */
+
+      /*
+       * Now, write the date and time of our "faked" save into the
+       * info variable for our good old buffer to maintain the proper
+       * data! (and most of all, to avoid that nasty 'FileChanged'
+       * exception when trying to save a file that is older than the file
+       * actually is on disk!)
+       */
+      SetInfo(us, "ds_Days", ReadInfo("ds_Days", new));
+      SetInfo(us, "ds_Minute", ReadInfo("ds_Minute", new));
+      SetInfo(us, "ds_Tick", ReadInfo("ds_Tick", new));
+
+      SetInfo(us, "changes", 0); /* clear the changes flag! */
+      Kill(new); /* kill our temporary buffer */
+    }
+    oursavehook=0; /* allow us to get started once again! */
+  }
+  return new; /* if non-zero, the "real" save is stopped */
+}
+
+/*
+ * WordProOpenAndWrap()
+ *
+ * This function takes the specified file, or if none is specified, prompts
+ * for one, loads it into a new buffer and word wraps it according to
+ * its knowledge.
+ */
+int export WordProOpenAndWrap(string file)
+{
+  int new;
+  if(!strlen(file)) {
+    file=PromptFile();
+    if(!strlen(file))
+      /* cancel or error occured! */
+      return 1;
+  }
+  new = New();
+  if(new) {
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1); /* prevent recurse */
+    CurrentBuffer(new); /* jump to new buffer */
+    Load(file); /* load the specified file */
+    WordProWrapLines(1, ReadInfo("lines")); /* do the entire buffer! */
+    SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1); /* allow recurse */
+    SetInfo(-1, "wordpro", 1); /* 'wordpro' is enabled for this buffer! */
+  }
+  else
+    return 1;
+}
+
+int export WordProWrapBuffer()
+{
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1); /* prevent recurse */
+  WordProWrapLines(1, ReadInfo("lines")); /* do the entire buffer! */
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1); /* allow recurse */
+}
+
+int export WordProWrapBlock()
+{
+  if(ReadInfo("block_exist")) {
+    BlockMark(0);
+    WordProWrapLines(ReadInfo("block_begin_y"), ReadInfo("block_end_y"));
+  }
+  else
+    ReturnStatus("No block marked!");
+}
+
+int export WordProWrapLines(int firstline, int lastline)
+{
+  int line;
+  int numlines;
+  int len;
+  int count;
+  int vis = Visible(0);
+
+  SetInfo(-1, "wordpro", 1); /* we wanna run wordpro dammit! ;) */
+
+  /* Do the tango!
+   *
+   * Combine all 'paragraphs' with soft newlines!
+   */
+  numlines = ReadInfo("lines"); /* read number of lines */
+  for(line= firstline; line < lastline; line++) { /* the last line can't be soft! */
+    len = GetByte(999999, line); /* get byte position */
+    if(len > ReadInfo("wall_right")/2 &&
+       !IsLineWordWrapped(line)) {
+      /* the text of this line reaches longer than half the width */
+      /* and it isn't previously wrapped (like if the file was saved 'raw'
+         in a previous WordPro editing session)! */
+      GotoLine(line, len); /* goto end of line */
+
+      /* The expression just above does not fully function in FrexxEd 1.7
+         and earlier if the length of the line is longer than the width
+         of the screen/window... */
+      
+      if((GetByte(999999, line+1)>1) && !Isspace(GetChar(0, line+1))) {
+        /* The paragraph seems to continue on the following line,
+           since the first column of that line isn't white space! */
+        Output("\x01");
+      }
+    }
+    /* next one please! */
+  }
+  /*
+   * Now, let's scan all lines and wrap them to a decent level!
+   */
+  for(line= firstline; line <= lastline;) {
+    GotoLine(line); /* jump to the line in question! */
+    WordProWrap(); /* do the secret wrap trick! */
+    count = ReadInfo("lines")-numlines; /* this amount of new lines! */
+    numlines += count; /* we're at this amount now! */
+    lastline += count; /* add to this one too! */
+    if(count)
+      line += count; /* skip those new ones since they're already wrapped! */
+    else
+      line++;
+  }
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1); /* allow yet again! */
+  Visible(vis);
+}
+
+export void WordProPrefs()
+{
+  PromptInfo(-1, "WordPro Preferences", -1, -1,
+             "wordpro", "wall_right", "wordpro_save", "wordpro_fitprev",
+             "wordpro_open", "fill_text_US");
+}
+
+int IsLineWordWrapped(int line)
+{
+  if(line>0) {
+    int len= GetByte(999999, line);
+    if(len>1 && (1 == GetChar(len-1, line))) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
+ * This function is built upon the basis written by Jesper Skov in his
+ * FillText.FPL 1.3. Only small modifications to fit WordPro standards
+ * added by me.
+ */
+
+export string ft_indention="";
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» fillText() ««
+export void WordProReWrapParagraph()
+{
+  int i=0;
+  int line;
+  int oldvis;
+
+  if (ReadInfo("line_length")==1){
+    ReturnStatus("Place cursor in a paragraph!");
+    return;
+  }
+
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")+1); /* prevent recurse */
+
+  oldvis = Visible(0);
+
+  // Find topmost line
+  line = ReadInfo("line");
+  while(line>1 && IsLineWordWrapped(line-1)) {
+    Home();
+    Backspace(2); /* remove the special newline character on the line
+                     above too */
+    Output(" ");
+    line--;
+  }
+  Home();
+  while(IsLineWordWrapped(line)) {
+    CursorDown();
+    Home();
+    Backspace(2); /* remove the special newline character on the line
+                     above too */
+    Output(" ");
+  }
+  Home();
+
+  // Copy&delete leading spaces
+  while(Isspace(GetChar(i)))
+    i++;
+  ft_indention = substr(GetLine(),0,i);
+  Delete(i);
+
+  BlockMark(0);
+  BlockMark(2,0,ReadInfo("line"),GetCursor(ReadInfo("line_length")),ReadInfo("line"));
+
+  Home();
+  Replace(1,"\t"," ","=bf+",ReadInfo("line_length")); // replace tabs with space
+  Home();
+  Replace(1,"  +"," ","=bfw+",ReadInfo("line_length")); // replace multiple spaces with space
+  Home();
+  if(ReadInfo("fill_text_US")){				// if wanted, set US double space
+    Replace(1,". ",".  ","=bf+");
+    Home();
+  }
+
+  BlockMark(0);
+
+  Clean("Output(ft_indention);");
+
+  // Now split line up in valid sized single lines
+  while(GetCursor(ReadInfo("line_length"))>ReadInfo("wall_right")){
+    // If a word is crossing the wall_right, go left of it.
+    GotoLine(ReadInfo("line"),GetByte(ReadInfo("wall_right")));
+      while(!Isspace(GetChar(ReadInfo("byte_position")-1))){
+      CursorLeftWord();
+      if (ReadInfo("column")==1){			// very long word!
+        CursorRightWord();				// simply go back!
+        break;
+      }
+    }
+    Backspace();
+    if (Isspace(GetChar(ReadInfo("byte_position")-1)))
+      Backspace();					// clear extra for US .
+    Output("\x01\n"+ft_indention);
+  }	 
+
+  // Delete last space there may be after a .
+  GotoLine(ReadInfo("line"),-1);
+  if(Isspace(GetChar(ReadInfo("byte_position")-1)))
+    Backspace();
+  if (Isspace(GetChar(ReadInfo("byte_position"))))
+    Delete();					// clear extra for US .
+
+  Visible(oldvis);
+  SetInfo(-1, "_wordpro", ReadInfo("_wordpro")-1); /* allow recurse */
+}
+
+export void WordProReWrapBuffer()
+{
+  int vis = Visible(0);
+  GotoLine(1);
+  while(ReadInfo("line") < ReadInfo("lines")) {
+     WordProReWrapParagraph();
+     CursorDown();
+  }
+  WordProReWrapParagraph(); /* do the last line once too B) */
+  Visible(vis);
+}
+
+ReadInfo("_wordpro");
+if(GetErrNo()) { /* just a way to make the menu only once, even if this file
+                    is executed repeatedly! */
+  /*
+   * Create our menu setup:
+   */
+  MenuAdd("t", "WordPro");
+    MenuAdd("i", "Open...", "WordProOpenAndWrap(\"\");", "control w o");
+    MenuAdd("i", "Save...", "Save();", "control w s");
+    MenuAdd("i", "Prefs...", "WordProPrefs();");
+    MenuAdd("i", "---");
+    
+     /* these items below calls the function ripped from FillText.FPL that
+        Jesper Skov nicely has contributed with */
+    MenuAdd("i", "Reformat");
+      MenuAdd("s", "Paragraph", "WordProReWrapParagraph();", "control w p");
+      MenuAdd("s", "Buffer", "WordProReWrapBuffer();");
+      
+    MenuAdd("i", "WordProify");
+      MenuAdd("s", "Block", "WordProWrapBlock();", "control w b");
+      MenuAdd("s", "Buffer", "WordProWrapBuffer();", "control w u");
+  MenuBuild();
+}
+
+/*
+ * This little beast is here only to prevent recursion where we don't want
+ * it...
+ */
+ConstructInfo("_wordpro", "", "", "ILH", "", 0, 999, 0);
+
+/*
+ * This is the general right-edge setting.
+ */
+ConstructInfo("wall_right", "", "", "WIL(display)", "", 0, 999, 79);
+
+/*
+ * Toggle this mode on/off with this!
+ */
+ConstructInfo("wordpro", "", "", "WBL(system)", "", 0, 0);
+
+/*
+ * Control how the saving is performed with this.
+ */
+ConstructInfo("wordpro_save", "", "", "WCG(system)", "Raw|Softs too|Only Hards|Query", 0, 0, 2);
+
+/*
+ * Make all the regular loads word wrap the file!
+ */
+ConstructInfo("wordpro_open", "", "", "WBG(system)", "", 0, 0, 0);
+
+/*
+ * This variable enables the wordpro script to check if the first word of
+ * the line fits on the line above.
+ */
+ConstructInfo("wordpro_fitprev", "", "", "WBG(system)", "", 0, 0, 1);
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info vars ««
+ConstructInfo("fill_text_US","","","WBG(display)","",0,1,0);
+
+FACT(0x01, 'S', "^", ' '); /* non-visible character! */
+
+AddMode(0,"wordpro", "","");				// Add as minor mode!
+
+/*
+ * All this can only be accomplished by some pretty extensive hooking...
+ */
+ 
+HookPast("Output", "WordProWrap();", "wordpro&!_wordpro");
+HookPast("BlockPaste", "WordProWrap();", "wordpro&!_wordpro");
+HookPast("Delete", "WordProDelete();", "wordpro&!_wordpro");
+HookPast("Backspace", "WordProBackspacePast();", "wordpro&!_wordpro");
+HookPast("DeleteWord", "WordProDelete();", "wordpro&!_wordpro");
+HookPast("BackspaceWord", "WordProBackspacePast();", "wordpro&!_wordpro");
+Hook("Save", "WordProSave", "wordpro");
+Hook("Delete", "WordProDelete0x01", "wordpro&!_wordpro");
+Hook("GotFile", "WordProWrapBuffer();", "wordpro_open&!_wordpro");
+Hook("Backspace", "WordProBackspace();", "wordpro&!_wordpro");
+Hook("BackspaceWord", "WordProBackspace();", "wordpro&!_wordpro");

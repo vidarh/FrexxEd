@@ -1,0 +1,62 @@
+LIBCODE
+
+NOSTACKCHECK
+STRINGMERGE
+NOVERSION
+DEBUG=SYMBOL
+OBJNAME=o/
+DEFINE=OS37
+DEFINE=__USE_SYSBASE
+UNSIGNEDCHAR
+NOSTANDARDIO
+UTILITYLIBRARY
+NOMULTIPLEINCLUDES
+DEFINE=FREXXED
+
+#"För att kunna logga filexekvering"
+#DEFINE=LOG_FILE_EXECUTION
+
+#"För framtida portningar till icka-Amiga"
+DEFINE=AMIGA
+
+#"För snabb deallokering"
+DEFINE=POOL_DEALLOC
+
+#"Allokering med pooler"
+DEFINE=POOL_ALLOC
+
+#"Testa att deallokeringar är giltiga"
+#DEFINE=alloctest
+
+#"debugutskrift"
+#DEFINE=DEBUGTEST
+
+#"För framtida multiprocessering av FrexxEd"
+#DEFINE=MULTIPROCESS
+
+#DEFINE=TOOLTYPEWRITEING
+
+#"En räknare över hur ofta statusraden uppdateras"
+#DEFINE=STATUS_TEST
+
+#"För att använda ZText"
+#DEFINE=USE_FASTSCROLL
+
+#"Optimize fungerar"
+OPT
+
+#"Aktivera DO_SLASK"
+#DEFINE=test
+
+#"För debugging"
+#PROFILE
+
+#"Sätt på för en icke Beta-släppning"
+DEFINE=FINAL_VERSION
+
+#"Sätt på för C-rutiner av skärm-FACT-konvertering"
+DEFINE=USE_C_SCREEN_SETUP
+
+#"För FINAL version sätt på AMIGA POOL_DEALLOC"
+#"För FINAL version slå av PROFILE test ALLOCTEST DEBUGTEST"
+#"För NORMAL version sätt på AMIGA ALLOCTEST DEBUGTEST test"

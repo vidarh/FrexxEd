@@ -1,0 +1,30 @@
+############################################
+File:		MultiBlock.FPL
+Author:		Daniel Stenberg
+Email:		FidoNet 2:201/328, email dast@sth.frontec.se
+Short: 		Enables easy access to multiple blocks
+Version:	1.1
+Date:		20.1.95
+Local settings:
+Global settings:
+Keysequence:	"Amiga t c" and "Amiga t p"
+Type:		hook
+Prereq:
+############################################
+
+FUNCTION
+  Gives the user easy access to a multitude of blocks!
+
+  Press "amiga t c" followed by a key on the prompt, and the default block
+will be copied to the block name 'MultiBlock_<key>'.
+
+  Press "amiga t p" followed by a key to paste the block named
+MultiBlock_<key>!
+
+  Both key promptings can be aborted by pressing escape!
+
+(No, this idea is not at all very much inspired by the GNU Emacs copy-region-
+to-register... )
+
+HISTORY
+  1.1 - Replaced all occurences of Sprintf() with sprintf()!

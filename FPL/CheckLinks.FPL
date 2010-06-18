@@ -1,0 +1,129 @@
+export void CheckLinks()
+{
+  int page;
+  string block;
+  int number;
+  int max;
+  int line = ReadInfo("line");
+  int col = ReadInfo("byte_position");
+  string nodes[100];
+  int size=100;
+  int numofnode=0;
+
+  /*
+     FIRST:
+     
+     Find all occurences of
+     
+     @node nodename
+     
+     nodename might be within quotes.
+     
+     Search pattern:
+     
+     ^[ \t]*@node[ \t]+("[^"]*"|[^ ]*)
+     
+     Hold all such names in an array for fast validity checks for each link
+     in the file.
+     
+     THEN
+     
+     Scan for all occurences that look like
+     
+     @{  "name name"  link  "todeloo"  0   }
+     A  B     C      D  E  F    G    H I J K
+     
+     A = hard string "@{"
+     B = optional white space
+     C = button name within quotes
+     D = at least one character white space
+     E = hard string "link"
+     F = see D
+     G = node name within quotes, or if without quotes white space terminated.
+     H = optional white space (required if 'I' is present)
+     I = optional line number in the node
+     J = optional white space
+     K = hard string "}"
+     
+     We want the G-name, without quotes!
+     
+     Search pattern:
+     
+     @{[ \t]*"[^"]*"[ \t]+link[ \t]+("[^"]*"|[^ \t}]*)[^}]*}
+     */
+
+  const string nodepattern = "^[ \t]*@node[ \t]+(\"[^\"]*\"|[^ ]*)";
+  const string linkpattern = "@{[ \t]*\"[^\"]*\"[ \t]+link[ \t]+(\"[^\"]*\"|[^ \t}]*)[^}]*}";
+
+  Visible(0);
+  GotoLine(1);
+  Status(0, "Reading all nodes...");
+  while(!Search(nodepattern, "wf+")) {
+    string junk = ReplaceMatch(nodepattern, "\\1");
+    if(strlen(junk)) {
+      if(junk[0]=='\"') {
+        /* strip quotes */
+        junk = substr(junk, 1, strlen(junk)-2);
+      }
+      nodes [ numofnode++ ] = junk;
+      if(numofnode == size) {
+        size += 100;
+        resize nodes[size];
+      }
+    }
+  }
+  if(numofnode) {
+    int node_used[numofnode];   /* to mark number of links to each node! */
+    string enter;
+    int item;
+    Status(0, "Checking all links...");
+    GotoLine(1);
+
+    Sort( &nodes, numofnode, 1);
+
+    while(!Search(linkpattern, "wf+")) {
+      string junk = ReplaceMatch(linkpattern, "\\1");
+      if(strlen(junk)) {
+        if(junk[0]=='\"') {
+          /* strip quotes */
+          junk = substr(junk, 1, strlen(junk)-2);
+        }
+        Status(0, sprintf("Checking link to %s", junk));
+
+        item = BSearch(&nodes, junk, numofnode, 1);
+        if(-1 == item && -1 == strstr(junk, "/")) {
+          int line = ReadInfo("line");
+          if(0 == Request(sprintf("Line %d:\nNode %s isn't found!\nContinue?", line, junk),
+                          "Link alarm!"))
+            return;
+        }
+        else {
+          if(item != -1)
+            node_used[item]++;
+        }
+      }
+    }
+    if( 1 == Request("You want the summary?") ) {
+      string name = ReadInfo("file_name");
+      int id = New();
+      if(id) {
+        int a;
+        CurrentBuffer(id);
+        Rename(sprintf("*%s Summary*", name));
+        for(a=0; a<numofnode; a++) {
+          Output(sprintf("%s has %d links pointing to it %c\n", nodes[a],
+                         node_used[a],
+                         node_used[a]?' ':'*'));
+        }
+        SetInfo(id, "changes", 0); /* mark this as no changes done! */
+      }
+      else {
+        ReturnStatus("Summary failed!");
+      }
+    }
+  }
+  else {
+    ReturnStatus("No nodes were found!\n");
+  }
+  GotoLine(line, col);          /* get back */
+}

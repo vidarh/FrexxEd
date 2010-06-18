@@ -1,0 +1,35 @@
+############################################
+File: Grep.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: runs 'grep' with requested input / or find the line.
+Version: 1.2
+Date: 9.9.96
+Local settings:
+Global settings:
+Keysequence:
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+
+  First time you execute this function, it will ask for the input that shall be
+sent to the external function 'grep'.  The output is redirected to 'T:Grep.Tmp'
+and loaded in a new buffer.
+
+  When you execute the function again, standing in the output buffer, the function
+will examine the grep output in the buffer and find the line you want to examine.
+If the line is in an existing buffer, that buffer is activated.  If not, the file
+is loaded.
+
+
+NOTE:
+
+  This function is used from 'ExamineLine()' in 'ExamineLine.FPL', which is assigned
+to 'Amiga p' as default.
+
+HISTORY (ver)
+  17.06.95 (1.0) Functional script.
+  16.02.95 (1.1) History added and routine is made as a function.
+  09.09.96 (1.2) Changes the directory to the current buffer's directory.

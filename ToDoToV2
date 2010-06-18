@@ -1,0 +1,55 @@
+_____________________________FÖR VERSION 2.0___________________________
+
+* Man borde kunna hantera wildcards från FPL.
+
+* Resize uppdaterar för ofta?
+
+* Function för att tömma allt skit.
+
+* Man kan inte search efter ett '|' med wildcard, bra/dåligt?
+
+* Slidern måste få vara större i minsta läget.
+
+* Save exception om filen är nyare.
+
+* StartNotify() - ninja
+
+* Färgkodning
+
+* Bättre menyfunktioner.
+
+* Ifrågasätt ALLA requestrar som FrexxEd kastar upp.
+
+* Kolla om man kan splitta views i sidled...
+
+* NEOL om raden är _exakt_ lika lång. (det vill säga om return är "").
+
+* Hotta upp rectangle-block-uppdateringen.
+
+* Flagga för att resize-view inte ska ta bort andra view, utan trycka ihop dom bara.
+
+* En 'SlowSave' ala Boberg, så att man kan spara filer som är länkade.
+
+* Lägg ett kontrolltecken i varje undosträng, detta tecken räknas upp varje
+  varv i IDCMP.c.  Alla ändringar som inträffar under samma varv, läggs in
+  som en ändring.  Ganska trevligt när man gör mer avancerade FPL-skriptar.
+
+* Ett flertal FPL-funktioner ska locka buffrarna oxå.  Cmd-funktioner gör
+  det automatiskt, men inte FPL-funktionerna.
+
+* Mark rectangle ska inte vara begränsad av sista radens längd?
+
+* Pilar på slidern.
+* Knappar på statusraden.
+* Menyerna om WBn är i ett bitplan.
+
+* Independed cursor move.
+
+* Fold
+
+* Tidsinställd skripthantering.
+
+* Starta upp ett nytt editor-fönster
+
+* Simple window
+

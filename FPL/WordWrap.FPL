@@ -1,0 +1,51 @@
+export int WordWrap_hook(void)
+{
+   if((GetCursor()+1)!=GetCursor(ReadInfo("line_length")) || ReadInfo("wall_right")>=GetCursor())
+	 return;
+
+   {
+    int line=ReadInfo("line");
+    int steps;
+    int sbyte=ReadInfo("byte_position");
+    int jumpback;
+    if(ReadInfo("wall_right") >= ReadInfo("column"))
+      jumpback=1;
+    GotoLine(line, ReadInfo("line_length")); /* jump to end of line! */
+    do {
+      steps+=CursorLeftWord();
+    } while (line==ReadInfo("line") && ReadInfo("column")>1 &&
+             (ReadInfo("wall_right") < ReadInfo("column")));
+
+    if (line==ReadInfo("line") && ReadInfo("column")>1) {
+      int byte = ReadInfo("byte_position");
+      while(GetChar(--byte) != ' ')
+      {
+         steps++;
+         CursorLeft();
+         if(!byte)
+         {
+            GotoLine(line,ReadInfo("wall_right"));
+            Output("\n");
+            return;
+         }
+      }
+      byte++;
+      while(GetChar(--byte) == ' ')
+        Backspace();
+      Output("\n");
+    }
+    CursorRight(steps);
+    if(ReadInfo("wall_right") <= ReadInfo("column"))
+      Output("\n");
+    if(jumpback)
+      GotoLine(line, sbyte); /* jump to start-pos! */
+   }
+}
+
+ConstructInfo("wall_right", "", "", "WIL", "", 0, 999, 79);
+ConstructInfo("wordwrap", "", "", "WBL", "", 0, 0);
+
+AddMode(0,"wordwrap", "","");				// Add as minor mode!
+
+HookPast("Output", "WordWrap_hook();", "wordwrap");
+HookPast("BlockPaste", "WordWrap_hook();", "wordwrap");

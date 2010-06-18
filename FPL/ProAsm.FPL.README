@@ -1,0 +1,37 @@
+#############################################################################
+File:		ProAsm.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		FrexxEd interface to ProAsm
+Version:	1.1
+Date:		12.07.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		Interface
+Prereq:		ProAsm and possibly a debugger
+Copyright:	© 1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+  ProAsm.FPL provides an ASM1-like interface to Daniel Weber's ProAsm.
+  
+  Skim the code to get an idea of the features - I don't have time to write
+  documentation at this moment. Sorry!
+
+
+HISTORY (REV)
+  12.07.96 (1)	Added many many feeatures.
+
+           (0)	Beta for Daniel Weber's eyes only :)
+
+BUGS
+  I'm sure :)
+
+TODO
+  Documentation
+  Better control of a debugger
+  ASX
+
+SEE ALSO
+

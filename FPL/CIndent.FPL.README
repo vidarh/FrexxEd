@@ -1,0 +1,83 @@
+############################################
+File:		CIndent.FPL
+Author:		Linus Nielsen
+Email:		emwnie@emw.ericsson.se
+Short:		Performs an automatic C-language indentation
+Version:	1.7
+Date:		21.8.96
+Local settings:
+ "c_indent_mode", BOOLEAN	TRUE when the mode is active
+ "c_indent_level", INTEGER	The normal indent level.
+ "c_case_level", INTEGER	Indent level for 'case' & 'default' lines.
+ "c_brace_offset", INTEGER	Offset for the lines containing a brace.
+ "c_cont_offset", INTEGER	Line continuation level.
+ "c_usetabs", BOOLEAN		TRUE for optimal filling with TAB.
+
+Global settings:
+ "c_intelligence", CYCLE	The search depth for the indentation analysis.
+ 				Can be "Stupid", "Smart" or "Ninja".
+ "c_indentkey", STRING		The key to use for forced indentation.
+ "c_delay", INTEGER		The number of ticks to wait when matching
+ 				parentheses.
+ "c_face_mode" BOOLEAN          TRUE to auto-enable the C-face
+
+Keysequence:
+Type:		Minor Mode, hook, key
+Prereq:
+############################################
+
+FUNCTION
+
+  Do edit the face colours to your personal preferences! See the FAQ.
+
+  This script handles automatic indentation of C code. The following is handled:
+  
+  - When you press 'Return', it analyses the previous lines to determine the
+    indentation level and automatically indents the next line.
+    
+  - When you press '}', it moves it to the right level.
+  
+  - When you press ':' right after 'case' or 'default', it moves the line to the
+    right level.
+    
+  - When you press ')' or ']' it shows the matching '(' or '['.
+  
+  - When you type '*/' (the end of a comment), it shows you the matching '/*'.
+  
+  - When you type '#' as the only non whitespace character on a line, it moves
+    it to the beginning of the line (for #define and #ifdef).
+
+  - If for some reason the automatic indentation fails, press the 'force indent'
+    key to reanalyse. Useful if an indentation level has been removed, or when
+    cutting and pasting from different levels.
+    
+    
+    How to enable CIndent.FPL
+    -------------------------
+    
+    Use FMC.FPL, and make your Major Mode set 'c_indent_mode' to 1 when a 
+    'c', 'fpl' or 'h' file is loaded. See FMC.FPL.README for information.
+
+    
+HISTORY
+  1.1	Fixed bug that caused TAB characters to disturb the indentation
+	check.
+  1.2	Fixed an even more stupid bug which caused the indentation to
+	fail in the first column.
+  1.3	Replaced the enter key to return.
+  
+  1.4	Completely rewritten, ripping some ideas from Jesper Skov's
+  	CIndentMode.FPL script. Now it is much more intelligent.
+
+  1.5   Daniel Stenberg. Added the first attempts to incorporate proper
+        "face" styling to C programs. Also uses the new way of adding
+        program preference menus to the Menu.FPL made menu, using the
+        proper info variables it has made for our use!
+
+  1.6	More easier to invoke, execute CMode.FPL
+	Added the apostrophe-style for 'a' stuff. '"' previously did look
+	messy. (As reported by RexOrient)
+  1.7	Jesper Skov changed a pattern and the prefs part.
+
+BUGS
+	Sometimes it doesn't indent the way you'd want it to

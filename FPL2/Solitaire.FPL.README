@@ -1,0 +1,26 @@
+############################################
+File: Solitaire.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: FrexxEd will play a little game with itself
+Version: 1.0
+Date: 10.9.94
+Local settings:
+Global settings:
+Keysequence:
+Type: game
+Prereq:
+############################################
+
+FUNCTION
+  This solitaire game consists of 40 marbles in a cross.  Only one empty
+position exists.  To remove a marble, it will have to jump with another
+marble to an empty position, over the one to remove.
+  You will always be informed about the current board, and the best.
+
+  The routine is not all stupid, so to be sure to not calculate situations
+twice, it can sometimes stop although there are several possible moves.
+
+ 
+
+

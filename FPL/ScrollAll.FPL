@@ -1,0 +1,15 @@
+export int ScrollAll(int direction)
+{
+  int inputid=GetEntryID();		// Current entry
+  int view_count=ReadInfo("views");
+
+  while (view_count--) {
+    CurrentBuffer(NextView());		// Make next view the current buffer
+    ScrollDown(direction);		// Scroll
+    Status();				// Update the status line
+  }
+  CurrentBuffer(inputid);		// Restore the initial entry
+}
+
+AssignKey("ScrollAll(-1);", "Shift '0x3E'");
+AssignKey("ScrollAll(1);", "Shift '0x1E'");

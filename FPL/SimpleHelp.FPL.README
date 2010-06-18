@@ -1,0 +1,56 @@
+############################################
+File: SimpleHelp.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: A simple interface to AmigaGuide
+Version: 1.3
+Date: 17.02.96
+Local settings:
+Global settings:
+Keysequence: 'Help' and "Amiga Shift 'Help'"
+Type: function
+Prereq: run grep as explained.
+############################################
+
+BEFORE
+  Before using SimpleHelp() you have to execute the command...
+
+grep -$ -n @node #?.guide >Guide:AllNodes
+
+ ...standing in your guide directory.  You can append other guide files
+to the 'Guide:AllNodes'.
+
+An alternative is to use the FrexxUtil 'AGgrep' which is designed only to
+extract nodes from amiga guide files.  Usage:
+
+AGgrep #?.guide >Guide:AllNodes
+
+ ...which will give the same result.
+
+
+FUNCTION
+  SimpleHelp() is assigned to the 'Help' key.  When you press it, the word
+currently under the cursor will be passed to SimpleHelp().
+  SimpleHelp() will try to find that word in the 'Guide:AllNodes' file.  If
+a match is made, it will start 'AmigaGuide' with the correct parameters to
+get your help.
+
+  The first try of SimpleHelp() is to find a match to the word surrunded with
+'"', ie '"NodeName"'.  If that match fails, a try is made to the word with a
+space attached to the beginning and end, ie ' NodeName '.  If that match fails, 
+a last try is made to see if the word exists (a word only search).
+
+  When a match is found, SimpleHelp() expect the node name to start at
+position 6 (it is important that the '-n' flag is given to 'grep').
+
+  If it fails to find a match, FrexxEd.guide will be shown.
+
+The "Amiga Shift 'Help'" key will prompt for a string to match.
+
+
+NOTE
+  'grep' is a utility that is copyright by SAS Institute, Inc., Cary, NC
+
+HISTORY
+	1.2 Release
+        1.3 Upgrade for v2.0

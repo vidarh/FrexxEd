@@ -1,0 +1,8 @@
+export int Load_ProjectHook( string fileName, string title, string prompt )
+{
+Request("Here");
+}
+
+HookPast( "Load", "Load_ProjectHook" );
+HookPast( "Load", "Request(\"Here2\");" );
+

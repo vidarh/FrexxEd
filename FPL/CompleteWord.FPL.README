@@ -1,0 +1,86 @@
+#############################################################################
+File:		CompleteWord.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Complete current word with matching words in document 
+Version:	1.3
+Date:		17.01.96
+Local settings:
+Global settings:
+Keysequence:	Amiga /
+Type:		function
+Prereq:
+Copyright:	© 1995-1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+
+  This function completes the word at the cursor with matching words found in
+  the document. First the upper half of the document is searched then the
+  lower half. If you activate the function repeatedly, different completions
+  will be inserted. Completions you do not accept will only be showed once!
+
+  Example text:
+
+    fool  fuck_off  fuck off  FOOD  foobar  food for thought  f   friends
+                                                               ^   *
+
+  Activating the function at the ^ mark will result in the following
+  strings replacing the letter f:
+
+   Activation#		String
+   ---------------------------------------
+         0           f (obviously :)
+         1           for
+         2           food
+         3           foobar
+         4           fuck
+         4*          fuck_off
+         5           fool
+         6           friends
+         7           f (cycle restarts)
+
+  Note that the FACT has a bit to say about how words are recognized. Here 4*
+  will only appear if the '_' char is a word symbol. If not, the first part
+  of the word (fuck) would be recognized, but also canned since you had
+  already discarded "fuck" in step 4.
+
+  The same word expansions would result if the cursor was placed at the *
+  (i.e. between 'f' and 'r').
+
+  You would probably want the '_' char to be a word symbol if you use
+  underscore in your labels or function declarations...
+
+  If you can get used to this little helper (it is quite easy!) you will be
+  able to speed up your writing! Especially if programming where
+  labels/constants are excellent food for this beast.
+
+
+HISTORY (REV)
+  17.01.96 (3)	Does not replace with same word now.
+		Display is turned off while reading the search string.
+  18.05.95 (2)	Just a *minor* change from GetBufferID() to GetEntryID()!
+		By Daniel Stenberg. Made it work better with split views...
+  02.03.95 (1)	Now works case in-sensitive.
+  03.02.95 (0)	Works a lot faster than I had ever hoped. Smoooking!
+
+
+BUGS
+  As of revision 3, the display is turned off while the search string is
+  read. This causes an update overhead *if* the word is replaced with another
+  word. If you think it works too slow now, please let me know (coz' it seems
+  fast enough on my cyberThing(TM))
+
+TODO
+  A flag that defines if the found word should be capitalized like the
+  word you try to complete.
+
+  Search through all buffers for a match. This feature is in the Emacs 19.28,
+  but it works so incredible fast that I'm not sure they just use normal
+  searching. Or maybe the Suns are just way faster than the Amiga :) We'll
+  see when the FPL compiler gets around.
+
+SEE ALSO
+  Documentation on FACTs.
+
+  Stephen King's "Four Past Midnight" (ISBN: 0-340-53526-1)

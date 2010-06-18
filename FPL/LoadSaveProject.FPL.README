@@ -1,0 +1,55 @@
+############################################
+File: LoadSaveProject.FPL
+Author: Mathias Axelsson
+Email: max@coders.ct.se  matax@lysator.liu.se
+       Fidonet: 2:204/211.0
+Short description: Loads/saves the project file
+Version: 1.5
+Date: 8.11.96
+Local settings:
+Global settings:
+Keysequence:
+       LoadProject: A-P l
+       SaveProject: A-P s
+Type: Hook
+Prereq:
+############################################
+
+FUNCTION
+  These two functions uses a project file (FrexxEd_Project_File)
+to keep track of all open files in the editor. When you save the
+project you get a file which contains the x/y position of the
+window, the width/height of the window (even though you might be
+running on a seperate screen). After that the file contains the full
+filenames of all the open files and also the line, byte position and
+tab size for each file.
+
+  When loading the project file the script open all the files described
+in the project file and also sets the line, byte position and tab size.
+It also moves the window to the correct position and sets the size of the
+window.
+
+Install:
+  Just add an ExecuteFile("LoadSaveProject"); to the User.FPL file.
+
+New for v1.1:
+  The script now saves the state the window was in when you saved the
+project. This means that it remembers if it should open a screen, window
+or backdrop window.
+
+New for 1.2:
+  It now read the Project_dir info variable to tell were to look for
+project files. Just start the script, set it to your project dir in global
+settings and save the settings.
+
+New for 1.3:
+  I fixed some bugs that made the two extra files show up in the project
+file. I also fixed so that if you cancel a loading, it will try to reuse
+the newly created buffer. If this buffer isn't filled with a file after
+all the files in the project file is loaded, it will be killed.
+
+New for 1.4:
+  Jörg Plate made a little bug fix.
+
+ 1.5	Daniel made the functions exported. Make re-invokes faster, and
+	works with my recent change in Menu.FPL!

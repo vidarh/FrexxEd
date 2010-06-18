@@ -1,0 +1,21 @@
+############################################
+File: ArchiveRemove.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: remove the archive flag before saving the buffer
+Version: 1.0
+Date: 21.5.94
+Local settings:
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+############################################
+
+FUNCTION
+  The function is launched when save a buffer. 
+  It will scan the protection bits and remove, if exist, the
+archive flag.
+ 
+
+

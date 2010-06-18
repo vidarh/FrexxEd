@@ -1,0 +1,18 @@
+############################################
+File: SimpleIndent.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: A press on 'shift return' indents next line.
+Version: 1.0
+Date: 29.8.94
+Local settings:
+Global settings:
+Keysequence: Shift 'return'
+Type: function
+Prereq:
+############################################
+
+FUNCTION
+  When you press "shift 'return'", a return will be made, and the cursor is
+indented to the same position as the current line.
+

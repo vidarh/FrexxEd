@@ -1,0 +1,32 @@
+#############################################################################
+File:		LaTeX_GotoSection.FPL
+Author:		Volker Güth (most Parts are taken from GotoLabel.FPL by
+                Daniel Stenberg)
+Email:		vgueth@hrz.uni-bielefeld.de
+Short:		Pop up requester with LaTeX part, chapter, section and
+                subsection, jumps to selected
+Version:	1.0
+Date:		25.05.95
+Keysequence:
+Type:		function
+Prereq:
+Copyright:	FrexxWare 1995 (because most parts are not from me)
+#############################################################################
+FUNCTION
+
+  LaTeX_GotoSection()
+
+  It collects all \part, \chapter, \section, \subsection and \subsubsection and
+  pops up a requester. By selecting one of them, FrexxEd jumps to the line of
+  the command.
+
+  The searchstring is "section{|chapter{|part{", but it can be changed easily.
+
+HISTORY
+  1.0 - Initial version
+
+BUGS
+  None yet found
+
+SEE ALSO
+  GotoLabel.FPL

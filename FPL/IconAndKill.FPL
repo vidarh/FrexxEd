@@ -1,0 +1,30 @@
+export int IconifyAndKill_hook(int bufferid)
+{
+   int ret = 0;
+   int firstid = GetBufferID();
+   int id = firstid;
+   int numbufs = 0;
+
+   if (!bufferid)
+   {
+      bufferid = GetBufferID();
+   }
+
+   do
+   {
+      if(ReadInfo("type") & 1)
+         numbufs+=ReadInfo("shared");
+      id = NextBuffer(id);
+      if (id == firstid)
+      {
+         id = 0;
+      }
+   } while (id);
+
+   if(numbufs == 1)
+   {
+      Clean("ReturnStatus(GetReturnMsg(Iconify()));");
+   }
+}
+
+Hook("Kill", "IconifyAndKill_hook");    /* Patch Kill() with IconifyAndKill_hook()! */

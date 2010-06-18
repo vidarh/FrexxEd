@@ -1,0 +1,88 @@
+
+string history[1];
+int history_len=0;
+
+export void Grep()
+{
+  if (!Stricmp(ReadInfo("file_name"), "Grep.Tmp")) {
+    int line;
+    int buffer_id;
+    string directory=GetLine(1);
+    line=atoi(GetLine());
+    if (line) {
+      int counter;
+      string file;
+      for (counter=ReadInfo("line")-1; counter>0; counter--) {
+        file=GetLine(counter);
+        if (file[0]!=' ' && (file[0]<'0' || file[0]>'9'))
+          break;
+      }
+      if (counter>0) {
+        for (counter=strlen(file)-1; counter>0; counter--) {
+          if (file[counter]==':')
+            break;
+        }
+        file=substr(file, 0, counter);
+        buffer_id=GetBufferID(file);
+        if (buffer_id && ReadInfo("changes", buffer_id)) {
+          if (!Request(joinstr("'", file, "' exist as a changed buffer!\n\nDo you want to activate the internal buffer?"), "Grep information", "Activate existing|Load origin"))
+            buffer_id=0;
+        }
+        if (buffer_id) {
+          Activate(buffer_id);
+          CurrentBuffer(buffer_id);
+        } else {
+          buffer_id=New();
+          Activate(buffer_id);
+          CurrentBuffer(buffer_id);
+          if (strcmp(directory, "")) {
+            int old_expand=ReadInfo("expand_path");
+            SetInfo(-1, "expand_path", 2);
+            Load(file);
+            SetInfo(-1, "expand_path", old_expand);
+          } else
+            Load(file);
+        }
+        GotoLine(line);
+      }
+    } else
+      ReturnStatus("No valid line!");
+  } else {
+    string grep_input;
+    string directory=ReadInfo("directory");
+    int input_id=GetEntryID();
+    int grep_buffer;
+
+    Visible(0);
+    RequestWindow("[Grep] pattern files",
+                  "", "A", &history, &grep_input, history_len
+                  "Directory", "S", &directory);
+    if (strlen(grep_input)) {
+      string old_directory;
+
+      resize history[history_len+1];
+      history[history_len]=grep_input;
+      history_len++;
+      System("echo >T:Grep.Tmp \""+directory+"\"\n");
+      grep_input=joinstr("Grep ", grep_input, " >>T:Grep.Tmp");
+      Status(0, "Grep is working...");
+
+      old_directory=ReadInfo("directory");	// New directory
+      SetInfo(0, "directory", directory);
+      System(grep_input);
+
+      SetInfo(0, "directory", old_directory);	// Set old directory
+
+      grep_buffer=New();
+      if (grep_buffer) {
+        Activate(grep_buffer);
+        CurrentBuffer(grep_buffer);
+        Load("T:Grep.Tmp");
+      }
+    } else
+      ReturnStatus("Function cancel!");
+    Visible(1);
+  }
+}
+
+Grep();

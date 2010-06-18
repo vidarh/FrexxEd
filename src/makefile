@@ -1,0 +1,157 @@
+            #####################################################
+            #                                                   #
+            #             FrexxEd Makefile                      #
+            #                                                   #
+            #####################################################
+
+TARGET = Fred
+FREDLIB = frexxed.library
+DEBUGLIB = freddy.library
+	    # Compiler flags are specified in the file SCOPTIONS!!!
+
+GST = fred.gst
+CC = sc
+ASMFLAGS = DEBUG=S IDIR=Include: ASSEMBLER
+LIBS = LIB:sc.lib LIB:amiga.lib
+LINKFLAGS = 	SMALLCODE SMALLDATA NOICONS \
+		FWIDTH 20 PWIDTH 20 WIDTH 20 SWIDTH 20
+
+
+OBJS = \
+ o/Alloc.o o/Block.o o/BufControl.o o/BuildMenu.o o/Button.o o/Change.o o/ClipBoard.o\
+ o/Command.o o/Cursor.o o/Declare.o o/DoSearch.o o/Edit.o\
+ o/Execute.o o/Face.o o/FACT.o o/FH_packets.o o/FileHandler.o o/Fold.o o/GetFile.o\
+ o/GetFileML.o o/GetFont.o o/Hook.o o/Icon.o o/IDCMP.o o/Init.o o/KeyAssign.o\
+ o/Match.o o/Mount.o o/MultML.o o/OpenClose.o o/Process.o o/Prompt.o o/Regex.o\
+ o/Replace.o o/Reqlist.o o/Request.o o/Rexx.o o/RSADecrypt.o o/Search.o o/Setting.o o/Sort.o\
+ o/Slider.o o/Startup.o o/Strings.o o/Timer.o o/Undo.o o/UpdtBlock.o o/UpdtScreen.o\
+ o/UpdtScreenC.o o/WinSign.o o/WindowOutput.o
+
+NONLIBOBJS = o/Main.o
+
+all:  o/FrexxEd_rev.o $(TARGET) $(FREDLIB)
+
+debug: $(DEBUGLIB) all
+
+$(GST): Alloc.h Block.h Buf.h BufControl.h BuildMenu.h Button.h Change.h\
+	Comm.h Command.h Cursor.h Declare.h Device.h DoSearch.h Edit.h\
+	Startup.h Execute.h FACT.h Fold.h Function.h GetFile.h GetFont.h Hook.h\
+	Icon.h IDCMP.h IncludeAll.h Init.h KeyAssign.h Limit.h Match.h\
+	MultML.h NewTask.h OpenClose.h Prompt.h RawKeys.h Regex.h Replace.h\
+	Reqlist.h Rexx.h RSADecrypt.h Search.h Setting.h\
+	Sort.h Strings.h Undo.h UpdtBlock.h UpdtScreen.h \
+	Winsign.h
+	sc NOBJNAME MGST=$(GST) gst.c
+
+o/FrexxEd_rev.o: FrexxEd_rev.c $(OBJS) Makefile
+	AutoRev FrexxEd_rev.c Verbose
+	sc FrexxEd_rev.c
+
+$(TARGET): $(NONLIBOBJS)
+	slink <with <
+	$(LINKFLAGS)
+	FROM LIB:cres.o $(NONLIBOBJS)
+	with LIB:utillib.with
+	TO $(TARGET)
+	LIB $(LIBS)
+#	map $(TARGET).map H X S
+	<
+
+LIBRARYFLAGS = \
+	LIBFD frexxed.fd            \
+	FROM LIB:libent.o LIB:libinitr.o o/FrexxEd_rev.o $(OBJS) WBPath.o \
+	with LIB:utillib.with \
+	LIB $(LIBS) \
+	noicons \
+	SD SC \
+	FWIDTH 20 PWIDTH 20 WIDTH 20 \
+	libversion 6 librevision 89 \
+	libid "frexxed.library 6.89 (9.11.96)"
+#	map $(TARGET).map H X S
+
+
+$(FREDLIB): $(OBJS) Makefile
+	slink <with <
+        $(LIBRARYFLAGS)
+	TO $(FREDLIB)
+	STRIPDEBUG
+	<
+
+$(DEBUGLIB): $(OBJS) Makefile
+	slink <with <
+        $(LIBRARYFLAGS)
+	TO $(DEBUGLIB)
+	<
+
+use: $(OBJS) Makefile
+     slink <with <
+     $(LIBRARYFLAGS)
+     TO frexxeduse.library
+     STRIPDEBUG
+     map use.map H X S
+     <
+
+o/Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
+o/Block.o:		Block.c Buf.h Function.h
+o/BufControl.o:		BufControl.c Buf.h Function.h
+o/BuildMenu.o:		Buildmenu.c Buildmenu.h Buf.h Function.h
+o/Button.o:		Button.c Buf.h Function.h
+o/Change.o:		Change.c Buf.h Function.h
+o/ClipBoard.o:		ClipBoard.c Buf.h Function.h
+o/Command.o:		Command.c Command.h Function.h Buf.h 
+o/Cursor.o:		Cursor.c Buf.h Function.h
+o/Declare.o:		Declare.c Buf.h Function.h
+o/DoSearch.o:		DoSearch.c Buf.h Function.h
+o/Edit.o:		Edit.c Buf.h Function.h
+o/Execute.o:		Execute.c Buf.h Function.h
+o/Face.o:		Face.c Face.h Buf.h Function.h
+o/FACT.o:		FACT.c FACT.h Buf.h Function.h
+o/FileHandler.o:	FileHandler.c FileHandler.h Buf.h fh_packets.h
+o/FH_packets.o:		FH_packets.c FH_packets.h
+o/Fold.o:		Fold.c Buf.h Function.h
+o/GetFile.o:		GetFile.c Buf.h Function.h
+o/GetFont.o:		GetFont.c Buf.h Function.h
+o/Hook.o:		Hook.c Buf.h Function.h
+o/IDCMP.o:		IDCMP.c Function.h Buf.h Timer.h
+o/Icon.o:		Icon.c Buf.h Function.h
+o/Init.o:		Init.c Buf.h Function.h
+o/KeyAssign.o:		KeyAssign.c Buf.h Function.h
+o/Match.o:		Match.c Match.h Buf.h Function.h
+o/Mount.o:		Mount.c Mount.h
+o/NewTask.o:		NewTask.c NewTask.h Buf.h Function.h
+o/OpenClose.o:		OpenClose.c Buf.h Function.h Timer.h
+o/Process.o:		Process.c Process.h
+o/Prompt.o:		Prompt.c Prompt.h Buf.h Function.h
+o/RSADecrypt.o:		RSADecrypt.c Buf.h Function.h
+o/Regex.o:		Regex.c Buf.h Function.h
+o/Replace.o:		Replace.c Buf.h Function.h
+o/Reqlist.o:		Reqlist.c Reqlist.h Buf.h
+o/Request.o:		Request.c Buf.h Function.h
+o/Rexx.o:		Rexx.c Rexx.h Buf.h Function.h
+o/Search.o:		Search.c Buf.h Function.h
+o/Setting.o:		Setting.c Buf.h Function.h
+o/Slider.o:		Slider.c Buf.h Function.h
+o/Startup.o:		Startup.c Buf.h Function.h
+o/Sort.o:		Sort.c Buf.h Function.h
+o/Strings.o:		Strings.c Strings.h Buf.h Function.h
+o/Timer.o:		Timer.c Timer.h Buf.h Function.h
+o/Undo.o:		Undo.c Buf.h Function.h
+o/UpdtBlock.o:		UpdtBlock.c Buf.h Function.h
+o/UpdtScreen.o:		UpdtScreen.c Buf.h Function.h
+o/UpdtScreenC.o:	UpdtScreenC.c Buf.h Function.h
+o/WinSign.o:		WinSign.c Buf.h Function.h
+o/WindowOutput.o:	WindowOutput.c Buf.h Function.h
+
+o/Main.o:		Main.c
+	SC RESETOPTIONS NOSTACKCHECK STRINGMERGE NOVERSION DEBUG=SYMBOL\
+	OBJNAME=o/ DEFINE=OS37 DEFINE=__USE_SYSBASE UNSIGNEDCHAR\
+	UTILITYLIBRARY NOMULTIPLEINCLUDES DEFINE=FREXXED\
+        DEFINE=DEBUGTEST\
+	DEFINE=LIB $<
+
+o/GetFileML.o:		GetFileML.a
+	$(CC) $(ASMFLAGS) $<
+o/MultML.o:		MultML.a
+	$(CC) $(ASMFLAGS) $<
+o/NewTaskML.o:		NewTaskML.a
+	$(CC) $(ASMFLAGS) $<

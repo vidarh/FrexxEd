@@ -1,0 +1,128 @@
+int word;     //word class      'W'
+int space;    //white space     ' '
+int symbol;   //symbol char     '!'
+int tab;      //tab char        'T'
+int newl;     //newline         'N'
+int brop;     //opening bracket '('
+ char bropc;   //opposite char   
+int brcl;     //closing bracket ')'
+ char brclc;   //opposite char
+int upp;      //uppercase       'U'
+ char uppc;    //opposite
+int low;      //lowercase       'L'
+ char lowc;    //opposite
+ string strgstr;
+string factname;
+string list[261];
+
+void MakeList()
+{int n;
+ for(n=-5;n<256;n++)
+ {
+  list[n+5]=itoa(n)+"   "+FACTString(n,factname);
+ };
+}
+
+void GetAttributes(int chr)
+{int n;
+ word=Isword(chr,factname);
+ space=Isspace(chr,factname);
+ symbol=Issymbol(chr,factname);
+ tab=Istab(chr,factname);
+ newl=Isnewline(chr,factname);
+ brop=0;brcl=0;upp=0;low=0;
+ bropc=0;brclc=0;uppc=0;lowc=0;
+ n=Isopen(chr,factname);brop=0;if(n!=-1){brop=1;bropc=(n);};
+ n=Isclose(chr,factname);brcl=0;if(n!=-1){brcl=1;brclc=(n);};
+ n=Isupper(chr,factname);upp=0;if(n!=-1){upp=1;uppc=(n);};
+ n=Islower(chr,factname);low=0;if(n!=-1){low=1;lowc=(n);};
+ strgstr=FACTString(chr,factname);
+}
+
+void SetAttributes(int chr)
+{
+ FACT(factname,chr,'E','-');
+ if(strlen(strgstr)>0){FACT(factname,chr,'S',strgstr);};
+ if(word){FACT(factname,chr,'W');};
+ if(space){FACT(factname,chr,' ');};
+ if(symbol){FACT(factname,chr,'!');};
+ if(tab){FACT(factname,chr,'T');};
+ if(newl){FACT(factname,chr,'N');};
+ if(brop){FACT(factname,chr,'(',bropc);};
+ if(brcl){FACT(factname,chr,')',brclc);};
+ if(upp){FACT(factname,chr,'U',uppc);};
+ if(low){FACT(factname,chr,'L',lowc);};
+ list[chr+5]=itoa(chr)+"   "+strgstr;
+}
+
+export void FACTAttrWindow(int chr)
+{
+ int atype;
+ int acase;
+ int adeli;
+ int ok;
+ string scase;
+ string sdeli;
+ GetAttributes(chr);
+ atype=0;
+  if(word){atype=1;};
+  if(space){atype=2;};
+  if(symbol){atype=3;};
+  if(tab){atype=4;};
+  if(newl){atype=5;};
+ adeli=0;sdeli="";
+  if(brop){adeli=1;sdeli=itoc(bropc);};
+  if(brcl){adeli=2;sdeli=itoc(brclc);};
+ acase=0;scase="";
+  if(upp){acase=1;scase=itoc(uppc);};
+  if(low){acase=2;scase=itoc(lowc);};
+ if(chr>=0){
+ ok=RequestWindow("FACT Change ("+itoa(chr)+")",13,
+            "Display String","s",&strgstr,
+            "Type","c",&atype,"None|Word|Space|Symbol|Tab|Newline",
+            "Case","c",&acase,"None|Upper|Lower",
+            "Opposite","s",&scase,
+            "Delimiter","c",&adeli,"None|Opening|Closing",
+            "Opposite","s",&sdeli);}else{
+ ok=RequestWindow("FACT Change ("+itoa(chr)+")",13,
+            "Display String","s",&strgstr);};
+ if(ok)
+ {
+  word=space=symbol=tab=newl=upp=low=brop=brcl=0;
+  bropc=brclc=uppc=lowc=0;
+  switch(atype){
+   case 0:break;
+   case 1:word=1;break;
+   case 2:space=1;break;
+   case 3:symbol=1;break;
+   case 4:tab=1;break;
+   case 5:newl=1;break;
+   };
+  if(word){switch(acase){
+   case 0:break;
+   case 1:upp=1;uppc=scase[0];break;
+   case 2:low=1;lowc=scase[0];break;
+   };};
+  if(symbol){switch(adeli){
+   case 0:break;
+   case 1:brop=1;bropc=sdeli[0];break;
+   case 2:brcl=1;brclc=sdeli[0];break;
+   };};
+  SetAttributes(chr);
+ };
+}
+
+export void FACTChangeRequest()
+{string tmp;int nm,cr;
+ factname=ReadInfo("fact");
+ MakeList();
+ tmp=itoa(GetChar())+"   "+FACTString(GetChar());
+ while(RequestWindow("Select Character",30,"","A",&list,&tmp,261))
+ {
+  Visible(0);
+  cr=-10;
+  for(nm=0;((nm<261)&&(0!=strcmp(tmp,list[nm])));nm++){};
+  if(nm!=261){FACTAttrWindow(nm-5);tmp=list[nm];};
+  Visible(1);
+ };
+}

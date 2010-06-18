@@ -1,0 +1,19 @@
+############################################
+File: ShowChanged.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Show all changed buffers in a requester.
+Version: 1.1
+Date: 10.12.94
+Local settings:
+Global settings:
+Keysequence: 'Amiga Control c'
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+
+  This function will scan all buffers, and then display a requester with all buffers
+that are changed.
+

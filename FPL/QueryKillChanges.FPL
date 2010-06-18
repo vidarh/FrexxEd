@@ -1,0 +1,131 @@
+export int Load_hook(string file, string windowtitle, string promptfile)
+{
+  int changes;
+  int ret=0;
+  if(changes=ReadInfo("changes"))
+    ret=!Request("Do you really want to overwrite your work?\n"
+	         "You have done " + itoa(changes) + " changes!");
+  return(ret);
+}
+
+export int Kill_hook(int bufferid)
+{
+  int ret=0;
+  if (!bufferid)
+    bufferid=GetBufferID();
+  if (ReadInfo("shared", bufferid)==1 && (ReadInfo("type", bufferid)&1)) {
+		/* Test if this a duplicated bufer,
+		   if not so we'll check if any changes are done */
+  
+    int changes=ReadInfo("changes", bufferid);
+  
+    if (changes) {	    /* Some changes have been done! */
+      string name = ReadInfo("file_name", bufferid);
+      if(!strlen(name)) {
+        name = "*noname*";
+      }
+      ret=Request(itoa(changes) + " changes have been done!\n"
+                  "Kill \"" + name + "\" anyway?",
+                  "Kill buffer?", "Yes|Save&Kill|No");
+      if(2 == ret) {
+        if(0 > Save())
+          ret = 0;
+      }
+      ret =!ret;
+    }
+  }
+  return(ret);
+}
+
+export int Clear_hook(int bufferid)
+{
+  int ret=0;
+
+  if (!bufferid) {
+    bufferid=GetBufferID();
+    if (ReadInfo("shared", bufferid)==1 && (ReadInfo("type", bufferid)&1)) {
+  		/* Test if this a duplicated buffer,
+  		   if not so we'll check if any changes are done */
+    
+      int changes=ReadInfo("changes", bufferid);
+    
+      if (changes) {	    /* Some changes have been done! */
+        string name = ReadInfo("file_name", bufferid);
+        if(!strlen(name)) {
+          name = "*noname*";
+        }
+        ret=!Request(itoa(changes) + " changes have been done!\n"
+                     "Clear \"" + name + "\" anyway?");
+      }
+    }
+  }
+  return(ret);
+}
+
+export int QuitAll_hook()
+{
+  int firstid=NextBuffer();
+  int id=firstid;
+  int numofchanged=0;
+  int ret=1;
+  string str;
+  string changed;
+
+  do {
+    do {
+      if (ReadInfo("changes", id) && (ReadInfo("type", id)&1)) {
+        numofchanged++;
+        if(strlen(ReadInfo("file_name", id)))
+          changed += "\""+ReadInfo("file_name", id) + "\"\n";
+        else
+          changed += "\"*noname*\"\n";
+      }
+      id=NextBuffer(id);
+      if (id == firstid)
+        id=0;
+    } while (id);
+  
+    if (numofchanged) {
+      if(numofchanged>1)
+        str = sprintf("%d buffers are changed!\n\n%s\nQuit anyway?",
+      		    numofchanged, changed);
+      else
+        str = sprintf("The buffer %sis changed!\nQuit anyway?", changed);
+      ret = Request(str, "Quit information!", "Quit!|Save some|Don't Quit!");
+      if(2 == ret) {
+        string name;
+        int ans;
+        /* save some! */
+        id = firstid;
+        do {
+          if (ReadInfo("changes", id) && (ReadInfo("type", id)&1)) {
+            name = ReadInfo("file_name", id);
+            if(!strlen(name))
+              name = "*noname*";
+            Activate(id, 2);
+            MaximizeView(id);
+            ans = Request("Save " + name + "?", "Save?", "Save|Save As|Skip");
+            switch(ans) {
+              case 1: 
+                ExecuteString("Save();", id); /* save that buffer! */
+                break;
+              case 2:
+                ExecuteString("SaveAs();", id); /* save as! */
+                break;
+            }
+          }
+          id=NextBuffer(id);
+        } while(id != firstid);      
+        numofchanged = 0;
+        changed="";
+      }
+    } else
+      break;
+  } while (2 == ret);
+  return(!ret);
+}
+
+Hook("Load", "Load_hook");	 /* Patch Load() with Load_hook()! */
+Hook("Kill", "Kill_hook");	 /* Patch Kill() with Kill_hook()! */
+Hook("Clear", "Clear_hook");	 /* Patch Clear() with Clear_hook()! */
+Hook("QuitAll", "QuitAll_hook"); /* Patch QuitAll() with QuitAll_hook()! */

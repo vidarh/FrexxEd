@@ -1,0 +1,8 @@
+export int FileHandlerAction(int bufferid, int type)
+{
+  if (type==2 || type==5) { // Hook Write and Create
+    Activate(bufferid, 1);  // Activate on half view.
+    ExecuteString("GotoLine(-1,-1);", bufferid); // Goto last line
+  }
+}
+Hook("HandlerAction", "FileHandlerAction");

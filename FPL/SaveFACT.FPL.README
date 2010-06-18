@@ -1,0 +1,31 @@
+############################################
+File: SaveFACT.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Save the current FACT installation as a FPL file.
+Version: 1.3
+Date: 13.7.96
+Local settings:
+Global settings:
+Keysequence:
+Type: 
+Prereq:
+############################################
+
+FUNCTION
+
+  When you execute this file, you will be requested for a FACT setup to be saved
+as an FPL program in the file you choose.  If you only have one FACT, only the 
+file name will be prompted.  The empty FACT in the FACT requester is the 
+default FACT.
+This file can executed later when you want to get back your FACT setup.
+
+
+NOTE
+
+  FACTClear() can always be used to restore FrexxEd's default setup.
+
+
+HISTORY
+26.7.95   v1.2 First release
+13.7.96   v1.3 Adjusted to the 'non char' FACT string.

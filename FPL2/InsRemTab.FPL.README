@@ -1,0 +1,36 @@
+#############################################################################
+File: InsRemTab.FPL
+Author: Roger Mårtensson
+Email: 2:205/418.3
+Short: Insert and remove TABs using CTRL-TAB and SHIFT-CTRL-TAB
+Version: 1.0
+Date: 9.8.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Function
+Prereq:
+Copyright: Public Domain
+#############################################################################
+
+FUNCTION
+
+Before I found FrexxEd I used DME as my main programming tool, and one thing
+that I have missed is the ability to insert a TAB character with the 
+CTRL-TAB comination and remove it with SHIFT-CTRL-TAB.
+
+HISTORY
+
+	1.0	First and only release
+
+BUGS
+
+	None found
+
+TODO
+
+	I have no idea
+
+SEE ALSO
+
+

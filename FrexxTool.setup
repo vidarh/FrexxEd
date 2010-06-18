@@ -1,0 +1,3 @@
+Save All Changes: SaveAllChanges();
+About...:About();
+Goto Previous View:{ int id=PrevView(0,-1); Activate(id, 0); CurrentBuffer(id);}

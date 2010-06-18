@@ -1,0 +1,127 @@
+
+export void ReadSettings()
+{
+  int ps,a,b,c,d,e,dn;
+  string nam,val,lin;
+  lin=GetLine(1);
+  if (0==strstr(lin,ReadInfo("HeaderStart"))){
+  a=1;lin=GetLine(2);dn=0;
+  while (!dn)
+  {
+    b=a;if (lin[a]=='#'){dn=1;};
+    if (!dn)
+    { a++;
+      while (lin[a] != '$') {a++;};
+      c=a;
+      ps=0;if (lin[b]=='S'){ps=1;};
+      d=1;while(lin[b+d]!='='){d++;};
+      nam=substr(lin,b+1,d-1);e=1;
+      while(lin[b+d+e]!='$'){e++;};
+      val=substr(lin,b+d+1,e-1);
+      if (ps)
+       {SetInfo(0,nam,val);}else
+       {SetInfo(0,nam,atoi(val));};
+    };a++;
+  };};
+}
+
+
+export void InsertSetting(string name,int typ)
+{
+ string val;
+ if (typ==0) {val=ReadInfo(name);}
+  else{ 
+ val=itoa(ReadInfo(name));}; 
+ Output("$");
+ if (typ==0) {Output("S");}else{Output("I");};
+ Output(name);
+ Output("=");Output(val);
+}
+
+export void WriteSettings()
+{
+  InsertSetting("system_font",0);
+  InsertSetting("request_font",0);
+  InsertSetting("public_screen",0);
+  InsertSetting("current_screen",0);
+  InsertSetting("window",1);
+  InsertSetting("copy_wb",1);
+  InsertSetting("display_id",1);
+  InsertSetting("insert_mode",1);
+  InsertSetting("keymap",0);
+  InsertSetting("language",0);
+  InsertSetting("marg_left",1);
+  InsertSetting("marg_lower",1);
+  InsertSetting("marg_right",1);
+  InsertSetting("marg_upper",1);
+  InsertSetting("overscan",1);
+  InsertSetting("popup_view",1);
+  InsertSetting("tab_size",1);
+  InsertSetting("window_height",1);
+  InsertSetting("window_pos",1);
+  InsertSetting("window_width",1);
+  InsertSetting("window_xpos",1);
+  InsertSetting("window_ypos",1);
+  InsertSetting("screen_depth",1);
+  InsertSetting("screen_height",1);
+  InsertSetting("screen_width",1);
+  InsertSetting("slider",1);
+}
+
+export string GetVersion()
+{
+  string ver=GetLine(3);
+  if (0==strncmp(ver,"$VER: ",5))
+   {ver=substr(ver,6,strlen(ver)-7);};
+  return(ver);
+}
+
+export void PutVersion(string ver)
+{
+  if (0==strncmp(GetLine(3),"$VER: ",5))
+   { GotoLine(3);DeleteLine(1);
+   }
+  Output("$VER: ");Output(ver);Output("\n");
+}
+
+export void NewHeader()
+ {
+  Visible(0);GotoLine(1,0);
+  Output(ReadInfo("HeaderStart"));Output("\n\n\n");
+  GotoLine(2,0);
+  WriteSettings();
+  Output("$#");
+  GotoLine(3,0);Output("$VER: ");
+  GotoLine(4,0);Output(ReadInfo("HeaderEnd"));Output("\n");Visible(1);
+ }
+
+export void MakeHeader()
+{
+  GotoLine(2,0);DeleteLine(1);
+  WriteSettings();
+  Output("$#\n");
+  PutVersion(PromptString(GetVersion(),"Header","Enter version string"));
+
+}
+
+export int SaveHook()
+{ int x=ReadInfo("cursor_x"),y=ReadInfo("cursor_y");
+ Visible(0);
+ if (0==strstr(GetLine(1),ReadInfo("HeaderStart"))){MakeHeader();};
+ GotoLine(y,x-1);Visible(1);return(0);
+}
+
+export int LoadHook()
+{
+ Visible(0);
+ ReadSettings();
+ Visible(1);return(0);
+}
+
+
+ConstructInfo("HeaderStart","","","GSW","",0,0,"$FrexxHead");
+ConstructInfo("HeaderEnd","","","GSW","",0,0,"$EndHead");
+
+Hook("Save","SaveHook();");
+HookPast("Load","LoadHook();");
+AssignKey("NewHeader();","Amiga ä");

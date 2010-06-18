@@ -1,0 +1,60 @@
+// $Id: C++Mode.FPL 1.5 1996/04/02 18:33:53 jskov Exp $
+// $VER: C++Mode.FPL 1.0 (23.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CppModePrefs() ««
+export void CppModePrefs()
+{
+  PromptInfo(-1,"C++Mode preferences",-1,-1,
+   "Cpp_comment_start_skip",
+   "Cpp_comment_start",
+   "Cpp_comment_end",
+   "Cpp_line_comment_start",
+   "Cpp_line_comment_body",
+   "Cpp_line_comment_end",
+   "Cpp_tab_size",
+   "Cpp_comment_column"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CppModeInit() ««
+export void CppModeInit()
+{
+  // Set comment strings for C++ mode
+  SetInfo(-1,"comment_start_skip",ReadInfo("Cpp_comment_start_skip"));
+  SetInfo(-1,"comment_start",ReadInfo("Cpp_comment_start"));
+  SetInfo(-1,"comment_end",ReadInfo("Cpp_comment_end"));
+  SetInfo(-1,"line_comment_start",ReadInfo("Cpp_line_comment_start"));
+  SetInfo(-1,"line_comment_body",ReadInfo("Cpp_line_comment_body"));
+  SetInfo(-1,"line_comment_end",ReadInfo("Cpp_line_comment_end"));
+  SetInfo(-1,"comment_column",ReadInfo("Cpp_comment_column")); // set comment col
+  SetInfo(-1,"comment_mode",1);			// enable comment mode
+
+  SetInfo(-1,"comment_begin","/*");	    // Set fold comment
+
+  SetInfo(-1,"tab_size",ReadInfo("Cpp_tab_size")); // Set tabulator size
+
+  SetInfo(-1,"c_indent_mode",1);			// enable c-indent-mode
+
+  SetInfo(-1,"cpp_mode",1);// enable self
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» C++Mode Settings ««
+ConstructInfo("Cpp_comment_start_skip","","","WHGS","",0,0,"////+ *");
+ConstructInfo("Cpp_comment_start","","","WHGS","",0,0,"// ");
+ConstructInfo("Cpp_comment_end","","","WHGS","",0,0,"");
+ConstructInfo("Cpp_line_comment_body","","","WHGS","",0,0,"»");
+ConstructInfo("Cpp_line_comment_end","","","WHGS","",0,0,"««");
+ConstructInfo("Cpp_line_comment_start","","","WHGS","",0,0,"//");
+
+ConstructInfo("Cpp_comment_column","","","WHGI","",0,999,45);
+ConstructInfo("Cpp_tab_size","","","WHGI","",0,999,4);
+
+
+ConstructInfo("cpp_mode", "","", "LBH","", 0,0,0);
+
+AddMode(0, "cpp_mode", "cpp_mode_ext", "cpp_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» C++Mode menu ««
+MenuAdd("s", "C++Mode...", "CppModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();
+

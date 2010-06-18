@@ -1,0 +1,28 @@
+############################################
+File: FrexxEdMain.FPL
+Author: Daniel Stenberg / Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: Consists some very usefull functions and key assigns.
+Version: 1.3
+Date: 6.8.95
+Local settings:
+Global settings:
+Keysequence: 
+Type:
+Prereq:
+############################################
+
+FUNCTION
+
+ MySearch() is used to call and handle the error code from a Search().
+ Prompt and search backwards is assigned to 'Amiga A'.
+
+ Home(), End(), Top() and Bottom() is defined and assigned to the cursor keys.
+ Halfen a view is assigned to 'Amiga 2'.
+
+ Key controlled view resizing is assigned to "Control Shift 'Up/Down'".
+
+HISTORY
+
+1.0 Created
+1.3 Updating MeSearch().

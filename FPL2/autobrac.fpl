@@ -1,0 +1,89 @@
+From frexxedm-error@aobh.xs4all.nl Fri Mar 24 07:02:24 1995
+Received: from gatekeeper.frontec.se (root@gatekeeper.frontec.se [193.13.192.1]) by latour.sth.frontec.se (8.6.8.1/8.6.6) with ESMTP id HAA08133 for <Daniel.Stenberg@sth.frontec.se>; Fri, 24 Mar 1995 07:02:22 +0100
+Received: from xs1.xs4all.nl (xs1.xs4all.nl [193.78.33.42]) by gatekeeper.frontec.se (8.6.10/8.6.6) with SMTP id HAA04183 for <Daniel.Stenberg@sth.frontec.se>; Fri, 24 Mar 1995 07:02:03 +0100
+Received: from aobh.hacktic.nl by xs1.xs4all.nl with UUCP id AA17967
+  (5.67b/IDA-1.5 for sth.frontec.se!Daniel.Stenberg); Fri, 24 Mar 1995 07:00:48 +0100
+Received: by aobh.xs4all.nl (XenolinkUUCP 1.0)
+	  id <1bql@aobh.xs4all.nl>; Thu, 23 Mar 95 16:01:06 +0100
+X-Original-Envelope-From: mshea.slip.rtd.com!mshea Thu, 23 Mar 95 16:00:52 +0100
+X-List-Server-Address: frexxedm-request@aobh.xs4all.nl
+X-List-Admin-Address: frexxedm-admin@aobh.xs4all.nl
+Message-Id: <20648d8b.452cc-mshea@mshea.slip.rtd.com>
+Date: Thu, 23 Mar 95 01:19:13
+Organization: None
+Reply-To: frexxedm@aobh.xs4all.nl (Mailinglist 'frexxedm')
+From: mshea@mshea.slip.rtd.com (Michael E. Shea)
+To: frexxedm@aobh.xs4all.nl
+Subject: AutoBracket.FPL
+Status: OR
+
+  Here is a short snippet of code. Ever find yourself wondering if closed
+all your open parenthesis/brackets. Autobracket does it for you.
+
+
+------------------Begin AutoBracket.FPL.README---------------------------
+
+#############################################################################
+File: AutoBracket.FPL
+Author: Michael E. Shea
+Email: mshea@rtd.com
+Short: Automatically types closeing bracket when you type an opening bracket.
+Version: 1.00
+Date: March 21, 1994
+Local settings:
+Global settings:
+Keysequence: "(", "{" and "["
+Type:
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+	This little program simply types the closing bracket for you when you
+type an opening bracket, i.e. typing "(" gives you "()". Works with "(", "{" 
+and "[". It might be useful for lisp or tex files.
+
+TODO
+	Hit tab to bring you outside the brackets after you type what is needed
+inside.
+
+------------------End AutoBracket.FPL.README--------------------------------
+
+------------------Begin AutoBracket.FPL-------------------------------------
+
+export void AutoBracket(string paren)
+{
+  int openparen;
+  int closeparen;
+  Output(paren);		    // Output the open bracket/paren
+  CursorLeft(1);        // Position curson over open paren
+  openparen=GetChar();
+  closeparen=Isopen(openparen);  // Get the corresponding close paren char
+  CursorRight(1);
+  Output(itoc(closeparen));
+  CursorLeft(1);  
+}
+
+AssignKey("AutoBracket(\"(\");", "(");
+AssignKey("AutoBracket(\"{\");", "{");
+AssignKey("AutoBracket(\"[\");", "[");
+
+------------------End AutoBracket.FPL.--------------------------------------
+                     _    __            INTERMET: mshea@rtd.com
+|\/|o _ |_  _. _ |  |_   (_ |_  _  _.   INTERNET: mshea@math.arizona.edu
+|  ||(_ | |(_|(/_|  |_o  __)| |(/_(_|   Compuserve:76665.3360@compuserve.com
+ 
+
+
+--------------------------------------------------------------------------
+
+The FrexxEd mailing list  -> THE editor for the next generation!
+Current FrexxEd package version 1.5
+
+Post messages to: frexxedm@aobh.xs4all.nl
+
+To unsubscribe send mail to: frexxedm-request@aobh.xs4all.nl
+In the message the line: delete <your email address>
+
+--------------------------------------------------------------------------
+

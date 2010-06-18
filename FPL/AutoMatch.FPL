@@ -1,0 +1,16 @@
+export void AutoMatch(string paren)
+{
+  Output(paren);		// Output the character
+  CursorLeft(1);		// Step back to the character
+  if (MatchParen()>=0) {	// Try to match it
+    Delay(4);			// Make a delay
+    MatchParen();		// Match it back
+  } else
+    ReturnStatus("No match!");  // No match!
+  CursorRight(1);		// Step forward
+}
+
+AssignKey("AutoMatch(\")\");", ")");
+AssignKey("AutoMatch(\"}\");", "}");
+AssignKey("AutoMatch(\"]\");", "]");
+

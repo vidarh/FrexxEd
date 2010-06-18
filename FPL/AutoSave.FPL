@@ -1,0 +1,32 @@
+int timeid;
+
+export void AutoTimeSave()
+{
+  int activeentry=GetEntryID();
+  int firstid=GetBufferID();
+  int id=firstid;
+  Status(0, "AutoSaving");
+  do {
+    if (ReadInfo("autosave") && ReadInfo("changes") && (ReadInfo("type")&1))
+      Save();
+    id=NextBuffer(id);
+    if (id == firstid)
+      id=0;
+    else
+      CurrentBuffer(id);
+  } while (id);
+  CurrentBuffer(activeentry);
+}
+
+export void AutoTimeSaveChange()
+{
+  TimerDelete(timeid);
+  if (ReadInfo("autosave_time")>0)
+    timeid=TimerAdd(1, "AutoTimeSave();", ReadInfo("autosave_time"));
+}
+
+ConstructInfo("autosave_time", "AutoTimeSaveChange();", "", "IGW(io)", "", 0, 1000000, 900);
+if (ReadInfo("autosave_time")>0)
+  timeid=TimerAdd(1, "AutoTimeSave();", ReadInfo("autosave_time"));
+
+Hook("AutoSave", "Save();");

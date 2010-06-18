@@ -1,0 +1,17 @@
+{
+  string hex[16]={"0", "1", "2", "3", "4", "5", "6", "7",
+                  "8", "9", "A", "B", "C", "D", "E", "F"};
+  int counter;
+  string fact=ReadInfo("fact");
+
+  Visible(0);
+  FACTCreate(fact);
+  for (counter=1; counter<256; counter++) {
+    FACT(fact, counter, 'e', '-', 's', joinstr("#R", itoc(counter), "#r-", hex[counter>>4],
+                               hex[counter&15], " "));
+  }
+  FACT(fact, 0, 's', "#R #r-00 ");	// Change the 00-character.
+  FACT(fact, 0x23, 's', "#R###r-23 ");	// Change the '#'-character.
+  FACT(fact, 0xa, 'N');			// 0x0A is still newline
+}
+

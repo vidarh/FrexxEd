@@ -1,0 +1,46 @@
+#############################################################################
+File: InsRemTab.FPL
+Author: Roger Mårtensson
+Email: 2:205/418.3
+Short: Insert and remove TABs using CTRL-TAB and SHIFT-CTRL-TAB
+Version: 1.1
+Date: 10.8.95
+Local settings:
+Global settings:
+Keysequence: CTRL-TAB and SHIFT-CTRL-TAB
+Type: Function
+Prereq:
+Copyright: Public Domain
+#############################################################################
+
+FUNCTION
+
+Before I found FrexxEd I used DME as my main programming tool, and one thing
+that I have missed is the ability to insert a TAB character with the 
+CTRL-TAB combination and remove it with SHIFT-CTRL-TAB.
+
+The InsTab(); also checks out a boolean Info variable called indent_uses_tabs,
+ which Comment.FPL also does. With this flag you can choose if you want
+'real' tabs or spaces. If you choose to use spaces the function uses the
+tab_size Info variable.
+
+RemTab();  deletes all spaces from the cursor and to the first non-space
+character(Everything except 0x20). It also honors the tab_size, and will
+not delete more spaces than found in tab_size.
+
+HISTORY
+
+	1.0	First and only release
+	1.1 I shouldn't have written "only" release. :)
+		One minor/major(2 more if statements) inserted.
+		Now checks if the lines is empty, and don't do anything
+		if it is.
+		Honors both indent_uses_tabs and tab_size.
+
+BUGS
+
+	None found
+
+TODO
+
+	I have no idea

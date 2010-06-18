@@ -1,0 +1,19 @@
+############################################
+File: User.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: extra FPL file executions
+Version: 1.0
+Date: 29.7.94
+Local settings:
+Global settings:
+Keysequence:
+Type: Init
+Prereq:
+############################################
+
+FUNCTION
+  This file is made to seperate the FPL files you want to execute, from the
+more vital file execution in 'FrexxEd.FPL'.
+
+

@@ -1,0 +1,82 @@
+// $Id: FillText.FPL 1.3 1996/01/02 10:14:49 jskov Exp jskov $
+// $VER: FillText.FPL 1.2 (01.01.96) © Jesper Skov
+
+export string ft_indention="";
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» fillText() ««
+export void fillText()
+{
+  int i=0;
+
+  if (ReadInfo("line_length")==1){
+	ReturnStatus("Place cursor in a paragraph!");
+	return;
+  }
+
+  Visible(0);
+
+  // Find topmost line
+  while((ReadInfo("line_length")>1) && ReadInfo("line")>1)
+	CursorUp();
+  if(ReadInfo("line")!=1)
+	CursorDown();
+
+  CursorDown();Home();
+
+  // Put all lines in paragraph on same line
+  while(ReadInfo("line_length")>1){
+	Backspace();Clean("Output(\" \");");
+	CursorDown();Home();
+  }
+  CursorUp();
+
+  // Copy&delete leading spaces
+  while(Isspace(GetChar(i)))
+	i++;
+  ft_indention = substr(GetLine(),0,i);
+  Delete(i);
+
+  BlockMark(0);
+  BlockMark(2,0,ReadInfo("line"),GetCursor(ReadInfo("line_length")),ReadInfo("line"));
+
+  Home();
+  Replace(1,"\t"," ","=bf+",ReadInfo("line_length")); // replace tabs with space
+  Home();
+  Replace(1,"  +"," ","=bfw+",ReadInfo("line_length")); // replace multiple spaces with space
+  Home();
+  if(ReadInfo("fill_text_US")){				// if wanted, set US double space
+	Replace(1,". ",".  ","=bf+");
+	Home();
+  }
+
+  BlockMark(0);
+
+  Clean("Output(ft_indention);");
+
+  // Now split line up in valid sized single lines
+  while(GetCursor(ReadInfo("line_length"))>ReadInfo("wall_right")){
+	// If a word is crossing the wall_right, go left of it.
+    GotoLine(ReadInfo("line"),GetByte(ReadInfo("wall_right")));
+	while(!Isspace(GetChar(ReadInfo("byte_position")-1))){
+	  CursorLeftWord();
+	  if (ReadInfo("column")==1){			// very long word!
+		CursorRightWord();					// simply go back!
+		break;
+	  }
+	}
+	Backspace();
+	if (Isspace(GetChar(ReadInfo("byte_position")-1)))
+	  Backspace();							// clear extra for US .
+	Clean("Output(\"\n\"+ft_indention);");
+  }	 
+
+  // Delete last space there may be after a .
+  GotoLine(ReadInfo("line"),-1);
+  if(Isspace(GetChar(ReadInfo("byte_position")-1)))
+	Backspace();
+
+  Visible(1);RedrawScreen();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info vars ««
+ConstructInfo("fill_text_US","","","WBG(display)","",0,1,0);

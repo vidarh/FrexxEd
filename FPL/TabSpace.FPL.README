@@ -1,0 +1,24 @@
+############################################
+File: TabSpace.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Output spaces instead of a tab character.
+Version: 1.0
+Date: 21.5.94
+Local settings: "tab_space"
+Global settings:
+Keysequence: "tab"
+Type: key assing
+Prereq:
+############################################
+
+FUNCTION
+  The function will calculate have many spaces that need to be outputted to match
+the next tab location.
+
+  It will be trigged by the tab key, when the constructed setting 'tab_space'
+is on.
+
+ADDED by Edd Dumbill ejad-a@minster.york.ac.uk
+  When 'tab_space' is on, SHIFT-TAB will backspace to the previous tab
+location, deleting characters. 

@@ -1,0 +1,22 @@
+############################################
+File: RövarSpråk.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: changes the FACT to show 'RövarSpråk'
+Version: 1.0
+Date: 1.4.94
+Local settings:
+Global settings:
+Keysequence:
+Type: FACT
+Prereq:
+############################################
+
+FUNCTION
+  The swedish author of childrens' books, Astrid Lindgren, presented once
+upon the time a "secret language" that only the members of the "secret club"
+knew how to speak! It was built by doubling every consonant in all words and
+insert a. 'o' between them. That would make the word 'short' to become
+'soshohorortot'.
+
+  This little file converts all characters in FrexxEd to this 'RövarSpråk'!!!

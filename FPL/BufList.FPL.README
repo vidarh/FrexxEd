@@ -1,0 +1,45 @@
+#############################################################################
+File:		BufList.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Easy multiple-buffer interface/overview (Emacs style)
+Version:	1.1
+Date:		2.5.96
+Local settings:
+Global settings:
+Keysequence:	control x b
+Type:
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+  Have you ever been in the position when you've had a lot of buffers in
+memory and you wanted to i.e kill or save a whole lot of them? I know I have,
+and that is the reason why I put this piece together.
+
+  Invoking the function with 'control x b' will display a list of all buffers
+currently in FrexxEd in a new view (with information whether they are changed,
+the protection bits, the sizes and their full file names). You can then move
+around the cursor in the list and mark the files in a few different ways:
+  'd' - marks the file for deletion
+  's' - marks the file for saving
+  'u' - unmark the file
+
+Press 'x' to perform the actions according to the marks. Pressing 'f' on a
+file name will make FrexxEd pop that buffer to front.
+
+HISTORY
+  1.0 - Original, put together for you to try! Gimme a hint if you have any
+	changes you'd like to have included...
+  1.1 - Made it deal with block-marks. Mark a block and then press a key
+        will be the same as if you pressed that key on all those lines.
+
+BUGS
+  Don't think so.
+
+TODO
+  Clone even more functions from the Emacs bufferlist-mode.
+
+SEE ALSO
+

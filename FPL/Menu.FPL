@@ -1,0 +1,1246 @@
+/**********************************************************************
+ *
+ * This creates an nice menu setup to use with the language selected!
+ *
+ ******/
+
+{
+  int title=0;
+  int item=0;
+  string lang = ReadInfo("language");
+
+  string Project =      "Project";
+  string Project_Clear =   "Clear";
+  string Project_New =     "New";
+  string Project_Open =    "Open...";
+  string Project_Open_Window = "Open in Window...";
+  string Project_Load =    "Load...";
+  string Project_InsertFile = "Insert File...";
+  string Project_DeleteFile = "Delete File...";
+  string Project_Rename =  "Rename...";
+  string Project_Save =    "Save";
+  string Project_SaveChanges =   "Save Changes";
+  string Project_SaveAs =  "Save as...";
+  string Project_SaveAll = "Save All";
+  string Project_SaveAllChanges = "Save All Changes";
+  string Project_SaveProject =   "Save Project...";
+  string Project_LoadProject =   "Load Project...";
+  string Project_Print =   "Print";
+  string Project_Iconify = "Iconify All";
+  string Project_About =   "About...";
+  string Project_Kill =    "Kill";
+  string Project_QuitAll = "Quit All";
+
+  string Window = "Window";
+  string Window_New = "New";
+  string Window_Clone = "Clone";
+  string Window_Close = "Close";
+  string Window_New_Screen = "New Screen";
+  string Window_Split = "Split";
+  string Window_Split_Horizontal = "Horizontal";
+  string Window_Split_Vertical = "Vertical";
+  string Window_Resize = "Resize";
+  string Window_Resize_Maximum = "Maximum";
+  string Window_Resize_Minimum = "Minimum";
+  string Window_Resize_Normal = "Normal";
+  string Window_Organize = "Organize";
+  string Window_Organize_Stack = "Stack";
+  string Window_Organize_Tile = "Tile";
+  string Window_Organize_Cascade = "Cascade";
+  string Window_Organize_Iconify = "Iconify";
+  string Window_Organize_Open_all = "Open all";
+  string Window_NextWindow = "Next Window";
+  string Window_PrevWindow = "Prev Window";
+    
+  string Block =     "Block";
+  string Block_Mark =      "Mark";
+  string Block_MarkRectangle =   "Mark Rectangle";
+  string Block_MarkLine=   "Mark Line";
+  string Block_Cut =    "Cut";
+  string Block_CutAppend = "Cut Append";
+  string Block_Copy =      "Copy";
+  string Block_CopyAppend =   "Copy Append";
+  string Block_Delete =   "Delete";
+  string Block_Insert =    "Insert";
+  string Block_InsertRectangle = "Insert Rectangle";
+  string Block_Load =      "Load...";
+  string Block_Save =      "Save...";
+  string Block_Print =     "Print";
+  string Block_EditBlocks =   "Edit Blocks...";
+  string Block_ExportClipboard = "Export to Clipboard";
+  string Block_ImportClipboard = "Import from Clipboard";
+  string Block_Move =      "Move...";
+  string Block_Sort =      "Sort...";
+  string Block_ChangeCase =   "Change Case";
+  string Block_LowerCase = "Lower Case";
+  string Block_UpperCase = "Upper Case";
+
+  string Edit =         "Edit";
+  string Edit_DeleteLine = "Delete Line";
+  string Edit_DeleteEOL =  "Delete to EOL";
+  string Edit_DeleteWord = "Delete Word";
+  string Edit_BackspaceWord = "Backspace Word";
+
+  string Edit_Fold = "Fold";
+  string Edit_Fold_Delete = "Delete";
+  string Edit_Fold_Show = "Show";
+  string Edit_Fold_Hide = "Hide";
+  string Edit_Fold_ShowExclusive = "Show Exclusive";
+  string Edit_Fold_HideExclusive = "Hide Exclusive";
+  string Edit_Fold_ShowAll = "Show All";
+  string Edit_Fold_HideAll = "Hide All";
+
+  string Edit_Undo =    "Undo";
+  string Edit_UndoRestart =   "Undo Restart";
+  string Edit_Yank =    "Yank";
+  string Edit_InsertBuffer =  "Insert Buffer...";
+
+  string Move =         "Move";
+  string Move_MaximizeView =  "Maximize View";
+  string Move_RemoveView = "Remove View";
+  string Move_ResizeView = "Resize View";
+  string Move_GotoNextView =  "Goto Next View";
+  string Move_GotoPreviousView = "Goto Previous View";
+  string Move_NextBuffer = "Next Buffer";
+  string Move_PreviousBuffer =   "Previous Buffer";
+  
+  string Move_SplitView =    "Split View";
+  
+  string Move_RightWord =  "Right Word";
+  string Move_LeftWord =   "Left Word";
+  string Move_MatchCharacter =   "Match Character";
+  string Move_GotoBuffer = "Goto Buffer...";
+  string Move_GotoLine =   "Goto Line...";
+  string Move_GotoLatestChange = "Goto Latest Change";
+
+  string Search =    "Search";
+  string Search_RepeatSearchForward = "Repeat Search Forward";
+  string Search_RepeatSearchBackward = "Repeat Search Backward";
+  string Search_Search =   "Search...";
+  string Search_RepeatReplace = "Repeat Replace";
+  string Search_Replace =  "Replace...";
+  string Search_Block2SearchBuffer = "Block to Search Buffer";
+  string Search_Block2ReplaceBuffer = "Block to Replace Buffer";
+
+  string Customizing =     "Prefs";
+  string Customizing_Colors = "Colours";
+  string Customizing_ColorsAdjust = "Adjust...";
+  string Customizing_ColorsReset = "Reset";
+  string Customizing_Locals = "Locals...";
+  string Customizing_Default = "Default...";
+  string Customizing_Globals =   "Globals";
+
+/* Nya 960509 */
+  string Customizing_LD_Misc =		"Misc";
+  string Customizing_LD_File =		"File";
+  string Customizing_LD_Window =	"Window";
+  string Customizing_LD_ScreenMode =	"ScreenMode";
+  string Customizing_LD_CloneWB =	"CloneWB";
+  string Customizing_Local_Copy =	"Make as default";
+
+  string Customizing_GlobalsIO = "In & Out...";
+  string Customizing_GlobalsDisplay = "Display/System...";
+  string Customizing_GlobalsAll = "All...";
+/*
+  string Customizing_Screen = "Screen...";
+  string Customizing_GlobalsIO = "IO...";
+  string Customizing_GlobalsDisplay = "Display/System...";
+  string Customizing_GlobalsAll = "All Globals...";
+*/
+  string Customizing_Program =   "Program";
+  string Customizing_Save =   "Save...";
+  string Customizing_Font =   "Font";
+  string Customizing_FontSystem = "System Font...";
+  string Customizing_FontRequest = "Request Font...";
+  string Customizing_FontBoth =  "Both Fonts...";
+  string Customizing_ScreenMode = "Screenmode...";
+  string Customizing_CloneWB = "Clone WB";
+  string Customizing_ResetFACT = "Reset FACT";
+
+  string Special =      "Misc";
+  string Special_MacroRecord =   "Macro Start/Stop";
+  string Special_EditMacros = "Edit Macros";
+  string Special_LoadMacro =  "Load Macro...";
+  string Special_SaveMacro =  "Save Macro...";
+  string Special_ExecuteBuffer = "Execute Buffer as FPL";
+  string Special_ExecuteBlock =  "Execute Block as FPL";
+  string Special_ExecuteFile =   "Execute FPL File...";
+  string Special_Prompt =  "Prompt...";
+  string Special_RenameSymbol = "Rename symbol...";
+  string Special_AssignKey =  "Assign Key...";
+  string Special_AssignKeyBuffer = "Fastkey Buffer Exec...";
+  string Special_BufferInfo = "Buffer Info";
+
+  string Special_Help = "Help";
+  string Special_HelpGeneral = "General";
+  string Special_HelpFunctions = "Functions";
+
+  
+  if(!strcmp(lang, "svenska")) {
+    /*
+     * The Swedish menu! Initially written by Roger Nordin.
+     */
+
+    Project =        "Arkiv";
+    Project_Clear =     "Rensa";
+    Project_New =    "Ny";
+    Project_Open =      "Öppna...";
+    Project_Open_Window = "Öppna i fönster...";
+    Project_Load =      "Läs in...";
+    Project_InsertFile =   "Skjut in...";
+    Project_DeleteFile = "Radera fil...";
+    Project_Rename =    "Döp om...";
+    Project_Save =      "Spara";
+    Project_SaveChanges =  "Spara ändringar";
+    Project_SaveAs =    "Spara som...";
+    Project_SaveAll =      "Spara allt";
+    Project_SaveAllChanges =  "Spara alla ändringar";
+    Project_SaveProject =  "Spara projekt...";
+    Project_LoadProject =  "Läs in projekt...";
+    Project_Print =     "Skriv ut";
+    Project_Iconify =      "Ikonifiera alla";
+    Project_About =     "Om FrexxEd...";
+    Project_Kill =      "Stäng";
+    Project_QuitAll =      "Avsluta";
+    
+    Window =			"Fönster";
+    Window_New =		"Nytt";
+    Window_Clone = 		"Nytt likadant";
+    Window_Close =		"Stäng";
+    Window_New_Screen =         "Ny skärm";
+    Window_Split =		"Dela";
+    Window_Split_Horizontal =	"Horisontalt";
+    Window_Split_Vertical =	"Vertikalt";
+    Window_Resize =		"Ändra storlek";
+    Window_Resize_Maximum =	"Maximum";
+    Window_Resize_Minimum =	"Minimum";
+    Window_Resize_Normal =	"Normal";
+    Window_Organize =		"Organisera";
+    Window_Organize_Stack =	"Trava";
+    Window_Organize_Tile =	"Tegelmönster";
+    Window_Organize_Cascade =	"Fallande";
+    Window_Organize_Iconify =	"Ikonifiera";
+    Window_Organize_Open_all =	"Öppna alla";
+    Window_NextWindow =		"Nästa fönster";
+    Window_PrevWindow =		"Föregående fönster";
+
+    Block =       "Block";
+    Block_Mark =     "Markera";
+    Block_MarkRectangle =  "Markera rektangel";
+    Block_MarkLine=   "Markera rad";
+    Block_Cut =         "Klipp ut";
+    Block_CutAppend =      "Klipp ut & lägg till";
+    Block_Copy =     "Kopiera";
+    Block_CopyAppend =     "Kopiera & lägg till";
+    Block_Delete =     "Radera";
+    Block_Insert =      "Skjut in";
+    Block_InsertRectangle =   "Skjut in rektangel";
+    Block_Load =     "Läs in...";
+    Block_Save =     "Spara...";
+    Block_Print =    "Skriv ut";
+    Block_EditBlocks =     "Editera block...";
+    Block_ExportClipboard =   "Exportera till klippotek";
+    Block_ImportClipboard =   "Importera från klippotek";
+    Block_Move =     "Indentera...";
+    Block_Sort =     "Sortera...";
+    Block_ChangeCase =     "Byt gemen/versal";
+    Block_LowerCase =      "Till gemener";
+    Block_UpperCase =      "Till versaler";
+  
+    Edit =        "Editera";
+    Edit_DeleteLine =      "Radera rad";
+    Edit_DeleteEOL =    "Radera till slut på rad";
+    Edit_DeleteWord =      "Radera ord höger";
+    Edit_BackspaceWord =   "Radera ord vänster";
+
+    Edit_Fold = "Veck";
+    Edit_Fold_Delete = "Radera";
+    Edit_Fold_Show = "Visa";
+    Edit_Fold_Hide = "Göm";
+    Edit_Fold_ShowExclusive = "Visa enbart";
+    Edit_Fold_HideExclusive = "Göm enbart";
+    Edit_Fold_ShowAll = "Visa alla";
+    Edit_Fold_HideAll = "Göm alla";
+
+    Edit_Undo =         "Ångra";
+    Edit_UndoRestart =     "Ångra omstart";
+    Edit_Yank =         "Skjut in slask";
+    Edit_InsertBuffer =    "Skjut in buffer...";
+  
+    Move =        "Förflytta";
+    Move_MaximizeView =    "Maximera vy";
+    Move_RemoveView =      "Stäng vy";
+    Move_ResizeView =      "Ändra storlek på vy...";
+    Move_GotoNextView =    "Nästa vy";
+    Move_GotoPreviousView =   "Föregående vy";
+    Move_NextBuffer =      "Nästa buffer";
+    Move_PreviousBuffer =  "Föregående buffer";
+    Move_SplitView =    "Dela vy";
+    Move_RightWord =    "Nästa ord";
+    Move_LeftWord =     "Föregående ord";
+    Move_MatchCharacter =  "Motsvarande tecken";
+    Move_GotoBuffer =      "Gå till buffer...";
+    Move_GotoLine =     "Gå till rad...";
+    Move_GotoLatestChange =   "Gå till senaste ändring";
+  
+    Search =         "Sök/ersätt";
+    Search_RepeatSearchForward = "Repetera sökning framåt";
+    Search_RepeatSearchBackward = "Repetera sökning bakåt";
+    Search_Search =     "Sök...";
+    Search_RepeatReplace = "Repetera ersättning";
+    Search_Replace =    "Ersätt...";
+    Search_Block2SearchBuffer = "Block till söktext";
+    Search_Block2ReplaceBuffer = "Block till ersättningstext";
+  
+    Customizing =             "Inställningar";
+    Customizing_Colors =      "Färger";
+    Customizing_ColorsAdjust= "Justera...";
+    Customizing_ColorsReset = "Återställ";
+    Customizing_LD_Misc =	"Blandat";
+    Customizing_LD_File =	"Fildata";
+    Customizing_LD_Window =	"Fönster";
+    Customizing_LD_ScreenMode =	"Skärmläge";
+    Customizing_LD_CloneWB =	"Efterapa WB";
+    Customizing_Local_Copy =	"Gör till default";
+    Customizing_Locals =      "Lokala...";
+    Customizing_Default =     "Initiallokala...";
+    Customizing_Globals =     "Globala";
+    Customizing_GlobalsIO =   "I/O-hantering...";
+    Customizing_GlobalsDisplay="Vyer/System...";
+    Customizing_GlobalsAll =  "Alla globala...";
+    Customizing_Program =     "Program";
+    Customizing_Save =        "Spara...";
+    Customizing_Font =        "Teckensnitt";
+    Customizing_FontSystem =  "Systemtecken...";
+    Customizing_FontRequest = "Requesttecken...";
+    Customizing_FontBoth =    "Båda...";
+    Customizing_ScreenMode =  "Skärmläge...";
+    Customizing_CloneWB =     "Kopiera WB";
+    Customizing_ResetFACT =   "Återställ FACT";
+  
+    Special =        "Special";
+    Special_MacroRecord =  "Makro start/stopp";
+    Special_EditMacros =   "Editera makro";
+    Special_LoadMacro =    "Load macro...";
+    Special_SaveMacro =    "Save macro...";
+    Special_ExecuteBuffer ="Kör buffer som FPL";
+    Special_ExecuteBlock = "Kör block som FPL";
+    Special_ExecuteFile =  "Kör FPL program...";
+    Special_Prompt =       "Prompter...";
+    Special_AssignKey =    "Tilldela tangent...";
+    Special_AssignKeyBuffer="Snabbexekvera buffer...";
+    Special_BufferInfo =   "Bufferinformation";
+    Special_Help =         "Hjälp";
+    Special_HelpGeneral =  "Allmänt";
+    Special_HelpFunctions ="Funktioner";
+
+  }
+
+  else if(!strcmp(lang, "nederlands")) {
+    /*
+     * The Dutch menu setup! Written by Michiel Willems
+     */
+    Project =        "Projekt";
+    Project_Clear =     "Schoon";
+    Project_New =    "Nieuw";
+    Project_Open =      "Openen";
+    Project_Load =      "Laden";
+    Project_InsertFile =   "Voeg file in";
+    Project_Rename =    "Hernoem...";
+    Project_Save =      "Bewaar";
+    Project_SaveChanges =  "Bewaar veranderingen";
+    Project_SaveAs =    "Bewaar als...";
+    Project_SaveAll =      "Bewaar alles";
+    Project_SaveAllChanges =  "Bewaar alle veranderingen";
+    Project_SaveProject =  "Bewaar projekt";
+    Project_LoadProject =  "Laden projekt";
+    Project_Print =     "Print";
+    Project_Iconify =      "Iconify";
+    Project_About =     "Over";
+    Project_Kill =      "Sluiten";
+    Project_QuitAll =      "Stoppen Alles";
+    
+    Block =       "Blok";
+    Block_Mark =     "Markeren";
+    Block_MarkRectangle =  "Markeer vierkant";
+    Block_MarkLine=   "Markeer regel";
+    Block_Cut =         "Knip";
+    Block_CutAppend =      "Knip bijvoegen";
+    Block_Copy =     "Kopieer";
+    Block_CopyAppend =     "Kopieer bijvoegen";
+    Block_Delete =     "Verwijder";
+    Block_Insert =      "Invoegen";
+    Block_InsertRectangle =   "Invoegen vierkant";
+    Block_Load =     "Laden";
+    Block_Save =     "Bewaren";
+    Block_Print =    "Print";
+    Block_EditBlocks =     "Verander bloks";
+    Block_ExportClipboard =   "Exporteer naar clipboard";
+    Block_ImportClipboard =   "Importeer van clipboard";
+    Block_Move =     "Verplaats";
+    Block_Sort =     "Sorteer";
+    Block_ChangeCase =     "Verander hoogte";
+    Block_LowerCase =      "Verlaag hoogte";
+    Block_UpperCase =      "Verhoog hoogte";
+  
+    Edit =        "Verander";
+    Edit_DeleteLine =      "Verwijder regel";
+    Edit_DeleteEOL =    "Verwijder naar EVR";
+    Edit_DeleteWord =      "Verwijder woord";
+    Edit_BackspaceWord =   "Backspace woord";
+    Edit_Undo =         "Maak ongedaan";
+    Edit_UndoRestart =     "Herstart ongedaan maken";
+    Edit_Yank =         "Yank";
+    Edit_InsertBuffer =    "Invoegen buffer";
+  
+    Move =        "Verplaats";
+    Move_MaximizeView =    "Maximale grote scherm";
+    Move_RemoveView =      "Verwijder scherm";
+    Move_ResizeView =      "Verander scherm";
+    Move_GotoNextView =    "Ga naar volgende view";
+    Move_GotoPreviousView =   "Ga naar vorige view";
+    Move_NextBuffer =      "Volgende buffer";
+    Move_PreviousBuffer =  "Vorige buffer";
+    Move_SplitView =    "Splits scherm";
+    Move_RightWord =    "Rechts van woord";
+    Move_LeftWord =     "Links van woord";
+    Move_MatchCharacter =  "Vergelijk karakter";
+    Move_GotoBuffer =      "Ga naar buffer";
+    Move_GotoLine =     "Ga naar regel";
+    Move_GotoLatestChange =   "Ga naar laatste verandering";
+  
+    Search =         "Vind";
+    Search_RepeatSearchForward = "Herhaal vinden voorwaards";
+    Search_RepeatSearchBackward = "Herhaal vinden achterwaards";
+    Search_Search =     "Vind...";
+    Search_RepeatReplace = "Herhaal vervangen";
+    Search_Replace =    "Vervang...";
+    Search_Block2SearchBuffer = "Blok naar vind buffer";
+    Search_Block2ReplaceBuffer = "Blok naar vervang buffer";
+  
+    Customizing =    "Veranderen";
+    Customizing_Colors =   "Kleuren";
+    Customizing_ColorsAdjust =   "Verander";
+    Customizing_ColorsReset = "Reset";
+    Customizing_Locals =   "Lokale";
+    Customizing_Default =   "Default";
+    Customizing_Globals =  "Globalen";
+    Customizing_Screen = "Scherm";
+    Customizing_GlobalsIO =   "IO";
+    Customizing_GlobalsDisplay = "Scherm/Systeem";
+    Customizing_GlobalsAll =  "Alle globale";
+    Customizing_Program =   "Program";
+    Customizing_Save =     "Bewaar";
+    Customizing_Font =     "Font";
+    Customizing_FontSystem =  "Systeem font";
+    Customizing_FontRequest = "Verzoek font";
+    Customizing_FontBoth = "Allebei de fonts";
+    Customizing_ScreenMode =  "SchermMode";
+    Customizing_CloneWB = "Kopieer WB";
+    Customizing_ResetFACT =   "Reset FACT";
+  
+    Special =        "Speciaal";
+    Special_MacroRecord =  "Makro opnemen";
+    Special_EditMacros =   "Verander makros";
+    Special_LoadMacro =    "Load macro";
+    Special_SaveMacro =    "Save macro";
+    Special_ExecuteBuffer =   "Voer buffer als FPL uit";
+    Special_ExecuteBlock = "Voer blok als FPL uit";
+    Special_ExecuteFile =  "Voer FPL bestand uit";
+    Special_Prompt =    "Prompt";
+    Special_AssignKey =    "Ken toets toe";
+    Special_BufferInfo =   "Buffer informatie";
+    
+  }
+  else if(!strcmp(lang, "polski")) {
+    /*
+     *The Polish menu setup! Written by Robert Ramiëga
+     */
+     
+    Project =              "Projekt";
+    Project_Clear =           "Wyczyôê";
+    Project_New =             "Nowy";
+    Project_Open =            "Otwórz";
+    Project_Load =            "Wczytaj";
+    Project_InsertFile =      "Doîâcz zbiór";
+    Project_Rename =          "Zmieï nazwë";
+    Project_Save =            "Zapisz";
+    Project_SaveChanges =     "Zapisz zmiany";
+    Project_SaveAs =          "Zapisz jako...";
+    Project_SaveAll =         "Zapisz wszystkie";
+    Project_SaveAllChanges =  "Zapisz wszystkie zmiany";
+    Project_SaveProject =     "Zapisz projekt";
+    Project_LoadProject =     "Wczytaj projekt";
+    Project_Print =           "Drukuj";
+    Project_Iconify =         "Ikonifikacja";
+    Project_About =           "O autorach";
+    Project_Kill =            "Zamknij okno";
+    Project_QuitAll =         "Zamknij wszystkie";
+
+    Block =                "Blok";
+    Block_Mark =              "Zaznacz";
+    Block_MarkRectangle =     "Zaznacz prostokât";
+    Block_MarkLine=   	      "Zaznacz linië";
+    Block_Cut =               "Wytnij";
+    Block_CutAppend =         "Wytnij i doîâcz";
+    Block_Copy =              "Skopiuj";
+    Block_CopyAppend =        "Skopiuj i doîâcz";
+    Block_Delete =            "Skasuj";
+    Block_Insert =            "Wstaw";
+    Block_InsertRectangle =   "Wstaw prostokât";
+    Block_Load =              "Wczytaj";
+    Block_Save =              "Zapisz";
+    Block_Print =             "Wydrukuj";
+    Block_EditBlocks =        "Edycja bloku";
+    Block_ExportClipboard =   "Wstaw do clipboard'a";
+    Block_ImportClipboard =   "Pobierz z clipboard'a";
+    Block_Move =              "Przesuï";
+    Block_Sort =              "Posortuj";
+    Block_ChangeCase =        "Zamieï wielkoôê liter";
+    Block_LowerCase =         "Zamieï na maîe litery";
+    Block_UpperCase =         "Zamieï na duûe litery";
+
+    Edit =                  "Edycja";
+    Edit_DeleteLine =         "Skasuj linië";
+    Edit_DeleteEOL =          "Skasuj do koïca linii";
+    Edit_DeleteWord =         "Skasuj sîowo";
+    Edit_BackspaceWord =      "Skasuj sîowo z lewej";
+    Edit_Undo =               "Cofnij zmiany";
+    Edit_UndoRestart =        "Undo Restart";
+    Edit_Yank =               "Yank";
+    Edit_InsertBuffer =       "Wstaw bufor";
+    
+    Move =                  "Ruch/Widok";
+    Move_MaximizeView =       "Powiëksz widok";
+    Move_RemoveView =         "Usuï widok";
+    Move_ResizeView =         "Zmieï rozmiar";
+    Move_GotoNextView =       "Pokaû nastëpny";
+    Move_GotoPreviousView =   "Pokaû poprzedni";
+    Move_NextBuffer =         "Nastëpny bufor";
+    Move_PreviousBuffer =     "Poprzedni bufor";
+    Move_SplitView =          "Rozdziel widok";
+    Move_RightWord =          "Przesuï sië o sîowo w prawo";
+    Move_LeftWord =           "Przesuï sië o sîowo w lewo";
+    Move_MatchCharacter =     "Znajdú odpowiadajâcy znak";
+    Move_GotoBuffer =         "Przejdú do bufora";
+    Move_GotoLine =           "Przejdú do linii"; 
+    Move_GotoLatestChange =   "Przejdú do ostatniej zmiany";
+    
+    Search =                     "Szukanie";
+    Search_RepeatSearchForward =    "Powtórz szukanie w przód";
+    Search_RepeatSearchBackward =   "Powtórz szukanie wstecz";
+    Search_Search =                 "Szukaj....";
+    Search_RepeatReplace =          "Powtórz zamianë";
+    Search_Replace =                "Zamieï....";
+    Search_Block2SearchBuffer =     "Blok do bufora poszukiwaï";
+    Search_Block2ReplaceBuffer =    "Blok do bufora zamiany";
+    
+    Customizing =               "Ustawienia";
+    Customizing_Colors =           "Kolory";
+    Customizing_ColorsAdjust =     "Ustaw";
+    Customizing_ColorsReset =      "Ustawienia poczâtkowe";
+    Customizing_Locals =           "Lokalne";
+    Customizing_Default =          "Default";
+    Customizing_Globals =          "Globalne";
+    Customizing_Screen =           "Ekran";
+    Customizing_GlobalsIO =        "Operacje we/wy";
+    Customizing_GlobalsDisplay =   "Wyôwietlanie/System";
+    Customizing_GlobalsAll =       "Wszystkie globalne";
+    Customizing_Program =          "Program";
+    Customizing_Save =             "Zapisz";
+    Customizing_Font =             "Czcionka";
+    Customizing_FontSystem =       "Systemowa";
+    Customizing_FontRequest =      "Ûâdaï systemowych";
+    Customizing_FontBoth =         "Obie";
+    Customizing_ScreenMode =       "Tryb ekranu";
+    Customizing_CloneWB = 	   "Skopiuj WB";
+    Customizing_ResetFACT =        "Ustawienie poczâtkowe FACT";
+    
+    Special =                  "Specjalne";
+    Special_MacroRecord =        "Nagrywanie makra";
+    Special_EditMacros =         "Edycja makra";
+    Special_LoadMacro =          "Wczytaj makro"; 
+    Special_SaveMacro =          "Zapisz makro"; 
+    Special_ExecuteBuffer =      "Wykonaj bufor";
+    Special_ExecuteBlock =       "Wykonaj blok"; 
+    Special_ExecuteFile =        "Wykonaj zbiór"; 
+    Special_Prompt =             "Prompt";
+    Special_AssignKey =          "Przypisanie klawiszy";
+    Special_BufferInfo =         "Informacje o buforze";
+
+  }
+  else if(!strcmp(lang, "deutsch")) {
+    /*
+     * The German menu setup! Written by Carsten Orthbandt 
+     * Slightly fixed by Volker Güth.
+     */
+    Project =        "Projekt";
+    Project_Clear =     "Löschen";
+    Project_New =    "Neu";
+    Project_Open =      "Öffnen...";
+    Project_Open_Window = "Öffnen in Fenster...";
+    Project_Load =      "Laden...";
+    Project_InsertFile = "Datei einfügen...";
+    Project_DeleteFile = "Datei löschen...";
+    Project_Rename =    "Umbenennen...";
+    Project_Save =      "Sichern";
+    Project_SaveChanges =  "Änderungen sichern";
+    Project_SaveAs =    "Sichern als...";
+    Project_SaveAll =      "Alles sichern";
+    Project_SaveAllChanges =  "Alle Änderungen sichern";
+    Project_SaveProject =  "Projekt sichern";
+    Project_LoadProject =  "Projekt laden";
+    Project_Print =     "Drucken";
+    Project_Iconify =      "Iconifizieren";
+    Project_About =     "Über...";
+    Project_Kill =      "Schliessen";
+    Project_QuitAll =      "Alles Beenden";
+
+    Window = "Fenster" ;
+    Window_New = "Neu";
+    Window_Clone = "Duplizieren";
+    Window_Close = "Schliessen";
+    Window_New_Screen = "Neuer Schirm";
+    Window_Split = "Teilen";
+    Window_Split_Horizontal = "Horizontal";
+    Window_Split_Vertical = "Vertikal";
+    Window_Resize = "Größe ändern";
+    Window_Resize_Maximum = "Maximum";
+    Window_Resize_Minimum = "Minimum";
+    Window_Resize_Normal = "Normal";
+    Window_Organize = "Organisieren";
+    Window_Organize_Stack = "Stapel";
+    Window_Organize_Tile = "Kachel";
+    Window_Organize_Cascade = "Kaskade";
+    Window_Organize_Iconify = "Ikonifizieren";
+    Window_Organize_Open_all = "Alle öffnen";
+    Window_NextWindow = "Nächstes Fenster";
+    Window_PrevWindow = "Vorheriges Fenster";
+
+    Block =       "Block";
+    Block_Mark =     "Markieren";
+    Block_MarkRectangle =  "Kolumne markieren";
+    Block_MarkLine=   	    "Zeile markieren";
+    Block_Cut =         "Ausschneiden";
+    Block_CutAppend =      "Ausschneiden & Anhängen";
+    Block_Copy =     "Kopieren";
+    Block_CopyAppend =     "Kopieren & Anhängen";
+    Block_Delete =     "Löschen";
+    Block_Insert =      "Einfügen";
+    Block_InsertRectangle =   "Kolumne einfügen";
+    Block_Load =     "Laden...";
+    Block_Save =     "Sichern...";
+    Block_Print =    "Drucken";
+    Block_EditBlocks =     "Blöcke bearbeiten";
+    Block_ExportClipboard =   "Clipboard exportieren";
+    Block_ImportClipboard =   "Clipboard importieren";
+    Block_Move =     "Verschieben";
+    Block_Sort =     "Sortieren";
+    Block_ChangeCase =     "Groß/Klein wechseln";
+    Block_LowerCase =      "Block Groß";
+    Block_UpperCase =      "Block Klein";
+  
+    Edit =        "Bearbeiten";
+    Edit_DeleteLine =      "Zeile löschen";
+    Edit_DeleteEOL =    "Bis Zeilenende löschen";
+    Edit_DeleteWord =      "Wort löschen";
+    Edit_BackspaceWord =   "Wort links löschen";
+
+    Edit_Fold =		"Falten";
+    Edit_Fold_Delete =	"Löschen";
+    Edit_Fold_Show =	"Zeigen";
+    Edit_Fold_Hide =	"Verstecken";
+    Edit_Fold_ShowExclusive = "Zeige ausschließlich";
+    Edit_Fold_HideExclusive = "Verstecke ausschließlich";
+    Edit_Fold_ShowAll =	"Zeige alles";
+    Edit_Fold_HideAll =	"Verstecke alles";
+
+    Edit_Undo =         "Rückgängig machen";
+    Edit_UndoRestart =     "Neu Rückgängig";
+    Edit_Yank =         "Löschpuffer";
+    Edit_InsertBuffer =    "Puffer einfügen...";
+  
+    Move =        "Bewegen";
+    Move_MaximizeView =    "Ansicht maximal";
+    Move_RemoveView =      "Ansicht entfernen";
+    Move_ResizeView =      "Größe ändern";
+    Move_GotoNextView =    "Nächste Ansicht";
+    Move_GotoPreviousView =   "Vorige Ansicht";
+    Move_NextBuffer =      "Nächster Puffer";
+    Move_PreviousBuffer =  "Voriger Puffer";
+    Move_SplitView =    "Ansicht teilen";
+    Move_RightWord =    "Wortschritt rechts";
+    Move_LeftWord =     "Wortschritt links";
+    Move_MatchCharacter =  "Zeichenpaar suchen";
+    Move_GotoBuffer =      "Puffer wählen...";
+    Move_GotoLine =     "Zeile wählen...";
+    Move_GotoLatestChange =   "Letze Änderung";
+  
+    Search =         "Suchen";
+    Search_RepeatSearchForward = "Vorwärtssuche wiederh.";
+    Search_RepeatSearchBackward = "Rückwärtssuche wiederh.";
+    Search_Search =     "Suchen...";
+    Search_RepeatReplace = "Ersetzen wiederholen";
+    Search_Replace =    "Ersetzen...";
+    Search_Block2SearchBuffer = "Block in Suchpuffer kopieren";
+    Search_Block2ReplaceBuffer = "Block in Ersatzpuffer kopieren";
+  
+    Customizing =             "Einstellungen";
+    Customizing_Colors =      "Farben";
+    Customizing_ColorsAdjust ="Einstellen...";
+    Customizing_ColorsReset = "Zurücksetzen";
+    Customizing_Locals =      "Lokale Einst.";
+    Customizing_Default =     "Default";
+    Customizing_Globals =     "Globale Einst.";
+    
+    Customizing_LD_Misc =		"Verschiedenes";
+    Customizing_LD_File =		"Datei";
+    Customizing_LD_Window =	"Fenster";
+    Customizing_LD_ScreenMode =	"Schirmmodus";
+    Customizing_LD_CloneWB =	"Workbech kopieren";
+    Customizing_Local_Copy =	"Voreinstellung";
+
+    Customizing_GlobalsIO = "In & Out...";
+    Customizing_GlobalsDisplay = "Display/System...";
+    Customizing_GlobalsAll = "All...";
+/*
+    Customizing_Screen =      "Bildschirm...";
+    Customizing_GlobalsIO =   "Ein-/Ausgabe...";
+    Customizing_GlobalsDisplay="Bildschirm/System";
+    Customizing_GlobalsAll =  "Alle globalen Einst.";
+*/
+    Customizing_Program =     "Program";
+    Customizing_Save =        "Sichern...";
+    Customizing_Font =        "Zeichensatz";
+    Customizing_FontSystem =  "Systemzeichensatz...";
+    Customizing_FontRequest = "Fensterzeichensatz...";
+    Customizing_FontBoth =    "Beide Zeichensätze...";
+    Customizing_ScreenMode =  "Bildschirmmodus...";
+    Customizing_ResetFACT =   "FACT zurücksetzen";
+  
+    Special =        "Spezial";
+    Special_MacroRecord =  "Makro aufnehmen";
+    Special_EditMacros =   "Makros bearbeiten...";
+    Special_LoadMacro =    "Makro laden...";
+    Special_SaveMacro =    "Makro speichern...";
+    Special_ExecuteBuffer =   "Puffer als FPL ausführen";
+    Special_ExecuteBlock = "Block als FPL ausführen";
+    Special_ExecuteFile =  "Datei als FPL ausführen...";
+    Special_Prompt =    "Befehle...";
+    Special_RenameSymbol = "Symbol umbenennen...";
+    Special_AssignKey =    "Tastenzuweisung...";
+    Special_AssignKeyBuffer = "Puffer Taste zuweisen...";
+    Special_BufferInfo =   "Pufferinformation...";
+    
+    Special_Help = "Hilfe";
+    Special_HelpGeneral = "Allgemein...";
+    Special_HelpFunctions = "Funktionen...";
+  }
+  else if(!strcmp(lang, "français")) {
+    /*
+     * The french menu! Initially written by Charles Da Costa.
+     */
+
+    Project =        		"Projet";
+    Project_Clear =     	"Effacer";
+    Project_New =    		"Nouveau";
+    Project_Open =      	"Ouvrir...";
+    Project_Open_Window = 	"Ouvrir en fenêtre...";
+    Project_Load =      	"Charger...";
+    Project_InsertFile =   	"Insérer...";
+    Project_DeleteFile = 	"Détruire...";
+
+    Project_Rename =    	"Renommer...";
+    Project_Save =      	"Sauver";
+    Project_SaveChanges =  	"Sauver si changement";
+    Project_SaveAs =    	"Sauver sous...";
+    Project_SaveAll =      	"Sauver tout";
+    Project_SaveAllChanges =	"Sauver tout changement";
+    Project_SaveProject =  	"Sauver projet...";
+    Project_LoadProject =  	"Charger projet...";
+    Project_Print =     	"Imprimer";
+    Project_Iconify =      	"Iconifier";
+    Project_About =     	"A propos...";
+    Project_Kill =      	"Quitter";
+    Project_QuitAll =      	"Quitter tout";
+
+    Window =			"Fenêtre";
+    Window_New =                "Nouvelle";
+    Window_Clone =              "Copier";
+    Window_Close =              "Fermer";
+    Window_New_Screen =         "Nouvel écran";
+    Window_Split =              "Diviser";
+    Window_Split_Horizontal =   "Horizontalement";
+    Window_Split_Vertical =     "Verticalement";
+    Window_Resize =             "Redimensionner";
+    Window_Resize_Maximum =     "Maximum";
+    Window_Resize_Normal =      "Normal";
+    Window_Organize =           "Organiser";
+    Window_Organize_Stack = 	"Empiler";
+    Window_Organize_Tile =      "Mosaïque";
+    Window_Organize_Cascade =   "En cascade";
+    Window_Organize_Iconify =   "Iconifier";
+    Window_Organize_Open_all =  "Ouvrir toutes";
+    Window_NextWindow =         "Fenêtre suivante";
+    Window_PrevWindow =         "Fenêtre précédente";
+
+    Block =       		"Bloc";
+    Block_Mark =     		"Marquer";
+    Block_MarkRectangle =  	"Marquer rectangle";
+    Block_MarkLine =		"Marquer ligne";
+    Block_Cut =         	"Couper";
+    Block_CutAppend =   	"Couper & ajouter";
+    Block_Copy =     		"Copier";
+    Block_CopyAppend =     	"Copier & ajouter";
+    Block_Delete =     		"Effacer";
+    Block_Insert =      	"Insérer";
+    Block_InsertRectangle = 	"Insérer rectangle";
+    Block_Load =     		"Charger...";
+    Block_Save =     		"Sauver...";
+    Block_Print =    		"Imprimer";
+    Block_EditBlocks =     	"Editer";
+    Block_ExportClipboard =	"Vers presse papier";
+    Block_ImportClipboard =	"Depuis presse papier";
+    Block_Move =		"Déplacer...";
+    Block_Sort =		"Trier...";
+    Block_ChangeCase =		"MAJ/min";
+    Block_LowerCase =		"Minuscule";
+    Block_UpperCase =		"Majuscule";
+  
+    Edit =        		"Edition";
+    Edit_DeleteLine =   	"Effacer ligne";
+    Edit_DeleteEOL =    	"Effacer fin de ligne";
+    Edit_DeleteWord =   	"Effacer mot";
+    Edit_BackspaceWord =	"Effacer mot précédent";
+
+    Edit_Fold = 		"Plier";
+    Edit_Fold_Delete = 		"Supprimer";
+    Edit_Fold_Show =		"Montrer";
+    Edit_Fold_Hide =		"Cacher";
+    Edit_Fold_ShowExclusive = 	"Montrer exclusivement";
+    Edit_Fold_HideExclusive = 	"Annuler exclusion";
+    Edit_Fold_ShowAll = 	"Montrer tout";
+    Edit_Fold_HideAll = 	"Cacher tout";
+
+    Edit_Undo =         	"Défaire";
+    Edit_UndoRestart =  	"Défaire encore";
+    Edit_Yank =         	"Insérer effaçage";
+    Edit_InsertBuffer =		"Insérer buffer...";
+  
+    Move =			"Déplacement";
+    Move_MaximizeView =		"Zoomer vue";
+    Move_RemoveView =		"Enlever vue";
+    Move_ResizeView =		"Ajuster vue...";
+    Move_GotoNextView =		"Prochaine vue";
+    Move_GotoPreviousView =	"Précédente vue";
+    Move_NextBuffer =		"Prochain buffer";
+    Move_PreviousBuffer =	"Précédent buffer";
+    Move_SplitView =		"Diviser vue";
+    Move_RightWord =		"Mot à droite";
+    Move_LeftWord =		"Mot à gauche";
+    Move_MatchCharacter =	"Caractère identique";
+    Move_GotoBuffer =		"Aller au buffer...";
+    Move_GotoLine =		"Aller à la ligne...";
+    Move_GotoLatestChange =	"Dernier changement";
+ 
+    Search =         		"Chercher";
+    Search_RepeatSearchForward ="Répéter en avant";
+    Search_RepeatSearchBackward="Répéter en arrière";
+    Search_Search =		"Chercher...";
+    Search_RepeatReplace =	"Répéter remplacer";
+    Search_Replace =		"Remplacer...";
+    Search_Block2SearchBuffer =	"Bloc de recherche";
+    Search_Block2ReplaceBuffer ="Bloc de remplacement";
+  
+    Customizing =		"Personnaliser";
+    Customizing_Colors =	"Couleur";
+    Customizing_ColorsAdjust =	"Ajuster...";
+    Customizing_ColorsReset =	"Remettre";
+    Customizing_Locals =	"Ce buffer...";
+    Customizing_Default =       "Défauts locaux...";
+    Customizing_Globals =	"Globalement";
+
+    Customizing_LD_Misc =       "Divers";
+    Customizing_LD_File =       "Fichier";
+    Customizing_LD_Window =     "Fenêtre";
+    Customizing_LD_ScreenMode = "Mode de l'écran";
+    Customizing_LD_CloneWB =    "Copier le WB";
+    Customizing_Local_Copy =    "Utiliser par défaut";
+
+    /*
+    Customizing_Screen =        "Ecran...";
+    */
+    Customizing_GlobalsIO =	"Entrée/sortie...";
+    Customizing_GlobalsDisplay ="Affichage...";
+    Customizing_GlobalsAll =  	"Tout...";
+    Customizing_Program =	"Programme";
+    Customizing_Save =		"Sauver...";
+    Customizing_Font =		"Police";
+    Customizing_FontSystem =	"Système...";
+    Customizing_FontRequest =	"Requêtes...";
+    Customizing_FontBoth =	"Les deux...";
+    Customizing_ScreenMode =	"Mode d'écran...";
+    Customizing_CloneWB =	"Copier le WB";
+    Customizing_ResetFACT =	"FACT par défaut";
+  
+    Special =			"Spécial";
+    Special_MacroRecord =	"Macro Début/Fin";
+    Special_EditMacros =	"Editer macro";
+    Special_LoadMacro =		"Charger macro...";
+    Special_SaveMacro =		"Sauver macro...";
+    Special_ExecuteBuffer =	"Exécuter buffer FPL";
+    Special_ExecuteBlock =	"Exécuter bloc FPL";
+    Special_ExecuteFile =	"Exécuter fichier FPL...";
+    Special_Prompt =		"Ligne de commande...";
+    Special_RenameSymbol =	"Renommer symbol...";
+
+    Special_AssignKey =		"Assigner touche...";
+    Special_AssignKeyBuffer =	"Assigner touche à buffer...";
+    Special_BufferInfo =	"Information buffer";
+    Special_Help =		"Aide";
+    Special_HelpGeneral =	"Générale";
+    Special_HelpFunctions =	"Fonctions";
+  }
+
+  else if(!strcmp(lang, "norsk")) {
+    /*
+     * The norwegian menu! Initially written by Jon-Inge Paulsen.
+     */
+
+    Project =        "Prosjekt";
+    Project_Clear =     "Tøm";
+    Project_New =    "Ny";
+    Project_Open =      "Åpne...";
+    Project_Load =      "Hent...";
+    Project_InsertFile =   "Sett inn...";
+    Project_Rename =    "Gi nytt navn...";
+    Project_Save =      "Lagre";
+    Project_SaveChanges =  "Lagre endringer";
+    Project_SaveAs =    "Lagre som...";
+    Project_SaveAll =      "Lagre alt";
+    Project_SaveAllChanges =  "Lagre alle endringer";
+    Project_SaveProject =  "Lagre prosjekt...";
+    Project_LoadProject =  "Hent prosjekt...";
+    Project_Print =     "Skriv ut";
+    Project_Iconify =      "Ikonifiser";
+    Project_About =     "Om FrexxEd...";
+    Project_Kill =      "Lukk";
+    Project_QuitAll =      "Avslutt alle";
+    
+    Block =       "Blokk";
+    Block_Mark =     "Merk";
+    Block_MarkRectangle =  "Merk rektangel";
+    Block_Cut =         "Klipp ut";
+    Block_CutAppend =      "Klipp ut & legg til";
+    Block_Copy =     "Kopier";
+    Block_CopyAppend =     "Kopier & legg til";
+    Block_Delete =     "Slett";
+    Block_Insert =      "Sett inn";
+    Block_InsertRectangle =   "Sett inn rektangel";
+    Block_Load =     "Hente...";
+    Block_Save =     "Lagre...";
+    Block_Print =    "Skriv ut";
+    Block_EditBlocks =     "Editer";
+    Block_ExportClipboard =   "Eksporter til utklippstavle";
+    Block_ImportClipboard =   "Importer fra utklippstavle";
+    Block_Move =     "Rykk inn...";
+    Block_Sort =     "Sorter...";
+    Block_ChangeCase =     "Bytt store/små";
+    Block_LowerCase =      "Små bokstaver";
+    Block_UpperCase =      "Store bokstaver";
+  
+    Edit =        "Editer";
+    Edit_DeleteLine =      "Slett linje";
+    Edit_DeleteEOL =    "Slett til EOL";
+    Edit_DeleteWord =      "Slett ord til høyre";
+    Edit_BackspaceWord =   "Slett ord til venstre";
+
+    Edit_Fold = "Folding";
+    Edit_Fold_Delete = "Slett";
+    Edit_Fold_Show = "Vis";
+    Edit_Fold_Hide = "Gjem";
+    Edit_Fold_ShowExclusive = "Vis unik";
+    Edit_Fold_HideExclusive = "Gjem unik";
+    Edit_Fold_ShowAll = "Vis alle";
+    Edit_Fold_HideAll = "Gjem alle";
+
+    Edit_Undo =         "Angre";
+    Edit_UndoRestart =     "Resett angre";
+    Edit_Yank =         "Yank";
+    Edit_InsertBuffer =    "Sett inn buffer...";
+  
+    Move =        "Vindu";
+    Move_MaximizeView =    "Maksimer vindu";
+    Move_RemoveView =      "Steng vindu";
+    Move_ResizeView =      "Endre vindusstørrelse...";
+    Move_GotoNextView =    "Neste vindu";
+    Move_GotoPreviousView =   "Forrige vindu";
+    Move_NextBuffer =      "Neste buffer";
+    Move_PreviousBuffer =  "Forrige buffer";
+    Move_SplitView =    "Splitt vindu";
+    Move_RightWord =    "Neste ord";
+    Move_LeftWord =     "Forrige ord";
+    Move_MatchCharacter =  "Tilsvarende tegn";
+    Move_GotoBuffer =      "Gå til buffer...";
+    Move_GotoLine =     "Gå til linje...";
+    Move_GotoLatestChange =   "Gå til siste endring";
+  
+    Search =         "Søk/erstatt";
+    Search_RepeatSearchForward = "Repeter søk fremover";
+    Search_RepeatSearchBackward = "Repeter søk bakover";
+    Search_Search =     "Søk...";
+    Search_RepeatReplace = "Repeter erstatt";
+    Search_Replace =    "Estatt...";
+    Search_Block2SearchBuffer = "Blokk til søkebuffer";
+    Search_Block2ReplaceBuffer = "Blokk til erstatningsbuffer";
+  
+    Customizing =    "Innstillinger";
+    Customizing_Colors =   "Farger";
+    Customizing_ColorsAdjust =   "Juster...";
+    Customizing_ColorsReset = "Tilbakestill";
+    Customizing_Locals =   "Lokale...";
+    Customizing_Default =   "Default";
+    Customizing_Globals =  "Globale";
+    Customizing_Screen = "Skjerm...";
+    Customizing_GlobalsIO =   "I/O-håndtering...";
+    Customizing_GlobalsDisplay = "Vinduer/System...";
+    Customizing_GlobalsAll =  "Alle globale...";
+    Customizing_Program =   "Program";
+    Customizing_Save =     "Lagre...";
+    Customizing_Font =     "Font";
+    Customizing_FontSystem =  "Systemfont...";
+    Customizing_FontRequest = "Requestfont...";
+    Customizing_FontBoth = "Begge fonter...";
+    Customizing_ScreenMode =  "Skjermmodus...";
+    Customizing_CloneWB = "Etterligne WB";
+    Customizing_ResetFACT =   "Tilbakestill FACT";
+  
+    Special =        "Spesial";
+    Special_MacroRecord =  "Makroinnspilling";
+    Special_EditMacros =   "Editere makro";
+    Special_LoadMacro =    "Hente makro...";
+    Special_SaveMacro =    "Lagre makro...";
+    Special_ExecuteBuffer =   "Kjøre buffer som FPL";
+    Special_ExecuteBlock = "Kjøre blokk som FPL";
+    Special_ExecuteFile =  "Kjøre FPL program...";
+    Special_Prompt =    "Prompter...";
+    Special_AssignKey =    "Tilordne tast...";
+    Special_AssignKeyBuffer = "Hurtigkjør buffer...";
+    Special_BufferInfo =   "Bufferinformasjon";
+    Special_Help =   "Hjelp";
+    Special_HelpGeneral = "Generelt";
+    Special_HelpFunctions = "Funksjoner";
+
+  }
+
+  MenuClear();
+
+  ++title;
+  MenuAdd("t", Project);
+   MenuAdd("i", Project_Clear, "Clear();", "Amiga Control 'delete'");
+   MenuAdd("i", Project_New, "{ int id=New(); Activate(id); CurrentBuffer(id); }", "Amiga n");
+   MenuAdd("i", "---");
+   MenuAdd("i", Project_Open, "Open(\"\");", "Amiga o");
+   MenuAdd("i", Project_Open_Window, "Open(\"menu_new_window\");");
+   MenuAdd("i", Project_Load, "Load();", "Amiga O");
+   MenuAdd("i", Project_InsertFile, "InsertFile();", "Amiga Control o");
+   MenuAdd("i", Project_DeleteFile, "DeleteFile(\"\");");
+   MenuAdd("i", "---");
+   MenuAdd("i", Project_Rename, " RenameQuery();");
+   MenuAdd("i", Project_Save, "if(0 > Save()) {ReturnStatus(GetReturnMsg(GetErrNo()));DisplayBeep();}", "Amiga w");
+   MenuAdd("i", Project_SaveChanges, " SaveChanges();");
+   MenuAdd("i", Project_SaveAs, " SaveAs();", "Amiga W");
+   MenuAdd("i", Project_SaveAll, " SaveAll();");
+   MenuAdd("i", Project_SaveAllChanges, " SaveAllChanges();");
+   MenuAdd("i", "---");
+   MenuAdd("i", Project_SaveProject, "ExecuteFile(\"LoadSaveProject.FPL\"); SaveProject();", "Amiga P s");
+   MenuAdd("i", Project_LoadProject, "ExecuteFile(\"LoadSaveProject.FPL\"); LoadProject();", "Amiga P l");
+	ConstructInfo("Project_dir", "", "", "WGS", "", 0, 0, "FrexxEd:projects");
+   MenuAdd("i", "---");
+   MenuAdd("i", Project_Print, " Print();");
+   MenuAdd("i", Project_Iconify, "ReturnStatus(GetReturnMsg(Iconify()));");
+   MenuAdd("i", Project_About, "About();", "Amiga ?");
+   MenuAdd("i", "---");
+   MenuAdd("i", Project_Kill, "Kill();", "Amiga q");
+   MenuAdd("i", Project_QuitAll, "QuitAll();", "Amiga Q");
+  
+  ++title;
+  MenuAdd("t", Window);
+   MenuAdd("i", Window_New, "WindowNew(1);", "amiga 0 n");
+   MenuAdd("i", Window_Clone, "{int id=DuplicateEntry(); Activate(id, 3); CurrentBuffer(id);}", "amiga 0 c");
+   MenuAdd("i", Window_Close, "WindowFree();", "amiga 0 q");
+   MenuAdd("i", Window_New_Screen, "WindowNew(0);");
+   MenuAdd("i", Window_Split);
+    MenuAdd("s", Window_Split_Horizontal, "SplitWindow(0);", "amiga 0 h");
+    MenuAdd("s", Window_Split_Vertical, "SplitWindow(1);", "amiga 0 v");
+   MenuAdd("i", "---");
+   MenuAdd("i", Window_Resize);
+    MenuAdd("s", Window_Resize_Maximum, "WindowMaximum(-1);", "amiga 0 1");
+    MenuAdd("s", Window_Resize_Minimum, "WindowMinimize(-1);", "amiga 0 m");
+    MenuAdd("s", Window_Resize_Normal, "WindowNormal(-1);", "amiga 0 l");
+   MenuAdd("i", "---");
+   MenuAdd("i", Window_Organize);
+    MenuAdd("s", Window_Organize_Stack, "WindowsCascade(1);");
+    MenuAdd("s", Window_Organize_Tile, "WindowsTile();");
+    MenuAdd("s", Window_Organize_Cascade, "WindowsCascade(0);");
+    MenuAdd("s", "---");
+    MenuAdd("s", Window_Organize_Iconify, "Iconify(-1);", "Amiga .");
+    MenuAdd("s", Window_Organize_Open_all, "Deiconify(0);", "amiga 0 o");
+   MenuAdd("i", "---");
+   MenuAdd("i", Window_NextWindow, "{int id=NextWindow(); CurrentBuffer(id); WindowToFront(0,id);}", "Alt Shift 'up'");
+   MenuAdd("i", Window_PrevWindow, "{int id=PrevWindow(); CurrentBuffer(id); WindowToFront(0,id);}", "Alt Shift 'down'");
+
+  ++title;
+  MenuAdd("t", Block);
+   MenuAdd("i", Block_Mark, "BlockMark();", "Amiga b");
+   MenuAdd("i", Block_MarkRectangle, "BlockMarkRect();", "Amiga B");
+   MenuAdd("i", Block_MarkLine, "BlockMarkLine();", "Amiga i l");
+   MenuAdd("i", Block_Cut, "BlockCut();", "Amiga x");
+   MenuAdd("i", Block_CutAppend, "BlockCutAppend();", "Amiga X");
+   MenuAdd("i", Block_Copy, "BlockCopy();", "Amiga c");
+   MenuAdd("i", Block_CopyAppend, "BlockCopyAppend();", "Amiga C");
+   MenuAdd("i", Block_Delete, "BlockDelete();", "Amiga i d");
+   MenuAdd("i", Block_Insert, "BlockPaste();", "Amiga v");
+   MenuAdd("i", Block_InsertRectangle, "BlockPasteRect();", "Amiga V");
+   MenuAdd("i", "---");
+   MenuAdd("i", Block_Load, " BlockLoad();", "Amiga i o");
+   MenuAdd("i", Block_Save, " BlockSave();", "Amiga i w");
+   MenuAdd("i", Block_Print, " BlockPrint();", "Amiga i p");
+   MenuAdd("i", "---");
+   MenuAdd("i", Block_EditBlocks, "{int id=PromptBuffer(\"Choose block\",12); if (id) { Activate(id);  CurrentBuffer(id); } }");
+   MenuAdd("i", "---");
+   MenuAdd("i", Block_ExportClipboard, "StringToClip(0, GetBlock());", "Amiga i e");
+   MenuAdd("i", Block_ImportClipboard, "StringToBlock(ClipToString(0));", "Amiga i i");
+   MenuAdd("i", "---");
+   MenuAdd("i", Block_Move, "BlockMove();", "Amiga i m");
+   MenuAdd("i", Block_Sort, "BlockSort();", "Amiga i control s");
+   MenuAdd("i", "---");
+   MenuAdd("i", Block_ChangeCase, "SwapCase();", "Amiga i alt u");
+   MenuAdd("i", Block_LowerCase, "DownCase();", "Amiga i u");
+   MenuAdd("i", Block_UpperCase, "UpCase();", "Amiga i U");
+  
+  ++title;
+  MenuAdd("t", Edit);
+   MenuAdd("i", Edit_DeleteLine, "DeleteLine();", "Amiga k");
+   MenuAdd("i", Edit_DeleteEOL, "DeleteEol();", "Amiga K");
+   MenuAdd("i", Edit_DeleteWord, "DeleteWord();", "Ctrl 'del'");
+   MenuAdd("i", Edit_BackspaceWord, "BackspaceWord();", "Ctrl \b");
+   MenuAdd("i", "---");
+   MenuAdd("i", Edit_Fold);
+   MenuAdd("s", Edit_Fold, "Fold();",	"Amiga (");
+   MenuAdd("s", Edit_Fold_Delete,	"FoldDelete();", "Amiga )");
+   MenuAdd("s", Edit_Fold_Show, 	"FoldShow();", "Amiga 'num+'");
+   MenuAdd("s", Edit_Fold_Hide, 	"FoldHide();", "Amiga 'num-'");
+   MenuAdd("s", Edit_Fold_ShowExclusive,"FoldShow(0);", "Amiga Shift 'num+'");
+   MenuAdd("s", Edit_Fold_HideExclusive,"FoldHide(0);", "Amiga Shift 'num-'");
+   MenuAdd("s", Edit_Fold_ShowAll,	"FoldShow(-1);", "Amiga Control 'num+'");
+   MenuAdd("s", Edit_Fold_HideAll,	"FoldHide(-1);", "Amiga Control 'num-'");
+   MenuAdd("i", "---");
+   MenuAdd("i", Edit_Undo, "Undo();", "Amiga z");
+   MenuAdd("i", Edit_UndoRestart, "UndoRestart();", "Amiga Z");
+   MenuAdd("i", "---");
+   MenuAdd("i", Edit_Yank, "Yank();", "Amiga y");
+   MenuAdd("i", Edit_InsertBuffer, joinstr("{int id=PromptBuffer(\"",Edit_InsertBuffer,"\", 7);if(id) BlockPaste(id);}"));
+  
+  ++title;
+  MenuAdd("t", Move);
+   MenuAdd("i", Move_MaximizeView, "MaximizeView();", "Amiga 1");
+   MenuAdd("i", Move_RemoveView, "RemoveView();", "Amiga 'del'");
+   MenuAdd("i", Move_ResizeView, "ResizeView();");
+   MenuAdd("i", Move_SplitView, "CurrentBuffer(Activate(DuplicateEntry(), 1));", "Amiga d");
+   MenuAdd("i", "---");
+   MenuAdd("i", Move_GotoNextView, "{ int id=NextView(0,-1); Activate(id, 0); CurrentBuffer(id); }", "Alt 'up'");
+   MenuAdd("i", Move_GotoPreviousView, "{ int id=PrevView(0,-1); Activate(id, 0); CurrentBuffer(id);}", "Alt 'down'");
+   MenuAdd("i", Move_NextBuffer, "{ int id=NextHidden(0, ReadInfo(\"type\")); Activate(id, 0); CurrentBuffer(id); }", "Alt 'right'");
+   MenuAdd("i", Move_PreviousBuffer, "{ int id=PrevHidden(0, ReadInfo(\"type\")); Activate(id, 0); CurrentBuffer(id); }", "Alt 'left'");
+   MenuAdd("i", "---");
+   MenuAdd("i", Move_RightWord, "CursorRightWord();", "Ctrl 'right'");
+   MenuAdd("i", Move_LeftWord, "CursorLeftWord();", "Ctrl 'left'");
+   MenuAdd("i", "---");
+   MenuAdd("i", Move_MatchCharacter, "MatchParen();", "Amiga p");
+   MenuAdd("i", "---");
+   MenuAdd("i", Move_GotoBuffer, "{ int id=PromptBuffer(\"\",1); if (id) { Activate(id);  CurrentBuffer(id); Deiconify(id); WindowToFront(); } }", "Amiga g");
+   MenuAdd("i", Move_GotoLine, "GotoLine();", "Amiga j");
+   MenuAdd("i", Move_GotoLatestChange, "GotoChange(0);", "Amiga l");
+  
+  ++title;
+  MenuAdd("t", Search);
+   MenuAdd("i", Search_RepeatSearchForward, " MySearch(0);", "Amiga s");
+   MenuAdd("i", Search_RepeatSearchBackward, " MySearch(1);", "Amiga a");
+   MenuAdd("i", Search_Search, "{int ret; SearchSet(\"f+\"); if ((ret=SearchSet())>=0) MySearch(-1); else ReturnStatus(ret);}", "Amiga S");
+   MenuAdd("i", "---");
+   MenuAdd("i", Search_RepeatReplace, "{int ret; if ((ret=Replace())<0) DisplayBeep(); if(ret<0) ReturnStatus(ret); }", "Amiga r");
+   MenuAdd("i", Search_Replace, "{int ret; if((ret=ReplaceSet())>=0) { if((ret=Replace())<0) DisplayBeep();}if(ret<0) ReturnStatus(ret); }", "Amiga R");
+   MenuAdd("i", "---");
+   MenuAdd("i", Search_Block2SearchBuffer, "SearchSet(\"\", CConvertString(GetBlock()));", "Amiga i s");
+   MenuAdd("i", Search_Block2ReplaceBuffer, "SearchSet(\"\", \"\", CConvertString(GetBlock()));", "Amiga i r");
+  
+  ++title;
+  MenuAdd("t", Customizing);
+   ++item;
+   MenuAdd("i", Customizing_Colors);
+      MenuAdd("s", Customizing_ColorsAdjust, "ColorAdjust();");
+      MenuAdd("s", Customizing_ColorsReset, "ColorReset();");
+   ++item;
+   MenuAdd("i", "---");
+   ++item;
+   MenuAdd("i", Customizing_Locals);
+     MenuAdd("s", Customizing_LD_Misc, "PromptInfo(-1, joinstr(\"\\\"\", ReadInfo(\"file_name\"), \"\\\" prefs.\"), \"(local)\", \"(io)(hidden)(read)(screen)\");", "Amiga I l");
+     MenuAdd("s", Customizing_LD_File, "PromptInfo(-1, joinstr(\"\\\"\", ReadInfo(\"file_name\"), \"\\\" prefs.\"), \"(local)(io)\", \"(!local)(!io)\");", "Amiga I f");
+     MenuAdd("s", "---");
+     MenuAdd("s", Customizing_LD_Window, "PromptInfo(-1, joinstr(\"\\\"\", ReadInfo(\"window_title\"), \"\\\" prefs.\"), \"(local)(screen)\", \"(!local)(!screen)\");", "Amiga I w");
+     MenuAdd("s", Customizing_LD_ScreenMode, "Screenmode(-1);");
+     MenuAdd("s", Customizing_LD_CloneWB, "CloneWB(-1);");
+     MenuAdd("s", "---");
+     MenuAdd("s", Customizing_Local_Copy, "CopyInfo(-1, 0, \"(local)\", 0);");
+   ++item;
+   MenuAdd("i", Customizing_Default);
+     MenuAdd("s", Customizing_LD_Misc, "PromptInfo(0, \""+Customizing_Default+" prefs.\", \"(local)\", \"(io)(hidden)(read)(screen)\");");
+     MenuAdd("s", Customizing_LD_File, "PromptInfo(0, \""+Customizing_Default+" prefs.\", \"(local)(io)\", \"(!local)(!io)\");");
+     MenuAdd("s", "---");
+     MenuAdd("s", Customizing_LD_Window, "PromptInfo(0, \""+Customizing_Default+" prefs.\", \"(local)(screen)\", \"(!local)(!screen)\");");
+     MenuAdd("s", Customizing_LD_ScreenMode, "Screenmode(0);");
+     MenuAdd("s", Customizing_LD_CloneWB, "CloneWB(0);");
+   ++item;
+   MenuAdd("i", Customizing_Globals);
+      MenuAdd("s", Customizing_GlobalsIO, joinstr("PromptInfo(0, \"", Customizing_GlobalsIO, "\", \"(global)(io)\", \"(!global)(!io)(!user)\");"));
+      MenuAdd("s", Customizing_GlobalsDisplay, joinstr("PromptInfo(0, \"", Customizing_GlobalsDisplay, "\", \"(global)(display)(system)\", \"(!global)(!display)(!system)(!user)\");"));
+      MenuAdd("s", "---");
+      MenuAdd("s", Customizing_GlobalsAll, joinstr("PromptInfo(0, \"", Customizing_GlobalsAll, "\", \"(global)\", \"(read)(hidden)\");"), "Amiga I g");
+   ++item;
+   ConstructInfo("menu_program_title", "", "", "GH", "", 0, 10, title);
+   ConstructInfo("menu_program_item",  "", "", "GH", "", 0, 10, item);
+   MenuAdd("i", Customizing_Program);
+   MenuAdd("i", Customizing_Save, "EnlargedSettingSave();");
+   MenuAdd("i", "---");
+   MenuAdd("i", Customizing_Font);
+      MenuAdd("s", Customizing_FontSystem, "string font; if (strlen(font=PromptFont(\"System font\", 1))) { SetInfo(0, \"system_font\", font); } ");
+      MenuAdd("s", Customizing_FontRequest, "string font; if (strlen(font=PromptFont(\"Request font\", 2))) { SetInfo(0, \"request_font\", font); } ");
+      MenuAdd("s", Customizing_FontBoth, "string font; if (strlen(font=PromptFont())) { SetInfo(0, \"system_font\", font);SetInfo(0, \"request_font\", font); } ");
+   MenuAdd("i", Customizing_ResetFACT, "FACTClear();");
+  
+  ++title;
+  MenuAdd("t", Special);
+   MenuAdd("i", Special_MacroRecord, " MacroRecord(1);", "Amiga m");
+   MenuAdd("i", Special_EditMacros, "{ int id=PromptBuffer(\"Choose macro\",10); if (id) { Activate(id);  CurrentBuffer(id); } }", "Amiga M");
+   MenuAdd("i", Special_LoadMacro, " LoadMacro(\"\");");
+   MenuAdd("i", Special_SaveMacro, " SaveMacro();");
+   MenuAdd("i", "---");
+   MenuAdd("i", Special_ExecuteBuffer, "ExecuteBuffer();", "Amiga F e");
+   MenuAdd("i", Special_ExecuteBlock, " ExecuteString(GetBlock());", "Amiga F b");
+   MenuAdd("i", Special_ExecuteFile, joinstr(" ExecuteFPLFile(\"",Special_ExecuteFile,"\");"), "Amiga F f");
+   MenuAdd("i", "---");
+   MenuAdd("i", Special_Prompt, "Prompt();", "Shift 'escape'");
+   MenuAdd("i", Special_RenameSymbol, "ExecuteFile(\"RenameSymbol.FPL\");");
+   MenuAdd("i", "---");
+   MenuAdd("i", Special_AssignKey, "AssignKey();");
+   MenuAdd("i", Special_AssignKeyBuffer, " AssignKey(joinstr(\"ExecuteBuffer(\",ltostr(GetBufferID()),\");\"));");
+   MenuAdd("i", "---");
+   MenuAdd("i", Special_BufferInfo, " ExecuteFile(\"BufferInfo.FPL\"); BufferInfo();", "Amiga 'Help'");
+   MenuAdd("i", "---");
+   MenuAdd("i", Special_Help);
+     MenuAdd("s", Special_HelpGeneral, " System(sprintf(\"run >nil: <nil: Amigaguide FrexxEd:Docs/FrexxEd.guide PubScreen \\\"%s\\\"\", ReadInfo(\"current_screen\")));", "'Help'");
+     MenuAdd("s", Special_HelpFunctions, " System(sprintf(\"run >nil: <nil: Amigaguide FrexxEd:Docs/Functions.guide PubScreen \\\"%s\\\"\", ReadInfo(\"current_screen\")));");
+
+  MenuBuild();
+}

@@ -1,0 +1,47 @@
+export void SwapBuffer(int direction)
+{
+  int oldbuffer=GetBufferID();
+  int newentry;
+
+  if (ReadInfo("buffers")>1) {
+    if (direction)
+      newentry=NextBuffer(oldbuffer, ReadInfo("type"));
+    else
+      newentry=PrevBuffer(oldbuffer, ReadInfo("type"));
+
+    if (newentry!=oldbuffer) {
+      if (ReadInfo("visible", newentry))
+        newentry=DuplicateEntry(newentry);
+      Activate(newentry, 0);
+      if (ReadInfo("shared")>1) {
+        Visible(0);
+        Kill();
+      }
+      CurrentBuffer(newentry);
+      Visible(1);
+    }
+  }
+}
+export void GetBuffer()
+{
+  int newentry;
+
+  if (ReadInfo("buffers")>1) {
+    newentry=PromptBuffer("Select buffer", 1);
+
+    if (ReadInfo("visible", newentry))
+      newentry=DuplicateEntry(newentry);
+
+    Activate(newentry);
+
+    if (ReadInfo("shared")>1) {
+      Visible(0);
+      Kill();
+    }
+    CurrentBuffer(newentry);
+    Visible(1);
+  }
+}
+AssignKey("SwapBuffer(0);", "Alt 'Left'");
+AssignKey("SwapBuffer(1);", "Alt 'Right'");
+AssignKey("GetBuffer();", "Amiga G");

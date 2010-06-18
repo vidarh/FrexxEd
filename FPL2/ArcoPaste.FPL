@@ -1,0 +1,30 @@
+export void ArcoPaste(void)       
+{
+ string line,l2,are;
+ char c;
+ int pos,col;
+ line=GetLine();
+ l2=joinstr("    ",GetLine(ReadInfo("line")+1));
+ if ((l2[4]!=' ')|(l2[41]==' ')) {l2="";};
+ pos=ReadInfo("line");
+ col=ReadInfo("column");
+ SearchSet("f-","AREA-NUMMER","");
+ Search();
+ are=GetLine();
+ CurrentBuffer(NextBuffer());
+ GotoLine(16385);
+ are=substr(are,33,3);
+ Output(are);Output(" ");
+ Output(line);
+ Output(l2);
+ CurrentBuffer(PrevBuffer());
+ GotoLine(pos+1,36);
+ if (strlen(l2)>0)
+  {GotoLine(pos+2,36);}
+ else
+  {GotoLine(pos+1,36);};
+}
+
+AssignKey("ArcoPaste();", "'F10'");
+ 
+

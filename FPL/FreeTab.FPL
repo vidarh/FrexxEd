@@ -1,0 +1,74 @@
+/******************************
+ * Read FreeTab.FPL.README!   *
+ * Written by Daniel Stenberg *
+ ******************************/
+int tabs[20];
+int numtabs=0;
+int sizetabs=20;
+
+export int FreeTabGo()
+{
+  int now = GetCursor();
+  int a=0;
+  int go=0;
+
+  while(a<numtabs) {
+    if(tabs[a]>now) {
+      go = tabs[a]-now;
+      while(go--)
+        Output(" ");
+      break;
+    }
+    a++;
+  }
+}
+
+export int FreeTabSet()
+{
+  int now = GetCursor();
+  int to=0;
+  int from=0;
+  int newtab[sizetabs];
+  string view;
+
+  ReturnStatus(joinstr("Tab stop set at column ", itoa(now)));
+
+  while(to<numtabs) {
+    if(tabs[from]>now) {
+      newtab[to++] = now;
+      numtabs++;
+      now=9999;
+    } else {
+      newtab[to] = tabs[from];
+      to++;
+      from++;
+    }
+  }
+
+  if(9999 != now) {
+    newtab[to]=now;
+    numtabs++;
+  }
+  for(to=0; to<numtabs; to++) {
+    tabs[to] = newtab[to];
+    view += joinstr(itoa(tabs[to]), " ");
+  }
+}
+
+export int FreeTabDisp()
+{
+  string view;
+  int a;
+  for(a=0; a<numtabs; a++) {
+    view += joinstr(itoa(tabs[a]), " ");
+  }
+  if(strlen(view))
+    Request(joinstr("There are tab stops at column:\n", view), "", "OK");
+  else
+    Request("No tab stops entered!", "", "OK");
+}
+
+ConstructInfo("freetab", "", "", "LB(display)", "", 0, 1); /* default is disabled */
+AssignKey("FreeTabSet();", "shift 'tab'");
+AssignKey("FreeTabGo();", "'tab'", "freetab");
+AssignKey("FreeTabDisp();", "amiga 'tab'", "freetab");

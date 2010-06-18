@@ -1,0 +1,32 @@
+#############################################################################
+File: FlipComment.FPL
+Author: Niklas Angare
+Email: 2:201/328.42@FidoNet or EI9418@el.haninge.kth.se
+Short: Flip comments around C-lines
+Version: 1.0
+Date: 24.1.95
+Local settings:
+Global settings:
+Keysequence: Alt-c
+Type: key, function
+Prereq:
+Copyright: Niklas Angare, distributed as FreeWare
+#############################################################################
+
+FUNCTION
+	Makes a C-language line inactive/active by placing/removing a
+	comment around it.
+
+HISTORY
+	1.0 Initial version.
+
+BUGS
+	Doesn't take comments already present on the line into account, so
+	you'll have to compile with the SAS/C option COMMENTNEST or flip
+	comments on those lines by hand.
+
+TODO
+	Fix the 'bug' and insert a setting to choose whether to use
+	comment nesting or not.
+
+

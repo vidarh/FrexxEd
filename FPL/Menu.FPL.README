@@ -1,0 +1,64 @@
+############################################
+File:		Menu.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		kjer@netcom.se / Daniel.Stenberg@sth.frontec.se
+Short:		Sets up a brand new menu strip!
+Version:	2.4
+Date:		17.11.96
+Local settings:
+Global settings:
+Keysequence:	lots of them
+Type:		menu
+Prereq:
+############################################
+
+FUNCTION
+  This file builds a new menu strip, and replaces the old one entirely.
+
+HISTORY
+  1.1	Changed format a lot in the file. Better support for new languages!
+  1.2	Removed the MenuBuild() in the bottom! This is made in the end of the
+	FrexxEd.FPL instead, to enable programs in User.FPL to append to the
+	menu very easy!
+  1.3   Appended 'Special_AssignkeyBuffer'.
+  1.4   Appended Help.
+  1.5   Replaced the occurences of Sprintf() with sprintf().
+  1.6   Uses the new LoadMacro() function.
+  1.7   Added the new 'program' item under the customizing title, please
+        add your program's own customizing windows as subitems on the
+        coordinates 6, 6, -1!!!
+  1.8   Proper error message on the status line when save fails!
+  1.9   Now displays proper german menus! (misspelled 'deutsch' in the
+        previous version!)
+  1.10  Removed the short cut for resize view
+	Added the Edit->fold submenu.
+  1.11	Added Block->Mark Line
+	Added Special->Rename Symbol
+	Fixed the german fold texts.
+  1.12	Moved the fold-shortcuts to the numerical keyboard.
+  1.13	Added the norwegian menu texts written by Jon-Inge Paulsen.
+  1.14	Added shortkeys to the project functions.
+	Now makes a "project_dir" info variable.
+  1.15	Fixed the norwegian.
+  1.16  Fixed the swedish load/save macro texts.
+  1.17  Corrected some German spellings, added Portuguese!
+
+  1.17B - Used in the v2beta1. Contained some errors in the non-english
+        version!
+
+  2.0   Window title with lots of items for multi-window functions.
+        Fixed the program-preferences to a position stored in the two
+        info variables called 'menu_program_title' and 'menu_program_item'.
+        Those _should_ be used when custom programs add program preference
+        items to the menu strip.
+        Renamed some of the english words.
+        Remapped some of the keys to use more widly used Amiga standard keys.
+  2.1	Made some swedish window-functions-translations
+	Added shortkeys for lots of the window functions
+	Made the iconify shortkey use the single window iconify
+  2.2	'New Window' is improved and now used the WindowNew() from Window.FPL
+	'New Screen' added, also uses WindowNew() from Window.FPL
+  2.3	Jörg Plate updated the german texts.
+  2.4	Daniel changed the three ExecuteFile() calls, since the second
+	parameter works no good when the file that gets used is a compiled
+	one (as noted in the HISTORY file of fpl v14.10)

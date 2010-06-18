@@ -1,0 +1,30 @@
+/******************************
+ * Read FileType.FPL.README!  *
+ * Written by Peter Carlsson  *
+ ******************************/
+
+export int FileType_hook(string path, string name)
+{
+    int i;
+	i = strstr(name, ".");
+	if(i > 0) {
+		string ext = substr(name, i, -1);
+
+		switch(ext) {
+			case ".s":
+				ExecuteFile("Devpac.FPL");
+				SetInfo(-1, "tab_size", 8);
+				break;
+			case ".FPL":
+				SetInfo(-1, "tab_size", 4);
+				break;
+			default:
+				ExecuteFile("WordWrap.FPL");
+				SetInfo(-1, "wordwrap", 1,
+  			  	           "tab_size", 8);
+				break;
+		}
+	}
+}
+
+Hook("GetFile", "FileType_hook");

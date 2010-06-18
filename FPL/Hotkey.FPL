@@ -1,0 +1,20 @@
+int process;
+
+export void hotkey_exit()
+{
+  if (process)
+    System("break "+ltostr(process));
+  process=0;
+}
+
+export void hotkey_changed()
+{
+  hotkey_exit();
+  System("makedir t:FrexxEd", "", "NIL:");
+  System("run >t:FrexxEd/process FrexxEd:bin/FrexxKey Hotkey=\""+ReadInfo("hotkey")+"\" CX_PRIORITY=1 SYSTEM=rx \" /* */ ADDRESS "+ ReadInfo("arexx_port")+" 'Deiconify();'\"");
+  process=atoi(substr(LoadString("t:FrexxEd/process"), 4, -1));
+}
+ConstructInfo("hotkey", "hotkey_changed();", "", "gsw(system)", "", 0, 0, "Alt Shift Return");
+Hook("Exit", "hotkey_exit();");
+
+hotkey_changed();

@@ -1,0 +1,62 @@
+
+/* Exekvera och testa...  8-)   */
+
+int running=0;
+int lastchr=-1;
+int lastcounter=-1;
+
+export int EliteWrite(string out)
+{
+  if (!running) {
+    int counter=ReadInfo("counter");
+    int len;
+    int chr, newchr;
+    string newout="";
+    int random=counter*3;
+
+    len=strlen(out);
+    if (len==1) {
+      if (counter==lastcounter+1) {
+        if (lastchr=='o' && out[0]=='o') {
+          Backspace(1);
+          running=1;
+          Output("00");
+          running=0;
+          return(1);
+        }
+      }
+      lastchr=out[0];
+    }
+    lastcounter=counter;
+    for (counter=0; counter<len; counter++) {
+      chr=out[counter];
+      if (random&1) {
+        newchr=Isupper(chr);
+        if (newchr<0)
+          newchr=Islower(chr);
+        if (newchr>0) {
+          chr=newchr;
+          if (random&2) {
+            if (chr=='s')
+              chr='z';
+            if (chr=='S')
+              chr='Z';
+          }
+        }
+      }
+      if ((random&2) && chr=='a')
+        newout=joinstr(newout, "aH");
+      else
+        newout=joinstr(newout, itoc(chr));
+    }
+    running=1;
+    Output(newout);
+    running=0;
+    return(1);
+  }
+  return(0);
+}
+
+
+Hook("Output", "EliteWrite");
+

@@ -1,0 +1,23 @@
+############################################
+File:           SaveExtension.FPL
+Author:         Kjell Ericson
+Email:          FidoNet 2:201/328, kjer@netcom.se
+Short:          Save/load settings depended on the file extension.
+Version:        1.0
+Date:           14.6.95
+Local settings:
+Global settings:
+Keysequence: 
+Type:           hook, menu
+Prereq:
+############################################
+
+FUNCTION
+
+  A menu item is made under the Customizing title, named 'Save extension'.
+When selected, the local writeable settings will be saved under the 'FPL'
+directory named ".ext.SETTING.FPL".  This file will be automatically
+loaded whenever a file with the same extension is loaded.  Alternative
+you can execute the file as a FPL file.
+
+

@@ -1,0 +1,8 @@
+* Kolla Mathias regexp bugg: ".*(kat) .\n"
+* Mer lha-uppackning till filehandlern
+- Se till att installern frågar om de ändrade FPL-filerna skall kopieras
+  fill 'oldFPL/' !
+- Kolla om DISKNAME off funkar!
+* Skriv in MANUAL-prylarna
+* Skriv in de nya funktionerna i FPLuser.guide.
+* Hur ändra datumet på en buffer????

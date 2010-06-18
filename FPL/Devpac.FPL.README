@@ -1,0 +1,71 @@
+############################################
+File: Devpac.FPL
+Author: Peter Carlsson
+Email: ei94134@ios.chalmers.se
+Short description: Interface to GenAm/MonAm
+Version: 1.0
+Date: 20.4.95
+Local settings:
+Global settings:
+    "_Assembler"
+    "_Parser"
+    "_Debugger"
+    "_Make"
+    "_Asm_opt"
+    "_Make_opt"
+Keysequence: 'Control' + {a, m, d, x, n, p}
+Type: function, menu, key
+Prereq: ExtraIO
+############################################
+
+FUNCTION
+
+    This program will add some functions under a menu called "Assembler".
+
+    Assemble       - Assemble the current buffer. Filename should end with
+                     '.s'. An executable file will be created.
+
+    Make           - Make an executable file of the current text buffer.
+                     This will do the same as 'Assemble' except that you
+                     can have different assembler options (i.e don't make
+                     any symbol tabel).
+
+    Debug          - Start MonAm for debugging current text buffer.
+
+    Execute        - Run the executable file.
+
+    Next Error     - Jump to the next error (if any).
+
+    Previous Error - Jump to the previous error (if any).
+
+    Settings...    - These settings will be saved along with the normal
+                     settings.
+
+    How does it work? The output from GenAm is redirected to a file called
+    T:GenAmOutput. This file will then be parsed by FrexxGen.
+    The errors/warnings (if any) will then be sent to a file called
+    T:FrexxGenOutput and also sent to a window which pops up on the FrexxEd
+    screen.
+
+    The user is then able to step between the errors/warnings and see what
+    is wrong.
+
+    Requires the following files:
+        MonAm    - Copyright HiSoft
+        GenAm    - Copyright HiSoft
+        FrexxGen - Included in the FrexxEd package
+
+    Last but not least, I would like to send my regards to Bjørn Reese
+    <breese@imada.ou.dk> who wrote Assemble.FPL. Those who are observant
+    will notice some similarities :)
+
+
+BUGS
+  o No known
+
+
+SEE ALSO
+    FrexxGen.doc
+
+HISTORY
+  1.0  20.4.95  First release

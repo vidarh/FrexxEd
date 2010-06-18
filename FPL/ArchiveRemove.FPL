@@ -1,0 +1,18 @@
+export int ArchiveRemove()
+{
+  string protect;
+  int count;
+  protect=ReadInfo("protection");
+  for (count=0; count<strlen(protect); count++) {
+    switch(protect[count]) {
+    case 'a':
+      protect[count]=' ';
+      break;
+    }
+  }
+  SetInfo(-1, "protection", protect);
+  return(0);
+}
+
+Hook("Save", "ArchiveRemove();");
+

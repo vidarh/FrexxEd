@@ -1,0 +1,103 @@
+/***********************************************************
+ *
+ *  SuddenDeath
+ *
+ *  Player 1: Control with 'z' and 'x'.
+ *  Player 2: Control with ',' and '.'.
+ *
+ *********/
+{
+  int view_lines=ReadInfo("view_lines");
+  int view_columns=ReadInfo("view_columns");
+  string text[view_lines+1];
+  int count, game;
+  string key;
+  string name;
+  int dir[5]={-1,0,1,0,-1};
+  int p1points=0, p2points=0;
+  string blank;
+
+  CursorActive(0);
+
+  for (count=view_columns-1; count>=0; count--) {
+    text[1]+="*";
+    blank+=" ";
+  }
+  text[view_lines]=text[1];
+  blank[0]='*';
+  blank[view_columns-1]='*';
+  
+  do {
+    int pos1y=view_lines/2, pos1x=view_columns/4;
+    int pos2y=pos1y, pos2x=pos1x+view_columns/2;
+    int p1dir=1, p2dir=3;
+    int p1rot=0, p2rot=0;
+
+    int p1y=dir[p1dir];
+    int p1x=dir[p1dir+1];
+    int p2y=dir[p2dir];
+    int p2x=dir[p2dir+1];
+
+    int pkey;
+
+    while (strlen(GetKey(1)));
+
+    for (count=view_lines-1; count>1; count--)
+      text[count]=blank;
+  
+    for (count=view_lines; count>0; count--)
+      PrintLine(text[count], count);
+
+    game=1;
+    while (game) {
+      text[pos1y][pos1x]='o';
+      PrintLine(text[pos1y], pos1y);
+      text[pos2y][pos2x]='O';
+      PrintLine(text[pos2y], pos2y);
+  
+      pkey=2;
+      do {
+        if (strlen(key=GetKey(1))) {
+          switch (key[0]) {
+          case 'z': p1rot--; break;
+          case 'x': p1rot++; break;
+          case ',': p2rot--; break;
+          case '.': p2rot++;
+          }
+        }
+      } while (--pkey);
+      if (p1rot) {
+        if (p1rot>0) {
+          p1dir++;
+          p1rot--;
+        } else {
+          p1dir--;
+          p1rot++;
+        }
+        p1y=dir[p1dir&3];
+        p1x=dir[(p1dir&3)+1];
+      }
+      if (p2rot) {
+        if (p2rot>0) {
+          p2dir++;
+          p2rot--;
+        } else {
+          p2dir--;
+          p2rot++;
+        }
+        p2y=dir[p2dir&3];
+        p2x=dir[(p2dir&3)+1];
+      }
+      if (text[pos1y+=p1y][pos1x+=p1x]!=' ') {
+        game=0;
+        p2points++;
+      }
+      if (text[pos2y+=p2y][pos2x+=p2x]!=' ') {
+        game=0;
+        p1points++;
+      }
+    }
+  } while (Request("Player 1: "+ltostr(p1points)+" points\nPlayer 2: "+ltostr(p2points)+" points", "SUDDEN DEATH SCORE"));
+  RedrawScreen(0);
+  while (strlen(GetKey(1)));
+}

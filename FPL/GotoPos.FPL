@@ -1,0 +1,14 @@
+export int GotoPos() /* Make 'x' CursorRight to find a byte in a text */
+{
+  int steps;
+
+  steps=PromptInt("Give position!");
+
+  if (GetErrNo()>=0) {
+    Visible(0);
+    Top();
+    CursorRight(steps);
+    Visible(1);
+  }
+}
+AssignKey("GotoPos();", "Amiga Shift p");

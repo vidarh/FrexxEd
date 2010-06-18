@@ -1,0 +1,38 @@
+#############################################################################
+File:		TextMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		A major/minor mode for editing plain text.
+Version:	1.0
+Date:		15.06.95
+Local settings:
+Global settings:text_mode_exe, text_mode_ext and tab setting.
+Keysequence:
+Type:		Major/minor mode
+Prereq:		FMC.FPL
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  This mode is a mix between major and minor - the reason being that the two
+  mode types represent the interface side and the textual side of working
+  with a certain text type in FrexxEd. Now, plain text has no "interface
+  side" but it's still quite nice to be able to specify extensions as it is
+  possible with the major mode concept. Therefore this mode should
+  technically speaking be a minor mode, but to increase its usability it is
+  registered as a major mode (see FMC.FPL.readme for some more gibberish of
+  this nature :)
+
+  At the moment only the tabular size is set.
+
+HISTORY (REV)
+  14.06.95 (0)	There you have it!
+
+BUGS
+  Nah
+
+TODO
+  ?
+
+SEE ALSO
+  FMC.FPL.readme

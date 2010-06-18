@@ -1,0 +1,22 @@
+############################################
+File: SuddenDeath.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se   FidoNet 2:201/328
+Short description: Play a two man game on FrexxEd
+Version: 1.0
+Date: 22.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Game
+Prereq:
+############################################
+
+FUNCTION
+
+  Execute the script and you will play 'SuddenDeath'!
+
+  You are two players, controlling your 'worm' with 'z' and 'x' or ',' and '.'.
+
+  The player that can stay alive longest wins.
+

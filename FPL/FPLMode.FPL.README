@@ -1,0 +1,40 @@
+#############################################################################
+File:		FPLMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Major mode for programmming in FPL.
+Version:	1.0
+Date:		15.06.95
+Local settings:
+Global settings:fpl_exe & fpl_ext
+Keysequence:
+Type:		Major mode
+Prereq:		CMode.FPL, FMC.FPL
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  Just a simple major mode. There is not much to it at the moment.
+
+  This mode makes auto-recognition of FPL programs possible (that is, when
+  you load an FPL file this mode configures FrexxEd to make editing easier).
+  At the moment the CMode is initialized and that is it.
+
+  Check out the TODO part.
+
+HISTORY (REV)
+  15.06.95 (0)	Made primarily as a major mode example.
+
+BUGS
+  Nah.
+
+TODO
+  Some control of the external debugger would be nice.
+  C-c C-c should be made to evaluate the buffer.
+  At some time in the future (far out in the future) this is also the mode
+  that should take care of compiling FPL programs to executables (which will
+  give your programs a major performance boost...)
+  Better readme! This one sucks...
+
+SEE ALSO
+  FMC.FPL.readme

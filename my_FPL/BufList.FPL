@@ -1,0 +1,129 @@
+export int listsize;
+void export BufferMakeList()
+{
+  int originid = GetEntryID();
+  int listid = GetEntryID("*bufferlist*");
+  int firstid;
+  int id;
+  string text;
+  string name;
+  
+  firstid = GetBufferID();
+  id = firstid;
+  listsize=0;
+  do {
+    name = ReadInfo("full_file_name", id);
+    if(!strlen(name))
+      name = "*noname*";
+    text += sprintf("  %c %8s %6d %-60s %s\n",
+                    ReadInfo("changes", id)?'C':'-',
+                    ReadInfo("protection", id),
+                    ReadInfo("size", id),
+                    name,
+                    ltostr(id, 32));
+    listsize++;
+    id=NextBuffer(id);
+    if (id==firstid)
+      id=0;
+  } while (id);
+
+  if(!listid) {
+    listid = New();
+    if(!listid)
+      return;
+  }
+
+  Visible(0);
+  CurrentBuffer(listid);
+
+  if(!ReadInfo("visible", listid)) {
+
+    /* not visible, let's do something about it! */
+    if(ReadInfo("views") == 1) { /* only one view */
+      /* display it by splitting the current view! */
+      Activate(listid, 1, originid);
+    } else {
+      /* pop up by replacing the next view! */
+      Activate(listid, 0, NextView(originid));
+    }
+
+  }
+
+  SetInfo(-1, "_bufferlist", 1); /* set bufferlist-mode */
+  Rename("*bufferlist*"); 	 /* always make sure this name is set! */
+  Clean("Clear();");		 /* clear all old contents from this! */
+  Output(text);			 /* paste the table */
+  BlockSort(listid, 4, 1);	 /* sort it according to the file names */
+  GotoLine(1);			 /* goto first line, first column */
+  Output(" (C)  Protect  Size File name\n"); /* write tables headers */
+  SetInfo(-1, "changes", 0);	 /* make it non-changed */
+
+  CurrentBuffer(originid);
+  Visible(1);
+}
+
+void export BufferMarkLine(int code)
+{
+  int line = ReadInfo("line");
+  if(line>1 && line<listsize+2) {
+    CursorStack(-1);
+    GotoLine(line); /* go to the left of the line */
+    SetInfo(-1, "insert_mode", 0);
+    if(code)
+      Output(itoc(code));
+    else
+      Output(" ");
+    SetInfo(-1, "insert_mode", 1);
+    CursorStack(1);
+  }
+}
+
+int GetID(int line)
+{
+  string str = GetLine(line);
+  return strtol(substr(str, strlen(str)-7, 6), 32);
+}
+
+void export BufferMarkExecute()
+{
+  int lines = ReadInfo("lines"); /* number of lines in buffer! */
+  int count;
+  int changed;
+  int code;
+  for(count=1; count<lines; count++) {
+    code = GetChar(0, count);
+    if(' ' != code) {
+      int id = GetID(count);
+      switch(code) {
+        case 'D':
+          Kill(id);
+          break;
+        case 'S':
+          ExecuteString("Save();", id);
+          break;
+      }
+      changed++;
+    }
+  }
+  if(changed) {
+    /* list is modified, re-create it! */
+    BufferMakeList();
+  }
+}
+
+void export BufferPopUp()
+{
+  int lines = ReadInfo("lines"); /* number of lines in buffer! */
+  int line = ReadInfo("line");
+  if(line>1 && line<=lines) {
+    CurrentBuffer(GetID(line));
+  }
+}
+
+ConstructInfo("_bufferlist", "", "", "BL", "", 0, 1);
+AssignKey("BufferMarkLine('D');", "d", "_bufferlist");
+AssignKey("BufferMarkLine('S');", "s", "_bufferlist");
+AssignKey("BufferMarkLine(0);", "u", "_bufferlist");
+AssignKey("BufferMarkExecute();", "x", "_bufferlist");
+AssignKey("BufferPopUp();", "f", "_bufferlist");
+AssignKey("BufferMakeList();", "control x b");

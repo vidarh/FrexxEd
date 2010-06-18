@@ -1,0 +1,62 @@
+#############################################################################
+File:		FaceEdit.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		User interface to change/save Face Styles
+Version:	1.0
+Date:		20.7.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		menuitem
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ Start this program by selecting the 'prefs->program->Face Styles' item.
+
+  Stage A -
+ Select a style to modify. The list contains all styles currently in memory.
+ (This version only allows you to add already created styles.) If you don't
+ wanna change any, or have changed them as much as you want, select cancel
+ for Stage C
+
+  Stage B -
+ A requester is presented that displays in simple words (future versions of
+ this program will hopefully feature a full GUI for this) how this particular
+ style is displayed. Press the button of your choice and change what you
+ think should be changed in that style. When you're done and like what you
+ see, press OK, or press Cancel to go back to what you had before you started
+ changing anything. The program will then go back to Stage A to let you pick
+ another style to modify.
+
+  Stage C -
+ If you want to save your new style setup, press 'yes' when asked. If you
+ select 'no' this program ends.
+ Pick an appropriate file name to save the styles in. This program picks a
+ suitable default and it is highly recommended that you put the file in
+ your FrexxEd:Startup/ drawer since that will make the styles automatically
+ get set each time you start FrexxEd in the future! When you've picked a file
+ name, the program will store the current style setup using that file name.
+ End of procedure.
+
+
+HISTORY
+ 1.0	First and only so far. Trying to tell Mitchman on IRC how he could
+	"hack" FrexxEd to change the styles on startup made me realize that
+	a simple edit program like this will improve all users' chances of
+	getting decent Face styles until we get GUI prefs for this.
+
+BUGS
+ I bet there is, please enhance this program as much as you think it needs.
+
+TODO
+ - Much better GUI
+ - Display the words using the particular styles
+ - Enable changing styles not currently in memory. I.e let the user enter
+   the name of it and act as if it was an actual style.
+
+SEE ALSO
+ That tiny little text below "BANK OF ENGLAND" on an english 20 pound note.
+ The manual pages covering FaceStyle() and FaceAdd()

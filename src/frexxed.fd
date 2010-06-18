@@ -1,0 +1,12 @@
+##base _FrexxBase
+##bias 30
+************************************************************************
+*                                                                      *
+* FrexxEd.library function definition file                             *
+*                                                                      *
+************************************************************************
+InitFrexxEd()()
+ParseArg(string,options)(A0/A1)
+secondmain(options,wbmsg)(A0/A1)
+CloseFrexxEd(string)(A0)
+##end

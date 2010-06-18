@@ -1,0 +1,7 @@
+// $Id: ReadOnly.FPL,v 1.1 1996/02/14 13:40:09 av Rel $
+ConstructInfo("read_only", "{int b;b=ReadInfo(\"protectionbits\");if(ReadInfo(\"read_only\"))b|=4;else b&=~4;SetInfo(-1,\"protectionbits\",b);}", "", "LB", "", 0, 1, 0);
+Hook("GotFile", "{if(ReadInfo(\"protectionbits\")&4)SetInfo(-1,\"read_only\",1);}");
+AssignKey("PageDown();", "'Space'", "read_only&rwed_sensitive");
+AssignKey("PageUp();", "'Backspace'", "read_only&rwed_sensitive");
+AssignKey("PageUp();", "b", "read_only&rwed_sensitive");
+AssignKey("Kill();", "q", "read_only&rwed_sensitive");

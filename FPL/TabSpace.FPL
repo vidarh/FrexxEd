@@ -1,0 +1,38 @@
+/**************************************************************
+ *
+ *  Name:  TabSpace()
+ *
+ *  Function:  Construct a local bool environment variable  - 'tab_space'.
+ *             Assign the tab key to execute the TabSpace() function
+ *             if the variable is TRUE.
+ *  Addition:  now binds backspacing a tab stop to shift-tab as well. very
+ *             handy!
+ *
+ *  Author:  Kjell Ericson
+ *  added to by: Edd Dumbill ejad-a@minster.york.ac.uk
+ *********/
+export int TabSpace()
+{
+  string str="";
+  int tabsize=ReadInfo("tab_size");
+  int antal=tabsize-((ReadInfo("cursor_x")+ReadInfo("screen_x")-1)%tabsize);
+
+  while (antal-->0)
+    str=joinstr(str, " ");
+
+  Output(str);
+
+}
+    
+/* stuff added by Edd Dumbill ejad-a@minster.york.ac.uk */
+
+export int BackTabSpace()
+{
+    int tabsize=ReadInfo("tab_size");
+    int pos=tabsize-((ReadInfo("cursor_x")+ReadInfo("screen_x")-1)%tabsize);
+    Backspace(pos);
+}
+
+ConstructInfo("tab_space", "", "", "BLW(display)", "", 0, 1);
+AssignKey("TabSpace();", "'tab'", "tab_space");
+AssignKey("BackTabSpace();", "shift 'tab'", "tab_space");

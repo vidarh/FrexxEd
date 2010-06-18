@@ -1,0 +1,27 @@
+
+AssignKey("End();",		"Alt '0x1D'");
+AssignKey("CursorDown();",	"Alt '0x1E'");
+AssignKey("PageDown();",	"Alt '0x1F'");
+AssignKey("CursorLeft();",	"Alt '0x2D'");
+AssignKey("CursorRight();",	"Alt '0x2F'");
+AssignKey("Home();",		"Alt '0x3D'");
+AssignKey("CursorUp();",	"Alt '0x3E'");
+AssignKey("PageUp();",		"Alt '0x3F'");
+AssignKey("SetInfo(0, \"num_lock\", 1);",	"Alt '0x5A'");
+AssignKey("SetInfo(0, \"num_lock\", 0);",	"Alt '0x5B'");
+AssignKey("SetInfo(-1, \"insert_mode\", 1);",	"Alt '0x0F'");
+AssignKey("SetInfo(-1, \"insert_mode\", 0);",	"Alt '0x3C'");
+
+AssignKey("End();",		"'0x1D'", "!num_lock");
+AssignKey("CursorDown();",	"'0x1E'", "!num_lock");
+AssignKey("PageDown();",	"'0x1F'", "!num_lock");
+AssignKey("CursorLeft();",	"'0x2D'", "!num_lock");
+AssignKey("CursorRight();",	"'0x2F'", "!num_lock");
+AssignKey("Home();",		"'0x3D'", "!num_lock");
+AssignKey("CursorUp();",	"'0x3E'", "!num_lock");
+AssignKey("PageUp();",		"'0x3F'", "!num_lock");
+AssignKey("SetInfo(-1, \"insert_mode\", 1);",	"'0x0F'", "!num_lock");
+AssignKey("SetInfo(-1, \"insert_mode\", 0);",	"'0x3C'", "!num_lock");
+
+ConstructInfo("num_lock", "", "", "GB(system)", "", 0, 1, 1);
+

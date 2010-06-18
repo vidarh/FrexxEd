@@ -1,0 +1,69 @@
+export void ExamineLine()
+{
+  int ret;
+
+  {
+						// Try to with 'ParenMatch()'
+    int chr=GetChar();
+    if (Isclose(chr)>=0 || Isopen(chr)>=0) {
+      ret=MatchParen();
+      ReturnStatus(GetReturnMsg(ret));
+      return;					// Exit
+    }
+  }
+
+  {						// Try to find an include file
+    string line;
+    string filename;
+    int counter=10;
+    int length;
+  
+    line=GetLine();
+    length=strlen(line);
+  
+    if (!Stricmp("#include ", line, 9)) {
+      while (counter<length) {
+        if (line[counter]=='>' || line[counter]=='\"')
+          break;
+        filename=joinstr(filename, itoc(line[counter]));
+        counter++;
+      }
+      if (line[9]=='\"') {
+        if (Check(joinstr(ReadInfo("file_path"), filename)))
+          filename=joinstr(ReadInfo("file_path"), filename);
+        else
+          line[9]='<';
+      }
+  
+      if (line[9]=='<')
+        filename=joinstr("include:", filename);
+
+      if (strlen(filename)) {		// Check that we have a filename.      
+        int newid, oldid;
+        oldid=GetEntryID();
+        newid=New();
+        if (newid) {
+          CurrentBuffer(newid);
+          ret=Load(filename);
+          if (ret<0) {			// Load error?
+            CurrentBuffer(oldid);
+            Kill(newid);
+            ReturnStatus(GetReturnMsg(ret));
+          } else {
+            CurrentBuffer(oldid);	// We swap the current buffer
+            Activate(newid);		// to get the new view a logic
+            CurrentBuffer(newid);	// position.
+          }
+        } else
+          ReturnStatus(GetReturnMsg(GetErrNo()));
+      }
+      return;				// Exit
+    } else {				// Not an include line.
+      ExecuteFile("Grep.FPL");		// Run Grep.
+    }
+  }
+  ReturnStatus(GetReturnMsg(ret));
+}
+
+AssignKey("ExamineLine();", "Amiga p");
+

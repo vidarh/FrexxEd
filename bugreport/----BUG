@@ -1,0 +1,68 @@
+Okay! I got the fucker! :)
+
+I've been looking for this shit kicker for months now; I thought it was a
+problem with CompleteWord when compiled. It is not. The problem is in the
+BookMark script.
+
+To generate the bug:
+
+Compile BookMark and CompleteWord and load them in the user.fpl file.
+Now try to complete a word like:
+
+
+   skod
+
+   sko
+      ^ I get the error when pressing A-/ at this spot (Try it! :)
+
+The error reads: 
+
+Identifier not found: "" error!
+Line 0 of "DH1:..../CompleteWord.FPL"
+
+The script works fine in native form.
+
+Libraries used:
+
+fpl.library     14.10, located at (base) 0x081900EC
+frexxed.library  6.89, located at (base) 0x081D3AA8
+
+fplc             0.36
+
+
+If the hooks in bookmark:
+
+{ // Hook functions which may affect mark positions
+  Hook("BlockPaste","markHook();","mark_adjust_marks");
+  Hook("BlockCut","markHook();","mark_adjust_marks");
+  Hook("Delete","markHook();","mark_adjust_marks");
+  Hook("DeleteLine","markHook();","mark_adjust_marks");
+  Hook("DeleteWord","markHook();","mark_adjust_marks");
+  Hook("Backspace","markHook();","mark_adjust_marks");
+  Hook("BackspaceWord","markHook();","mark_adjust_marks");
+  Hook("Output","markHook();","mark_adjust_marks");
+  Hook("Yank","markHook();","mark_adjust_marks");
+  Hook("InsertFile","markHook();","mark_adjust_marks");
+
+  HookPast("BlockPaste","markHookPast();","mark_adjust_marks");
+  HookPast("BlockCut","markHookPast();","mark_adjust_marks");
+  HookPast("Delete","markHookPast();","mark_adjust_marks");
+  HookPast("DeleteLine","markHookPast();","mark_adjust_marks");
+  HookPast("DeleteWord","markHookPast();","mark_adjust_marks");
+  HookPast("Backspace","markHookPast();","mark_adjust_marks");
+  HookPast("BackspaceWord","markHookPast();","mark_adjust_marks");
+  HookPast("Output","markHookPast();","mark_adjust_marks");
+  HookPast("Yank","markHookPast();","mark_adjust_marks");
+  HookPast("InsertFile","markHookPast();","mark_adjust_marks");
+
+
+  HookPast("Save","saveBookMarks();","mark_save_marks");
+  HookPast("Load","loadBookMarks();","mark_save_marks");
+}
+
+... are removed, the bug does not occur. Perhaps there is a problem with
+hooks and compiled code?
+
+Hope you nail this fucker soon.
+
+-- Jesper

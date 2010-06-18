@@ -1,0 +1,17 @@
+.key dest/a
+.bra {
+.ket }
+
+d -tsenastematch >t:lista #?.(c|h) MANUAL fpl/#?.fpl#?
+
+echo >T:pp {dest}`rx "say translate(date(e), '-', '/') || _ || translate(time(), '-', ':') "`
+
+lha a -xit:lista `type T:pp`
+lha d `type T:pp` FrexxEd_rev.c
+
+Ask "Uppdatera senastematch (y/n)?" "y" "n" 30
+if WARN
+echo "" >senastematch
+ELSE
+Echo "Ingen uppdatering."
+ENDIF

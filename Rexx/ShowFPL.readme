@@ -1,0 +1,23 @@
+
+ShowFPL.rx :
+Just a script I wrote last night which I hope you'll find useful...
+
+It collects the names of all the FPL scripts in the FrexxEd:FPL
+directory along with short descriptions and makes them into an Amiga
+Guide file. I figured this is a good way of reviewing all your FPL
+scripts to see which ones you want to include in your startup.
+The script also provides I and R buttons in the guide for installing
+(via MAKELINK) scripts in FrexxEd:startup and removing (via DELETE)
+those scripts. Excellent for newbies I thought.
+
+--Hope you like it!
+
+All the best,
+
+Edd.
+
+
+
+USAGE:
+
+  ShowFPL.rx {amigaguide document file name}

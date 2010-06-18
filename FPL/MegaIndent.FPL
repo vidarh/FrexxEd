@@ -1,0 +1,21 @@
+export int MegaIndent()
+{
+   string file;
+   int x, y;
+
+   x = ReadInfo("block_begin_x");
+   y = ReadInfo("block_begin_y");
+
+   BlockCut();
+   file = GetBlock();
+   SaveString("T:Fred_tmp", file);
+   System("indent T:Fred_tmp");
+
+   BlockMark(0);
+
+   file = LoadString("T:Fred_tmp");
+   Output(file);
+   BlockMark(2, x, y, ReadInfo("column"), ReadInfo("line"));
+}
+
+AssignKey("MegaIndent();", "amiga a", "block_exist");

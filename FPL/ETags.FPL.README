@@ -1,0 +1,62 @@
+#############################################################################
+File:		ETags.FPL
+Author:		Daniel Stenberg / Kjell Ericson
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Jump to the place a function is defined
+Version:	2.2
+Date:		13.7.95
+Local settings:
+Global settings:
+Keysequence:	"alt .", "alt shift ."
+Type:		key/function
+Prereq:		The 'etags' binary from the FrexxEd:bin/ETags.lha archive.
+Copyright:	FrexxWare/GNU
+#############################################################################
+
+FUNCTION
+ Any programmer ever involved in writing a software project that contains a
+number of source file has found themselves in the position where you wonder
+where a certain function is defined/declared. This package brings a solution
+and an end to the problems!!
+
+ By creating a list holding a cross-reference list with all function defines
+this FPL program enables the user to make a quick jump to the function under
+the cursor, or to pop up a requester holding all function names of the
+project. A quick double-click makes FrexxEd jump to the position and source
+where that particular function origins!
+
+ The 'etags' executable extracts functions and other details from a lot of
+different programming languages; C, C++, Pascal, Fortran, Prolog, Scheme,
+LISP, TeX/LaTeX and assembler.
+
+ "alt ."       - Jumps to the function declaration place
+ "alt shift ." - Brings up a requester to enable function selection.
+
+
+HISTORY
+ 1.1 - Made the ETags buffer hidden. Now declares the etags array one field
+       bigger to avoid FPL errors if the ETags file is empty!
+ 1.2 - Made "alt ." pop up the requester if it is pressed when not standing
+       on a word!
+ 2.0 - Bug reported by Charles Da Costa fixed.
+     - If the ETAGS file is missing when any of the key sequences is pressed,
+       ETags.FPL now offers the user to select a new file or even to generate
+       a new one (with selectable modules included).
+ 2.1 - Now calls the file 'TAGS' by default.
+     - Deals with projects including very large number of files too.
+ 2.2 - Introduced the 'ETags_savemem' info variable. If that is enabled, the
+       TAGS file will always be removed from memory after usage!
+
+BUGS
+ It currently doesn't like C-prototypes in C that are longer than one line.
+
+TODO
+  Enable several different 'TAGS' files within the same running FrexxEd.
+  Support more programming languages
+
+SEE ALSO
+  The 'FrexxEd:bin/ETags.lha' archive.
+
+THANKS
+  To Mathias Axelsson for sending me the orignal etags.c source and for
+suggesting the 1.2 update.

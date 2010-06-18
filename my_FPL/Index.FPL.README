@@ -1,0 +1,25 @@
+############################################
+File: Index.FPL
+Author: Daniel Stenberg
+Email: email: dast@sth.frontec.se, FidoNet 2:201/328
+Short description: Fixes references in documents
+Version: 1.1
+Date: 29.7.94
+Local settings:
+Global settings:
+Keysequence: "control i", "control shift i"
+Type: Function
+Prereq:
+############################################
+
+FUNCTION
+  This file contains two functions. The first one replaces all occurrences of
+"@<string>@" with the page number where the <string> is first found. Pages
+must be separated with form feeds. Press "control i" to run it.
+
+  The second function searches for all form feeds and add a page number header
+to those lines. Press "control shift i" to run it.
+
+NOTE
+  Future versions may introduce several different string control codes for
+things like creating a regular index, references to chapters and more...

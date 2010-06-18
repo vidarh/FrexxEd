@@ -1,0 +1,44 @@
+#############################################################################
+File:           CheckLinks.FPL
+Author:         Daniel Stenberg
+Email:          Daniel.Stenberg@sth.frontec.se
+Short:          Checks all links in an amigaguide document
+Version:        1.0
+Date:           22.1.95
+Local settings:
+Global settings:
+Keysequence:
+Type:           function
+Prereq:
+Copyright:      FrexxWare 1995
+#############################################################################
+
+FUNCTION
+  CheckLinks()
+
+  This function scans the current buffer and builds a list with all nodes.
+  It then scans the buffer once again, looking for all links and when a
+  link is found, it checks that the node it is linked to really exists.
+
+  Links to non-existing nodes will pop up a requester telling which line
+  the link is and to which (non-existing) node it tries to link. When all
+  links are checked the user are prompted if it wants the summary report. If
+  yes, a summary will be presented in a new buffer. The summary is a list
+  naming all nodes and showing how many times a link was found to each node
+  (thus enabling the user to track down nodes that are unlinked). Nodes without
+  links to it, will get an asterisk '*' at the end of the line.
+
+HISTORY
+  1.0 - Initial version
+
+BUGS
+  Only deals with internal links
+
+TODO
+  Make it run fine with external links.
+  Make it show in which node an illegal link appears (not just line).
+  Make it work with other kinds of hyper text systems.
+
+SEE ALSO
+  Amigaguide documentation
+

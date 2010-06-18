@@ -1,0 +1,27 @@
+############################################
+File: BlockErase.FPL
+Author: Bjørn Reese
+Email: breese@imada.ou.dk
+Short description: Delete blocks with keys
+Version: 1.1
+Date: 13.10.94
+Local settings:
+Global settings:
+Keysequence: 'Backspace', 'Delete'
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  Extends the application of the 'Backspace' and 'Delete' keys. If a block
+is being marked (by a single 'Amiga b'), but not fully marked (by a second
+'Amiga b'), the two keys can be used to delete the block.
+
+  o Backspace: Deletes the block, if the cursor is placed at the _end_ of
+    the block.
+  o Delete: Deletes the block, if the cursor is placed at the _beginning_
+    of the block.
+
+The above doesn't apply to fully marked blocks to avoid accidently deleting
+blocks marked outside the visible view - and most probably forgotten by the
+user.

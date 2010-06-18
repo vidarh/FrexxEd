@@ -1,0 +1,15 @@
+export void InsTab(void)
+{
+Output("\t");
+CursorLeft(1);
+CursorDown(1);
+}
+
+export void RemTab(void)
+{
+Delete(1);
+CursorDown(1);
+}
+
+AssignKey("InsTab();", "Control 'Tab'");
+AssignKey("RemTab();", "Shift Control 'Tab'");

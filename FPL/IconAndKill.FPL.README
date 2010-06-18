@@ -1,0 +1,31 @@
+#############################################################################
+File: IconAndKill.FPL
+Author: Oliver Rummeyer (based on QuitAndKill.FPL by Linus Nielsen)
+Email: oliver@rumor.rv.sub.org
+Short: Iconifies FrexxEd when last buffer is killed
+Version: 1.0
+Date: 21.10.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ FrexxEd is iconified when the last buffer is killed. Reopening FrexxEd
+is much faster than restarting it if you only have a 030 machine.
+
+
+HISTORY
+1.0 - First release
+
+
+BUGS
+
+
+TODO
+
+
+SEE ALSO

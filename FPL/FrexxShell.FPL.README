@@ -1,0 +1,79 @@
+############################################
+File:		FrexxShell.FPL
+Author:		Carsten Orthbandt
+Email:		s6357@fb1.fhtw-berlin.de
+Short:		gives you a virtual shell in FrexxEd.
+Version:	1.0
+Date:		5.7.95
+Local settings:
+Global settings:
+Keysequence:	"Enter","Tab"
+Type:		Key/Function
+Prereq:		FrexxEd v1.6 fpl.library v12.1
+############################################
+
+FUNCTION
+  This little hack gives you a shell in a FrexxEd buffer. It includes a nice
+ file name completion feature (assigned to TAB).
+ When started, this scripts opens a new buffer, sets up a shell environment
+ for it and does a little echo. From now on you may use it as a real shell.
+ You enter commands BEHIND the prompt "Sys:>" and get the output.
+ To quit this little shell, simply kill the buffer. There is no real shell
+ behind it´s functionality.
+
+REQUIREMENTS
+ You need a fpl.library supporting string catenation with "+". This works
+ since version 12.1.
+ You need a path to the following commands:
+ - Execute
+ - Delete
+ It might be useful to have these commands resident.
+
+COMMENT
+ FrexxShell uses four temporary files:
+  FConCmd_xxx - the command script
+  FConOut_xxx - the commands output
+  FConDir_xxx - the current dir after execution
+  FConErr_xxx - error messages
+ Although temp file names are unique you can´t run two shell buffers from
+ the same FrexxEd session. This would require all variables to be local
+ info vars. In my opinion, this is not very useful.
+ The output (FConOut) is deleted after it has been loaded into Fred because it
+ can get very long (try "list SYS: ALL"). All other files remain. I tried to
+ get them deleted too, but somehow FrexxEd crashed everytime I did.
+ You shouldn´t mind it since they all sum to a total of 7 lines (maximum).
+
+ FrexxShell searches the last line of the buffer for ">". This char marks
+ the end of prompt. You may change any contents of shell buffer, but commands
+ are only executed if enterd behind that first ">".
+
+ FrexxShell assigns it´s routine to the "Enter" key (means "Return" too). It
+ simply does a Output("\n") if the current buffer is not the shell buffer.
+ I wanted to execute the old function of this key, but KeyPress() seems not
+ to work by now.
+
+BUGS
+ 1) You can´t use interactive input. This should not be a real problem since
+    FrexxShell redirects all input to NIL:. So all that happens if you
+    type "DIR ?" is what happens you if press Return on every request in a
+    real shell.
+ 2) You can´t get a return code. Since FrexxShell has to know the current
+    directory after execution of the command line (might be "cd ram:"), it
+    does a "cd" directly after command execution. To get information about
+    failed statements all error outputs are displayed.
+ 3) You should never re-use a shell buffer for normal text editing since
+    every time you press Return the last line will be interpreted as a shell
+    command.
+ 4) FrexxShell should not be run twice from the same FrexxEd.
+ 5) Since there is no real shell behind it, no Shell-Startup, Aliases or
+    local variables are possible.
+ 6) Change count is reset after each command to avoid that annoying requester
+    if you quit a FrexxShell buffer.
+ 7) If you quit one Buffer and open a new directly after chances are high to
+    get the same buffer id again. So you get a new shell without calling
+    FrexxShell.FPL for that new buffer. This could be solved by hooking into
+    Quit(). I´ll surely add this when KeyPress() gets fixed, which is required
+    for a real clean-up.
+
+FUTURE
+ - Proper clean-up: Will be done when KeyPress() works finally.

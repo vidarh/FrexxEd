@@ -1,0 +1,19 @@
+int export KilledNotify_hook(int ID)
+{
+  int countdown = ReadInfo("_iconify_when_quit_countdown", ID);
+  string port = ReadInfo("_notifyport", ID);
+  if(strlen(port)) {
+    ARexxSend(port, "!");
+  }
+  if (countdown > 0 && ReadInfo("_iconify_when_quit",ID)) {
+    SetInfo(ID, "_iconify_when_quit_countdown", countdown-1);
+    if (countdown == 1) {
+      Iconify();
+    }
+  }
+}
+
+ConstructInfo("_notifyport", "", "", "HLS", "", 0, 0);
+ConstructInfo("_iconify_when_quit", "", "", "HLB", "", 0, 0);
+ConstructInfo("_iconify_when_quit_countdown", "", "", "HGI", "", 0, 9999, 0);
+Hook("BufferKill", "KilledNotify_hook");

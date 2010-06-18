@@ -1,0 +1,37 @@
+export void Format()
+{
+	int i,l1,l2,r;
+	char c;
+  int byte=ReadInfo("byte_position"), line=ReadInfo("line");
+	Visible(0);
+	while((GetChar()!='\n'|| ReadInfo("byte_position")!=0) && (l1=ReadInfo("line"))!=1)
+	{
+		CursorUp();
+	}
+	GotoLine(l1,0);
+	if(Search("\n\n" ,"fw+"))
+		GotoLine(ReadInfo("lines")-1);
+	l2=ReadInfo("line");
+	GotoLine(l1,0);
+	for(i=0;i<(l2-l1);i++)
+		Replace(2, "\n", " ", "fw+");
+	r=ReadInfo("wall_right");
+	GotoLine(l1,r);
+	while((c=GetChar())!='\n')
+	{
+		i= ReadInfo("byte_position");
+		while(GetChar(--i) != ' ' && i);
+		if(!i)
+			return;
+		GotoLine(l1,i);
+		Delete();
+		Output("\n");
+		GotoLine(++l1,r);
+	}
+  GotoLine(line, byte);
+	Visible(1);
+}
+		
+MenuAdd("i", "Format", "Format();", "Amiga f", 4);
+MenuBuild();
+ConstructInfo("wall_right", "", "", "WIL", "", 0, 999, 79);

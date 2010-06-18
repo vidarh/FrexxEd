@@ -1,0 +1,35 @@
+export void HexDisplay()
+{
+  int hextab[16]={'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  int line=ReadInfo("line");
+  int columns=ReadInfo("view_columns");
+  int counter, linecounter=0;
+  string out1, out2, out3;
+  int outcount;
+  string empty;
+
+  for (counter=0; counter<columns; counter++)
+    empty+=" ";
+
+  out1=GetLine();
+  out2="";
+  out3="";
+  for (outcount=0; outcount<columns && outcount<strlen(out1); outcount++) {
+    out2+=itoc(hextab[out1[outcount]>>4]);
+    out3+=itoc(hextab[out1[outcount]&15]);
+  }
+  out2+=empty;
+  out3+=empty;
+  line=ReadInfo("cursor_y");
+  empty="";
+  for (counter=0; counter<columns; counter++)
+    empty+="-";
+
+  PrintLine(out2, line+1);
+  PrintLine(out3, line+2);
+  PrintLine(empty, line+3);
+}
+
+AssignKey("HexDisplay();", "Amiga Shift h");
+

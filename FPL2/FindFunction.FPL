@@ -1,0 +1,16 @@
+export int FindFunction()
+{
+  int line=ReadInfo("line");
+
+  while (line>1) {
+    if (GetChar(0, line) == 123) {   /* We found beginning of function */
+      ReturnStatus(GetLine(line-1));
+      line=0;			/* Clear 'line' to exit */
+    }
+    line--;
+  }
+  if (line>0)	/* No function found, return that */
+    ReturnStatus("No function found!");
+
+}
+AssignKey("FindFunction();", "Amiga control f");

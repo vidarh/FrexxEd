@@ -1,0 +1,18 @@
+############################################
+File: PreCompile.FPL
+Author: kjer@netcom.se, Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: check for unbalanced characters
+Version: 1.0
+Date: 1.4.94
+Local settings:
+Global settings:
+Keysequence: "amiga control shift p"
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  It will count and display information about the existance of '"', {}, and
+(). It will also duplicate the entry in order to keep the view as it is,
+and kill that duplicate when finnished.

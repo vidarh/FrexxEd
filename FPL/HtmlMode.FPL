@@ -1,0 +1,22 @@
+
+void export HtmlModeInit()
+{
+  SetInfo(-1, "html_mode", 1);
+  SetInfo(-1, "face", "HTML");
+}
+
+/* Create HTML face mode */
+{
+  int face = FaceGet("HTML", 1); /* create one if missing */
+  if(face) {
+    int style;
+    style = FaceStyle("html-tags", "bold", 1, 0);
+    FaceAdd(face, style, "<", "anywhere|strong", ">");
+  }
+}
+
+ConstructInfo("html_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("html_mode_ext", "","", "GSHW","", 0,0,"*html*");
+ConstructInfo("html_mode_exe", "","", "GSHW","", 0,0,"HtmlModeInit();");
+
+AddMode(1, "html_mode", "html_mode_ext", "html_mode_exe");

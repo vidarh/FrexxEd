@@ -1,0 +1,56 @@
+
+
+{
+  int face = FaceGet("e-mode", 1); /* create one if missing */
+  if(face) {
+    int style;
+
+    /* Get the style named "e-keywords" OR create one that is bold with
+       foreground pen 3 and background pen 0. If none matched and none
+       could be created, it will return the style of the best match and
+       no style will be named like this. */
+
+    style = FaceStyle("e-keywords", "bold", 1, 0);
+    FaceAdd(face,  /* add word(s) to this face */
+            style, /* use the e-keywords style */
+            /* Specify all words we want to add to this face with this
+               particular style, we can of course add more words at a
+               later time */
+	    "AND|ARRAY|BUT|CASE|CHAR|CONST|DEC|DEF|DEFAULT|DO|"
+	    "ELSE|ELSEIF|ENDIF|ENDLOOP|ENDOBJECT|ENDPROC|ENDSELECT|"
+	    "ENDWHILE|ENUM|EXCEPT|EXPORT|FOR|HANDLE|IF|INC|INCBIN|"
+	    "INT|IS|JUMP|LIST|LONG|LOOP|MODULE|OBJECT|OF|OPT|OR|"
+	    "PROC|PTR|RAISE|REAL|REPEAT|RETURN|SELECT|SET|SIZEOF|"
+	    "STEP|STRING|THEN|TO|UNTIL|VOID|WHILE",
+            "word" /* these are word-only matches, that must be surrounded
+                      with non-word letters to get recognized */
+            );
+
+    style = FaceStyle("e-comments", "italic", 3, 0);
+    FaceAdd(face, style, "/*", "anywhere|strong", "*/");
+    FaceAdd(face, style, "->", "anywhere|strong|doublechk", "\n");
+
+    style = FaceStyle("e-string", "italic|bold", 2, 0);
+    FaceAdd(face, style, "'", "backslash", "'");
+
+    style = FaceStyle("e-char", "italic|bold", 2, 0);
+    FaceAdd(face, style, "\"", "backslash", "\"");
+
+  }
+  /* else
+    face is 0, which means GetFace() failed somehow! */
+}
+
+/*
+ FLAGS for FaceAdd():
+ ====================
+ usepipe   - the pipe ('|') letter is a part of the actual string
+ word      - the string(s) must match as a word-only
+ anywhere  - matches wherever it appears in the text
+ strong    - a strong string. Will conquer weak ones.
+ weak      - a weak string. Will be conquered by strong ones.
+ 1nonspace - must be the first non-whitespace on a line to match
+ backslash - a letter following a backslash will be ignored
+ doublechk - set this on strongs to make it check the weak too when
+             reaching the end (allowing them to end with the same string)
+*/

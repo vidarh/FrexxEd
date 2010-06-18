@@ -1,0 +1,22 @@
+############################################
+File: Twist.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328, kjer@netcom.se
+Short description: Shift a char with the one to the left
+Version: 1.0
+Date: 19.6.95
+Local settings:
+Global settings:
+Keysequence: CTRL t
+Type: Function
+Prereq:
+############################################
+
+FUNCTION
+
+  The function exchange the character under the cursor with the
+one right to the left.  If the cursor is at the end of the line, the two
+preceding characters are twisted.
+
+  The function will not be executed if the cursor is at the beginning of
+the line.

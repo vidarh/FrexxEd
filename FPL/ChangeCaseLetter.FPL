@@ -1,0 +1,20 @@
+export void change_case_letter(void)
+{
+  int oldchar=GetChar();
+  int newchar=Islower(oldchar);
+
+  if (newchar<0)
+    newchar=Isupper(oldchar);
+
+  if (oldchar>=0 && newchar>=0) {
+    int insertmode=ReadInfo("insert_mode");
+    if (insertmode)
+      SetInfo(-1, "insert_mode", 0);
+    Output(itoc(newchar));
+    if (insertmode)
+      SetInfo(-1, "insert_mode", 1);
+  } else
+    CursorRight();
+}
+
+AssignKey("change_case_letter();", "Amiga g");

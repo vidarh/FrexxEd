@@ -1,0 +1,35 @@
+Efter körning av Tetris.FPC
+
+10-Apr-96  19:04:32
+WORD-READ from BEEFDFFD                        PC: 07730080
+USP:  076D7050 SR: 8008 SW: 0769  (U0)(-)(-)  TCB: 076BC5F0
+Data: BEEFDEAD 00000000 0790E83E 00000100 00000300 00000000 00000000 00000001
+Addr: BEEFDEAD 0793239E 00000000 076D71E8 077694EC BEEFDEAD 07603304 --------
+Stck: 079308BE 07603304 07603304 0773C786 000001BC 00000000 00000000 00000000
+Stck: 00000000 0773C90C 0793EDF4 076D7200 07603304 0793EEAC 07603304 0790E83E
+----> 07730080 - "FrexxEd:freddy.library"  Hunk 0000 Offset 00005BB8
+----> 0773C786 - "FrexxEd:freddy.library"  Hunk 0000 Offset 000122BE
+----> 0773C90C - "FrexxEd:freddy.library"  Hunk 0000 Offset 00012444
+Name: "FrexxEd"  CLI: "ed:freddy"  
+
+10-Apr-96  19:04:32
+WORD-WRITE to  BEEFDFFD        data=0001       PC: 07730084
+USP:  076D7050 SR: 8000 SW: 0729  (U0)(-)(-)  TCB: 076BC5F0
+Data: BEEFDEAD 00000000 0790E83E 00000100 00000300 00000000 00000000 00000001
+Addr: BEEFDEAD 0793239E 00000000 076D71E8 077694EC BEEFDEAD 07603304 --------
+Stck: 079308BE 07603304 07603304 0773C786 000001BC 00000000 00000000 00000000
+Stck: 00000000 0773C90C 0793EDF4 076D7200 07603304 0793EEAC 07603304 0790E83E
+----> 07730084 - "FrexxEd:freddy.library"  Hunk 0000 Offset 00005BBC
+----> 0773C786 - "FrexxEd:freddy.library"  Hunk 0000 Offset 000122BE
+----> 0773C90C - "FrexxEd:freddy.library"  Hunk 0000 Offset 00012444
+Name: "FrexxEd"  CLI: "ed:freddy"  
+
+
+freddy.library:\BufControl.c\LockBuf_release_semaphore 1209 (+0x4)
+> where
+  1* In routine freddy.library:\BufControl.c\LockBuf_release_semaphore 1209 (+0x4)
+  2  Called from freddy.library:\Execute.c\ExecuteFPL 268
+  3  Called from freddy.library:\Execute.c\run_functions 850 (+0x1A)
+  4  Called from freddy.library:\Execute.c\fpl_functions 372 (prolog)
+
+I env 2 verkar Storage och BUF(shared) vara fel.

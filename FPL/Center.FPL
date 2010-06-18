@@ -1,0 +1,105 @@
+/******************************
+ * Read Center.FPL.README!    *
+ * Written by Daniel Stenberg *
+ ******************************/
+
+/* We should accept a line number to this function! */
+export int CenterLine(int line_number) {
+  int lpos;
+  int rpos;
+  int lcpos;
+  int rcpos;
+  int max;
+  string line;
+  int tab = ReadInfo("tab_size");
+  int ch;
+  int lmargin;
+  int left_wall = ReadInfo("wall_left");
+  int right_wall = ReadInfo("wall_right");
+  int ID = GetEntryID();
+  int NewID;
+
+  if(!right_wall) {
+    ReturnStatus("The 'wall_right' setting must have a non-zero value");
+    DisplayBeep();
+    return(1);
+  }
+
+  if(right_wall-left_wall <= 0) {
+    ReturnStatus("'wall_right' must be bigger than 'wall_left'");
+    return(2);
+  }
+
+  if(!line_number)
+    line_number = ReadInfo("line");
+  line = GetLine(line_number);
+  max = strlen(line);
+
+  for(lpos=0; lpos<max; lpos++) {
+    ch = line[lpos];
+    if( ch != ' ' && ch != '\t' && ch != '\n') {
+      break;
+    }
+  }
+
+  if(lpos<max) {
+    if(! (NewID = DuplicateEntry(ID)) ) /* duplicate entry */
+      return(4); /* failed */
+
+    CurrentBuffer(NewID); /* make the new one the current */
+    lcpos = GetCursor(lpos, line_number); /* get column instead of byte position */
+    for(rpos=max-1; rpos>=0; rpos--) {
+      ch = line[rpos];
+      if( ch != ' ' && ch != '\t' && ch != '\n') {
+        rpos++; /* get back on the latest whitespace */
+        break;
+      }
+    }
+    rcpos = GetCursor(rpos, line_number);
+    lmargin = (right_wall - left_wall - rcpos + lcpos)/2;
+  
+    if(lmargin>=0)
+      lmargin += left_wall;
+    else
+      lmargin = left_wall;
+  
+    GotoLine(line_number, 0); /* column 0 */
+    Delete(lpos);
+
+    while(lmargin>tab) {
+      Output("\t");
+      lmargin-=tab;
+    }
+
+    while(lmargin--)
+      Output(" ");
+
+    Kill(NewID);
+    CurrentBuffer(ID);
+
+  } else
+    return(3);
+
+  return (0);
+}
+
+export int CenterBlock()
+{
+  /* there is a block marked! */
+  int start=ReadInfo("block_begin_y");
+  int end=ReadInfo("block_end_y");
+  int vis = Visible();
+  Status(0, "Centering block...");
+  Visible(0);
+  do {
+    CenterLine(start++);
+  } while(start<end);
+  Visible(vis);
+  ReturnStatus("Centering block...done!");
+}
+
+ConstructInfo("wall_left", "", "", "IL", "", 0, 999, 0);
+ConstructInfo("wall_right", "", "", "IL", "", 0, 999, 79);
+
+AssignKey("CenterLine(0);", "amiga -", "!block_exist");
+AssignKey("CenterBlock();", "amiga -", "block_exist");

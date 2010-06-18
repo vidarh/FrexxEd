@@ -1,0 +1,29 @@
+#############################################################################
+File:	MHead.FPL
+Author:	Carsten Orthbandt
+Email:	s6357@fb1.fhtw-berlin.de
+Short:	Builds/reads header text that contains version and prefs.
+Version:	1.0
+Date:	01.03.1995
+Local settings:
+Global settings: HeaderStart HeaderEnd  (Header Keywords)
+Keysequence: Amiga ä
+Type:	Load/Save Hook, Key assignment
+Prereq:
+Copyright:	none
+#############################################################################
+
+FUNCTION
+ 
+
+HISTORY
+ 02.03.1995	- Initial version
+
+BUGS
+ None known
+
+TODO
+
+SEE ALSO
+
+

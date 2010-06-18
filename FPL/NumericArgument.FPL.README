@@ -1,0 +1,117 @@
+#############################################################################
+File:		NumericArgument
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Repeats or calls a function with argument
+Version:	1.2
+Date:		06.04.96
+Local settings:
+Global settings:(__NumArg FPL variable)
+Keysequence:	Control u (C-u), Control U (C-U)
+Type:		function/key
+Prereq:
+Copyright:	© 1995-1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+  **** WARNING ****
+  You may create havoc with this function. Try using the function on trash
+  data BEFORE installing it in your USER.FPL file... I mean, some things
+  like »C-u (open file)« is cute - open four files.... BUT, how about
+  »C-u C-u <OOPS>« - that equals 16 times Murphy! Read this document
+  carefully. The author takes NO responsbility for trashed
+  <insert appropriate>!!!!!!
+  **** WARNING ****
+
+  With this function you can get the function assigned to a key repeated a
+  number of times, or call it once with an numeric argument. If you do not
+  know Emacs you may find this concept a bit weird, but it does come in handy 
+  from time to time :)
+  There is two types of operation, both started in the same way... It is 
+  quite tricky to explain, so please bear with me! OK? Here goes:
+
+	1) C-u (invoke this function)
+	   At this point the default argument is set to four (4).
+
+	2) C-u is pressed 0, 1 or more times again, followed by a non-number key
+	   (i.e. not keys 0-9). Each time the C-u is pressed, the argument is 
+	   multiplied with four. When a new key (non-number) is pressed, operation
+	   is continued in state 4. IF a number key IS pressed, we go to state 3!
+
+	3) Here you may enter a specific number, using the keys 0..9! On C-u, 
+	   argument input is stopped, and the next key you press will be used in 
+	   state 4. This allows you to repeat number keys as well! (And C-u... Be
+	   careful!)
+
+	4) In this state a choice is made. The last key pressed has to be either 
+	   repeated OR called with the argument. The routine decides by examining 
+	   the execute string assigned to the key. If it contains the variable
+	   __NumArg, the string is executed ONCE, with the argument in the 
+	   __NumArg variable (more about this below). Otherwise the string is 
+	   executed (arg) times.
+
+  In general: The status line reflect the current numeric argument.
+              __NumArg will be 0 (NULL) outside of argument executions.
+              You may break operation at any time with Control g - EXCEPT if
+               you have a function on C-g!!!!! Be careful!
+
+  Some examples (of usage... Se below for programming examples):
+	C-u bs				: Backspaces four times
+	C-u 12 TAB			: Inserts 12 tabs
+	C-u 12 C-u 2		: Inserts the letter 2, 12 times (222222222222)
+	C-u C-u C-u	1 a		: Inserts one a
+	C-u C-u C-u C-u a	: Inserts 128 a's!!!!!!! Be carefull with many C-u's!!
+
+
+  Constructing functions which takes input:
+
+  Now, if you want a "key function" to rely on this numeric argument form,
+  simply let it include the variable. E.g.:
+
+  AssignKey("CursorDown(__NumArg);", "control a");
+
+  * This will move the cursor 4 steps down on »C-u C-a«. If there is no 
+    argument (C-a) the cursor will not move. »C-u C-u C-u C-u C-u C-u C-u
+    C-u C-a« would bring the cursor to the bottom of the buffer in most of 
+    the programs you're able to write in a week or two (or so I reckon. Could 
+    be that I'm just too lazy.... Who knows =)
+
+
+  But remeber that only the key's execute string is checked! If you use the 
+  __NumArg variable in your routine (without sending it as an argument) you
+  could do this:
+
+  void export myFunc(){...};
+  ...
+  AssignKey("myFunc();/*__NumArg*/", "control a");
+
+  A specific use of this would probably be a routine which takes EITHER a 
+  numeric argument OR does some fetching itself. Example:
+
+  SetWallRight(){ // if no "argument", check the current cursor position.
+  if (!(localArg=__NumArg)){
+    localArg = ReadInfo("column");}
+  <make use of localArg>}
+  AssignKey("SetWallRight();/*__NumArg*/", "control a");
+
+  This way a /*__NumArg*/ may be read as an optional numeric argument.
+
+  Do note that you should *never* assign values to __NumArg yourself!!!
+
+
+  C-U repeats with the display turned off.
+
+
+HISTORY (REV)
+  20.04.96 (2) Fixed bug introduced in rev 1.
+  06.04.96 (1) Added C-U
+  25.02.95 (0) Working...
+  
+BUGS
+  Not as far as I know!
+
+TODO
+
+SEE ALSO
+  Ole L. Madsen+'s "Object-Oriented Programming in the Beta P.L." (ISBN:0-201-62430-3)
+  (There's a freak language for ya! =)

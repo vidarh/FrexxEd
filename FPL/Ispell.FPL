@@ -1,0 +1,530 @@
+// $Id: Ispell.FPL 1.15 1996/04/02 18:36:29 jskov Exp $
+// $VER: Ispell.FPL 1.4 (04.10.95) © Jesper Skov
+
+// This file is a mess. A cleanup is badly needed. Be warned :)
+
+
+int serverUp = 0;
+
+int activeLanguage = -1;
+
+int gui = 0;
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» IspellPrefs() ««
+void export IspellPrefs()
+{
+  PromptInfo(-1,"IspellMode preferences",-1,-1,
+   "ispell_bin",
+   "ispell_languages",
+   "ispell_personalDict",
+   "ispell_flags",
+   "ispell_gui"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» startIspell() ««
+int startIspell()
+{
+  if(!FindPort("IRexxSpell")){
+	string language = ReadInfo("ispell_languages");
+	string privDict = ReadInfo("ispell_personalDict");
+	int i = ReadInfo("ispell_activeLanguage");
+	int pos = 0;
+	int endPos;
+
+	while (i){
+	  pos = strstr(language, "|", pos)+1;
+	  i--;
+	}
+
+	endPos = strstr(language, "|", pos);
+	if (endPos==-1)
+	  endPos = strlen(language);
+	language = substr(language, pos, endPos);
+
+	if (strlen(privDict))
+	  privDict = " -p"+privDict;
+
+	System("run "+ReadInfo("ispell_bin")+ReadInfo("ispell_flags")+" -d"+language+privDict+" -r");
+	if(!FindPort("IRexxSpell", 10)){
+	  ReturnStatus("Can't connect to ispell server!");
+	  return 0;
+	}
+  }
+  serverUp = 1;
+  return 1;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» checkBlock() ««
+// Works by saving file/block to a temp file which Ispell is asked to check.
+// All misspelled word are found by Search() and checkWord() is called.
+//»»»»»»»»»»»»»»»»»»»»»»
+export void checkBlock(int all)
+{
+  if (startIspell()){
+	// check block is marked
+	int blockBegin = ReadInfo("block_begin_y");
+	int blockEnd = ReadInfo("block_end_y");
+	string file = "T:"+itoa(GetBufferID());
+	string data;
+	string result;
+
+	if (all){								// File or block?
+	  // Check file
+	  Save(file);
+	  SetInfo(-1,"changes",1);
+	} else {
+	  // Check block
+	  if (ReadInfo("block_exist")){			// does block exist?
+		data = GetBlock();					// save block
+		SaveString(file, data);
+	  } else {
+		ReturnStatur("No block marked!");
+		return;
+	  }
+	}
+
+	result = ARexxSend("IRexxSpell", "FILECHECK "+file, 20);
+
+	System("delete "+file);
+
+	data = LoadString(result);
+	System("delete "+result);
+
+	if (strlen(data)){						// Any output from Ispell?
+	  int id = New();
+	  int org;
+	  int result;
+
+	  if (blockBegin>blockEnd)				// Goto top-most line in block
+		GotoLine(blockEnd);
+	  else
+	    GotoLine(blockBegin);
+	  CursorLeft();							// Problem if line 1!
+
+	  org = GetEntryID();
+
+	  openAltBuffer();
+
+	  CurrentBuffer(id);					// Dump data so we have 'em line wise
+	  Output(data);
+	  GotoLine(0);
+
+	  while (strlen(data = GetLine())){		// repeat loop while there is still words
+
+		data = substr(data,0,strlen(data)-1); // strip return
+
+		CurrentBuffer(org);					// search for word
+		Search(data, "=fc+");
+
+		result = checkWord();				// and get it checked
+
+		CurrentBuffer(id);
+
+		if (result==1)						// User asked to QUIT
+		  break;
+
+		if (result==2)						// accept for the rest of session
+		  deleteRemaining(0);				// i.e. delete any other appearance of the word
+
+//		if (result==3)						// accept LOWERCASED for the rest of session
+//		  deleteRemaining(1);				// i.e. delete any other appearance of the word lowercased
+
+		CursorDown();						// get to next word
+
+
+	  }
+	  Clean("Kill("+itoa(id)+");");			// kill id buffer
+	  closeAltBuffer();
+	  CurrentBuffer(org);
+	  Visible(1);							// make sure that visible is re-enabled
+	  RedrawScreen();
+
+	} else
+	  ReturnStatus("No misspelled words found!");
+  }
+}
+
+void deleteRemaining(int lower)
+{
+  string s = GetLine();
+  int thisLine = ReadInfo("line");
+
+//  if (lower)
+	// lowecase s
+
+  while (!Search(s,"=fc+"))
+	DeleteLine();
+
+  GotoLine(thisLine);
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» checkWord() ««
+export int checkWord()
+{
+  int operation = 0;
+
+  if(startIspell()){
+	int retry = 1;
+	string word = GetWord();
+	string lword;
+
+	if (!strlen(word))						// Try previous pos if empty
+	  word = GetWord(-1,ReadInfo("byte_position")-1);
+
+	while(retry){
+	  retry = 0;
+
+	  if (!strlen(word))
+		ReturnStatus("No word to check!?!");
+	  else {
+		string result = ARexxSend("IRexxSpell", sprintf("CHECK %s",word),10);
+
+		if(!strncmp(result, "*", 1)){
+		  // Perfect match
+		  ReturnStatus(sprintf("\"%s\" is correct",word));
+		  return;
+		} else if (!strncmp(result, "+", 1)){
+		  // Match because of root...
+		  ReturnStatus(sprintf("\"%s\" is correct because of root %s", word, substr(result,2,-1)));
+		  return;
+		} else {
+		  // Let's get some alternatives...
+		  int wait = 1;
+		  int help = 1;
+		  string key;
+		  string repWord;
+
+		  int cancel=0, replace=0, add=0, accept=0, addUncased=0;
+
+		  int prevPos = ReadInfo("byte_position");
+
+		  Visible(0);
+
+		  if ((ReadInfo("column")!=1)&&Isword(GetChar(ReadInfo("byte_position")-1)))
+			CursorLeftWord();
+		  BlockMark(2, ReadInfo("column"), ReadInfo("line"), ReadInfo("column")+strlen(word), ReadInfo("line"));
+		  GotoLine(ReadInfo("line"),prevPos);
+
+		  openAltBuffer();
+
+		  Output(word);						// Get word lower cased
+		  retry = BlockChange(altBuf);
+		  DownCase(0);
+		  lword = GetLine();
+		  DeleteLine();
+		  BlockChange(retry);
+		  retry = 0;
+
+		  if (gui){
+			int endCol = 1;
+			int startCol = strstr(result, ":", 0)+2;// alts start after :_
+			int length;
+			int bufCol=0;
+			int count=0;
+			char canLeft = ' ';
+			int resLen = strlen(result);
+			string array[1];
+
+			Visible(1);
+			RedrawScreen();
+			  while (endCol != resLen){
+				endCol = strstr(result, ",", startCol);
+				if (endCol < 0)
+				  endCol = strlen(result);
+				length = endCol-startCol;
+				resize array[count+1];
+				array[count]=substr(result, startCol, length);
+				startCol = endCol + 2;
+				bufCol += length+5;
+				count++;
+			  }
+
+			  {
+				int quit = 0;
+				string arrstr=word;
+
+				replace = 1;
+				if (RequestWindow("ISpell",
+				    "@replace word", "b", &replace,
+					"@accept", "b", &accept,
+					"@insert word", "b", &add,
+					"insert @uncased", "b", &addUncased,
+					"@quit", "b", &quit,
+					"'"+word+"'", "A", &array, &arrstr,  -1)){
+
+			      if (quit){
+					cancel = 1;
+					operation = 1;				// QUIT
+				  } else if (replace){
+					CurrentBuffer(parent);
+					replaceWord(word, arrstr);
+					cancel = 1;				// skip code below
+				  }
+
+				} else
+			      cancel=1;
+			  }
+
+		  } else {							// GUI
+		  if (strncmp(result, "#", 1)){		// Skip alt parsing if #
+			// ... if there are any!
+			int endCol = 1;
+			int startCol = strstr(result, ":", 0)+2;// alts start after :_
+			int length;
+			int bufCol=0;
+			int count='0';
+			char canLeft = ' ';
+			int resLen = strlen(result);
+
+			while (endCol != resLen){
+			  endCol = strstr(result, ",", startCol);
+			  if (endCol < 0)
+				endCol = strlen(result);
+			  length = endCol-startCol;
+			  if (((length+bufCol+5) > 78) || (count>('9'+1)) || canLeft==' '){
+				Output(sprintf("\n%c > :",canLeft));
+				canLeft = '<';
+				count = '0';
+				bufCol = 0;
+			  }
+			  Output(sprintf(" (%c) %s",count,substr(result, startCol, length)));
+			  startCol = endCol + 2;
+			  bufCol += length+5;
+			  count++;
+			}
+			Output("\n");
+			GotoLine(ReadInfo("line")-1,2);
+			Delete();
+			Output(" ");
+		  } else
+		    Output("\n    :\n");			// There were no suggestions
+
+		  Visible(1);
+		  GotoLine(2);
+
+		  CurrentBuffer(parent);
+		  // Mark word in parent!
+
+		  while (wait){						// Main loop
+			if (help)
+			  Status(altBuf, "SPC: Accept this time, [i]nsert in private dict., [a]ccept this session, ?:>>");
+			else
+			  Status(altBuf, "[r]eplace word (recheck), [u]ncapitalized insert, [q]uit, ?:>>");
+
+			key = GetKey(0);
+
+			if (!(strcmp(key, "q") && strcmp(key,"\x07") && strcmp(key, "\x1b"))){	// ESC or C-g
+			  wait = 0;
+			  cancel = 1;
+			  operation = 1;				// QUIT
+			}
+
+			if (!(strcmp(key, " "))){		// Space - accept this once
+			  cancel = 1;
+			  wait = 0;
+			}
+
+			if (!strcmp(key, "?"))			// Check for help (?)
+			  help = !help;
+
+			if (!strcmp(key, ",")){
+			  CurrentBuffer(altBuf);
+			  if (GetChar(0)=='<')
+				CursorUp();
+			  CurrentBuffer(parent);
+			}
+
+			if (!strcmp(key, ".")){
+			  CurrentBuffer(altBuf);
+			  if (GetChar(2)=='>')
+				CursorDown();
+			  CurrentBuffer(parent);
+			}
+
+			if ((strcmp(key, "0")>=0) && (strcmp(key, "9")<=0)){
+			  int offset;
+			  int end;
+
+			  CurrentBuffer(altBuf);
+			  offset = strstr(repWord=GetLine(),"("+key+")");
+			  if (offset!=-1){
+				wait = 0;
+				cancel = 1;
+				end = strstr(repWord, "(", offset+4);
+				if (end == -1)
+				  repWord = substr(repWord, offset+4, strlen(repWord)-offset-5);
+				else
+				  repWord = substr(repWord, offset+4, end-offset-5);
+
+				CurrentBuffer(parent);
+				replaceWord(word, repWord);
+			  } else
+			    CurrentBuffer(parent);
+			}
+
+			if (!strcmp(key, "r")){
+			  replace=1;
+			  wait = 0;
+			}
+
+			if (!strcmp(key, "a")){
+			  accept=1;
+			  wait = 0;
+			}
+
+			if (!strcmp(key, "i")){
+			  add=1;
+			  wait = 0;
+			}
+
+			if (!strcmp(key, "u")){
+			  addUncased=1;
+			  wait = 0;
+			}
+		  }
+
+		}									// End non-GUI
+
+		if (!cancel){
+
+
+		  if (replace){
+			int stat;
+
+			repWord = PromptString(word, "Replace and re-check");
+			stat = GetErrNo();
+			if (strlen(repWord)){
+			  replaceWord(word, repWord);
+			  CursorLeft();
+			  retry = 1;
+			  word = repWord;
+			} else if (!stat){
+			  replaceWord(word, repWord);
+			  CursorLeft();
+			}
+		  }
+
+		  if (accept){
+			ARexxSend("IRexxSpell", sprintf("ACCEPT %s",word),10);
+			operation = 2;				// ACCEPT
+		  }
+
+		  if (add){
+			ARexxSend("IRexxSpell", sprintf("QUICKADD %s",word),10);
+			SetInfo(0,"ispell_addedWords",1);
+			operation = 2;				// ACCEPT
+		  }
+
+		  if (addUncased){
+			ARexxSend("IRexxSpell", sprintf("QUICKADD %s",lword),10);
+			SetInfo(0,"ispell_addedWords",1);
+			operation = 3;				// ACCEPT lowercased
+		  }
+		}
+
+		closeAltBuffer();
+	  }
+
+	  BlockMark(0);
+	  }
+	}
+  }
+  return operation;
+}	  
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» openAltBuffer() ««
+int altBuf;
+int parent;
+int openCount = 0;
+
+void openAltBuffer()
+{
+  gui = ReadInfo("ispell_gui");
+  Visible(0);
+  if (!openCount){
+	altBuf = New();
+	parent = CurrentBuffer(altBuf);
+	Rename("*ispellAlternatives*");
+	if (!gui){
+	  Activate(altBuf, 0, parent);			// make the new view 1 line tall
+	  Activate(parent, 1, altBuf);
+	  ResizeView(1,altBuf);
+	}
+	openCount = 1;
+  } else {
+    CurrentBuffer(altBuf);
+    openCount++;
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» closeAltBuffer() ««
+void closeAltBuffer()
+{
+  openCount--;
+  if (!openCount){
+	Visible(0);
+	if (!gui){
+	  RemoveView(parent);					// will expand altBuf
+	  Activate(parent,0,altBuf);			// replace altBuf with parent
+	}	
+	Clean("Kill("+itoa(altBuf)+");");
+	CurrentBuffer(parent);
+	Visible(1);
+  } else {
+	Visible(0);
+	CurrentBuffer(altBuf);
+	GotoLine(0);
+	DeleteLine(ReadInfo("lines"));
+	CurrentBuffer(parent);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» replaceWord() ««
+void replaceWord(string old, string new)
+{
+  if (Isword(GetChar(ReadInfo("byte_position")-1)))
+	CursorLeftWord();
+  Delete(strlen(old));
+  Output(new);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» shutdownIspell() ««
+export void shutdownIspell()
+{
+  if (serverUp){
+	if (ReadInfo("ispell_addedWords")){
+	  ARexxSend("IRexxSpell", "ADD",10);	// force dictionary save
+	  SetInfo(0,"ispell_addedWords",0);
+	}
+	ARexxSend("IRexxSpell", "exit",2);		// then kill server
+	serverUp = 0;
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Ispell settings ««
+ConstructInfo("ispell_bin","","","WGSH","",0,0,"ispell:bin/ispell");
+ConstructInfo("ispell_languages","","","WGSH","",0,0,"english");
+ConstructInfo("ispell_personalDict","","","WGSH","",0,0,"");
+ConstructInfo("ispell_flags","","","WGSH","",0,0,"");
+ConstructInfo("ispell_activeLanguage","","","LC", ReadInfo("ispell_languages"),0,0);
+ConstructInfo("ispell_gui","","","GWBH","",0,0,0);
+
+ConstructInfo("ispell_addedWords","","","GBH","",0,1,0);
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Ispell menu ««
+MenuAdd("i", "Ispell","","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Check Word", "checkWord();","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Check Block", "checkBlock(0);","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Check File", "checkBlock(1);","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Kill server", "shutdownIspell();","", ReadInfo("Program_Menu"), -1);
+
+MenuAdd("s", "Ispell...", "IspellPrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Quit Hook ««
+Hook("QuitAll", "shutdownIspell();", "ispell_addedWords");

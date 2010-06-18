@@ -1,0 +1,151 @@
+
+char best=0;
+int itercount=0;
+
+
+char mall[64]={
+	'0','0','2','2','2','0','0','0',
+	'0','0','2','2','2','0','0','0',
+	'2','2','2','2','2','2','2','0',
+	'2','2','2','2','2','2','2','0',
+	'2','2','2','2','2','2','2','0',
+	'0','1','2','2','2','0','0','0',
+	'0','0','2','2','2','0','0','0',
+	'0','0','0','0','0','0','0','0',  // This line has to be all zeroes.
+
+};
+
+char buffer[64*64];
+char pos[64];
+char dir[64];
+
+void NextIter(int iternumber, int parenttest, int parentdir)
+{
+  char callnext=1;
+  char nocall=1;
+  int lastdir=0;
+  int lasttest=0;
+
+  itercount++;
+
+  PrintPlan(iternumber, 0);
+  while (lasttest<56) {
+    int bufpek=64*iternumber+lasttest;
+    switch (buffer[bufpek]) {
+    default:
+      lasttest++;
+      break;
+    case 1:
+      while (1) {
+        if (callnext) {
+          int count;
+          for (count=0; count<64; count++)
+            buffer[64*(iternumber+1)+count]=buffer[64*iternumber+count];
+        }
+        callnext=0;
+        lastdir++;
+        if (lastdir==5) {
+          lasttest++;
+          lastdir=0;
+          break;
+        } else {
+          int rad, kol;
+          switch (lastdir) {
+          case 1:
+            rad=-8;
+            kol=0;
+            break;
+          case 2:
+            rad=8;
+            kol=0;
+            break;
+          case 3:
+            rad=0;
+            kol=-1;
+            break;
+          case 4:
+            rad=0;
+            kol=1;
+            break;
+          default:
+            rad=0;
+            kol=0;
+            lastdir=0;
+            break;
+          }
+          if (buffer[bufpek+rad+kol]==1 && buffer[bufpek+(rad+kol)*2]==0) {
+            callnext=0;
+            if (lastdir>parentdir || (lastdir==parentdir && lasttest>parenttest))
+              callnext=1;
+            else {
+              if (buffer[bufpek-64]!=1 ||
+                  buffer[bufpek+rad+kol-64]!=1 ||
+                  buffer[bufpek+(rad+kol)*2-64]!=0) {
+                callnext=1;
+              }
+            }
+            if (callnext) {
+              buffer[bufpek+64+(rad+kol)*2]=1;
+              buffer[bufpek+64+0]=0;
+              buffer[bufpek+64+rad+kol]=0;
+              nocall=0;
+              pos[iternumber]=lasttest;
+              dir[iternumber]=lastdir;
+              NextIter(iternumber+1, lasttest, lastdir);
+              PrintPlan(iternumber, 0);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (nocall) {
+    if (iternumber>best) {
+      best=iternumber;
+      PrintLine(sprintf("The best after %ld iterations:", itercount), 13);
+      PrintPlan(best, 13);
+    }
+  }
+  pos[iternumber]=0;
+  dir[iternumber]=0;
+}
+
+
+void PrintPlan(int number, int offset)
+{
+  int count1, count2;
+
+  PrintLine(sprintf("Depth: %ld  ", number-1), 1+offset);
+  PrintLine("         ", 2+offset);
+  for (count1=0; count1<8; count1++) {
+    string tempbuffer=" ";
+    int bufpek=number*64+count1*8;
+    for (count2=0; count2<8; count2++) {
+      switch (buffer[bufpek+count2]) {
+      default:
+       tempbuffer+=" ";
+       break;
+      case 0:
+       tempbuffer+=".";
+       break;
+      case 1:
+       tempbuffer+="*";
+       break;
+      }
+    }
+    PrintLine(tempbuffer, count1+3+offset);
+  }
+}
+
+{
+  int count, width=ReadInfo("view_columns");
+  for (count=ReadInfo("view_lines"); count>0; count--)
+    PrintLine(sprintf(joinstr("%",ltostr(width), "lc"), ' '), count);
+
+  for (count=0; count<64; count++) {
+    buffer[64+count]=mall[count]-'1';
+    buffer[count]='1';
+  }
+  NextIter(1, 0, 0);
+  Request(sprintf("Best result was %ld iterations", best-1));
+}

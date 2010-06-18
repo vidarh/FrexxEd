@@ -1,0 +1,84 @@
+// $Id: GCCMode.FPL 1.8 1996/04/21 13:59:46 jskov Exp $
+// $VER: GCCMode.FPL 1.2 (21.04.96) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» changeMakeOptions() ««
+export void changeMakeOptions()
+{
+  SetInfo(-1,"gcc_make_options", PromptString(ReadInfo("gcc_make_options"), "Enter new make options"));
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» gccCompile() ««
+export void gccCompile()
+{
+  int parent;
+  int entryID = GetEntryID("_gccCompile_");
+  string path = ReadInfo("file_path");
+  string me, make;
+  
+  if(!ReadInfo("filehandler")){
+	SetInfo(-2,"filehandler",1);
+	Delay(100);								// wait 2 secs
+  }
+	
+  me = "\""+ReadInfo("disk_name")+":_gccCompile_\"";
+
+  if (!strlen(path))
+	path = ReadInfo("directory");
+
+  if(!entryID){
+	entryID = New();
+	parent = CurrentBuffer(entryID);
+	Rename("_gccCompile_");
+	CurrentBuffer(parent);
+  }
+
+  if(!ReadInfo("active",entryID)){
+	Visible(0);
+	Activate(entryID,1);
+	ResizeView(ReadInfo("view_lines")+ReadInfo("view_lines",entryID)-ReadInfo("gcc_output_height"),parent);
+	Visible(1);
+  }
+
+  if(ReadInfo("gcc_auto_save"))
+	Save();
+  
+  make = "make -C"+path+" "+ReadInfo("gcc_make_options");
+  
+  System("echo \"Running "+make+"\" >"+me);
+  SaveString("T:gccCompile",make+" >>"+me+" 2>>&1\n");
+  System("run bin:sh t:gccCompile");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» gccModePrefs() ««
+export void GccModePrefs()
+{
+  PromptInfo(-1,"GccMode Preferences",-1,-1,
+   "gcc_make_options",
+   "gcc_output_height",
+   "gcc_auto_save"
+  );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» key bindings ««
+AssignKey("gccCompile();","control c control c", "gcc_mode");
+AssignKey("changeMakeOptions();","control C control C", "gcc_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» GCCMode settings ««
+ConstructInfo("gcc_make_options", "","", "GSHW","", 0,0,"");
+ConstructInfo("gcc_output_height","","","GIHW","",0,100,14);
+ConstructInfo("gcc_auto_save", "","", "GBWH","", 0,0,1);
+
+ConstructInfo("gcc_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("gcc_mode_ext", "","", "GSHW","", 0,0,"*c*h*");
+ConstructInfo("gcc_mode_exe", "","", "GSHW","", 0,0,"CModeInit();");
+
+AddMode(1, "gcc_mode", "gcc_mode_ext", "gcc_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» GCCMode menu ««
+MenuAdd("i", "GCC", "", "", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Compile", "gccCompile();","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Set Make Options", "changeMakeOptions();","",ReadInfo("Program_Menu"), -1);
+
+MenuAdd("s", "GCC...", "GccModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1);
+MenuBuild();

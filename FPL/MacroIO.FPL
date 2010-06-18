@@ -1,0 +1,72 @@
+
+export void SaveMacro ()
+{
+  int id;
+  string promptname="";
+  string name;
+
+  id = PromptBuffer("Macro to save:", 10);
+  if (id) {
+    promptname="FrexxEd:Macros/"+ReadInfo("full_file_name", id);;
+    if (!strlen(ReadInfo("file_path")))
+      promptname=joinstr("FrexxEd:Macros/", ReadInfo("file_name", id));
+    name=PromptFile(promptname, "Save macro:", "#?.macro");
+    if (strlen(name)) {
+      int oldid=GetEntryID();
+      string insertline;
+      string firstline;
+      string macrostring;
+
+      CurrentBuffer(id);
+      firstline=GetLine(1);
+
+      if (strncmp(firstline, "/* Macro:", 9))
+        insertline=joinstr("/* Macro:", ReadInfo("macro_key"), "*/\n");
+
+      CurrentBuffer(oldid);
+      macrostring=GetBlock(id);
+      if (!GetErrNo()) {
+        SaveString(name, joinstr(insertline, macrostring));
+      } else
+        ReturnStatus("Out of memory!");
+    } else
+      ReturnStatus("Function cancel!");
+  } else
+    ReturnStatus("Function cancel!");
+}
+
+
+export void LoadMacro(string macrofile)
+{
+
+  string macroname;
+
+  if(strlen(macrofile))
+    macroname = macrofile;
+  else
+    macroname=PromptFile("FrexxEd:Macros/", "Load macro:", "#?.macro");
+  if (strlen(macroname)) {
+    int id;
+    int oldid=GetEntryID();
+    id=New();
+    if (id) {
+      string firstline;
+      CurrentBuffer(id);
+      if (Load(macroname)>=0) {
+        firstline=GetLine(1);
+        if (!strncmp(firstline, "/* Macro:", 9)) {
+          int len;
+          len=strstr(firstline, "*/\n");
+          if (len)
+            AssignKey(joinstr("ExecuteBuffer(", ltostr(id), ");"), substr(firstline, 9, len-9));
+          SetInfo(id, "macro_key", substr(firstline, 9, len-9));
+          SetInfo(id, "type", 10);
+        } else {
+          ReturnStatus("No macro!");
+          Kill(id);
+        }
+      }
+      CurrentBuffer(oldid);
+    }
+  }
+}

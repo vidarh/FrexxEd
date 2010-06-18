@@ -1,0 +1,61 @@
+############################################
+File: Assemble.FPL
+Author: Bjørn Reese
+Email: breese@imada.ou.dk
+Short description: Interface to assembler/debugger
+Version: 1.3
+Date: 20.1.95
+Local settings:
+Global settings:
+   "_Assembler"
+   "_Asm_opt"
+   "_Asm_debug_opt"
+   "_Filter"
+   "_Debugger"
+   "_Make"
+   "_Errorfile"
+Keysequence: 'Control' + {a, A, m, d, x, n, p}
+Type: function, menu, key
+Prereq: ExtraIO
+############################################
+
+FUNCTION
+  Generic interface to assemblers. Also supports debuggers and make.
+These, along with assembly options, can be chosen in the 'Assembler
+Settings'. Even though the settings pop up in a seperate window, they
+are saved along with the normal settings in 'Customizing Save'.
+
+  The filter is an external program that converts the output from
+the assembler to a format that Assemble.FPL understands. This filter
+is _exactly_ the same as the ones used in TDS (Twilight Development
+System.) The format is
+
+	<source file> line type <error message>
+
+The type can be either 'E' (error) or 'W' (warning).
+
+	Example:
+	<Sign.asm> 16 E <Instruction not recognized>
+
+  Success/failure of assembling will be reported in the status line.
+If any errors occured during assembling the first error will be shown,
+ie. the error message is in the status line, and the actual line
+will be inverted. You can jump to the next error with 'Control n'.
+Using the wrong filter cause problems - it is most likely to report
+"No Errors" even when there were some.
+
+  If you use make, you must be sure that the filter corresponds to the
+assembler used in the makefile.
+
+
+BUGS
+  o Only handles single sourcecodes.
+  o No direct linker support yet.
+
+
+SEE ALSO
+  Barfly2Msg.c
+  (a quick hack that doesn't support the more exotic error types)
+
+HISTORY
+  1.3 - Daniel Stenberg. Replaced the Sprinf()-calls with sprintf()s!

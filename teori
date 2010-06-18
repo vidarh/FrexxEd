@@ -1,0 +1,25 @@
+
+MÅL: att när man "tar bort" en buffer, så skall den buffer man tidigare
+     "stod i" eller hade "aktiv" bli den nya "aktiva" buffern.
+
+==============================================
+
+
+* Repeterade next/previous buffer byter aktiv buffer utan att ändra ordningen.
+  Dvs, man kan byta och få en buffer aktiv som inte ligger överst!
+
+Följande funktioner sätter FÖRST upp den nuvarande bufferten överst (om den
+inte redan är där), och sedan plockar den upp nästa buffer överst.
+
+* GotoBuffer sätter den nya buffern överst.
+
+* Load/open sätter den nya buffern överst.
+
+* New sätter den nya buffern överst
+
+* DeleteView tar fram den förra buffern
+
+rader buffrar är liknande:
+
+* Kill tar fram den förra (översta) buffern
+

@@ -1,0 +1,725 @@
+## name FrexxEd.catalog
+## version $VER: FrexxEd_Catalog 0.96 (9.10.94)
+## codeset 0
+## language dansk
+;
+MSG_UNKNOWN_COMMAND
+Ukendt kommando!
+;
+MSG_OUT_OF_MEMORY
+Hukommelsen er fyldt!
+;
+MSG_SYNTAX_ERROR
+Syntaksfejl!
+;
+MSG_NOTHING_LEFT_TO_UNDO
+Intet mere at fortryde!
+;
+MSG_NO_BLOCK_MARKED
+Ingen blok markeret!
+;
+MSG_CANT_DELETE_ANYTHING
+Kan ikke slette noget!
+;
+MSG_ERROR_DURING_OPEN
+Fejl ved åbning!
+;
+MSG_BLOCK_BUFFER_IS_EMPTY
+Blokbufferen er tom!
+;
+MSG_NO_MORE_MATCHES_FOUND
+Ikke flere overensstemmelser fundet!
+;
+MSG_FUNCTION_CANCELLED
+Funktion afbrudt!
+;
+MSG_NO_MATCHING_CHARACTER_FOUND
+Intet overensstemmende tegn fundet!
+;
+MSG_WRONG_TYPE_OF_BLOCK
+Forkert slags blok!
+;
+MSG_COULDNT_CHANGE_SETTING
+Kunne ikke ændre den ønskede indstilling!
+;
+MSG_FPL_PROGRAM_NOT_FOUND
+FPL-program ikke fundet!
+;
+MSG_FILE_NOT_FOUND
+Fil ikke fundet!
+;
+MSG_NO_BLOCK_FOUND
+Ingen blok fundet!
+;
+MSG_IFF_ERROR
+IFF fejl!
+;
+MSG_CANT_LOCK_BUFFER
+Kan ikke låse buffer!
+;
+MSG_CANT_FIND_BUFFER
+Kan ikke finde buffer!
+;
+MSG_WRONG_FILE_NAME
+Forkert filnavn!
+;
+MSG_INFO_ALREADY_EXISTS
+Infovariabel eksisterer allerede!
+;
+MSG_UNREG_VERSION
+Uregistreret version
+;
+MSG_READ_PROTECTED
+Læsebeskyttet!
+;
+MSG_WRITE_PROTECTED
+Skrivebeskyttet!
+;
+MSG_DELETE_PROTECTED
+Slettebeskyttet!
+;
+;
+; THIS FOLLOWING PHRASE WAS ADDED TO VERSION 1.1!
+;
+MSG_WORKBENCH_NOT_RUNNING
+Workbench is not running!
+;
+MSG_DUMMY1
+
+MSG_DUMMY2
+
+MSG_DUMMY3
+
+; These MSG_DUMMY entries are reserved for future use. They should be left
+; blank.
+;
+;
+; Here follow three simple status line informations...
+;
+MSG_GARBAGE_COLLECTION_IN_PROCESS
+I gang med affaldsoprydning!
+;
+MSG_MOVING_BLOCK
+Flytter blok...
+;
+MSG_MOVE_BLOCK_TEXT
+Flyt blok:  <-  ->  Ja  Afbryd.
+;
+;
+;
+; On a few requesters, there will be one "OK" (positive) and one "CANCEL"
+; (negative) response alternative. Here are those!
+;
+MSG_OK_GADGET
+Fortsæt
+;
+MSG_CANCEL_GADGET
+Afbryd
+;
+;
+;
+MSG_PRESS_BUTTONS
+Tryk knapperne!
+; This is a simple default window title for a window full of different
+; gadgets to press on and fill in.
+;
+;
+MSG_RETRY_OPEN_SCREEN
+Skærm kunne ikke åbnes.\nForsøg igen?
+; Screen opening failure text.
+;
+MSG_SAVE_SETTING
+Gem indstilling:
+; Occurs when the preferenses, the "settings", is to be saved!
+;
+MSG_FILE_NAME
+Filnavn:
+; Default file requester window title.
+;
+MSG_YESNO
+Ja|Nej
+; MSG_YESNO should be one positive and one negative response to a true/false
+; question. The words must be separated with a vertical bar '|'. These words
+; will appears in one button each in a default requester.
+;
+MSG_FREXXED_REQUEST
+FrexxEd Anmodning!
+; Window title of a default requester
+;
+MSG_PICK_SCREEN_MODE
+Vælg en skærmmodus:
+; Window title of the screenmode requester
+;
+MSG_ABOUT_TEXT
+Al programmering udført af\n%s and\n%s\n\n\
+ARexx port: %s\nSkærmnavn: %s\nGrafikhukommelse: %ld\nAnden hukommelse: %ld\n\
+Allokeret hukommelse: %ld\n\n\
+Disk name; %s\n\
+FrexxEd version: %s
+; MSG_ABOUT_TEXT gets some parameters, and they are (in order of appearance):
+; 1s - "Daniel Stenberg"
+; 2s - "Kjell Ericson"
+; 3s - Arexx port name (which is MSG_NONE if no port is available)
+; 4s - Screen name
+; 1d - Chip memory available (in bytes)
+; 2d - Fast memory available (in bytes)
+; 3d - Amount of memory allocated by FrexxEd
+;-- This text appears in the About window.
+;
+MSG_SORT_ACCORDING_FIELD
+Sorter efter felt:
+; Message in the sort requester.
+;
+MSG_MAKE_YOUR_CHOICE
+Træf dit valg!
+; Palette requester window title
+;
+MSG_GOTO_LINE
+Gå til linie:
+; Go to line requester title ;
+MSG_PICK_FILE_INCLUDE
+Vælg fil for inklusion:
+; Include file requester title
+;
+MSG_LOAD_FILE
+Hent fil:
+; Load file requester title
+;
+MSG_BEGIN_RECORDING
+Begynd optagelse!
+; Status line message when macro recording starts
+;
+MSG_ENTER_DESIRED_VALUE
+Indtast den ønskede værdi:
+; Default integer requester title
+;
+MSG_NO_SCREEN_FOUND
+Ingen skærm fundet!
+;
+MSG_EDITING_NEW_FILE
+Editer ny fil!
+; Text appearing in the status line when user wanted to load a file that didn't
+; exist!
+;
+MSG_LOADING
+Henter %s...
+; Message in the status line when loading a buffer into FrexxEd. The %s
+; parameter to this message is a complete file name.
+;
+MSG_LOADING_READY
+Hentning %s... afsluttet! (%ld bytes)
+; Message written in the status line when a file has been loaded.
+; This message holds two parameters, first %s which is a complete file name
+; and then %ld which is the size of that file in bytes.
+;
+MSG_EMPTY
+;
+;
+MSG_CRUNCHING_BUFFER
+Komprimerer buffer!
+; Message while powerpacking!
+;
+MSG_SAVING_TEXT
+Gemmer %s...
+; Message in status line while saving a buffer.
+; The %s parameter to this message is a complete file name.
+;
+MSG_XPKSAVING_TEXT
+XPK-gemmer %s...
+; Message in status line while saving a buffer using an XPK-library
+; The %s parameter to this message is a complete file name.
+;
+MSG_SAVE_IT_NORMAL_ADD
+\n\nSkal den gemmes normalt?
+; A save action failed and this quesion will appear to prompt the
+; user for a "normal" save instead of saving in a temporary file name and then
+; rename it.
+;
+MSG_XPK_ERROR
+XPK-fejl:
+; Any failure in XPK will bring up an alert window with this title.
+;
+MSG_CANT_CRUNCH_BUFFER
+Kan ikke komprimere bufferen.\nSkal den gemmes normalt?
+; Packing error alert.
+;
+MSG_SAVING_TROUBLE
+Problemer under filsikring! Fil slettet men ikke gemt!
+; May occurs during the save operation.
+;
+MSG_WRITE_ERROR
+Skrivefejl
+; As reported by dos.library!
+;
+MSG_WROTE
+Skrev %s
+; Message in the status line when a file has been written to disk.
+; The %s parameter to this message is a complete file name.
+;
+MSG_OPEN_ERROR
+Åbningsfejl
+; dos.library reported open failure of a file
+;
+MSG_SELECT_FONT
+Vælg font!
+; Font selection list window title
+;
+MSG_ENTER_NUMBER
+Indtast nummer:
+;
+MSG_ENTER_STRING
+Indtast streng:
+;
+MSG_FPL_ERROR_ADD
+\n i linie %ld af %s
+; This message is added to an error message from FPL. The error message states
+; something about that 'there is a XXXX error'. The parameters to this is
+; first %ld (which is the line number of the failure) and then %s (which is the
+; file name in which the FPL program is, if not applicable "<unknown program>"
+; will be the name).
+;
+MSG_FPL_HALTED
+FPL stoppet
+; Message when an FPL program has been manually halted with escape.
+;
+MSG_NONE
+<ingen>
+; Used in a few occations when the user can select "none".
+;
+MSG_GET_MEMORY
+allokere hukommelsen
+; String sent to the MSG_FREXXED_COULDNT message!
+;
+MSG_FREXXED_INIT
+ Frexxed - Programmeret af Daniel Stenberg og Kjell Ericson!
+; Startup status line message
+;
+MSG_FREXXED_REQUIRES_204
+FrexxEd kræver mindst Kickstart 2.04\n
+; Error message for poor users!
+;
+MSG_ERROR_WITH_FPL_FILE
+Fejl ved FPL fil '%s'
+; Tried executing a non-existant FPL file.
+; The %s parameter to this message is a complete file name.
+;
+MSG_CANT_FIND_STARTUP_FILE
+Kan ikke finde initialiseringsfil!
+; The specified startup file is missing!
+;
+MSG_IMPORTANT
+Vigtigt
+; Just a default button text to a text window requester.
+;
+MSG_NO_SHIT
+Ingen fis!
+; Button text in the default about requester!
+;
+MSG_NEW_FONT_INSTALLED
+Ny font installeret!
+;
+MSG_CANT_INSTALL_FONT
+Kunne ikke installere font!
+;
+MSG_COULDNT_OPEN_FONT
+Kunne ikke åbne denne font!
+;
+MSG_FONT_TOO_BIG
+Denne font var for stor!
+;
+MSG_INPUT_KEY_STROKE
+Indtast tastetryk #%ld! (ESC for at afslutte)
+; Parameter: %ld
+;
+MSG_KEY_SEQUENCE
+Nøglesekvens:
+;
+MSG_FUNCTION
+Funktion:
+;
+MSG_KEY_ASSIGN
+Nøgletilordning!
+;
+MSG_ERROR
+Fejl
+;
+MSG_FUNCTION_ASSIGNED_TO_KEY
+Funktion tilordnet til taste!
+;
+MSG_MACRO_NAME
+Makronavn:
+;
+MSG_MACRO_ASSIGN
+Makrotilordning!
+;
+MSG_NO_KEYSTROKE_FOUND
+Intet tastetryk fundet!
+;
+MSG_WAITING_FOR_ANOTHER_KEY
+Venter på nyt tastetryk!
+;
+MSG_NO_FUNCTION_ASSIGNED_TO_KEY
+Ingen funktion tilordnet til denne taste!
+;
+MSG_ILLEGAL_COMMAND
+Illegal kommando.
+;
+MSG_REPLACE_OPTIONS
+Ja, Nej, Sidste, Global, Alle, afBryd.
+; Message appearing on status line when prompted replace is taking place.
+; Note that the capitals of this english message is the same as the keys that
+; should be pressed to select the option. Try to make those keys obvious in the
+; translation!
+;
+MSG_GLOBAL_REPLACE_WORKING
+Global erstatning under udførelse...
+; Message written in status line while replacing!
+;
+MSG_BREAK_REPLACE_WITH_SPACE
+Afbryd erstatning med mellemrum!
+;
+MSG_INIT_FPL
+Initialiser FPL!
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_FREXXED_COULDNT
+FrexxEd kunne ikke %s!
+; This message is used in error exceptions, and the %s parameter is a string
+; specifying what FrexxEd couldn't do.
+;
+MSG_FREXXED_CAN_CONTINUE_BEFORE
+FrexxEd kan ikke fortsætte indtil du\nhar lukket alle vinduer!
+; FrexxEd was opened as a public screen, and at least one hosting window is
+; left on the screen when QuitAll() was invoked!
+;
+MSG_TRY_AGAIN
+Forsøg igen!
+; Button text for the above requester text.
+;
+MSG_GET_PUBLIC_SCREEN
+finde en "public"-skærm
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_WRITE_PORT
+skabe en skriveport
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_WRITE_REQUEST
+skabe en skriveanmodning
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_READ_PORT
+skabe en læseport
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_MESSAGE_PORT
+skabe en beskedsport
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_SCREEN
+åbne en skærm
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_GET_VISUALINFO
+finde VisualInfo
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_WINDOW
+åbne det ønskede vindue
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_MENUS
+skabe menuer
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_CONSOLE_DEVICE
+åbne "console device"
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_SEARCH_FLAGS
+Søgningsflag!
+;
+MSG_SEARCH_REPLACE
+Søg/Erstat:
+; search/replace window title
+;
+MSG_SEARCH_FOR
+Søg efter:
+; search window title
+;
+MSG_LINE
+Linie
+; This is the text in the status line that preceeds the line number.
+; Max length 5 letters
+;
+MSG_COL
+Kol
+; This is the text in the status line that preceeds the column number.
+; Max length 5 letters
+;
+MSG_SELECT_ITEM
+Vælg en indgang:
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Here Follows the default menu setup
+;
+MSG_PROJECT_MENU
+Projekt
+;
+MSG_PROJECT_NEW
+Ny
+;
+MSG_PROJECT_LOAD
+Hent
+;
+MSG_PROJECT_SAVE
+Gem
+;
+MSG_PROJECT_ABOUT
+Omkring
+;
+MSG_PROJECT_KILL
+Dræb
+;
+MSG_PROJECT_QUIT_ALL
+Forlad alt
+;
+MSG_BLOCK_MENU
+Blok
+;
+MSG_BLOCK_MARK
+Marker
+;
+MSG_BLOCK_CUT
+Klip
+;
+MSG_BLOCK_COPY
+Kopier
+;
+MSG_BLOCK_INSERT
+Indsæt
+;
+MSG_EDIT_MENU
+Editer
+;
+MSG_EDIT_UNDO
+Fortryd
+;
+MSG_EDIT_UNDO_RESTART
+Genstart fortryd
+;
+MSG_MOVEVIEW_MENU
+Flyt/vis
+;
+MSG_MOVEVIEW_GOTO_BUFFER
+Gå til buffer
+;
+MSG_MOVEVIEW_GOTO_LINE
+Gå til linie
+;
+MSG_SEARCHREPLACE_MENU
+Søg/Erstat
+;
+MSG_SEARCHREPLACE_R_SEARCH_FRW
+Gentag fremadsøgning
+;
+MSG_SEARCHREPLACE_SEARCH
+Søg...
+;
+MSG_SEARCHREPLACE_REPEAT_REPLACE
+Gentag erstatning
+;
+MSG_SEARCHREPLACE_REPLACE
+Erstat...
+;
+MSG_CUSTOMIZING_MENU
+Konfigurering
+;
+MSG_CUSTOMIZING_SETTINGS
+Indstillinger
+;
+MSG_CUSTOMIZING_SETTINGS_LOCALS
+Lokale
+;
+MSG_CUSTOMIZING_SETTINGS_ALL_LOCALS
+Alle lokale
+;
+MSG_CUSTOMIZING_SETTINGS_GLOBALS
+Globale
+;
+MSG_CUSTOMIZING_SETTINGS_SAVE
+Gem
+;
+MSG_CUSTOMIZING_SETTINGS_SCREENMODE
+Skærmmodus
+;
+MSG_SPECIAL_MENU
+Speciel
+;
+MSG_SPECIAL_EXECUTE_FILE
+Eksekver FPL fil
+;
+MSG_SPECIAL_LOAD_MENUS
+Hent nye menuer
+;
+MSG_SPECIAL_PROMPT
+Anmod
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; End of default menu setup!
+;
+MSG_REPLACE_GADGET
+Erstat
+;
+MSG_HALF_GADGET
+Halv
+;
+MSG_FULL_GADGET
+Fuld
+;
+MSG_NONE_GADGET
+Ingen
+;
+MSG_RIGHT_GADGET
+Højre
+;
+MSG_LEFT_GADGET
+Venstre
+;
+MSG_SCREEN_GADGET
+Skærm
+;
+MSG_WINDOW_GADGET
+Vindue
+;
+MSG_BACKDROP_GADGET
+Baggrund
+;
+MSG_VISIBLE_GADGET
+Synlig
+;
+MSG_ABSOLUTE_GADGET
+Absolut
+;
+MSG_OFF_GADGET
+Fra
+;
+MSG_MARKING_GADGET
+Markering
+;
+MSG_EXIST_GADGET
+Eksistens
+;
+MSG_EXPAND_RELATIVE_GADGET
+Relativ
+;
+MSG_EXPAND_ALL_GADGET
+Alt
+;
+; Here follows a few strings that appears beside boolean buttons in the
+; search/replace requester. Using '@' in front of any character will make
+; that character underlined and that character will be accepted as short-
+; cut! There must only be *ONE* '@' character for each string.
+;
+; Do *not* put anything on 'v' since "amiga v" will paste the block in the
+; string!
+;
+MSG_WILDCARD
+@Joker
+;
+MSG_CASE_SENSITIVE
+@STORE=små bogstaver?
+;
+MSG_ONLY_WORDS
+@Kun ord
+;
+MSG_FORWARD_SEARCH
+@Fremadsøgning
+;
+MSG_INSIDE_BLOCK
+@Inde i blok
+;
+MSG_PROMPT_REPLACE
+@Anmod om erstatning
+;
+MSG_LIMIT_WILDCARD
+@Begræns joker
+;
+; END OF SPECIAL SEARCH/REPLACE STRINGS
+;
+; Here follows the password window texts.
+MSG_ENTER_PASSWORD_TITLE
+Kodeord
+;
+; Request window body text
+MSG_ENTER_PASSWORD
+Indtast kodeord:
+;
+MSG_UNREG_VERSION_LONG
+Denne version er ikke registreret!\n\n\
+Betal din registreringsafgift for at\n\
+kunne benytte alle FrexxEd funktioner!
+;
+MSG_CHOOSE_ENTRY
+Vælg indgang:
+;
+MSG_END_OF_FILE
+Afslutning af filen!
+;
+MSG_REGISTERED_TO
+Registreret til
+;
+MSG_ICON_NEVER
+Aldrig
+;
+MSG_ICON_ALWAYS
+Altid
+;
+MSG_ICON_IF_PARENT
+Forælder
+;
+MSG_MOVEVIEW_MAXIVIEW
+Maksimer udsnit
+; String that appears in the built-in menu setup.
+;
+MSG_SORT_FORWARD
+@Sorter fremad
+; "forward sort" in the sort block requester
+; The @ in front of a character, makes that character the 'hotkey'
+;
+MSG_SORT_CASE_SENSITIVE
+Sorter efter @ASCII-tabel
+; "case sensitive sort" in the sort block requester
+; The @ in front of a character, makes that character the 'hotkey'
+;
+; NEW STRINGS FROM 0.99 (941102):
+;
+MSG_SAVE_NONAME_FILE
+Save noname file:
+; Window title of the save-a-unnamed-buffer requester.
+;
+;
+; NEW STRINGS FROM 1.6 (950424):
+;
+MSG_INSIDE_FOLD
+@Inside folds
+;
+; This text appears in the search/replace requester to enable search/replace
+;to search within or outside of folds.
+;The @-character makes the following character useable as hotkey together
+;with the Amiga-key.
+;
+;
+MSG_CANT_QUIT
+FrexxEd Can't quit! %ld locks are\nstill held by the filehandler!
+;
+;Requester text that is shown when an attempt to quit FrexxEd is done and
+;the filehandler is locked/used by other programs/processes.
+;%ld - will display the amount of locks.
+;
+MSG_WINSCREEN_GADGET
+WinScreen
+;
+;Text that appears as the 4th alternative for the 'window' info variable.
+;It makes FrexxEd pop up as a window on its own screen. Keep it short!
+;

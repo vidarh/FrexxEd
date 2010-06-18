@@ -1,0 +1,36 @@
+############################################
+File:		SwapBuffer.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		FidoNet 2:201/328
+Short:		Display any buffer in any view, even if already visible
+Version:	2.1
+Date:		27.7.95
+Local settings:
+Global settings:
+Keysequence:	"Alt 'Left'", "Alt 'Right'" and "Amiga G"
+Type: keys
+Prereq:
+############################################
+
+FUNCTION
+  The functions on "alt left" and "alt right" swap the current buffer with the
+next in the list. If that buffer already is visible on screen, a duplicate
+will be made of the entry. That makes the view independent of the other views.
+Whatever the other views are showing, you can make this view show whichever
+buffer you please.
+A duplicated entry will be killed as soon as you remove it.
+
+  The function on "Amiga G" which was added for 2.0 of this script, is a very
+similar one, except for the fact that this prompts for a buffer to view in
+the current view, independent of what the other views are showing. (The
+GotoBuffer() function would jump to a view if the selected buffer is visible
+in one! :()
+
+HISTORY
+  2.1 -	Made the new buffer selected with "amiga shift g" pop up as
+	selected in the 'popup_view' info variable.
+
+BUGS
+  If you resize a view so a duplicated entry is removed.  That entry will not
+be killed unless it is brought back and removed by the SwapBuffer function.
+

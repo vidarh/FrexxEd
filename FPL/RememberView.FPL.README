@@ -1,0 +1,22 @@
+#############################################################################
+File: RememberView.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se
+Short: Remember the views when you maximize a buffer.
+Version: 1.0
+Date: 950128
+Local settings:
+Global settings:
+Keysequence: "Amiga 1" and "Amiga 2"
+Type: key
+Prereq:
+Copyright: FrexxWare
+#############################################################################
+
+FUNCTION
+
+  When you press "Amiga 1" the function remember the current visible views
+before maximizing the current view.
+  When you press "Amiga 2" the old view is restored.
+
+

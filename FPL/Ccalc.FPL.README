@@ -1,0 +1,38 @@
+#############################################################################
+File:		Ccalc.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Calculates C-style expressions and displays the result
+Version:	1.0
+Date:		22.8.85
+Local settings:
+Global settings:
+Keysequence:
+Type:		function
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+  Brings up a requester (with a history) to let the user enter a C style
+expression and then displays the result in decimal, hexadecimal, binary
+and octal.
+
+  Assign the "cCalc();" execution string to your favourite key!
+
+HISTORY
+ 1.0	Original.
+
+BUGS
+ none?
+
+TODO
+ ideas?
+
+EXAMPLE
+
+  "2<<5*(5-2)" equals?
+
+SEE ALSO
+  Any decent book about C or
+  The numerical expression part of the FPLuser.guide.

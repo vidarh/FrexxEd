@@ -1,0 +1,56 @@
+#############################################################################
+File:		IncSearch
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Incremental search with history
+Version:	1.2
+Date:		08.03.95
+Local settings:
+Global settings:
+Keysequence:	C-s - forward search
+		C-r - backward search
+Type:
+Prereq:
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  IncSearch is a replacement for the IncSearch routine by Kjell Ericson.
+  This routine offers:
+   * C-s continues search forwards.
+   * C-r continues search backwards.
+   * Break-out on cursor keys (actually any non-pritable chars).
+   * Cancel on C-g (return to start point).
+   * A lot faster than IncSearch (due to no highlighting)
+
+  What makes incremental search special is that each new letter brings
+  you to the next match string, opposed to "full string search" where
+  the search is done on a static string.
+  Each new letter equals a "step", as does C-s and C-r. These steps can be
+  backtracked with backspace.
+  If you add a letter to the search string which is not found, the cursor
+  stays at the last match location and the screen flashes - this will not
+  be recorded as a step.
+
+  By pressing C-s/r without specifying a search string (e.g. C-s C-s)
+  the search string from previous session is used. Try it out if you don't
+  see what I mean.
+
+HISTORY (REV)
+  08.03.95 (2) Kjell Ericson made a few (nice) changes:
+               - Key bindings are now made in this file.
+               - Search flags are restored.
+               - Previous search session may be continued by pressing
+                 C-s/r if there is no string (potential bug here :)
+  26.02.95 (1) I told me! Two stupid bugs out...
+  24.02.95 (0) Works :)
+
+BUGS
+  I guess.... You tell me!
+
+TODO
+  Wrapped search - C-s/r following a non-match would cause the routine to
+  wrap the buffer, thus doing a full buffer search.
+
+SEE ALSO
+  Katharine Kerr's "Polar City Blues" (ISBN: 0-586-20789-9)

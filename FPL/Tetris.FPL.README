@@ -1,0 +1,29 @@
+############################################
+File: Tetris.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se   FidoNet 2:201/328
+Short description: Play Tetris on FrexxEd
+Version: 1.1
+Date: 22.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Game
+Prereq:
+############################################
+
+FUNCTION
+
+  Execute the script and you will play Tetris!
+
+  Control the block with the cursor keys (up/down,left/right) and drop
+the block by pressing space.
+
+  10 points for every block in place.
+   5 points for every line that can disapear.
+   3 points for every line you skip by pressing space.
+
+  The 10 best score will be placed in a highscore list!
+
+
+

@@ -1,0 +1,32 @@
+#############################################################################
+File:	FACT_IBM.FPL
+Author:	Carsten Orthbandt
+Email:	s6357@fb1.fhtw-berlin.de
+Short:	FACT to display PC formattet texts smartly
+Version:	1.0
+Date:	02.03.1995
+Local settings:
+Global settings:
+Keysequence:
+Type:	FACT
+Prereq:
+Copyright:	none
+#############################################################################
+
+FUNCTION
+ This FPL program sets up a FACT that displays PC formatted texts in a more
+ readable manner.
+ It also tries to convert PC graphic chars nice.
+
+HISTORY
+ 02.03.1995	- Initial version
+
+BUGS
+ None known
+
+TODO
+ FPL prog to convert texts the same way.
+
+SEE ALSO
+
+

@@ -1,0 +1,43 @@
+#############################################################################
+File:            DICEHelp.FPL
+Author:          Andreas Vögele
+Email:           andreas@porky.apl.s.shuttle.de, FidoNet 2:246/1115.6
+Short:           Look up things in includes and autodocs using DICEHelp
+Version:         1.1
+Date:            14.2.96
+Local settings:  
+Global settings: "DICEHelp_activation", "DICEHelp_executable"
+Keysequence:     Add to your favorite key!
+Type:            function, menu
+Prereq:          ReadOnly.FPL
+Copyright:       GNU General Public License
+#############################################################################
+
+FUNCTION
+  By using this script you can look up any keyword using the external program
+DICEHelp that comes with the C compiler DICE to find things in the includes
+and autodocs.
+
+  To install the script you should put it in your FrexxEd:Startup drawer.
+The script will add a menuitem called "DICEHelp..." to the Settings/Program
+menu. In the preferences window you can set the pathname of the DICEHelp
+executable and the value of the info variable "DICEHelp_activation". This
+variable controls whether the text cursor goes to the newly created help
+buffer or stays in the old buffer after a keyword has been looked up.
+
+  The function DICEHelp_lookup() will look up the keyword under the text
+cursor or, if there isn't any word under the cursor, prompt you for a
+keyword. You can assign the function to the key sequence 'Alt 1', for
+example, by putting the command AssignKey("DICEHelp_lookup();", "Alt 1");
+in your User.FPL file.
+
+  Most parts of DICEHelp.FPL and this documentation were taken from
+CHelp.FPL and CHelp.FPL.README written by Mathias Axelsson.
+
+HISTORY
+  1.1: Initial revision
+
+BUGS
+  DICEHelp always returns "Corrupt line in s:DICEHelp.index", if you try
+to look up the last function in an autodoc file. This seems to be a bug in
+DICEHelp 1.6 or the index files built with MakeIndex 1.5.

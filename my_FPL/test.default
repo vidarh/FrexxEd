@@ -1,0 +1,12 @@
+//ExecuteFile("FindFunction.FPL");
+ExecuteFile("AutoMatch.FPL");
+//ExecuteFile("AutoSave.FPL");
+ExecuteFile("BookMark.FPL");
+ExecuteFile("SimpleIndent.FPL");
+ExecuteFile("FACT.FPL");
+ExecuteFile("CHelp.FPL");
+ExecuteFile("Mathias.FPL");
+//ExecuteFile("LoadSaveProject.FPL");
+ExecuteFile("SASC.FPL");
+ExecuteFile("ETags.FPL");
+ExecuteFile("AsmMode.FPL");

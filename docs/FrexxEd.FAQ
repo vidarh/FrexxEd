@@ -1,0 +1,314 @@
+Latest update: 960723
+~~~~~~~~~~~~~~~~~~~~~
+		Frequently Asked Questions about FrexxEd
+		========================================
+
+  During the time we have developed FrexxEd, we have received similar
+  questions several times. Here the most frequently asked questions and
+  the answers to them:
+
+1. How to open a file from the prompt into an already running FrexxEd?
+
+2. Can't you add the function XXXXXX which is found in the editor XXXXXX?
+
+3. I want FrexxEd to XXXX when I press XXXX!
+
+4. Why isn't there any redo?
+
+5. Why use FPL when there is ARexx?
+
+6. How can I get FrexxEd to detach from the shell?
+
+7. I change some settings and save them, but they have no effect!
+   (i.e screen mode, fonts, screen/window sizes etc)
+
+8. Why does not return/enter in the search/replace requester jump to the next
+   string gadget instead of unactivate the current?
+
+9. How do I remove that annoying 'End Of File' string?
+
+10. How do I make FrexxEd read the file into a new buffer instead of inserting
+    when I drop an icon on the FrexEd AppIcon/AppWindow?
+
+11. Why isn't there any Amiga-symbol in the menu shortcuts?
+
+12. On which system configurations have you tested FrexxEd?
+
+13. I try to resize the FrexxEd window to cover the entire screen, but it
+    always resizes back a few pixels!!?
+
+14. I've found some non-localized strings in FrexxEd!
+
+15. Is it possible to get two views of the same file?
+
+16. How to I get FrexxEd to wordwrap?
+
+17. How do I get automatic C indent when loading .c and .h files?
+
+18. How do I change the colours of the syntax highlighting?
+
+-------------------------------------------------------------------------------
+
+1. How to open a file from the prompt into an already running FrexxEd?
+  (like the CED "ed <filename>")
+
+  Use the 'Freds' script!
+
+  USAGE:
+
+	Freds [FILENAME] [STICKY]
+
+	Where:
+
+	FILENAME -	Full path of file name to edit
+
+	STICKY -	If the parameter STICKY is entered, the script will
+			wait until the loaded file is killed before exiting
+			to shell again.
+
+------------------------------------------------------------------------------
+
+2. Can't you add the function XXXXXX which is found in the editor XXXXXX?
+
+    Before starting to ask questions like this, I urge you to read the
+  documentation regarding FPL and the Functions.guide manual, since FPL is a
+  very powerful controlling language of FrexxEd. Missing functions can very
+  often be programmed/configurated using FPL.
+
+  If you have read those parts and still can't figure out a way to code it
+  in FPL, _then_ you should ask us that question!
+
+------------------------------------------------------------------------------
+
+3. I want FrexxEd to XXXX when I press XXXX!
+
+    FrexxEd features the ability of assigning functions to keys. Therefore do
+  not ask questions regarding the postitioning of functions to certain key-
+  sequences since you can modify them all to suit your own taste.
+
+------------------------------------------------------------------------------
+
+4. Why isn't there any redo?
+
+    The "redo" function that exist in CygnusEd (and other editors?) is not
+  included in FrexxEd since we think it's the wrong way of looking at the
+  undo concept.
+
+    FrexxEd allows all changes made in the text of a buffer to be undone,
+  up to a certain amount of change. Each buffer records changes individually,
+  and the undo command always applies to the current buffer. Usually each
+  editing command makes a separate entry in the undo records, but some
+  commands such as `Replace()' make many entries, and very simple commands
+  such as self-inserting characters are often grouped to make undoing less
+  tedious.
+
+    The command `amiga u' is how you undo. The first time you
+  give this command, it undoes the last change. Point moves to the
+  text affected by the undo, so you can see what was undone.
+
+    Consecutive repetitions of the `amiga u' commands undo earlier
+  and earlier changes, back to the limit of what has been recorded. If
+  all recorded changes have already been undone, the undo command
+  prints an error message and does nothing.
+
+    Any command that somehow changes the buffer breaks the sequence of
+  undo commands. Starting at this moment, the previous undo commands are
+  considered ordinary changes that can themselves be undone. Thus, you
+  can redo changes you have undone by typing `amiga shift u'
+  and then using more undo commands.
+
+    If you notice that a buffer has been modified accidentally, the
+  easiest way to recover is to type `amiga u' repeatedly until the `C'
+  disappear from the front of the status line. At this time, all the
+  modifications you made have been cancelled. If you do not remember
+  whether you changed the buffer deliberately, type `amiga u' once, and
+  when you see the last change you made undone, you will remember why
+  you made it. If it was an accident, leave it undone. If it was
+  deliberate, redo the change as described in the preceding paragraph.
+
+    Whenever an undo command makes the `C' disappear from the status
+  line, it means that the buffer contents are the same as they were
+  when the file was last read in or saved.
+
+------------------------------------------------------------------------------
+
+5. Why use FPL when there is ARexx?
+
+  * ARexx provides an interprocess programming language interface.
+    FPL provides an internal interpreting language.
+
+  * When using FPL, we don't have to interpret anything by ourselves, FPL
+    does it for us. ARexx is a language that requires a lot of extra
+    language coding within the program that uses it.
+
+  * FPL communicates with direct function calls instead of sending
+    messages to messageports which gives more internal flexibility with
+    less overhead.
+
+  * FPL is a platform independent language. FrexxWare intends to
+    release software under different operating systems and we want
+    continuity in the programming language. We want the same FrexxEd
+    scripts to work on the Amiga version as on the future possible
+    OS/2 and UNIX versions! FPL is easily ported to all modern
+    operating systems.
+
+  * FPL is, quite subjective, a more powerful and complete programming
+    language.
+
+  * It's not "yet another script language". It's 99% C. If you're
+    familiar with C, you can code FPL. In fact, I think most programming
+    people learn to code FPL faster than they learn ARexx. C is a
+    universal language, Rexx is (mainly) Amiga and OS/2.
+
+  * FPL isn't a substitute for ARexx. It's a different language and
+    works as a complement to ARexx inside FrexxEd. FPL will (probably) never
+    be able to perform the same tasks as ARexx and vice versa. That's not
+    the idea either...
+
+------------------------------------------------------------------------------
+
+6. How can I get FrexxEd to detach from the shell?
+
+  By using the standard AmigaDOS way: "run <>NIL: FrexxEd"
+
+  Which under V37/V38 causes enforcer hits, and instead should be
+  written like: "run >NIL: <NIL: FrexxEd"
+
+------------------------------------------------------------------------------
+
+7. I change some settings and save them, but they have no effect!
+
+  In FrexxEd versions prior to 1.5:
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  You must be very observant *not* to use the 'copy_wb' flag if don't want
+  FrexxEd to copy as much as possible from your workbench environment on
+  every startup! 'copy_wb' works just as well on any public screen.
+
+  When you want to change local settings, save them and have them take effekt
+  on each startup, make sure you alter them with the 'All locals' setting
+  window.
+
+  Since 1.5:
+  ~~~~~~~~~~
+  To make FrexxEd look like the public screen, CloneWB() must be used!
+
+------------------------------------------------------------------------------
+
+8. Why does not return/enter in the search/replace requester jump to the next
+   field instead of unactivate the current?
+
+  Enter the following line to your user.FPL file:
+
+  SetInfo(-1, "req_ret_mode", 1); /* CED-emulation style */
+
+------------------------------------------------------------------------------
+
+9. How do I remove that annoying 'End Of File' string?
+
+  Run the following line as an FPL program:
+
+	FACT(-1, 'S', "New string");
+
+------------------------------------------------------------------------------
+
+10. How do I make FrexxEd read the file into a new buffer instead of inserting
+    when I drop an icon on the FrexEd AppIcon/AppWindow?
+
+  Put the following little program in a file and execute it:
+
+        /* start of file */
+        export int Dropped(string file)
+        {
+          int id=New();
+          if(0>Load(file))
+            Kill(id);           /* failed loading */
+          else {
+            Activate(id);       /* popup a view */
+            CurrentBuffer(id);  /* make it the current */
+          }
+          return 1; /* stop the insert operation! */
+        }
+        Hook("IconDrop", "Dropped");
+        /* end of file */
+
+------------------------------------------------------------------------------
+
+11. Why isn't there any Amiga-symbol in the menu shortcuts?
+
+  Because of the simple reason that the short cuts aren't put there the regular
+  menu-shortcut way, and therefor we can't access that symbol.
+  The shortcuts are visualized using our own custom routine for more control.
+  We want to be able to add unlimited shortcut strings to the menus with any
+  qualifiers.
+
+------------------------------------------------------------------------------
+
+12. On which system configurations have you tested FrexxEd?
+
+  Machines:
+    A500(+), A600, A1200, A2000, A3000, A4000
+  AmigaDOS versions:
+    AmigaDOS V37-V40
+  Graphic modes/hardwares:
+    Retina, Spectrum, Piccolo, Picasso II, A2024, AGA, ECS, OCS
+  Processors:
+    MC68000-MC68060 (native and with different accellerators)
+  Memory amounts:
+    1MB-30MB RAM (chip/16bit/32bit)
+  Systems:
+    It has been used as window and screen in every thinkable screen mode, as
+    backdrop on public screens, as mail editor in Spot and likewise
+    applications.
+
+------------------------------------------------------------------------------
+
+13. I try to resize the FrexxEd window to cover the entire screen, but it
+    always resizes back a few pixels!!?
+
+  The info variable "auto_resize" will, if enabled, force FrexxEd to use the
+  minimum size that fits the same number of lines and columns that is set by
+  the user. Disable "auto_resize" to stop all such attempts.
+
+------------------------------------------------------------------------------
+
+14. I've found some non-localized strings in FrexxEd!
+
+  FrexxEd is a very modular system. "All" built-in strings in FrexxEd does
+  appear in the localized language. The drawback is that FrexxEd is very often
+  extended with FPL programs that supplies strings in only one language, and
+  sometimes there are messages from FPL appearing and those are in straight
+  english always (this is subject to change in a future FPL version).
+
+------------------------------------------------------------------------------
+
+15. Is it possible to get two or more views of the same file?
+
+  Indeed! The menu brought to FrexxEd by Menu.FPL sets the key sequence
+  "Amiga d" to do the job. FrexxEd supports any number of views on the same
+  file. Read more details under View Concepts in FrexxEd.guide.
+
+-------------------------------------------------------------------------------
+
+16. How to I get FrexxEd to wordwrap?
+
+   For a true, word-processor style wordwrapping, there's a program called
+  WordPro.FPL you need to run, and then enable 'WordPro' for that particular
+  buffer.
+
+  For a simpler and faster wordwrap, use WordWrap.FPL
+
+-------------------------------------------------------------------------------
+
+17. How do I get automatic C indent when loading .c and .h files?
+
+  Make sure you run "Cmode.FPL" at startup, in your User.FPL file or simply
+  before you wanna edit those files!
+
+  For E syntax and indenting, see EMode.FPL
+
+-------------------------------------------------------------------------------
+
+18. How do I change the colours of the syntax highlighting?
+
+  Run FaceEdit.FPL (if not previously done) and select the menu item named
+  'Prefs->Program->Face Styles...'. Read more in FaceEdit.FPL.README

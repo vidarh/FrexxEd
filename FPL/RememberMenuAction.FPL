@@ -1,0 +1,11 @@
+export string LastMenuCommand;
+
+export int RepeatMenuHook(int title, int item, int subitem)
+{
+  string type, name, key;
+  MenuRead(&type, &name, &LastMenuCommand, &key, title, item, subitem);
+}
+
+LastMenuCommand="Request(\"There is no last command.\",\"Oops.\",\"Ok\");";
+Hook("MenuSelect", "RepeatMenuHook");
+AssignKey("ExecuteString(LastMenuCommand);","Amiga Shift a");

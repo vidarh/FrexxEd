@@ -1,0 +1,30 @@
+#############################################################################
+File:		C++Mode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		C++ Minor Mode
+Version:	1.0
+Date:		23.06.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		minor mode
+Prereq:
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+ Simply sets the various comment variables to C++ compliant strings.
+ Also, C-indention is enabled.
+
+HISTORY (REV)
+ 23.06.96 (0)	First version.
+
+BUGS
+
+
+TODO
+
+
+SEE ALSO
+

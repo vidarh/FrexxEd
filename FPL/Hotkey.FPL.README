@@ -1,0 +1,34 @@
+############################################
+File: Hotkey.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Activate FrexxEd with a hotkey from iconified mode
+Version: 1.0
+Date: 17.7.95
+Local settings:
+Global settings: hotkey
+Keysequence:
+Type: hook and function
+Prereq:
+############################################
+
+FUNCTION
+
+ When FrexxEd is iconified, the keypress in the setting 'hotkey' will bring
+FrexxEd visible.  The keypress is defined as 'commodity style' and is set
+to 'Amiga Alt Return' as default.
+
+
+ADVANCED
+
+ The function builds a little Arexx script which is sent to the FrexxKey
+program (in 'FrexxEd:bin/') together with the keypress.  The process number
+given by the 'run' program is redirected to a file, and remembered.  This
+number is used to 'break' the right process whenever the hotkey is changed
+or FrexxEd is exitting.
+
+NOTE
+
+ This script is depending on that the 'FrexxEd:bin/FrexxKey' program exist
+and 'rx', 'break' and 'makedir' is in the current path.
+

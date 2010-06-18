@@ -1,0 +1,24 @@
+#############################################################################
+File:			Format.FPL
+Author:			Volker Gth
+Email:			vgueth@hrz.uni-bielefeld.de
+Short:			Formats a paragraph
+Version:		1.0
+Date:			01.05.95
+Local settings:		"wall_right"
+Global settings:
+Keysequence:		Amiga f
+Type:			function, key, Menu
+Prereq:	
+Copyright:		Volker Gth, Public Domain
+#############################################################################
+
+FUNCTION  
+ Formats a paragraph to a width of "wall_right". The paragraphs must be
+ seperated by a blank line.
+
+BUGS
+ Doesn't work correctly with tabs.
+
+SEE ALSO
+ WordWrap.FPL

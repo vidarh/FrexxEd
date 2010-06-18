@@ -1,0 +1,23 @@
+############################################
+File: AutoMatch.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: displays the matching character when ), } or ] is pressed
+Version: 1.0
+Date: 1.3.94
+Local settings:
+Global settings:
+Keysequence: "]", ")" and "}"
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  This file simply replaces the previous workings of the keys that outputs the
+following characters: '}', ']' and ')'. Whenever any of these keys are pressed
+it will first output the proper character, and then quickly jump to the
+matching open version (that are '{', '[' and '(' respectively), wait 80 ms and
+then jump back.
+
+  Run it and try it. Makes life much easier to keep track of all the
+parentheses when programming in languages where you use plenty of them!

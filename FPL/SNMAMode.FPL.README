@@ -1,0 +1,47 @@
+#############################################################################
+File:		SNMAMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Interface to the SNMA assembler.
+Version:	1.0
+Date:		15.06.95
+Local settings:
+Global settings:yes
+Keysequence:	C-c C-c (compile), C-c C-e/E (load errors/warnings)
+Type:		Major mode
+Prereq:		A few ARexx files and the SNMA assembler.
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  With this major mode you have an interface to the SNMA assembler. This mode
+  is not even close to being finished and serves (at this time) primarily an
+  example purpose for mode programmers. If you have some guts and like to try
+  it out there should not be too many problems though!
+
+  You may need to fiddle the FPL code and ARexx scripts a bit since some of
+  the files and paths are hardcoded to fit my system.
+
+  If you need a assembler interface you may also want to check out
+  Assembler.FPL/readme!
+
+
+HISTORY (REV)
+  15.06.95 (0)	I have used it for a short period of time myself, but after a
+		discussion with Samu (the programmer of SNMA) I'll pause the
+		development a bit as the ARexx interface of SNMA is more
+		targeted at pure ARexx scripts, thus making it quite a pain
+		to work with from FrexxEd. Samu has put my comments and ideas
+		on his todo-list so with a bit of luck I'll be able to make
+		something out of this in a not too far future!
+
+BUGS
+  Probably!
+
+TODO
+  Lots. Primarily wait for Samu :)
+
+SEE ALSO
+  The SNMA assembler docs. You'll find the SNMA archive on AmiNet (it's
+  freeware).
+  Assembler.FPL.readme

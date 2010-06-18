@@ -1,0 +1,32 @@
+#############################################################################
+File: QuitAndKill.FPL
+Author: Linus Nielsen
+Email: emwnie@emw.ericsson.se
+Short: Quits FrexxEd when last buffer is killed
+Version: 1.1
+Date: 24.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ FrexxEd is quit when the last buffer is killed.
+
+
+HISTORY
+1.0 - First release
+1.1 - How embarrassing! It quit when there were 2 buffers left! :-)
+
+
+BUGS
+
+
+TODO
+
+
+SEE ALSO
+

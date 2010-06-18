@@ -1,0 +1,51 @@
+#############################################################################
+File:	RecentFiles.FPL
+Author:	Carsten Orthbandt
+Email:	s6357@fb1.fhtw-berlin.de
+Short:	Adds a sub menu with the last 10 files saved.
+Version:	1.0
+Date:	17.03.1995
+Local settings:
+Global settings:  file list in FrexxEd:FilesHotList
+Keysequence:
+Type:	menu hook, save hook, QuitAll hook, sub menu
+Prereq:
+Copyright:	none
+#############################################################################
+
+FUNCTION
+ On MS Wind*ws, nearly every application has a list of open or recently opened
+ files in its project menu for quicker loading. Most Amiga apps have nothing
+ of that kind. FrexxEd HAS !!!
+ This program adds a sub menu to the project menu holding the last 10 saved
+ filenames. Everytime a file is saved, it is added to this list (if not already
+ present). This menu works as a kind of stack. New entries are inserted at the
+ top. If the list already contains 10 entries, the oldest entry is removed.
+ The list is loaded on startup and saved on FrexxEd termination.
+ The sub menu is named "Recent files" and is appended to the project menu.
+ This are only defaults. You may change these settings in the first two lines
+ of RecentFiles.FPL. "menupos" tells where to place the sub menu. -1 means
+ at the end (as everywhere in FrexxEd).
+
+
+COMMENT
+ This FPL script depends on menu exceptions and better menu manipulation commands.
+ I bombed Daniel with mails full of wishes. Most are included in V 1.5.
+ Thanks, Daniel !
+
+
+HISTORY
+ 1.0  17.03.1995  - initial version
+
+
+BUGS
+ None AFAIK. But its really slow. I´m waiting for Daniel to release a FPL compiler.
+
+
+TODO
+ The name of the list file could be a global info var. Should be easy to do, but
+ I´m very tired now...
+
+
+SEE ALSO
+ Menu-Exception. Great feature !

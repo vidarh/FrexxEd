@@ -1,0 +1,67 @@
+#############################################################################
+File:		AsmMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		Provides functions that make assembler programming easier.
+Version:	1.0
+Date:		26.07.95
+Local settings:
+Global settings:Comment settings
+Keysequence:	C-c r (used registers)
+Type:		Minor mode
+Prereq:		CommentMode.FPL, FMC.FPL
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  This minor mode should be used when you work with assembler sources as it
+  provides a few functions that may come in handy.
+
+  When the mode is invoked (with AsmModeInit()), a set of assembler specific
+  comment settings are copied to the comment mode and it is enabled. The
+  settings are: Asm_comment_start_skip, Asm_comment_start, Asm_comment_end,
+  Asm_line_comment_start, Asm_line_comment_body, Asm_line_comment_end,
+  Asm_comment_column. You may consult the CommentMode.FPL.ReadMe file for a
+  description of the settings (strip the "Asm_" prefix).
+
+  Also an assembler specific tabulator size is available for configuration.
+  The value of Asm_tab_size is put in the tab_size setting at invokation.
+
+  If you check the setting "Asm_auto_indent" automatic indention will be
+  enabled. Pressing return on a line which only contains indention will
+  delete the line.
+
+  Besides the above settings, there are a few functions available:
+
+  Function			Key
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  UsedRegisters()		C-c r
+
+  ---------------------------------------------------------------------------
+
+  UsedRegisters()
+  ~~~~~~~~~~~~~~~
+  This function checks the marked block for used registers and prints the
+  result in the status line. This is a pure textual search so only directly
+  occuring registers will be noticed; EQUR's will not be recognized for what
+  they really are, no check of subroutine calls or MACRO contents.
+  Register ranges are recognized: "...D0...D1...D2..." and "...D0-D2..." both
+  result in the registers D0,D1 and D2 being marked.
+
+  ---------------------------------------------------------------------------
+
+HISTORY (REV)
+  15.06.95 (0)	First release. Only includes the UsedRegisters function.
+  26.07.95 (1)	Added automatic indention.
+
+BUGS
+  None known.
+
+TODO
+  Plenty!
+
+SEE ALSO
+  Assemble.FPL.ReadMe
+  CommentMode.FPL.ReadeMe
+  SNMAMode.FPL.ReadMe
+  TrashMOneMode.FPL.ReadMe

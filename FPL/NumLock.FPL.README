@@ -1,0 +1,22 @@
+############################################
+File: NumLock.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: use the alternetive keys at the numeric keyboard.
+Version: 1.0
+Date: 30.7.94
+Local settings:
+Global settings: "num_lock"
+Keysequence: All keys at the numeric keyboard.
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  A global variable is made, 'num_lock' (default on).
+  When this variable is off, a keypress at the numeric keyboard will result
+in the alternative functions (ie. Home, Up, PgUp, Ins, Del).
+  When this variable is on, the numeric keyboard behaves like normal.  But
+you can get the functions by pressing the 'Alt' qualifier and the numeric keyboard.
+
+

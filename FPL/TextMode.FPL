@@ -1,0 +1,29 @@
+// $Id: TextMode.FPL 1.6 1996/04/02 18:35:32 jskov Exp $
+// $VER: TextMode.FPL 1.0 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» TextModePrefs() ««
+void export TextModePrefs()
+{
+  PromptInfo(-1,"Text mode preferences",-1,-1,
+   "Text_tab_size"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» TextModeInit() ««
+export void TextModeInit()
+{
+  SetInfo(-1,"tab_size",ReadInfo("Text_tab_size"));
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» TextMode Settings ««
+ConstructInfo("Text_tab_size","","","WHGI","",0,999,8);
+
+ConstructInfo("text_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("text_mode_ext", "","", "GSHW","", 0,0,"*txt*readme*");
+ConstructInfo("text_mode_exe", "","", "GSHW","", 0,0,"TextModeInit();");
+
+AddMode(1, "text_mode", "text_mode_ext", "text_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Prefs menu ««
+MenuAdd("s", "TextMode...", "TextModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();

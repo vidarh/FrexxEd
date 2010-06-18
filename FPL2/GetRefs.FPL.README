@@ -1,0 +1,48 @@
+#############################################################################
+File: GetRefs.FPL
+Author: Roger Mårtensson
+Email: 2:205/418.3
+Short: FPL translation program for the DME autorefs format.
+Version: 1.0
+Date: 10.8.95
+Local settings:
+Global settings:
+Keysequence: CTRL ]
+Type: Function
+Prereq: autorefs program by Matt Dillon
+Copyright: Public Domain
+#############################################################################
+
+FUNCTION
+
+Before I found FrexxEd I used DME as my main programming tool, and one thing
+that I have missed is the ability to search the autodocs using the inbuilt
+help function. (CTRL ])
+
+To uses this 'search' function you need the autorefs program(Should follow
+the DME or DICE package) and a couple of correctly formated autodocs. This
+program uses one hardcoded thing; Every function description should end
+with a ^L(0x0C). Even the last function in the autodoc.
+
+One key is assign and that is CTRL-]. The same keysequence used in the
+standard configuration of DME.
+
+There is also a PrefsWindow available in the Customizing->Program->Manual.
+Here you can set which path to use(manual_path) and what the name of
+reference file is(manual_file).
+
+HISTORY
+
+	1.0	First release
+
+BUGS
+
+	None found
+
+TODO
+
+	I have no idea
+
+SEE ALSO
+	DME and AutoRefs
+

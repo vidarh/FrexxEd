@@ -1,0 +1,24 @@
+############################################
+File: BlockSum.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: add the numbers in a block of a block
+Version: 1.1
+Date: 1.5.95
+Local settings:
+Global settings:
+Keysequence: Amiga i +
+Type: Function
+Prereq:
+############################################
+
+FUNCTION
+  The function gets the marked block and add all numbers placed to the left
+and give you the sum.
+
+
+HISTORY
+
+ 21.7.95  First version
+ 1.5.95   Changed key to 'Amiga i +'
+

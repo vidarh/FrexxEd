@@ -1,0 +1,43 @@
+############################################
+File: SASC.FPL
+Author: Patrik Lundquist
+Email: pi92plu@pt.hk-r.se
+Short description: Interface to SAS/C's message browser SCMSG, etc.
+Version: 0.6
+Date: 31.1.95
+Local settings:
+Global settings:
+Keysequence: a bunch
+Type: key, function, menu
+Prereq:
+############################################
+
+FUNCTION
+  An interface to SCMSG, the SAS/C message browser. Also adds some other useful
+SAS/C related features. Sets up menus and shortcuts.
+"Build..." uses SCMSG to 'make' the project.
+"Step" deletes the errors/warnings after encountering them.
+
+This is an example 'ENV:sc/SCMSG' file using this:
+
+LEFT 23
+TOP 0
+WIDTH 640
+HEIGHT 55
+HIDDEN
+REXXONLY
+NOAUTOEDIT
+PORTNAME FREXXED.1
+EDITCOMMAND SCMSG_Edit("%f");
+GOTOFILE SCMSG_GotoFile("%f");
+GOTOLINE SCMSG_GotoLine(%l,"%c");
+PUBSCREEN FrexxEdScreen1
+
+
+NOTE
+  Uses function in 'ExtraIO.FPL'.
+
+BUGS
+  Doesn't check for alternate file when stepping through SCMSG errors.
+
+SEE ALSO

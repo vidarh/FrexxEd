@@ -1,0 +1,113 @@
+// $Id: EMode.FPL 1.2 1996/03/18 19:53:39 dapp Exp dapp $
+// $VER: frexxed:Startup/EMode.FPL 0.12 (18.03.96) $
+
+string stripExtension(string file)
+{
+  int len=strlen(file);
+  for(--len;len>0 && file[len]!='.'; --len);
+  if(!len)
+	return(file);
+  return(substr(file,0,len));
+}
+
+export void AmigaEPrefs()
+{
+  PromptInfo(-1,"EMode preferences",-1,-1,
+    "AmigaE_bin_dir",
+	"AmigaE_temp_dir",
+	"AmigaE_options",
+	"AmigaE_output"
+	);
+}
+
+export void AmigaE_Compile(void)
+{
+  string com,reqtext;
+  int result,reqresult;
+
+  // SaveChanges();
+  Status(0,sprintf("Compiling %s ...", ReadInfo("file_name")));
+
+  com+=ReadInfo("AmigaE_bin_dir",GetBufferID());
+  com+="ec >";
+  com+=ReadInfo("AmigaE_temp_dir",GetBufferID());
+  com+=" ERRBYTE ";
+  com+=ReadInfo("AmigaE_options",GetBufferID());
+  com+=" SOURCE ";
+  com+=ReadInfo("file_path",GetBufferID());
+  com+=ReadInfo("file_name",GetBufferID());
+  result=System(com);
+
+  if (result>0) {
+    reqtext+="Type >";
+    reqtext+=ReadInfo("AmigaE_output",GetBufferID());
+	com+="/SCREEN";
+    reqtext+=ReadInfo("current_screen",GetBufferID());
+    reqtext+=" ";
+    reqtext+=ReadInfo("AmigaE_temp_dir",GetBufferID());
+	reqresult=Request("Jump to Error?","AmigaE","Jump|Stay");
+	if (reqresult==1) {
+	  Visible(0);
+	  Top();
+	  CursorRight(result);
+	  Visible(1);
+	}
+    System(reqtext);
+  }
+  else {
+	ReturnStatus(sprintf("Compiling %s ... Succesful", ReadInfo("file_name")));
+  }
+}
+
+export void AmigaE_Run(int args)
+{
+  int len;
+  string file,com;
+
+  com="C:Run ";
+  com+=ReadInfo("file_path",GetBufferID());
+
+  file=ReadInfo("file_name",GetBufferID());
+
+  if(!(len=strlen(file)))
+	return;
+
+  com+=stripExtension(file);
+  com+=" >";
+  com+=ReadInfo("AmigaE_output",GetBufferID());
+  com+="/SCREEN";
+  com+=ReadInfo("current_screen",GetBufferID());
+  if(args==1) {
+	com+=" ";
+	com+=PromptString("","Program execution","Enter arguments");
+  }
+  System(com);
+}
+
+export void emodeinit()
+{
+ int face = FaceGet("e-mode", 1); /* fetch e-face if not already loaded */
+ if(face) {
+   ExecuteFile("EFace.FPL");
+ }
+ SetInfo(-1,"face","e-mode");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» EMode settings ««
+ConstructInfo("e_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("e_mode_ext", "","", "GSHW","", 0,0,"*e*");
+ConstructInfo("e_mode_exe", "","", "GSHW","", 0,0,"emodeinit();");
+
+ConstructInfo("AmigaE_bin_dir","","","WHGS","",0,0,"e:bin/");
+ConstructInfo("AmigaE_temp_dir","","","WHGS","",0,0,"t:e.temp");
+ConstructInfo("AmigaE_options","","","WHGS","",0,0,"REG=5");
+ConstructInfo("AmigaE_output","","","WHGS","",0,0,"CON:0/0/610/80/E output/CLOSE/WAIT");
+
+AddMode(1, "e_mode", "e_mode_ext", "e_mode_exe");
+
+MenuAdd("t", "Amiga E");
+	MenuAdd("i", "Compile","AmigaE_Compile();","");
+	MenuAdd("i", "Run",    "AmigaE_Run(0);",    "");
+	MenuAdd("i", "RunArg", "AmigaE_Run(1);", "");
+MenuAdd("s", "EMode...", "AmigaEPrefs();", "", 6,6,-1); // Add to PackageSettings
+MenuBuild();

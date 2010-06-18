@@ -1,0 +1,36 @@
+############################################
+File:		TabConvert.FPL
+Author:		Kjell Ericson
+Email:		FidoNet 2:201/328, kjer@netcom.se
+Short:		Convert tabs to spaces and vice versa
+Version:	1.2
+Date:		14.7.95
+Local settings:
+Global settings:
+Keysequence:	'Amiga tab' and 'Amiga Shift tab'
+Type:		key
+Prereq:
+############################################
+
+FUNCTION
+  The TabToSpace() function (Amiga 'tab') converts all existing tabs in a buffer to
+spaces.
+  The SpaceToTab() function (Amiga Shift 'tab') converts all space, that can be
+excanged, to tabs.  It will ignore the convertion if it can't replace at least
+two spaces.
+
+  If a block mark exist, only spaces/tabs inside the block marks first line to
+the line before the last is converted.
+
+
+NOTE
+  The SpaceToTab() function is far slower than TabToSpace().  It will have to try
+on every double space it founds, while TabToSpace() will make a match on every
+tab character.
+  The functions pay no attention to the FACT, it will go hard on the tab and
+space characters.
+
+HISTORY
+  1.1 - Daniel Stenberg. Replaced the Sprintf()-call with a call to sprintf()!
+  1.2 - Kjell Ericson. Only replace inside a block if existing.
+

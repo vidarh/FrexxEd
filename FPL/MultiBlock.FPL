@@ -1,0 +1,53 @@
+export int PasteFromBlock()
+{
+  string key;
+  int id;
+
+  Status(0, "Press key to get block!");
+
+  key = GetKey();
+  if(!strcmp("\x1b", key)) {
+    /* escape was pressed! */
+    ReturnStatus("Aborted...");
+  }
+
+  id = GetBufferID(sprintf("MultiBlock_%s", key));
+  if(id) {
+    BlockPaste(id);
+  }
+
+}
+
+export int CopyToNewBlock()
+{
+  string key;
+  string blockname;
+  int id;
+  int ourid = GetEntryID();
+
+  Status(0, "Press a key to name the block!");
+
+  key = GetKey();
+  if(!strcmp("\x1b", key)) {
+    /* escape was pressed! */
+    ReturnStatus("Aborted...");
+  }
+  Visible(0);
+  blockname = sprintf("MultiBlock_%s", key);
+
+  id = GetBufferID(blockname);
+  if(!id) {
+    /* there is no such block! */
+    id = BlockCreate(blockname);
+    
+  }
+  else {
+    Clear(id);
+  }
+  CurrentBuffer(id);
+  BlockPaste();
+  CurrentBuffer(ourid);
+}
+
+AssignKey("CopyToNewBlock();", "amiga t c");
+AssignKey("PasteFromBlock();", "amiga t p");

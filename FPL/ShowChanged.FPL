@@ -1,0 +1,30 @@
+export int ShowAllChanged()  /* Show all changed buffers */
+{
+  int firstid=GetBufferID();
+  int id=firstid;
+  string files[ReadInfo("buffers")];
+  int count=0;
+  string togoto="";
+
+  do {
+    if (ReadInfo("changes", id))
+      files[count++]=ReadInfo("file_name", id);
+    id=NextBuffer(id);
+    if (id == firstid)
+      id=0;
+  } while (id);
+
+  if (count) {
+    Sort(&files, count);
+    RequestWindow("Changed files", "", "A", &files, &togoto, count);
+    if (strlen(togoto)) {
+      id=GetBufferID(togoto);
+      if (id) {
+        CurrentBuffer(id);
+        Activate(id);
+      }
+    }
+  } else
+    ReturnStatus("No files changed!");
+}
+AssignKey("ShowAllChanged();", "Amiga Control c");

@@ -1,0 +1,26 @@
+export int SimpleDiff()
+{
+  int inputid=GetEntryID();		// Current entry
+  int nextview=NextView();
+  string line;
+  int diff;
+
+  Visible(0);
+  do {
+    CurrentBuffer(inputid);
+    if (!CursorDown()) {
+      return;
+    }
+    line=GetLine();
+    CurrentBuffer(nextview);
+    CursorDown();
+    diff=strcmp(GetLine(), line);
+  } while (!diff);
+  Visible(1);
+  if (diff)
+    InverseLine();
+
+  CurrentBuffer(inputid);
+}
+
+AssignKey("SimpleDiff();", "Alt '0x2e'");

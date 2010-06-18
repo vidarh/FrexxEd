@@ -1,0 +1,18 @@
+############################################
+File: FindFunction.FPL
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: display the name of the current C-function
+Version: 1.0
+Date: 21.5.94
+Local settings:
+Global settings:
+Keysequence:
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  This function simply searches for the nearest '{' that is written in the
+first column of a line, and then displays the line above that in a requester.
+(In most ANSI C programs, that will be the function definition line.)

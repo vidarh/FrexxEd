@@ -1,0 +1,776 @@
+## version $VER: FrexxEd_Catalog 0.80 (14.4.94)
+## codeset 0
+## language français
+;
+MSG_UNKNOWN_COMMAND
+Commande inconnue !
+;Unknown command!
+;
+MSG_OUT_OF_MEMORY
+Pas assez de mémoire
+;Out of memory!
+;
+MSG_SYNTAX_ERROR
+Erreur de syntaxe
+;Syntax error!
+;
+MSG_NOTHING_LEFT_TO_UNDO
+Plus rien à défaire !
+;Nothing left to undo!
+;
+MSG_NO_BLOCK_MARKED
+Pas de bloc marqué !
+;No block marked!
+;
+MSG_CANT_DELETE_ANYTHING
+Rien à effacer !
+;Can't delete anything!
+;
+MSG_ERROR_DURING_OPEN
+Une erreur s'est produite à l'ouverture !
+;Error during open!
+;
+MSG_BLOCK_BUFFER_IS_EMPTY
+Le tampon du bloc est vide !
+;The block buffer is empty!
+;
+MSG_NO_MORE_MATCHES_FOUND
+Plus rien ne correspond !
+;No more matches found!
+;
+MSG_FUNCTION_CANCELLED
+Fonction annulée !
+;Function cancelled!
+;
+MSG_NO_MATCHING_CHARACTER_FOUND
+Pas d'ouvrante/fermante correspondante !
+;No matching character found!
+;
+MSG_WRONG_TYPE_OF_BLOCK
+Mauvais type de bloc !
+;Wrong type of block!
+;
+MSG_COULDNT_CHANGE_SETTING
+Impossible de modifier la définition désirée !
+;Couldn't change desired setting!
+;
+MSG_FPL_PROGRAM_NOT_FOUND
+Programme FPL introuvable !
+;FPL program not found!
+;
+MSG_FILE_NOT_FOUND
+Fichier non trouvé !
+;File not found!
+;
+MSG_NO_BLOCK_FOUND
+Pas de bloc !
+;No block found!
+;
+MSG_IFF_ERROR
+Erreur IFF !
+;IFF error!
+;
+MSG_CANT_LOCK_BUFFER
+Impossible de bloquer le tampon !
+;Can't lock buffer!
+;
+MSG_CANT_FIND_BUFFER
+Tampon introuvable !
+;Can't find buffer!
+;
+MSG_WRONG_FILE_NAME
+Nom de fichier invalide !
+;Wrong file name!
+;
+MSG_INFO_ALREADY_EXISTS
+Cette variable Info existe déjà !
+;Info variable already exist!
+;
+MSG_UNREG_VERSION
+Version non enregistrée
+;Unregistered version
+;
+MSG_READ_PROTECTED
+Protégé contre la lecture !
+;Read protected!
+;
+MSG_WRITE_PROTECTED
+Protégé contre l'écriture !
+;Write protected!
+;
+MSG_DELETE_PROTECTED
+Protégé contre l'effacement !
+;Delete protected!
+;
+MSG_WORKBENCH_NOT_RUNNING
+Le Workbench n'est pas ouvert !
+;Workbench is not running!
+;
+MSG_DUMMY1
+
+;dummy1
+;
+MSG_DUMMY2
+
+;dummy2
+;
+MSG_DUMMY3
+
+;dummy3
+;
+MSG_GARBAGE_COLLECTION_IN_PROCESS
+Récupération en cours !
+;Garbage Collection in process!
+;
+MSG_MOVING_BLOCK
+Déplacement du bloc...
+;Moving block...
+;
+MSG_MOVE_BLOCK_TEXT
+Déplacer le bloc : <- -> Y) Oui Q) Quitter.
+;Move block:  <-  ->  Yes  Quit.
+;
+MSG_OK_GADGET
+Ok
+;OK
+;
+MSG_CANCEL_GADGET
+Annuler
+;CANCEL
+;
+MSG_PRESS_BUTTONS
+Appuyez sur les boutons !
+;Press the buttons!
+;
+MSG_RETRY_OPEN_SCREEN
+Erreur à l'ouverture de l'écran.\nDois-je réessayer ?
+;Couldn't open screen.\nTry again?
+;
+MSG_SAVE_SETTING
+Sauver les définitions :
+;Save setting:
+;
+MSG_FILE_NAME
+Fichier :
+;File name:
+;
+MSG_YESNO
+Oui|Non
+;Yes|No
+;
+MSG_FREXXED_REQUEST
+Requête de FrexxEd !
+;FrexxEd Request!
+;
+MSG_PICK_SCREEN_MODE
+Choisissez un mode d'affichage :
+;Pick a screen mode:
+;
+MSG_ABOUT_TEXT
+Programmé par\n   %s et\n   %s\n\nPort ARexx : %s\nEcran publique : %s\nMémoire graphique : %ld\nAutre mémoire :%ld\nMémoire allouée : %ld\n\n\
+Nom du disque : %s\n\
+FrexxEd version: %s
+;All coding is done by\n%s and\n%s\n\nARexx port: %s\nScreen name: %s\nGraphic mem: %ld\nOther mem: %ld\n\Allocated mem: %ld
+;
+MSG_SORT_ACCORDING_FIELD
+Trier par rapport au champ :
+;Sort according to field:
+;
+MSG_MAKE_YOUR_CHOICE
+Faites votre choix !
+;Make your choice!
+;
+MSG_GOTO_LINE
+Aller à la ligne :
+;Go to line:
+;
+MSG_PICK_FILE_INCLUDE
+Choisissez un fichier à inclure :
+;Pick file to include:
+;
+MSG_LOAD_FILE
+Charger le fichier :
+;Load file:
+;
+MSG_BEGIN_RECORDING
+Début de l'enregistrement !
+;Begin recording!
+;
+MSG_ENTER_DESIRED_VALUE
+Entrez la valeur désirée :
+;Enter desired value:
+;
+MSG_NO_SCREEN_FOUND
+Pas d'écran !
+;No screen to be found!
+;
+MSG_EDITING_NEW_FILE
+Edition d'un nouveau fichier !
+;Editing a new file!
+;
+MSG_LOADING
+Chargement de %s...
+;Loading %s...
+;
+MSG_LOADING_READY
+Chargement de %s... Terminé ! (%ld bytes)
+;Loading %s... Done! (%ld bytes)
+;
+MSG_EMPTY
+
+;empty
+;
+MSG_CRUNCHING_BUFFER
+Compression du tampon !
+;Crunching buffer!
+;
+MSG_SAVING_TEXT
+Sauvegarde de %s...
+;Saving %s...
+;
+MSG_XPKSAVING_TEXT
+Sauvegarde de %s... (XPK)
+;XPK-Saving %s...
+;
+MSG_SAVE_IT_NORMAL_ADD
+\n\nSauvegarde standard ?
+;\n\nSave it normally?
+;
+MSG_XPK_ERROR
+Erreur retournée par XPK :
+;xpk error:
+;
+MSG_CANT_CRUNCH_BUFFER
+Impossible de compresser le tampon.\nSauvegarde standard ?
+;Can't crunch the buffer.\nSave it normally?
+;
+MSG_SAVING_TROUBLE
+Erreur durant la sauvegarde ! Fichier effacé, non sauvé !
+;Saving Trouble!  File deleted but not saved!
+;
+MSG_WRITE_ERROR
+Erreur d'écriture
+;Write error
+;
+MSG_WROTE
+Ecriture de %s... Terminée !
+;Wrote %s
+;
+MSG_OPEN_ERROR
+Erreur à l'ouverture
+;Open error
+;
+MSG_SELECT_FONT
+Choisissez une police !
+;Select font!
+;
+MSG_ENTER_NUMBER
+Entrez un nombre :
+;Enter number:
+;
+MSG_ENTER_STRING
+Entrez une chaîne de caractères :
+;Enter string:
+;
+MSG_FPL_ERROR_ADD
+\n à la ligne %ld du fichier %s
+;\n in line %ld of %s
+;
+MSG_FPL_HALTED
+FPL interrompu
+;FPL halted
+;
+MSG_NONE
+<aucun>
+;<none>
+;
+MSG_GET_MEMORY
+allouer la mémoire
+;get memory
+;
+MSG_FREXXED_INIT
+Frexxed - Programmé par Daniel Stenberg et Kjell Ericson !
+; Frexxed - Coded by Daniel Stenberg and Kjell Ericson!
+;
+MSG_FREXXED_REQUIRES_204
+FrexxEd nécessite au moins le Kickstart 2.04\n
+;FrexxEd requires at least Kickstart 2.04\n
+;
+MSG_ERROR_WITH_FPL_FILE
+Erreur à l'exécution du fichier FPL '%s'
+;Error with FPL file '%s'
+;
+MSG_CANT_FIND_STARTUP_FILE
+Pas de fichier de démarrage !
+;Can't find the startup file!
+;
+MSG_IMPORTANT
+Important
+;Important
+;
+MSG_NO_SHIT
+Quoi ?
+;No shit!
+;
+MSG_NEW_FONT_INSTALLED
+Nouvelle police installée !
+;New Font Installed!
+;
+MSG_CANT_INSTALL_FONT
+Impossible d'installer la police !
+;Can't install font!
+;
+MSG_COULDNT_OPEN_FONT
+Je n'ai pas pu ouvrir cette police !
+;Couldn't open that font!
+;
+MSG_FONT_TOO_BIG
+Cette police était trop grande !
+;That font was too big!
+;
+MSG_INPUT_KEY_STROKE
+Enregistrement de la suite de touches. Numéro %ld. (ESC pour terminer)
+;Input key stroke #%ld! (ESC to end)
+;
+MSG_KEY_SEQUENCE
+Suite de touches :
+;Key sequence:
+;
+MSG_FUNCTION
+Fonction :
+;Function:
+;
+MSG_KEY_ASSIGN
+Définition d'une touche de fonction !
+;Key assign!
+;
+MSG_ERROR
+Erreur
+;Error
+;
+MSG_FUNCTION_ASSIGNED_TO_KEY
+Fonction assigné à une touche !
+;Function assigned to key!
+;
+MSG_MACRO_NAME
+Nom de la macro :
+;Macro name:
+;
+MSG_MACRO_ASSIGN
+Macro définie !
+;Macro assign!
+;
+MSG_NO_KEYSTROKE_FOUND
+Aucune entrée enregistrée !
+;No key stroke found!
+;
+MSG_WAITING_FOR_ANOTHER_KEY
+ Touche suivante...
+; Waiting for another keypress!
+;
+MSG_NO_FUNCTION_ASSIGNED_TO_KEY
+Pas de fonction assignée à cette touche !
+;No function assigned to that key!
+;
+MSG_ILLEGAL_COMMAND
+Commmande illégale.
+;Illegal command.
+;
+MSG_REPLACE_OPTIONS
+Y) Oui, N) Non, L) Dernier, G) Global, A) Tout, Q) Quitter
+;Yes, No, Last, Global, All, Quit.
+;
+MSG_GLOBAL_REPLACE_WORKING
+Remplacement global...
+;Global replace working...
+;
+MSG_BREAK_REPLACE_WITH_SPACE
+'Arrêt' remplacé par un espace !
+;Break replace with space!
+;
+MSG_INIT_FPL
+initialiser FPL !
+;init FPL!
+;
+MSG_FREXXED_COULDNT
+FrexxEd n'a pas pu %s
+;FrexxEd couldn't %s!
+;
+MSG_FREXXED_CAN_CONTINUE_BEFORE
+L'exécution de FrexxEd ne pourra se poursuivre\nqu'après que vous ayez fermé toutes les fenêtres !
+;FrexxEd can't continue before you\nhave closed all windows!
+;
+MSG_TRY_AGAIN
+Réessayez !
+;Try again!
+;
+MSG_GET_PUBLIC_SCREEN
+trouver d'écran public
+;get Public screen
+;
+MSG_CREATE_WRITE_PORT
+créer le port d'écriture
+;create write port
+;
+MSG_CREATE_WRITE_REQUEST
+créer la requêtre d'écriture
+;create write request
+;
+MSG_CREATE_READ_PORT
+créer le port de lecture
+;create read port
+;
+MSG_CREATE_MESSAGE_PORT
+créer le port de message
+;create message port
+;
+MSG_OPEN_SCREEN
+ouvrir l'écran
+;open screen
+;
+MSG_GET_VISUALINFO
+trouver l'information : VisualInfo
+;get VisualInfo
+;
+MSG_OPEN_WINDOW
+ouvrir la fenêtre demandée
+;open requested window
+;
+MSG_CREATE_MENUS
+créer les menus
+;create menus
+;
+MSG_OPEN_CONSOLE_DEVICE
+ouvrir le console.device
+;open console device
+;
+MSG_SEARCH_FLAGS
+Définitions de la recherche !
+;Search flags!
+;
+MSG_SEARCH_REPLACE
+Chercher/Remplacer :
+;Search/Replace:
+;
+MSG_SEARCH_FOR
+Chercher :
+;Search for:
+;
+MSG_LINE
+Ligne
+;Line
+;
+MSG_COL
+Col.
+;Col
+;
+MSG_SELECT_ITEM
+Choisissez une entrée :
+;Select an item:
+;
+MSG_PROJECT_MENU
+Projet
+;Project
+;
+MSG_PROJECT_NEW
+Nouveau
+;New
+;
+MSG_PROJECT_LOAD
+Charger
+;Load
+;
+MSG_PROJECT_SAVE
+Sauver
+;Save
+;
+MSG_PROJECT_ABOUT
+A propos...
+;About
+;
+MSG_PROJECT_KILL
+Détruire
+;Kill
+;
+MSG_PROJECT_QUIT_ALL
+Quitter le programme
+;Quit all
+;
+MSG_BLOCK_MENU
+Bloc
+;Block
+;
+MSG_BLOCK_MARK
+Marquer
+;Mark
+;
+MSG_BLOCK_CUT
+Couper
+;Cut
+;
+MSG_BLOCK_COPY
+Copier
+;Copy
+;
+MSG_BLOCK_INSERT
+Insérer
+;Insert
+;
+MSG_EDIT_MENU
+Editer
+;Edit
+;
+MSG_EDIT_UNDO
+Défaire
+;Undo
+;
+MSG_EDIT_UNDO_RESTART
+Refaire
+;Undo restart
+;
+MSG_MOVEVIEW_MENU
+Déplacement/Fenêtres
+;Move/view
+;
+MSG_MOVEVIEW_GOTO_BUFFER
+Aller au tampon...
+;Goto buffer
+;
+MSG_MOVEVIEW_GOTO_LINE
+Aller à la ligne...
+;Goto line
+;
+MSG_SEARCHREPLACE_MENU
+Chercher/Remplacer
+;Search/Replace
+;
+MSG_SEARCHREPLACE_R_SEARCH_FRW
+Continuer la recherche en avant
+;Repeat search forward
+;
+MSG_SEARCHREPLACE_SEARCH
+Chercher...
+;Search...
+;
+MSG_SEARCHREPLACE_REPEAT_REPLACE
+Continuer le remplacement
+;Repeat replace
+;
+MSG_SEARCHREPLACE_REPLACE
+Remplacer...
+;Replace...
+;
+MSG_CUSTOMIZING_MENU
+Personnaliser
+;Customizing
+;
+MSG_CUSTOMIZING_SETTINGS
+Définitions
+;Settings
+;
+MSG_CUSTOMIZING_SETTINGS_LOCALS
+Locales
+;Locals
+;
+MSG_CUSTOMIZING_SETTINGS_ALL_LOCALS
+Toutes locales
+;All locals
+;
+MSG_CUSTOMIZING_SETTINGS_GLOBALS
+Globales
+;Globals
+;
+MSG_CUSTOMIZING_SETTINGS_SAVE
+Sauver
+;Save
+;
+MSG_CUSTOMIZING_SETTINGS_SCREENMODE
+Mode d'affichage
+;ScreenMode
+;
+MSG_SPECIAL_MENU
+Spécial
+;Special
+;
+MSG_SPECIAL_EXECUTE_FILE
+Exécuter un fichier FPL
+;Execute FPL file
+;
+MSG_SPECIAL_LOAD_MENUS
+Charger un nouveau menu
+;Load new menus
+;
+MSG_SPECIAL_PROMPT
+Entrer une commande...
+;Prompt
+;
+MSG_REPLACE_GADGET
+Remplacer
+;Replace
+;
+MSG_HALF_GADGET
+Moitié
+;Half
+;
+MSG_FULL_GADGET
+Tout
+;Full
+;
+MSG_NONE_GADGET
+Aucun
+;None
+;
+MSG_RIGHT_GADGET
+Droite
+;Right
+;
+MSG_LEFT_GADGET
+Gauche
+;Left
+;
+MSG_SCREEN_GADGET
+Ecran
+;Screen
+;
+MSG_WINDOW_GADGET
+Fenêtre
+;Window
+;
+MSG_BACKDROP_GADGET
+Fond
+;Backdrop
+;
+MSG_VISIBLE_GADGET
+Visible
+;Visible
+;
+MSG_ABSOLUTE_GADGET
+Absolu
+;Absolute
+;
+MSG_OFF_GADGET
+Arrêt
+;Off
+;
+MSG_MARKING_GADGET
+Marquage
+;Marking
+;
+MSG_EXIST_GADGET
+Existe
+;Exist
+;
+MSG_EXPAND_RELATIVE_GADGET
+Relatif
+;Relative
+;
+MSG_EXPAND_ALL_GADGET
+Tout
+;All
+;
+MSG_WILDCARD
+@Notation générique
+;@Wildcards
+;
+MSG_CASE_SENSITIVE
+@Différencier majuscules/minuscules
+;@Case sensitive
+;
+MSG_ONLY_WORDS
+@Mots entiers
+;@Only words
+;
+MSG_FORWARD_SEARCH
+Chercher en @avant
+;@Forward search
+;
+MSG_INSIDE_BLOCK
+A l'intérieur du @bloc
+;Inside @Block
+;
+MSG_PROMPT_REPLACE
+@Confirmer remplacement
+;@Prompt Replace
+;
+MSG_LIMIT_WILDCARD
+Notation générique @limitée
+;@Limit Wildcard
+;
+MSG_ENTER_PASSWORD_TITLE
+Mot de passe
+;Password
+;
+MSG_ENTER_PASSWORD
+Entrez votre mot de passe :
+;Enter password:
+;
+MSG_UNREG_VERSION_LONG
+Version non enregistrée !\n\nPayez votre droit d'enregistrement pour pouvoir\nutiliser toutes les fonctionnalités de FrexxEd !
+;This version is not registered!\n\nPay your register fee in order\nto use all FrexxEd functions!
+;
+MSG_CHOOSE_ENTRY
+Choisissez une entrée :
+;Choose entry:
+;
+MSG_END_OF_FILE
+Fin du fichier !
+;End of file!
+;
+MSG_REGISTERED_TO
+Version enregistrée à
+;Registered to
+;
+MSG_ICON_NEVER
+Jamais
+;Never
+;
+MSG_ICON_ALWAYS
+Toujours
+;Always
+;
+MSG_ICON_IF_PARENT
+Parent
+;Parent
+;
+MSG_MOVEVIEW_MAXIVIEW
+Taille maximale
+;Maximize view
+;
+MSG_SORT_FORWARD
+En @avant
+;@Forward
+;
+MSG_SORT_CASE_SENSITIVE
+@Différencier majuscules/minuscules (ASCII)
+;@Case sensitive (ASCII)
+;
+MSG_SAVE_NONAME_FILE
+Sauver le fichier non encore nommé :
+;Save noname file:
+;
+;
+; NEW STRINGS FROM 1.6 (950424):
+;
+MSG_INSIDE_FOLD
+A l'intérieur des @replis
+;
+; This text appears in the search/replace requester to enable search/replace
+;to search within or outside of folds.
+;The @-character makes the following character useable as hotkey together
+;with the Amiga-key.
+;
+;
+MSG_CANT_QUIT
+Impossible de quitter maintenant !\nIl reste encore %ld utilisateurs\ndu gestionnaire de fichier FrexxEd.
+;FrexxEd Can't quit! %ld locks are\nstill held by the filehandler!
+;
+;Requester text that is shown when an attempt to quit FrexxEd is done and
+;the filehandler is locked/used by other programs/processes.
+;%ld - will display the amount of locks.
+;
+MSG_WINSCREEN_GADGET
+WinScreen
+;
+;Text that appears as the 4th alternative for the 'window' info variable.
+;It makes FrexxEd pop up as a window on its own screen. Keep it short!
+;

@@ -1,0 +1,45 @@
+#############################################################################
+File:		FillText.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Reformat text paragraph according to wall_right
+Version:	1.2
+Date:		01.01.96
+Local settings:
+Global settings:fill_text_US
+Keysequence:
+Type:		function
+Prereq:
+Copyright:	© 1995-1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+ The FillText function reformats the current paragraph so each line in the
+ reformatted paragraph does not break the wall_right column.
+
+ The reformatted paragraph will be indented according to the first line in
+ the column, i.e. if it is indented to column two, all the lines in the
+ reformatted paragraph will be indented to column two.
+
+ This is a quite usefull function if you have just inserted (or removed) some
+ text in a paragraph and would like to have it nicely formatted again.
+
+ Unlike the "fill text" function in CED, you may here decide if you want
+ double spaces following a period (full-stop). The preceding period is
+ followed by two spaces (US standard) whereas the next only has one following
+ space (European standard). See what I mean?
+
+HISTORY (REV)
+ 01.01.96 (2)	Fixed bug related to BlockMarkLine().
+
+ 04.10.95 (1)	Fixed some bugs and added indenting.
+
+ 12.09.95 (0)	First rev.
+
+BUGS
+ None known.
+
+TODO
+
+SEE ALSO
+

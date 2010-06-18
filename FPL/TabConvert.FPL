@@ -1,0 +1,90 @@
+void TabToSpace()
+{
+  int id=GetEntryID();
+  int new=DuplicateEntry();
+  int stopline=1, startline=ReadInfo("lines");
+
+  if (new) {
+    int size, tabsize, bytepos, del, counter;
+    Visible(0);
+    if (ReadInfo("block_exist")) {
+      stopline=ReadInfo("block_begin_y");
+      startline=ReadInfo("block_end_y")-1;
+    }
+    if (startline>stopline) {
+      CurrentBuffer(new);
+      Status(id, "Tab converting.");
+      tabsize=ReadInfo("tab_size");
+      GotoLine(startline, ReadInfo("line_length", new, startline));
+      while (Search("\t", "f-")>=0 && ReadInfo("line")>=stopline) {
+        bytepos=ReadInfo("byte_position")-1;
+        size=0;
+        del=1;
+        while (bytepos>=0 && GetChar(bytepos)=='\t') {
+          bytepos--;
+          size+=tabsize;
+          del++;
+          CursorLeft();
+        }
+        size+=tabsize-((ReadInfo("column")-1)%tabsize);
+        Delete(del);
+        Output(sprintf(joinstr("%",ltostr(size), "lc"), ' '));
+        if (!(counter++&15))
+          Status(id, ltostr(ReadInfo("line")-stopline));
+      }
+    }
+    Kill(new);
+    CurrentBuffer(id);
+    Visible(1);
+  }
+}
+
+void SpaceToTab()
+{
+  int id=GetEntryID();
+  int new=DuplicateEntry();
+  int stopline=1, startline=ReadInfo("lines");
+
+  if (new) {
+    int tabsize, bytepos, del, column, counter;
+    string output;
+    Visible(0);
+    if (ReadInfo("block_exist")) {
+      stopline=ReadInfo("block_begin_y");
+      startline=ReadInfo("block_end_y")-1;
+    }
+    CurrentBuffer(new);
+    Status(id, "Space converting.");
+    tabsize=ReadInfo("tab_size");
+    GotoLine(startline, ReadInfo("line_length", new, startline));
+    while (Search("  ", "f-")>=0 && ReadInfo("line")>=stopline) {
+      switch ((ReadInfo("column"))%tabsize) {
+      case tabsize-1:
+        bytepos=ReadInfo("byte_position")-1;
+        del=2;
+        output="\t";
+        while (bytepos>=0 && GetChar(bytepos)==' ') {
+          bytepos--;
+          if (!(del%tabsize))
+            output+="\t";
+          del++;
+          CursorLeft();
+        }
+        Delete(del);
+        Output(output);
+        if (!(counter++&15))
+          Status(id, ltostr(ReadInfo("line")-stopline));
+        break;
+      case 0:
+        CursorRight();
+      }
+    }
+    Kill(new);
+    CurrentBuffer(id);
+    Visible(1);
+  }
+}
+
+AssignKey("ExecuteFile(\"TabConvert.FPL\", \"TabToSpace();\");", "Amiga 'tab'");
+AssignKey("ExecuteFile(\"TabConvert.FPL\", \"SpaceToTab();\");", "Amiga Shift 'tab'");
+

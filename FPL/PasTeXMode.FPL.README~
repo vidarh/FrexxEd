@@ -1,0 +1,166 @@
+#############################################################################
+File:		PasTeXMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Provides interface to the PasTeX LaTeX compiler.
+Version:	1.6
+Date:		15.06.95
+Local settings:
+Global settings:PasTeX_(compile_dir, port_name, style, auto_save,log_restart)
+Keysequence:	"C-c C-c" and "C-c '" (C = ctrl)
+Type:		Major mode
+Prereq:		FMC.FPL, LaTeXMode.FPL
+Copyright:	© 1994-1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  With this file you have a cute little PasTeX interface for FrexxEd (Fred).
+  Changes you _have_ to make in your PasTeX system: *NONE*
+  Changes I suggest you make in your PasTeX system (by free will! No force :)
+    Collect all the files PasTeX usually use when compiling in a directory
+    called "PrimeTeX:". (If your Amiga has enough RAM you might want to copy
+    this directory to RAM each time you start a TeX'ing session. This will
+    give you a nice performance boost ;)
+
+  If you want Fred to locate compile errors by itself you need to insert the
+  lines below in the file TeXedit.rexx (found in the Rexx: or TeX:Rexx/ dir).
+
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+  /* FrexxEd */
+  IF SHOW('P', 'FREXXED.1') THEN DO
+  ADDRESS "FREXXED.1"
+  logname = logfile
+  IF 0~=LASTPOS("/",logname) THEN
+	logname = RIGHT(logname,LENGTH(logname)-LASTPOS("/",logname))
+  IF 0~=LASTPOS(":",logname) THEN
+	logname = RIGHT(logname,LENGTH(logname)-LASTPOS(":",logname))
+  'LaTeXFail ("'logname'");'
+  EXIT 0
+  END
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+
+  (Insert it below the comment "Here starts each editor specific parts"!)
+  
+  Um, that's it. Now you just have to press "C-c C-c" in a PasTeX buffer
+  (pastex_mode checked). If the compilation is successful you should see
+  ShowDVI popping to front, giving you a look at the resulting document.
+  If the compilation was interrupted (by an error), Fred will pop to front
+  and place the cursor at the line which holds the first error. Also, the
+  status line will show you a description of the problem. If you press
+  "C-c '" the cursor will jump to the next erroneous line.
+
+  This mode has a few preference settings (all global and writeable):
+
+  PasTeX_compile_dir:
+    What dir should PasTeX be invoked from? If empty, the file's home
+    directory will be used for the compilation. I use a directory called
+    PrimeTeX: as described above. This, however, means that the .tex/.log
+    and .aux files will be mixed with your (*.sty) files, so if you do not
+    make a copy of PrimeTeX: to RAM before starting, your PrimeTeX: dir
+    will pretty fast get filled with crap files. Also, if you _do_ make
+    a copy of PrimeTeX: to RAM you will get another problem. See P_auto_save.
+
+  PasTeX_auto_save:
+    If you compile from the RAM disk, the .tex file will not automatically
+    be updated on disk (or where ever the file's home dir is) unless you set
+    this flag. It's tough loosing an hours work because all compilation has
+    been made in RAM, but on the other hand, it's nice not always saving the
+    file to disk. To compromise these two points, the auto saving is not
+    made until the syncronous PasTeX job has been started. In short, play it
+    safe! Use auto_save!
+
+  PasTeX_port_name:
+    The name of the ARexx port for the PasTeX server. Included to make it
+    easy to support other TeX compilers with other server names.
+
+  PasTeX_style:
+    Which style to use in the compilation. I use "&latex", but as I recall it
+    the standard PasTeX package use "&lplain". If you are tough you maybe also
+    want to use "&plain" (raw TeX).
+
+  PasTeX_log_restart:
+    When jumping to next error with "C-c '", Fred scans the .log file for the
+    next error line. If this flag is set, the .log file will be scanned from
+    the top each time (slower, but you may revisit previous errors).
+
+
+
+  Activate the preference window choosing "Customizing->Program->PasTeX"
+  in the menu.
+  The menu "PasTeX" offers "Compile" and "Next error" (described above)
+  and "ShowDVI" which pops ShowDVI to front (and activates it).
+
+
+
+  As of version 1.4 this PasTeX interface is a major mode - consult
+  FMC.FPL.readme for further information. The default FMC settings are:
+
+  pastex_mode_ext = "*tex*"
+    Recognize *.tex files as LaTeX files and enable PasTeX mode.
+
+  pastex_mode_exe = "LaTeXModeInit();ME("double_mode");"
+    Initialize LaTeXMode when PasTeX mode gets enabled.
+
+
+
+  TIPS (some of my PasTeX setup)
+
+  This is my StartTeX DOS script (use with an icon and iconx!)
+
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+  run showdvi NOLog on
+  if not exists ram:primetex
+  makedir ram:PrimeTeX
+  copy PrimeTeX: ram:PrimeTeX all quiet
+  assign PrimeTeX: ram:PrimeTeX
+  endif
+  resident tex:bin/latex pure
+  run rx tex:rexx/tex-server.rexx
+  FrexxEd:fred INIT tex:FrexxEd.default
+  rx tex:rexx/quit_tex
+  endcli
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+
+
+  In your "ShowDVI.config" insert the line:
+
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+  f1   rexx:FrexxEdToFront.rexx
+  --- 8< ---------- 8< ---------- 8< ---------- 8< ---------- 8< ----------
+
+  where FrexxEdToFront.rexx is a reference to the file found in the
+  FrexxEd/Rexx directory. Copy it to Rexx: or change the key definition
+  above.
+  Now you can press F1 to get from ShowDVI to FrexxEd.
+
+
+HISTORY (REV)
+  15.06.95 (6)	Renamed to PasTeX.FPL. The settings have also been renamed.
+		Sorry folks, but it's for the best! Check out LaTeXMode!
+  30.05.95 (5)	Removed two bugs reported by Volker Gûth.
+  02.04.95 (4)	Now a major mode.
+  21.03.95 (3)	All preference settings are now Global.
+  02.03.95 (2)	Moved the settings to Customizing->Program!
+  26.02.95 (1)	Added menu.
+		Added "ShowDVI to front" command.
+  07.11.94 (0)	Initial release.
+
+BUGS
+  I would like to bind the shortcut keys to the menu, but since these are
+  global keybindings it doesn't go too well with my other Emacs like
+  programs (e.g. the RCS interface).
+
+TODO
+  The .log file should be killed if the .tex file is killed.
+  
+  Volker Gûth:
+  If I use the \input or \include command and there is a error in the included
+  text, FrexxEd jumps to the correct line, but not in the correct text! I think
+  this can not be fixed so simply as the other bugs. TeXedit.rexx has the
+  variable "filename" with the name of the file with the error, is it possible
+  to use it, or does it cause great problems with the LaTeXNextError, function?	
+
+SEE ALSO
+  FMC.FPL.readme
+  LaTeXMode.FPL.readme
+  Peter Straub's "Mystery" (ISBN: 0-451-16865-8)

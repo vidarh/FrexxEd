@@ -1,0 +1,154 @@
+// $Id: PasTeXMode.FPL 1.15 1996/04/02 18:35:58 jskov Exp $
+// $VER: PasTeXMode.FPL 1.6 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeXModePrefs() ««
+void export PasTeXModePrefs()
+{
+  PromptInfo(-1,"PasTeXMode preferences",-1,-1,
+   "PasTeX_auto_save",
+   "PasTeX_compile_dir",
+   "PasTeX_style",
+   "PasTeX_port_name",
+   "PasTeX_log_restart"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» ShowDVI to front ««
+void export PasTeXShow()
+{
+  if (!FindPort("showdvi")){
+    Request("ShowDVI not running!", "PasTeX info", "Huh?");
+  } else {
+    ARexxSend("showdvi", "tofront");
+    ARexxSend("showdvi", "activate");
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeXCompile() ««
+void export PasTeXCompile()
+{
+  string TeXname = joinstr(GetCompileDir(),ReadInfo("file_name"));
+
+  if (stricmp("tex",substr(TeXname,strlen(TeXname)-3,3))){ // Check that name ends with ".tex"
+    Request("The file name must have a .tex suffix!","PasTeX info","Blast!");
+    return(0);
+  }
+
+  if (!FindPort(ReadInfo("PasTeX_port_name"))){
+    Request("Could not find PasTeX port!","PasTeX info","Huh?");
+  } else {
+    Save(TeXname);
+    ARexxSend(ReadInfo("PasTeX_port_name"), joinstr("compile ",ReadInfo("PasTeX_style")," ",TeXname));
+
+    if (ReadInfo("PasTeX_auto_save")){		// Also update file to disk
+      Save();
+    }
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeXFail() ««
+void export PasTeXFail(string LogName)
+{
+  int texID = GetBufferID(joinstr(substr(LogName,0,strlen(LogName)-3),"tex"));
+
+  WindowToFront();
+
+  if (texID){								// Only proceed if tex file was found
+    int logID = GetBufferID(LogName);
+
+    if (!logID){
+      logID = New();
+    }
+
+    logID = CurrentBuffer(logID);			// logID now previous
+    Load(joinstr(GetCompileDir(),LogName));
+    CurrentBuffer(logID);				 	// Re-activate previously active buffer
+    PasTeXNextError(texID,1);			 	// Search error from line 1
+  } else {
+    ReturnStatus("Could not find LaTeX buffer!?!");
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeXNextError() ««
+void export PasTeXNextError(int texID, int texLine)
+{
+  string texName = ReadInfo("file_name",texID);
+  string logName = joinstr(substr(texName,0,strlen(texName)-3),"log");
+  int logID = GetBufferID(logName);
+  int errLine = 0;
+
+  if (logID){
+    CurrentBuffer(logID);
+
+    if (ReadInfo("PasTeX_log_restart"))		// goto start of log file if
+      GotoLine(1);							// this flag is set
+
+    SearchSet("=f+","\nl.");
+    while(!Search("\nl.")){
+      CursorRight(3);
+      errLine = atoi(GetWord());
+      if (errLine > texLine){
+        SearchSet("=","\n!");
+        if (!Search("\n!")){			 	// From this point texName is reused
+          CursorRight(2);			 		// for speed reasons
+          texName = GetLine();
+          texName = substr(texName,0,strlen(texName)-1);
+        } else {
+          texName = "Error description not found!";
+        }
+
+        CurrentBuffer(texID);
+        GotoLine(errLine);
+        ReturnStatus(texName);		 		// Show error text
+        break;
+      }
+    }
+
+    if (errLine <= texLine){		 		// If no valid error line found
+      CurrentBuffer(texID);
+      ReturnStatus("No more errors found!");
+    }
+  } else {
+    ReturnStatus(joinstr("Log file \"",logName,"\" not loaded!"));
+  }
+}
+
+
+
+string GetCompileDir()
+{
+  string dir = ReadInfo("PasTeX_compile_dir");
+  if (strlen(dir)==0)
+    dir = ReadInfo("file_path");
+  return(dir);
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("PasTeXCompile();",	"control c control c","pastex_mode");
+AssignKey("PasTeXNextError(GetBufferID(),ReadInfo(\"line\",GetBufferID()));","control c '0x2a'","pastex_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeXMode Settings ««
+ConstructInfo("PasTeX_auto_save","","","GBWH","",0,1,1);
+ConstructInfo("PasTeX_log_restart","","","GBWH","",0,1,1);
+ConstructInfo("PasTeX_compile_dir","","","GSWH","",0,0,"PrimeTeX:");
+ConstructInfo("PasTeX_port_name","","","GSWH","",0,0,"Start_TeX");
+ConstructInfo("PasTeX_style","","","GSWH","",0,0,"&latex");
+
+ConstructInfo("pastex_mode","","","LBH","",0,1,0);
+ConstructInfo("pastex_mode_ext","","","GSWH","",0,0,"*tex*");
+ConstructInfo("pastex_mode_exe","","","GSWH","",0,0,"LaTeXModeInit();ME(\"double_mode\");");
+
+AddMode(1,"pastex_mode", "pastex_mode_ext", "pastex_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PasTeX menu ««
+MenuAdd("i", "PasTeX","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Compile", "PasTeXCompile();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "ShowDVI", "PasTeXShow();","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Next error", "PasTeXNextError(GetBufferID(),ReadInfo(\"line\",GetBufferID()));","",ReadInfo("Program_Menu"), -1);
+
+MenuAdd("s", "PasTeX...", "PasTeXModePrefs();", "",ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();

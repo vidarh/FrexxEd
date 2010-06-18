@@ -1,0 +1,155 @@
+export void GetRefs(string name)
+{
+string temp, wrd;
+int buffer, prevbuf;
+int x;
+
+Visible(0);
+
+/* Check if buffer already exists */
+buffer=prevbuf=GetBufferID();
+do
+	{
+	temp=ReadInfo("file_name");
+	if(!(stricmp(temp, name)))
+		{
+		Request("Function description already loaded", "Error");
+		return;
+		}
+	buffer=NextBuffer(buffer);
+	if(buffer==prevbuf)
+		buffer=0;
+	else
+		CurrentBuffer(buffer);
+	} 
+	while(buffer);
+
+CurrentBuffer(prevbuf);
+
+/* Buffer not loaded */
+
+if(strlen(name))
+	wrd=temp=name;
+else
+	wrd=temp=GetWord();
+
+buffer=New();
+prevbuf=CurrentBuffer(buffer);
+if(ReadInfo("manual_temp_save"))
+	{
+	string tmp;
+	Status(prevbuf, "Checking temp directory", 3);
+	tmp=joinstr(ReadInfo("manual_temp_dir"), name, ReadInfo("manual_temp_end"));
+	x=Check(tmp);
+	if(x)
+		{
+		/* File exists in temppath */
+		Load(tmp);
+		Status(prevbuf, "", 3);
+		Visible(1);
+		return;
+		}
+	}
+
+Status(prevbuf, "Getting reference...", 3);
+
+Load(joinstr(ReadInfo("manual_path"), ReadInfo("manual_file")));
+
+Status(prevbuf, "Searching...", 3);
+x=Search(temp,"=f+c+o+");
+
+if(x>=0)
+	{
+	/* Line found. Work todo */
+
+	string trash, file, row;
+	temp=GetLine();
+	sscanf(temp,"%s%s%s%s", &trash, &trash, &file, &row);
+	row=substr(row, 2, -1);
+
+	Clear();
+	SetInfo(buffer, "changes", 0);
+
+	temp=joinstr("Loading manualfile...(", file, ")");
+	Status(prevbuf, temp, 3);
+
+	file=joinstr(ReadInfo("manual_path"),file);
+	Load(file);
+	GotoLine(0,0);
+	CursorRight(atoi(row));
+	BlockMark(1);
+	Search("\x0c", "=f+w+");
+	BlockCopy(0);
+	BlockMark(0);
+
+	Status(prevbuf, "Getting function...", 3);
+	Clear();
+	SetInfo(buffer,"changes", 0);
+	CurrentBuffer(buffer);
+
+	BlockPaste(0);
+	
+	GotoLine(0,0);
+	SetInfo(buffer, "changes",0);
+
+	temp=joinstr(wrd, ReadInfo("manual_temp_end"));
+	Rename(wrd);
+
+	if(ReadInfo("manual_temp_save"))
+		{
+		Status(prevbuf, "Writing manual temp file", 3);
+		temp=joinstr(ReadInfo("manual_temp_dir"), temp);
+		Save(temp, ReadInfo("manual_temp_pack"));
+		}
+	Status(prevbuf, "", 3);
+	Visible(1);
+	}
+else
+	{
+	Request("Function not found","Error");
+	CurrentBuffer(prevbuf);
+	Kill(buffer);
+	Status(prevbuf, "", 3);
+	Visible(1);
+	}
+}
+
+export void ManualPrefs()
+{
+PromptInfo(-1, "Manual preferences", -1 , -1,
+	"manual_path",
+	"manual_file"
+	"manual_temp_save",
+	"manual_temp_dir",
+	"manual_temp_end",
+	"manual_temp_pack",
+	);
+}
+
+export void GetManRefs(void)
+{
+string temp;
+
+temp=PromptString("", "GetRefs", "Which keyword to search for");
+if(strlen(temp))
+	GetRefs(temp);
+}
+
+{
+//AssignKey("GetRefs(\"\");", "Control ]");
+//AssignKey("GetManRefs();", "Alt ]");
+
+ConstructInfo("manual_path", "", "", "WHLS", "", 0, 0, "MAN:");
+ConstructInfo("manual_file", "", "", "WHLS", "", 0, 0, "dme.refs");
+ConstructInfo("manual_temp_dir", "", "", "WHLS", "", 0, 0, "t:");
+ConstructInfo("manual_temp_end", "", "", "WHLS", "", 0, 0, ".mtmp");
+ConstructInfo("manual_temp_save", "", "", "WHLB", "", 0, 1, 1);
+ConstructInfo("manual_temp_pack", "", "", "WLHS", "", 0, 0, "NUKE");
+
+MenuAdd("s", "Manual...", "ManualPrefs();", "", 6, 6, -1);
+MenuAdd("i", "---", "", "", 5, -1);
+MenuAdd("i", "Search Word", "GetRefs(\"\");", "Control ]", 5, -1);
+MenuAdd("i", "Search Current Word", "GetManRefs();", "Alt ]", 5, -1);
+MenuBuild();
+
+}

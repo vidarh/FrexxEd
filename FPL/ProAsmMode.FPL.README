@@ -1,0 +1,184 @@
+#############################################################################
+File:		ProAsmMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		FrexxEd interface to ProAsm
+Version:	1.2
+Date:		01.08.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		Interface
+Prereq:		ProAsm and possibly a debugger
+Copyright:	© 1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+  Since I started using CLI assemblers, I have always missed the ASM1
+  commandline to do some quick calculations on variable values. Thus when
+  reading the ProAsm documentation I realized that I could make a
+  FrexxEd interface for ProAsm with the same feel as ASM1.
+
+  Now that I have been using the interface for some weeks, I must say
+  that it works even better than I had hoped. Now I only wish for some
+  more speed (ASX hangs on my machine, so I have to run CLI-only assembly
+  sessions - very annoying) and a smarter debugger interface. The latter I
+  hoped I could realize with Ralph Schmidt's BDebug, but the ARexx
+  interface seems to be broken. Also, Daniel Weber have arranged for a
+  beta version of the SIM debugger, which I hope will be the answer, but I
+  haven't received it yet.... Time will tell.
+
+  This interface is based (losely) on the same editing concept as found in
+  ASM1; An "info buffer" where all use of assembler and debugger is
+  controlled. This buffer also has a few other features which are
+  described in detail later. All source code editing is made in other
+  buffers. You can jump between the info buffer and the source code
+  buffers with the escape key.
+
+  Info Buffer Functions
+  ~~~~~~~~~~~~~~~~~~~~~
+  z		Clear info buffer (also with empty input).
+
+  ?[expr]	Evaluate expression. Expr must be in C syntax, but you can
+		use $ instead of the 0x notation. You may also use label
+		names, which will be replaced with the label's value from
+		the last assembly. Label search is made *case sensitive*!
+
+  =<opt>	Dump list. Options may be one of:
+		l	Assembly list generated in last assembly if
+			"Make lists" is enabled.
+
+		r<r.e.>	Find variables matching the regular expression.
+			If you only use alphanumerical letters, the
+			operation is equal to that found in ASM1.
+			However, you may also write something like:
+			"=r.*foo" which would find both "foo" and
+			"barfoo".
+
+		R<r.e.> Same as 'r', but case insensitive.
+
+  a<opt>	Assemble parent buffer. Options may be one of:
+		o	Assemble linkable object.
+		a=args	Assemble with the given args.
+		s	Syntax check (no output generated).
+		<none>	Plain assemble.
+
+  d<args>	Start debugger with the given args.
+
+  j		Run last assembled file.
+
+  l		Load list generated in last assembly.
+
+  m<args>	Call 'make' with the given args.
+		This setup is made for GNU make. The make command must be
+		placed in the dir "/bin".
+
+  ESC		Jump to parent buffer.
+		If the previos command was an erroneous assembly, the
+		cursor will be placed at the line of the first error.
+
+
+  Source Buffer Functions
+  ~~~~~~~~~~~~~~~~~~~~~~~
+  These key bindings are configurable. Default bindings are shown.
+
+  CTRL "	Display error description again.
+		I can't seem to get the ReturnStatus() function to work
+		when the buffer has just changed to another window, so
+		you will have to use this function to see the description
+		of the first error.
+
+  CTRL '	Jump to next error.
+		If the next error is in another buffer/file, the current
+		buffer can be saved (see "next error save").
+		If the next error is in a file not loaded, you will be
+		asked if the file should be loaded.
+
+  ESC		Jump to the info buffer window.
+
+
+  Preferences
+  ~~~~~~~~~~~
+  The line below an entry contains the default setting.
+
+  Assembler:	Name of the assembler.
+  ("proasm")
+
+  Asm Options:	Options that will always be passed to the assembler.
+  ("")
+
+  Debugger:	Path and name of the debugger.
+  ("")
+
+  Dbg Options:	Options that will always be passed to the debugger.
+  ("")
+
+  Info height:	Height of the info buffer window. I use a full height
+  (200)		window which pops to front when needed. If you want, you
+		could have the info buffer window below the editing window.
+
+  Next error save:
+  (Yes)		When you use the key to get to next error and this happens
+		to be in another buffer, should this buffer be saved
+		first? I like this feature, as it makes it possible to
+		run through all the errors and fix them, without thinking
+		of which files they are in. Thus, when the last bug is
+		fixed, I can assemble again immediately, without checking
+		for unsaved buffers.
+
+  Key: Next Error:
+  (CTRL ')	Get to next error. If not in another buffer you will be
+		asked if the file containing the bug should be loaded.
+
+  Key: This Error:
+  (CTRL ")	Display error description again (jump to error).
+
+  External grep:
+  (no)		The interface uses a 'grep' command when you want to see a
+		list of variables. Using an external 'grep' command may
+		speed up the operation. (uses "/bin/grep").
+
+  Use ASX server:
+  (no)		Pass commands through the ASX server? This will speed up
+		assembly as the server can cache include files.
+
+  Make lists:	You can get a list of the assemblers interpretation of
+  (no)		your sources (i.e. expansion of macros and the like), but
+		due to the increased assembly time, you should only enable
+		this feature if you really need it.
+
+
+
+  General
+  ~~~~~~~
+  When an assembly is started, normally the parent buffer will be
+  assembled. However, if the first line of the buffer is ';$"name"' the
+  file named "name" will be assembled.
+
+  When an assembly is started, the parent buffer will be saved.
+
+
+HISTORY (REV)
+  01.08.96 (2)	Now clears 'changed' flag in info buffer at prompt.
+		Added saveNextError.
+		NextError now only works after a erroneous assembly.
+		Added some more menus.
+		Documentation.
+
+  12.07.96 (1)	Added many many features.
+
+           (0)	Beta for Daniel Weber's eyes only :)
+
+BUGS
+  I'm sure :)
+
+TODO
+  Better control of a debugger
+  ASX (ASX hangs on my machine so I haven't given the ASX interface much
+       time).
+  Assembling directly from memory to boost speed.
+
+SEE ALSO
+  ETags.FPL.README
+  CompleteWord.FPL.README
+  GotoLabel.FPL.README

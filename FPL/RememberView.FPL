@@ -1,0 +1,47 @@
+int rv_number=0;
+int rv_entryid[10];
+int rv_viewpos[10];
+int rv_currententry;
+
+export RememberView()
+{
+  int views=ReadInfo("views");
+  int id, count;
+
+  if (views>1) {
+    rv_number=0;
+    resize rv_entryid[views];
+    resize rv_viewpos[views];
+    rv_currententry=GetEntryID();
+    id=PrevView(-1);
+    for(count=0; count<views; count++) {
+      rv_entryid[count]=id;
+      rv_viewpos[count]=ReadInfo("top_offset", id);
+      id=PrevView(id);
+    }
+    MaximizeView();
+  }
+  rv_number=views;
+}
+
+export RememberView_get()
+{
+  int count;
+  int curr_id=GetEntryID();
+
+  if (rv_number>1) {
+    Visible(0);
+    MaximizeView();
+    Activate(rv_entryid[0], 0);
+    for(count=1; count<rv_number; count++) {
+      CurrentBuffer(rv_entryid[count-1]);
+      Activate(rv_entryid[count], 1);
+      SetInfo(rv_entryid[count], "top_offset", rv_viewpos[count]);
+    }
+    CurrentBuffer(curr_id);
+    Activate(curr_id, 0, rv_currententry);
+  } else if (ReadInfo("views")==1)
+    ResizeView(ReadInfo("view_lines")/2);
+}
+AssignKey("RememberView();", "Amiga 1");
+AssignKey("RememberView_get();", "Amiga 2");

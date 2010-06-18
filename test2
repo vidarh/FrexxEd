@@ -1,0 +1,3 @@
+
+MenuAdd("setting", "insert", "insert_mode", "amiga t");
+MenuBuild();

@@ -1,0 +1,35 @@
+#############################################################################
+File: ArcoPaste.FPL
+Author: Carsten Orthbandt
+Email: s6357@fb1.fhtw-berlin.de
+Short: Help for selecting Files from BBS Lists 
+Version: 1.0
+Date: 19.02.95
+Local settings:
+Global settings:
+Keysequence: F10
+Type: AssignKey
+Prereq:
+Copyright: PD
+#############################################################################
+
+FUNCTION
+ Takes the current line from the current buffer an adds it to
+ the next buffer. If the next line starts with " " and has a
+ valid char at column 37, this is also appended.
+ ArcoPaste also adds the area number for this file.
+ It is mainly written for the Berlin ARCO BBS
+
+
+HISTORY
+
+
+BUGS
+
+
+TODO
+
+
+SEE ALSO
+
+

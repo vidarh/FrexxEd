@@ -1,0 +1,31 @@
+/*****************************************************************************
+ * $VER: Deiconify v0.1 (16.1.95) - by Daniel Stenberg
+ *
+ *
+ * USAGE:
+ *
+ *   Simply invoke it to make FrexxEd.1 to get deiconified.
+ *
+ * BEST USAGE:
+ *
+ *   Enter the following command line in a shell or in your user-startup file:
+ *
+ *   FrexxEd:bin/frexxkey hotkey "rshift ralt return" system rx (continued)
+ *    FrexxEd:bin/Deiconify.rx
+ *
+ ****************************************************************************/
+
+OPTIONS RESULTS
+
+DO
+  PortName = 'FREXXED.1'
+
+  IF ~SHOW(P, PortName) THEN DO
+    ADDRESS COMMAND "RUN <NIL: >NIL: Fred"
+  END
+  ELSE DO
+    ADDRESS VALUE PortName
+    'Deiconify();'
+  END
+END
+/*************************************/

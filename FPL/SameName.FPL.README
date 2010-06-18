@@ -1,0 +1,28 @@
+############################################
+File: SameName.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Ask when you try to load an existing file.
+Version: 1.0
+Date: 1.8.94
+Local settings:
+Global settings:
+Keysequence:
+Type: hook
+Prereq:
+############################################
+
+FUNCTION
+
+  A hook is trigged on "SameName" to call "SameName_hook".  It will be called when
+the user tries to load a file with a filename that already exist as an buffer.
+
+  If the path is identically, a requester will ask the user if he wants to open
+the file, activate the existing or abort the load.  If the path is different it
+will only ask if the user wants to continue or abort the loading.
+
+NOTE
+  It is quite simple to remove the requester if the path aren't identically, if
+you like that better.
+
+

@@ -1,0 +1,22 @@
+############################################
+File: RepeatFunction.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: repeat a the keypress function you envoke
+Version: 1.1
+Date: 20.2.95
+Local settings:
+Global settings:
+Keysequence: Amiga Control r
+Type: function
+Prereq:
+############################################
+
+FUNCTION
+  The function will ask you to press a keysequence.  It will find out what
+function that is assigned to that key, and ask you have many times you
+wish to repeat it.
+
+HISTORY
+  1.1 - Now uses the KeyPress() properly!
+

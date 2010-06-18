@@ -1,0 +1,149 @@
+#############################################################################
+File:		WordPro.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Paragraph oriented word wrap and much more.
+Version:	1.4
+Date:		13.10.96
+Local settings:	a few
+Global settings: a few
+Keysequence:
+Type:		hooks/keys/mode
+Prereq:
+Copyright:	(C) by FrexxWare 1996
+#############################################################################
+
+FUNCTION
+  The main function of this program is a *TRUE* word-processor style
+interactive paragraph oriented word wrap. With this, I mean word wrapping
+where all newlines inserted because a word wrap was required, are called
+'soft newlines', and when i.e a line with a 'soft' newline gets short enough,
+the first word from the line below will get moved to the line of the deletion.
+  You'll understand it if you try it.
+
+  All soft newlines will be visible with '^'-characters. They are left visible
+only for the user to better control and know where they are and how the buffer
+is treated.
+
+  This program also features functions for:
+ * Open files into wordpro-mode. Adds 'soft' newlines to all lines it thinks
+   are part of the same paragraph. It will also wrap all lines longer than
+   the defined allowed width.
+ * Wrap block. Does a similar operation like the 'Open' but instead of a new
+   file, it operates on the marked block.
+ * Preferences customization. Brings up a window which lets the user select
+   a few things.
+ * Reformat the current paragraph or buffer. If you i.e change the right
+   margin after you've written one or more paragraphs, these functions
+   re-format them for you. The functions are just a small re-write of the
+   function filltext(), brought to you by Jesper Skov. For detailed docs
+   about that, read FillText.FPL.README
+
+MENU ITEMS
+  Open...    - Opens and wraps a file
+  Save...    - Saves a file. Wrapped lines are stored as the 'wordpro_save'
+               variable tells.
+  Prefs...   - Brings up the prefs window, see below
+
+  Reformat   -
+    Paragraph  - Reformat the current paragraph, Best used if i.e the margin
+                 is changed.
+    Buffer     - Reformats all paragraphs in the buffer.
+
+  WordProify - "init" text not previously used with WordPro. If you i.e enter
+               a buffer with lots of text in and you'd like to 'WordPro-ify'
+               it, these are the functions to use.
+    Block      - WordPro-ify the currently marked block.
+    Buffer     - WordPro-ify the current buffer.
+
+PREFERENCES
+ - 'fill_text_US' is used by the reformat functions, invoked as "Reformat->
+   Paragraph" or "Reformat->Buffer" from the WordPro menu. It controls
+   whether the paragraph is supposed to get formatted the "american way"
+   which means two spaces after each '.' in the paragraph. (Idea cortesy
+   of Jesper Skov.)
+
+ - 'wall_right' - Where the right edge is - where all wraps should occur.
+
+ - 'wordpro' mode on/off for the current buffer.
+
+ - 'wordpro_fitprev', which if disabled makes the program never check if
+   the first word of the current line fits on the line above. Slight speed
+   improvement on slower machines.
+
+ - 'wordpro_save' - Save mode. The user can select a few ways how to save all
+   buffers in 'wordpro' mode:
+   RAW saves the buffer just as you see it, including the raw codes for soft
+     newlines. If you intend to edit the file again in 'wordpro' mode, you
+     should save it with this, otherwise there is hardly any reason to do it.
+   SOFTS TOO saves the buffer with all newlines left, including the soft ones.
+     This will save the buffer just like it looks on screen, but without the
+     soft newline characters.
+   ONLY HARDS replaces all soft newlines with spaces before saving. Only hard
+     newlines will be left as real newlines.
+   QUERY makes the save operation query which save mode to use every time save
+     is requested.
+
+ - 'wordpro_open' makes all regular opens wrap the input files if enabled.
+   If disabled, only files loaded with the wordpro-open function will get
+   wrapped when read!
+
+
+HISTORY
+ 0.1ß	- The first version I really believe actually works!
+ 1.0	- Fixed the bug that was reported by Christer Enfors:
+	  When adding text to the end of a line what wasn't the last line
+	  and it wasn't previously wrapped, the cursor got on the wrong
+	  position when it did wrap.
+	- Inserting a lot of spaces before the last word of a line, until
+	  that word get wrapped, now tries to move the cursor down to
+	  the next line instead of remaining on the first line.
+ 1.1	- Fixed another Enfors-report. Deleting characters in a line that
+	  makes the first word of the line below get moved to the current,
+	  could make the screen horizontally slided, as when the cursor
+	  reaches the 'marg_right' margin.
+	- Added the suggested changes Alan Beale provided me with for the
+	  delete function.
+ 1.2    - Improved 'delete'. Thanks to Olivier Jeannet for the report!
+          Delete could very easily ruin a whole document previously! ;(
+        - Pasting a block ending with spaces, that crossed the right margin
+          could confuse the wrapper.
+ 1.3    - Made it use an alternative version of Jesper's lovely paragraph
+          'filler' to reformat paragraphs/buffers.
+        - Also added better menu items and made it better looking/ordered.
+        - For the first time ever, I tried the compiled version of this
+          program. Beautiful.
+ 1.4	- Bug reported by C.H.CHee was fixed:
+	  Adding characters in the middle of a line that ended with a
+	  hard return caused the cursor to get badly placed after a wrap.
+	- Backspace flaws reported by C.H.CHee too. Now, backspace works
+	  much better, even when used on the first column of a line
+	  (i.e it deletes the End-Of-Line mark when the lines join and
+	  it also enforces a wrap). Do note that this might put you in
+	  positions where backspace can't be used in the first column,
+	  that is if the first word of the line doesn't fit on the line
+	  above.
+	- Deleting of the End-Of-Line mark now looks better => I made
+	  the following actions being done invisibly.
+
+NOTES
+  When the cursor reaches 'marg_right' columns from the right edge of the
+window, the view will get slided to the side. You can alter that margin
+to better fit your desire and purposes.
+
+BUGS
+  TAB screws up the right margin awareness. Lame, fix that!
+  I know there still are more. Report how to repeat 'em!
+
+TODO
+* Make it quote-aware, editing quoted lines would be a KILLER! ;)
+
+* Make it support some kind of left margin to make it useable when editing
+  texts that don't start in the first column.
+
+* Spell checking. Perhaps auto-invoked on save.
+
+* BOLD/ITALIC/UNDERLINED codes support for Spot ((C) by Nico François)
+
+SEE ALSO
+  WordWrap.FPL - for a simpler and faster word wrap.

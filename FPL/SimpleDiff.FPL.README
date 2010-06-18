@@ -1,0 +1,23 @@
+############################################
+File: SimpleDiff.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Check for differences between two buffers
+Version: 1.0
+Date: 1.8.94
+Local settings:
+Global settings:
+Keysequence: 'Alt num5'
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+
+  This function will check the current view, with the next view, for differences.
+It will start the scan from the cursor position, and only react when a line
+mismatch from the other buffer.  The mismatched line will be graphical reversed
+in one view, and the cursor will be placed on the other line.
+
+  The function is assigned to 'Alt' and 5 on the numeric keyboard.
+

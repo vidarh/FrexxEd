@@ -1,0 +1,124 @@
+// $Id: IncSearch.FPL 1.3 1995/07/27 10:18:30 jskov Exp $
+// $VER: IncSearch.FPL 1.2 (08.03.95) © Jesper Skov
+
+// dir - Initial direction of search
+//   -1: Backward
+//    1: Forward
+//
+string lastsearch="";						// holds string from previous search session
+
+void export IncSearch2(int dir)
+{
+  int cont=1;
+  int searchLen = 0;
+  int prevLine, prevByte;
+  int lenHistory[96];
+  int byteHistory[96];
+  int lineHistory[96];
+  int count = 0;
+  int searchflags=ReadInfo("search_flags"); // Keep old search flags
+
+  string searchString, key;
+
+  if (1==dir)								// Set inital search direction
+    SearchSet("=f+");
+  else
+    SearchSet("=f-");
+
+  byteHistory[0]=ReadInfo("byte_position");	// Get initial position
+  lineHistory[0]=ReadInfo("line");
+  lenHistory[0]=0;
+
+  while (cont){
+    Status(0, joinstr("Search:»",searchString,"«"));
+    key = GetKey();
+    if (!strcmp(key,"\x07") || !strcmp(key, "\x1b")){	// ESC or C-g -> Cancel search
+      GotoLine(lineHistory[0], byteHistory[0]);
+      cont = 0;
+
+    } else if (!strcmp(key, "\b")){ 		// Backspace
+      if (searchLen && count){
+        count--;
+        searchLen=lenHistory[count];
+        searchString=substr(searchString, 0, searchLen);
+        GotoLine(lineHistory[count], byteHistory[count]);
+		Status(0,"",2);
+      }
+
+    } else if (count<96){					// Only proceed if enough table space!
+
+      if (!strcmp(key, "\x13")){			// C-s -> search forward
+        dir = 1;
+        if (!searchLen && ReadInfo("search_forward")){
+          searchString=lastsearch;			// Get old string if C-r/s C-s
+          searchLen=strlen(searchString);
+        }
+        SearchSet("f+");
+        if (searchLen)
+          if (Search(searchString)){
+            DisplayBeep();
+          } else {
+			Status(0,"",2);
+            count++;							// Inc one for successfull continued search
+            lenHistory[count]=searchLen;
+            byteHistory[count]=ReadInfo("byte_position");
+            lineHistory[count]=ReadInfo("line");
+          }
+      } else if (!strcmp(key, "\x12")){ 	// C-r -> search backwards
+        dir = -1;
+        if (!searchLen && !ReadInfo("search_forward")) {
+          searchString=lastsearch;			// Get old string if C-r/s C-r
+          searchLen=strlen(searchString);
+        }
+        SearchSet("f-");
+        if (searchLen) {
+          if (Search(searchString)){
+            DisplayBeep();
+          } else {
+			Status(0,"",2);
+            count++;							// Inc one for successfull continued search
+            lenHistory[count]=searchLen;
+            byteHistory[count]=ReadInfo("byte_position");
+            lineHistory[count]=ReadInfo("line");
+          }
+        }
+      } else { // Check if we're dealing with a printable [spc-z]
+        if ((0<=strcmp(key, " "))&&(0>=strcmp(key, "z"))&&(searchLen<33)){
+          searchLen++;
+          searchString+=key;
+          prevLine=ReadInfo("line");
+          prevByte=ReadInfo("byte_position");
+          if (1==dir){
+            CursorLeft();					// Prepare forward search
+          } else {
+            CursorRight(searchLen);			// Prepare backwards search
+          }
+          count++;
+          lenHistory[count]=searchLen;
+          if (Search(searchString)){		// If no luck re-position cursor
+            if (1==dir){
+              CursorRight();
+            } else {
+              CursorLeft(searchLen);
+            }
+            DisplayBeep();
+          }
+		  Status(0,"",2);
+          byteHistory[count]=ReadInfo("byte_position"); // Get new position
+          lineHistory[count]=ReadInfo("line");
+        } else {							// Non-printable -> quit
+          cont=0;
+        }
+      }
+    }
+  }
+  if (searchLen)
+    lastsearch=searchString;				// Remember searchstring
+  SetInfo(0, "search_flags", searchflags);	// Restore search flags
+}
+
+AssignKey("IncSearch2(-1);","control r");
+AssignKey("IncSearch2(1);","control s");
+
+
+// Ideas:		Wrapped search (C-s after fail -> wrap buffer)

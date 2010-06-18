@@ -1,0 +1,20 @@
+export int GetFile_exception(string path, string filename)
+{
+  int place;
+  string extension;
+  int ret=0;
+
+  place=strstr(filename, ".");
+  if (place>0) {
+    extension=substr(filename, place+1, -1);
+    if (0==Stricmp(extension, "c")) {
+      ret=!Request(joinstr(filename, " is a C file!\nLoad it?"));
+    } else if (0==Stricmp(extension, "asm")) {
+      ret=!Request(joinstr(filename, " is a ASM file!\nLoad it?"));
+    } else
+      ret=!Request(joinstr(filename, " is unknown!\nLoad it?"));
+  }
+  return(ret);
+}
+
+Hook("GetFile", "GetFile_exception");

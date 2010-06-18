@@ -1,0 +1,373 @@
+// $Id: ZMacs.FPL 1.22 1996/05/07 16:07:02 jskov Exp $
+// $VER: ZMacs.FPL 1.12 (07.05.96) © Jesper Skov
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Ideas ««
+// M-y scroll through old yanks (kill ring).
+// M-t transpose words
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Support routines ««
+export int __yankID = GetBufferID("DefaultBlock");  // ID of the block buffer
+
+int __killCounter; 
+void export emacsBsWord()
+{
+  int thisBuffer;
+  int end_line = ReadInfo("line");
+  int end_byte = ReadInfo("byte_position");
+  int tempBlock = BlockCreate("__bsTempBlock");
+
+  if (ReadInfo("counter")!=(__killCounter+1)){
+	killRingInsert();
+    Clean("Clear(__yankID);");
+  }
+  __killCounter = ReadInfo("counter");
+
+  CursorLeftWord();
+  BlockCut(tempBlock, GetCursor(end_byte, end_line), end_line, GetCursor(end_byte=ReadInfo("byte_position")), end_line=ReadInfo("line"));
+
+  thisBuffer = CurrentBuffer(__yankID);
+  GotoLine(1);
+  BlockPaste(tempBlock);
+  CurrentBuffer(thisBuffer);
+
+  GotoLine(end_line, end_byte);
+
+  Kill(tempBlock);
+
+  ringBufferChanged = 1;
+}
+
+void export emacsDelWord()
+{
+  int beg_line = ReadInfo("line");
+  int beg_byte = ReadInfo("byte_position");
+
+  if (ReadInfo("counter")!=(__killCounter+1)){
+	killRingInsert();
+    Clean("Clear(__yankID);");
+  }
+  __killCounter = ReadInfo("counter");
+
+  CursorRightWord();
+  BlockCutAppend(__yankID, GetCursor(ReadInfo("byte_position")), ReadInfo("line"), GetCursor(beg_byte, beg_line), beg_line);
+
+  GotoLine(beg_line, beg_byte);
+  ringBufferChanged = 1;
+}   
+
+/*
+ * Emacs kill-line embryo.
+ * Killed lines will get copied into the block buffer before deleted. Note that
+ * the first killed line will first clear the block buffer, and kills following
+ * that one will append them to the current one.
+ *
+ * Paste the buffer with BlockPaste() or BlockPasteRect() just as usual blocks.
+ *
+ * Coded by Daniel Stenberg
+ */
+
+void export kill_line()
+{
+  int this_count = ReadInfo("counter");
+  if ((this_count != __killCounter)&&(this_count != __killCounter+1)) {
+    // We were not invoked this/last action, clear the buffer
+	killRingInsert();
+    Clean("Clear(__yankID);");				// Clear the block without any hooks
+  }
+  ringBufferChanged = 1;
+  __killCounter = ReadInfo("counter");
+  if(Isnewline(GetChar())) {				// standing on a newline character
+    int oldID = GetEntryID();				// get current entry
+    Delete();								// delete the newline character
+    CurrentBuffer(__yankID);				// switch to the block buffer
+    GotoLine(-1);							// jump to the bottom
+    GotoLine(ReadInfo("line"),ReadInfo("line_length")); // jump to end of line
+    Output("\n");							// add a newline to the buffer
+    CurrentBuffer(oldID);					// switch back to previous buffer
+  } else {									// delete to end of line
+    int curr_col = ReadInfo("column");		// get current column
+    int end_col = GetCursor(ReadInfo("line_length")); // get column of the end of line
+    int curr_line = ReadInfo("line");		// get line number
+
+    BlockCopyAppend(__yankID, end_col, curr_line, curr_col, curr_line);  // append the line to the block
+
+    DeleteEol();							// delete to the end of line
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Yank History ««
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» misc local variables ««
+int maxCount=16;
+export int pos[maxCount];
+export int size[maxCount];
+
+int count=0;
+int current=0;
+
+export int ringBufferChanged = 0;
+//int ringBuffer = New();
+int ringBuffer = BlockCreate("yank_history");
+
+int prevActivationNo;
+int prevX, prevY;
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» killRingInsert() ««
+// Insertes the Default_block in the yank_history. Call after block copy/cut.
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+void export killRingInsert()
+{
+  if (ReadInfo("size",GetBufferID("DefaultBlock"))&&ringBufferChanged){ // only insert if not empty!
+
+	int k=ReadInfo("lines",GetBufferID("DefaultBlock"));
+	int i;
+	int parent = CurrentBuffer(ringBuffer);
+
+	ringBufferChanged = 0;
+
+	SetInfo(GetBufferID("DefaultBlock"),"changes",0);
+
+	if (count==maxCount){						// If maxCount reached, delete last entry
+	  GotoLine(-1);
+	  CursorUp(size[maxCount-1]);
+	  DeleteLine(size[maxCount-1]);
+	} else 
+      count++;
+
+	for(i=maxCount-1;i>0;i--){				// scroll array contents
+	  pos[i]=pos[i-1];
+	  size[i]=size[i-1];
+	}
+
+	for(i=1;i<maxCount;i++)					// adjust start lines according
+      pos[i]+=k;								// to the new block
+
+	GotoLine(1);
+	BlockPaste(GetBufferID("DefaultBlock"));	// insert block in history
+	Output("\n");
+
+	pos[0]=1;
+	size[0]=k;
+
+	CurrentBuffer(parent);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» killRingYankNext() ««
+// Replaces previous yank with the next entry in the yank_history.
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+void export killRingYankNext()
+{
+  if(!((ReadInfo("counter")==prevActivationNo+1) || ReadInfo("counter")==__yankCounter+1)){
+	ReturnStatus("Previous command was not a yank!");
+	return;
+  }
+  prevActivationNo = ReadInfo("counter");
+
+  if(ReadInfo("counter")==__yankCounter+1)
+	current=0;
+
+  BlockDelete(0,prevX, prevY, ReadInfo("column"), ReadInfo("line"));
+
+  current++;
+  if(current==count)						// wrap!
+	current=0;
+
+  prevX = ReadInfo("column");
+  prevY = ReadInfo("line");
+
+  {
+  int parent = CurrentBuffer(ringBuffer);
+  int tempBlock = BlockCreate("_yankScroll");
+
+  GotoLine(pos[current]+size[current]);
+  CursorLeft();								// adjust the extra return!
+  BlockMark(2,0,pos[current],ReadInfo("column"),ReadInfo("line"));
+  BlockCopy(tempBlock,0,pos[current],ReadInfo("column"),ReadInfo("line"));
+
+  CurrentBuffer(parent);
+  BlockPaste(tempBlock);
+  Kill(tempBlock);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» killRingYank() ««
+int __yankCounter;
+
+void export killRingYank()
+{
+  prevX = ReadInfo("column");				// remember position - kryNext may need it
+  prevY = ReadInfo("line");
+
+  killRingInsert();
+
+  __yankCounter = ReadInfo("counter");
+  BlockPaste();								// insert block
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+
+
+void export emacsOpenFile(int viewControl)
+{
+  int old_popup = ReadInfo("popup_view");
+  SetInfo(0,"popup_view",viewControl);
+  Open("");
+  SetInfo(0,"popup_view",old_popup);
+}
+
+
+void export emacsIncludeFile()
+{
+  int old_popup = ReadInfo("popup_view");
+  SetInfo(0,"popup_view",0);
+  InsertFile("");
+  SetInfo(0,"popup_view",old_popup);
+}
+
+
+
+void export emacsGotoBuffer(int viewControl)
+{
+  int id=PromptBuffer("",1);
+  if (id){
+    Activate(id,viewControl);
+    CurrentBuffer(id);
+  }
+}
+
+
+void export emacsTranspose()
+{
+  int letter=GetChar();
+
+  if (Isnewline(letter)){
+    CursorLeft();
+    letter=GetChar();
+    Delete();
+    CursorLeft();
+    Output(itoc(letter));
+    CursorRight();
+  } else {
+    Delete();
+    CursorLeft();
+    Output(itoc(letter));
+    if (Isnewline(GetChar())){				// Fix if moved to prev line
+      CursorRight();
+    }
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Configuration ««
+
+string metaKey = "amiga";							// Default/0
+
+ConstructInfo("emacs_meta","","","GCW(system)","Amiga|Escape|Alt",0,0);
+
+if (ReadInfo("emacs_meta")==1){
+  metaKey = "'esc'";								// 1=Esc
+} else if (ReadInfo("emacs_meta")==2){
+  metaKey = "alt";									// 2=alt
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Cursor movement ««
+AssignKey("CursorLeft();",	"control b");
+AssignKey("CursorRight();",	"control f");
+AssignKey("CursorLeftWord();", metaKey+" b");
+AssignKey("CursorRightWord();",metaKey+" f");
+
+AssignKey("CursorDown();",	"control n");
+AssignKey("CursorUp();",	"control p");
+
+AssignKey("PageUp();",		"control V");
+AssignKey("PageUp();",		metaKey+" v");
+AssignKey("PageDown();",	"control v");
+AssignKey("GotoLine(ReadInfo(\"line\"));","control a");
+AssignKey("GotoLine(ReadInfo(\"line\"),ReadInfo(\"line_length\"));","control e");
+AssignKey("{int id=PrevView();Activate(id, 0);CurrentBuffer(id);}",	"control x o");
+AssignKey("{int id=NextView();Activate(id, 0);CurrentBuffer(id);}",	"control x O");
+AssignKey("GotoLine();",	"control c g");
+AssignKey("GotoLine(1,0);",	metaKey+" <");
+AssignKey("Bottom();End();",metaKey+" >");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Editing ««
+AssignKey("kill_line();",	"control k");
+AssignKey("DeleteEol();",	"shift 'Del'");
+AssignKey("Backspace(ReadInfo(\"byte_position\"));","shift 'backspace'");
+AssignKey("{if (ReadInfo(\"line_length\")==1){kill_line();} else {GotoLine(ReadInfo(\"line\"));kill_line();kill_line();}}",	"control K");
+
+AssignKey("Delete();",		"control d");
+AssignKey("emacsDelWord();",	metaKey+" d");
+AssignKey("emacsBsWord();",metaKey+" 'backspace'");
+
+AssignKey("Undo();",		"control x u");
+
+AssignKey("CenterLine(0);", metaKey+" s", "!block_exist");
+AssignKey("CenterBlock();", metaKey+" s", "block_exist");
+
+AssignKey("emacsTranspose();","control t");
+
+AssignKey("fillText();",metaKey+" q");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Block control ««
+AssignKey("BlockMark();",	"control 'space'");
+AssignKey("killRingInsert();BlockCopy();ringBufferChanged=1;",	"control W");
+AssignKey("killRingInsert();BlockCopy();ringBufferChanged=1;",	metaKey+" w");
+AssignKey("killRingInsert();BlockCut();ringBufferChanged=1;",	"control w");
+AssignKey("killRingYankNext();",metaKey+" y");
+AssignKey("killRingYank();",	"control y");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Macro control ««
+AssignKey("if (!ReadInfo(\"macro_on\")){MacroRecord(1);};","control x (");
+AssignKey("if (ReadInfo(\"macro_on\")){MacroRecord(1,\"\",\"control x e\");};","control x )");
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Buffer control ««
+AssignKey("SaveChanges();",	"control x control s");
+AssignKey("SaveAs();",		"control x control w");
+AssignKey("emacsOpenFile(0);","control x control f");
+AssignKey("emacsOpenFile(1);","control x 4 f");
+AssignKey("emacsIncludeFile();","control x i");
+AssignKey("Kill(GetBufferID());","control x k");
+AssignKey("QuitAll();",		"control x control c");
+AssignKey("emacsGotoBuffer(0);","control x b");
+AssignKey("emacsGotoBuffer(1);","control x 4 b");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» View control ««
+AssignKey("MaximizeView();","control x 1");
+AssignKey("RemoveView();",	"control x 0");
+AssignKey("CurrentBuffer(Activate(DuplicateEntry(),1));","control x 2");
+AssignKey("CenterView();",	"control l");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Folder control ««
+AssignKey("FoldShow();", "control c control s");     // SHOW
+AssignKey("FoldShow(0);", "control c control S e");  // (e)xclusive
+AssignKey("FoldShow(-1);", "control c control S a"); // (a)ll
+AssignKey("FoldDelete();", "control c control S d"); // (d)elete
+AssignKey("FoldHide();", "control c control h");     // HIDE
+AssignKey("FoldHide(0);", "control c control H e");  // (e)xclusive
+AssignKey("FoldHide(-1);", "control c control H a"); // (a)ll
+AssignKey("Fold();", "control c control H n");       // (n)ew
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Search & Replace ««
+AssignKey("{ int ret; if ((ret=ReplaceSet())>=0){ if (Replace()<0) DisplayBeep(); } else ReturnStatus(GetReturnMsg(ret)); };", metaKey+" shift 5");
+
+AssignKey("MySearch(0);", "control S");		// Repeat search forwards
+AssignKey("MySearch(1);", "control R");		// do backwards
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Miscellaneous ««
+AssignKey("SetInfo(-1,\"wall_right\",ReadInfo(\"column\"));","control x f");
+												// Set wall_right
+
+AssignKey("checkWord();",metaKey+" shift 4"); // ISpell
+
+AssignKey("string path = PromptFile(\"\",\"DirED path\",\"\",\"d\");if(strlen(path)) dired(path);","control x d");
+
+AssignKey("Prompt();",		metaKey+" x");
+
+AssignKey("Iconify();",		"control z");

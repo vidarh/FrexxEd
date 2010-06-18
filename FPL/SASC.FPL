@@ -1,0 +1,235 @@
+/* These first functions are to be called from the SCMSG browser through ARexx. */
+
+export void SCMSG_Edit(string filename)
+{
+	if(SCMSG_GotoFile(filename))
+		return;
+	else
+		Open(filename);
+}
+
+export int SCMSG_GotoFile(string filename)
+{
+	string name;
+	int newID;
+
+	name=extractName(filename);
+
+	if(!(newID=GetBufferID(name,1)))
+		return 0;
+
+	Activate(newID);
+	CurrentBuffer(newID);
+	return newID;
+}
+
+export void SCMSG_GotoLine(int line, string msg)
+{
+	GotoLine(line);
+	ReturnStatus(msg);
+}
+
+string extractName(string filename)
+{
+	int newID;
+	int pos;
+
+	pos=strlen(filename);
+
+	for(;pos>=0;--pos)
+	{
+		if(filename[pos]=='/' || filename[pos]==':')
+			break;
+	}
+
+	return(substr(filename,pos+1,-1));
+}
+
+string stripExtension(string file)
+{
+	int len=strlen(file);
+
+	for(--len;len>0 && file[len]!='.'; --len)
+		;
+
+	if(!len)
+		return(file);
+
+	return(substr(file,0,len));
+}
+
+/* The rest of the functions below are for communication from FrexxEd to SCMSG. */
+
+export void SASC_Make(void)
+{
+	string com;
+
+	com="Run CD ";
+	com+=ReadInfo("file_path",GetBufferID());
+	com+=" +\n smake <>CON:0/11/-1/200/smake/CLOSE/WAIT/SCREEN";
+	com+=ReadInfo("current_screen",GetBufferID());
+
+	System(com);
+}
+
+export void SASC_Build(void)
+{
+	string path;
+
+	if(!FindPort("SC_SCMSG"))
+	{
+		System("Run SC:c/scmsg");
+		if(!FindPort("SC_SCMSG",7))
+		{
+			DisplayBeep();
+			return;
+		}
+	}
+
+	path=ReadInfo("file_path",GetBufferID());
+
+	if(!strlen(path))
+		return;
+
+	if(SaveString("ENV:sc/projdir",path))
+	{
+		DisplayBeep();
+		return;
+	}
+
+	ARexxSend("SC_SCMSG","BUILD");
+}
+
+export void SASC_Compile(void)
+{
+	string com;
+
+	com="Run CD ";
+	com+=ReadInfo("file_path",GetBufferID());
+	com+=" +\n sc <>CON:0/11/-1/200/sc/CLOSE/WAIT/SCREEN";
+	com+=ReadInfo("current_screen",GetBufferID());
+	com+=" ";
+	com+=ReadInfo("file_name",GetBufferID());
+
+	System(com);
+}
+
+export void SASC_Opts(int global)
+{
+	string com;
+
+	com="Run CD ";
+
+	if(global)
+		com+="ENV:sc";
+	else
+		com+=ReadInfo("file_path",GetBufferID());
+
+	com+=" +\n SC:c/scopts";
+
+	System(com);
+}
+
+export void SASC_ShowMsg(string cmd)
+{
+	int newID;
+	string file,line,msg=" ";
+
+	if(strlen(cmd))
+		ARexxSend("SC_SCMSG",cmd);
+
+	file=ARexxSend("SC_SCMSG","FILE",-1);
+
+	if(!strlen(file))
+		return;
+
+	if(!SCMSG_GotoFile(file))
+		return;
+
+	line=ARexxSend("SC_SCMSG","LINE",-1);
+	GotoLine(atoi(line));
+
+	msg+=ARexxSend("SC_SCMSG","CLASS",-1);
+	msg+=" ";
+	msg+=ARexxSend("SC_SCMSG","ERRNUM",-1);
+	msg+=": ";
+	msg+=ARexxSend("SC_SCMSG","TEXT",-1);
+
+	ReturnStatus(msg);
+}
+
+export void SASC_Run(void)
+{
+	int len;
+	string file,com;
+
+	com="Run CD ";
+	com+=ReadInfo("file_path",GetBufferID());
+	com+=" +\n";
+
+	file=ReadInfo("file_name",GetBufferID());
+
+	if(!(len=strlen(file)))
+		return;
+
+	com+=stripExtension(file);
+	com+=" <>CON:0/11/-1/200/Program_execution/CLOSE/WAIT/SCREEN";
+	com+=ReadInfo("current_screen",GetBufferID());
+	com+=" ";
+	com+=PromptString("","Program execution","Enter arguments");
+
+	System(com);
+}
+
+export void SASC_Debug(string cmd)
+{
+	int len;
+	string file,com;
+
+	com="Run CD ";
+	com+=ReadInfo("file_path",GetBufferID());
+	com+=" +\n sc:c/cpr -";
+	com+=cmd;
+
+	file=ReadInfo("file_name",GetBufferID());
+	if(!(len=strlen(file)))
+		return;
+
+	com+=" ";
+	com+=stripExtension(file);
+
+	if(strcmp(cmd,"cli")==0)
+	{
+		com+=" ";
+		com+=PromptString("","cpr cli execution","Enter arguments");
+	}
+	System(com);
+}
+
+    MenuAdd("t", "SAS/C");
+	MenuAdd("i", "Make...", "SASC_Make();", "Amiga D m");
+	MenuAdd("i", "Build...", "SASC_Build();", "Amiga D M");
+	MenuAdd("i", "Compile...", "SASC_Compile();", "Amiga D C");
+	MenuAdd("i", "Options");
+		MenuAdd("s", "Local", "SASC_Opts(0);", "Amiga D o");
+		MenuAdd("s", "Global", "SASC_Opts(1);", "Amiga D O");
+	MenuAdd("i", "Run Program", "SASC_Run();", "Amiga D r");
+	MenuAdd("i", "Debug Program");
+		MenuAdd("s", "CLI", "SASC_Debug(\"cli\");", "Amiga D Amiga d");
+		MenuAdd("s", "WB", "SASC_Debug(\"wb\");", "Amiga D Amiga D");
+	MenuAdd("i", "---");
+	MenuAdd("i", "Step", "SASC_ShowMsg(\"\"); ARexxSend(\"SC_SCMSG\",\"delete\");", "Amiga D s");
+	MenuAdd("i", "Current", "SASC_ShowMsg(\"\");", "Amiga D c");
+	MenuAdd("i", "Previous", "SASC_ShowMsg(\"prev\");", "Amiga D p");
+	MenuAdd("i", "Next", "SASC_ShowMsg(\"next\");", "Amiga D n");
+	MenuAdd("i", "First", "SASC_ShowMsg(\"top\");", "Amiga D f");
+	MenuAdd("i", "Last", "SASC_ShowMsg(\"bottom\");", "Amiga D l");
+	MenuAdd("i", "Delete", "ARexxSend(\"SC_SCMSG\",\"delete\");", "Amiga D d");
+	MenuAdd("i", "---");
+	MenuAdd("i", "Start Browser", "System(\"Run SC:c/scmsg\");", "Amiga D Amiga l");
+	MenuAdd("i", "Quit Browser", "ARexxSend(\"SC_SCMSG\",\"quit\");", "Amiga D Amiga q");
+	MenuAdd("i", "Show Browser", "ARexxSend(\"SC_SCMSG\",\"show\");", "Amiga D Amiga s");
+	MenuAdd("i", "Hide Browser", "ARexxSend(\"SC_SCMSG\",\"hide\");", "Amiga D Amiga h");
+	MenuAdd("i", "Clear Browser", "ARexxSend(\"SC_SCMSG\",\"clear\");", "Amiga D Amiga c");
+
+    MenuBuild();

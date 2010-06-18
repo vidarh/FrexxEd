@@ -1,0 +1,245 @@
+/*
+ * SaveProject - saves all open buffers as a project file
+ *
+ * Written by Mathias Axelsson (c) 940715
+ *
+ * All info is saved in a selected file.
+ *
+ * First comes a line of info (starting with #).
+ * Second comes a line with (width, height, x, y position of window).
+ * After that comes several lines with:
+ * <full filename> <line> <byte position> <tab size>
+ *
+ */
+
+export void SaveProject(void)
+{
+	int firstid = NextBuffer();
+	string tmp, outfile;
+	int tal, id=0;
+	string projectname, dir;
+
+	dir = ReadInfo("Project_dir");
+	if (!strlen(dir))
+		dir = "FrexxEd:projects/";
+	else
+		if (dir[strlen(dir) - 1] != '/')
+			dir = dir + "/";
+
+	projectname = PromptFile(dir, "Save project:", "#?.prj");
+
+	if (strlen(projectname))
+	{
+		outfile = "# full_file_name line byte_position tab_size window;\n";
+		id = firstid;
+				
+		tal = ReadInfo("window_width", id);
+		outfile = joinstr(outfile, itoa(tal), " ");
+		tal = ReadInfo("window_height", id);
+		outfile = joinstr(outfile, itoa(tal), " ");
+		tal = ReadInfo("window_xpos", id);
+		outfile = joinstr(outfile, itoa(tal), " ");
+		tal = ReadInfo("window_ypos", id);
+		outfile = joinstr(outfile, itoa(tal), " ");
+		tal = ReadInfo("window", id);
+		outfile = joinstr(outfile, itoa(tal), " ;\n");
+
+		do {
+			if (ReadInfo("type", id) & 1)
+			{
+				tmp = ReadInfo("full_file_name", id);
+				if (strlen(tmp))
+				{
+					outfile = joinstr(outfile, "\"", tmp, "\"", " ");
+					tal = ReadInfo("line", id);
+					outfile = joinstr(outfile, itoa(tal), " ");
+					tal = ReadInfo("byte_position", id);
+					outfile = joinstr(outfile, itoa(tal), " ");
+					tal = ReadInfo("tab_size", id);
+					outfile = joinstr(outfile, itoa(tal), " ;\n");
+				}
+			}
+			
+			id = NextBuffer(id);
+			
+			if (id == firstid)
+				id = 0;
+			
+		} while (id);
+		
+		if (SaveString(projectname, outfile))
+			Request("Error writing project file!", "Error message", "OK");
+	}
+	else
+		ReturnStatus(GetReturnMsg(GetErrNo()));
+}
+
+/*
+ * LoadProject - Loads a project file and open buffers
+ *
+ * Written by Mathias Axelsson (c) 940715
+ *
+ * Loads the seleted project file and sets the window width, height
+ * x and y position. Then it opens all the files and sets line, byte
+ * position and tab size.
+ *
+ */
+
+export void LoadProject(void)
+{
+	int id, i, j, first = 1, x, y, w, h, win, id1=0;
+	string infile, tmp;
+
+	string projectname, dir;
+
+	dir = ReadInfo("Project_dir");
+	if (!strlen(dir))
+		dir = "FrexxEd:projects/";
+	else
+		if (dir[strlen(dir) - 1] != '/')
+			dir = dir + "/";
+
+	projectname = PromptFile(dir, "Load project:", "#?.prj");
+	
+	if (strlen(projectname) >= 4)
+		if (stricmp(substr(projectname, strlen(projectname)-4, 4), ".prj"))
+			projectname = projectname + ".prj";
+	
+	if (strlen(projectname))
+	{
+		infile = LoadString(projectname);
+		if (strlen(infile))
+		{
+			if (strlen(infile) == 0)
+			{
+				Request("Error reading project file!", "Error message", "OK");
+				return;
+			}
+
+			if (strncmp(infile, "#", 1))
+			{
+				Request("This is not a project file!", "Error message", "OK");
+				return;
+			}
+
+			i = strstr(infile, ";");
+			if (i < 0)
+				return;
+
+			infile = substr(infile, i + 2, 10000);
+
+			j = strstr(infile, " ");
+			tmp = substr(infile, 0, j);
+			infile = substr(infile, j + 1, 10000);
+			w = atoi(tmp);
+
+			j = strstr(infile, " ");
+			tmp = substr(infile, 0, j);
+			infile = substr(infile, j + 1, 10000);
+			h = atoi(tmp);
+
+			j = strstr(infile, " ");
+			tmp = substr(infile, 0, j);
+			infile = substr(infile, j + 1, 10000);
+			x = atoi(tmp);
+
+			j = strstr(infile, " ");
+			tmp = substr(infile, 0, j);
+			infile = substr(infile, j + 1, 10000);
+			y = atoi(tmp);
+
+			j = strstr(infile, " ");
+			tmp = substr(infile, 0, j);
+			infile = substr(infile, j + 3, 10000);
+			win = atoi(tmp);
+
+			SetInfo(id, "window_width", w, "window_height", h, "window_xpos", x, "window_ypos", y, "window", win);
+
+			for (;;)
+			{
+				if (strlen(infile) == 0)
+					break;
+
+				infile = substr(infile, 1, 1000);
+				j = strstr(infile, "\"");
+				tmp = substr(infile, 0, j);
+				infile = substr(infile, j + 2, 10000);
+
+				if (first)
+				{
+					id = GetBufferID();
+
+					if (strlen(ReadInfo("file_name", id)) != 0 ||
+						 ReadInfo("changes", id) != 0)
+					{
+						if (!id1)
+							id = New();
+						else
+							id = id1;
+						
+						if (!id)
+						{
+							Request("Can't create new buffer", "Error message", "OK");
+							return;
+						}
+					}
+
+					first = 0;
+				}
+				else
+				{
+					if (!id1)
+						id = New();
+					else
+						id = id1;
+					
+					if (!id)
+					{
+						Request("Can't create new buffer", "Error message", "OK");
+						return;
+					}
+				}
+
+				id1 = id;
+				CurrentBuffer(id);
+
+				if (Load(tmp) < 0)
+				{
+					Request("Error loading file!", "Error message", "OK");
+					j = strstr(infile, ";");
+					infile = substr(infile, j + 2, 10000);
+				}
+				else
+				{
+					j = strstr(infile, " ");
+					tmp = substr(infile, 0, j);
+					infile = substr(infile, j + 1, 10000);
+
+					y = atoi(tmp);
+
+					j = strstr(infile, " ");
+					tmp = substr(infile, 0, j);
+					infile = substr(infile, j + 1, 10000);
+
+					x = atoi(tmp);
+
+					GotoLine(y, x);
+
+					j = strstr(infile, " ");
+					tmp = substr(infile, 0, j);
+					infile = substr(infile, j + 1, 10000);
+
+					SetInfo(id, "tab_size", atoi(tmp));
+
+					j = strstr(infile, ";");
+					infile = substr(infile, j + 2, 10000);
+				
+					id1 = 0;
+				}
+			}
+			
+			if (id1 && ReadInfo("changes", id1) == 0)
+				Kill(id1);
+		}
+	}
+}

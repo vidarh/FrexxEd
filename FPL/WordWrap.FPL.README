@@ -1,0 +1,30 @@
+############################################
+File:		WordWrap.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se, FidoNet 2:201/328
+Short:		Wraps the line at a certain column
+Version:	1.2
+Date:		4.1.95
+Local settings: "wordwrap", "wall_right"
+Global settings:
+Keysequence:
+Type:		Hook
+Prereq:
+############################################
+
+FUNCTION
+  When the local setting "wordwrap" is enabled, all outputs are checked if
+they pass the column "wall_right". If they do, they will be wrapped and the
+writing continues on the line below!
+
+BUGS
+  It is a hook on Output() which means that only when the check is done only
+when things are written, not backspaced or deleted text. This _can_ although
+be done if anyone just modifies the script a bit!
+
+  If you switch on 'wordwrap' and outputs in a line that already is many words
+wider than the right border, the result won't be satisfying! :(
+
+HISTORY
+ 1.1 - Set the 'W'-flag in the settings enabling save.
+ 1.2 - It doesn't leave a trailing space at the end of line any more!

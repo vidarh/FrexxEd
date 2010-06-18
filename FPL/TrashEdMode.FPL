@@ -1,0 +1,269 @@
+// $Id: trashEdMode.FPL 1.2 1996/03/04 08:41:21 jskov Exp $
+// $VER: TrashMOneMode.FPL 1.1 (06.11.95) © Jesper Skov
+
+// General note:
+// Using the FrexxEd filehandler is too slow! Therefore a temp file is used instead
+
+
+// Trash'M-One states:
+// 'a' assembling (assemble % in [1-3])
+// 'f' assembling failed (waiting)
+// 'o' assembling OK
+// 'u' user has control
+// 'w' waiting for external command
+
+int trashBuffer=0;							// Id of the buffer 
+
+export string status;
+
+string tempName;
+int line;
+int bytepos;
+int validChanges;
+
+int timerID=0;
+
+int errorBufferID=0;
+int errorsValid=0;
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» assembleBuffer() ««
+// Pass the buffer to trash'm-One for assembly
+//»»»»»»»»»»»»»»»»»»»»»»»»»»
+void export assembleBuffer(int assemble)
+{
+  if (ReadInfo("protectionbits")&4){
+	Request("Sorry, buffer is write protected!\nDe-protect and try again!","TrashInfo...","OK");
+    return;
+  } else {
+	if (errorBufferID)
+	  ExecuteString("Kill("+itoa(errorBufferID)+");");
+	errorBufferID = 0;
+
+	getStatus();
+
+	if (status[0]!='f' && status[0]!='w'){
+	  if(Request("Trash'm-One not ready for command!\nShould it be popped to front?","TrashInfo...","Yes|No"))
+		popTrash();
+	  return;
+	} else {
+
+	  validChanges = ReadInfo("changes");
+
+	  tempName = joinstr("T:",ReadInfo("file_name"));
+
+	  line = ReadInfo("line");
+	  bytepos = ReadInfo("byte_position");
+
+	  trashBuffer = GetBufferID();
+	  Save(tempName);
+	  SetInfo(-1,"changes",validChanges);		// Remember the changed flag
+
+	  if (assemble){
+		System(joinstr("activateTrash \"",tempName,"\""));
+	    popTrash();
+	  } else {
+        System(joinstr("activateTrash \"",tempName,"\" ASSEMBLE"));
+		addInfo();
+	  }
+	}
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» activateSource() ««
+// Called from trash'm-One to re-load the source in FrexxEd
+//»»»»»»»»»»»»»»»»»»»»»»»»»»
+void export activateSource()
+{
+  if (trashBuffer){
+	string oldName;
+
+	removeInfo();
+
+	if (validChanges!=ReadInfo("changes"))	// If buffer has changed make sure reload is wanted
+	  if (Request("Trash'm-One requests a reload\nbut the buffer has been changed!?!","Trash request...", "Ignore request|Reload")){
+		ReturnStatus(joinstr("Reload of \"",tempName,"\" canceled!"));
+	    exit;
+	  }
+
+	CurrentBuffer(trashBuffer);
+	oldName = ReadInfo("full_file_name");
+	Clean(joinstr("Load(\"",tempName,"\");"));
+	Rename(oldName);
+	SetInfo(-1,"changes",validChanges);		// Remember the changed flag
+
+	getStatus();
+	if (status[0]=='f'){
+	  nextError();
+	} else {
+	  GotoLine(line, bytepos);
+//	  CenterView();
+	}
+
+	Activate();
+	trashBuffer = 0;
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» addInfo() ««
+void addInfo()
+{
+  timerID = TimerAdd(1,"setPercentage();",0,100);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» removeInfo() ««
+void removeInfo()
+{
+  TimerDelete(timerID);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» setPercentage() ««
+export void setPercentage()
+{
+  string progressBar = "p ..........";
+  int i, value;
+
+  getStatus();
+  if (status[0]=='a'){
+
+	progressBar[0]=status[1]+1;				// set pass
+
+	value = atoi(substr(status,1,-1));
+	if (value>100)
+	  value-=100;
+
+	for (i=0;i<(value/10);i++)
+	  progressBar[i+2]='»';
+
+    SetInfo(-1,"trashProgress",progressBar);
+	RedrawScreen();
+
+  } else {
+    SetInfo(-1,"trashProgress", ". ..........");
+	RedrawScreen();
+
+	removeInfo();
+
+	if (status[0]=='o')
+	  popTrash();
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» getStatus() ««
+void getStatus()
+{
+  System("activateTrash address");
+  System("getTrashValues");
+  status = GetEnv("trashStat");
+  if (!strlen(status))
+	status = "z000";						// sleeping!?!?
+
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» popTrash() ««
+void popTrash()
+{
+  System("trashToFront");
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» nextError() ««
+export void nextError()
+{
+  int parent;
+
+  if (!errorBufferID){
+	if (!Check("T:trashLog")){
+	  Request("Log from Trash'm-One not found!?!","TrashInfo...","Huh?");
+	  return;
+	} else {
+	  errorBufferID = New();
+	  parent = CurrentBuffer(errorBufferID);
+	  Load("T:trashLog");
+	  errorsValid = 1;
+	  CurrentBuffer(parent);
+	}
+  }
+
+  // We have an error buffer!
+
+  if (!errorsValid){
+	Request("Log not valid!","TrashInfo...","OK!");
+	return;
+  } else {
+	int retry = 1;
+
+	parent = CurrentBuffer(errorBufferID);
+	
+	while(1){
+	  if (Search("** ","=f+")){
+		if(ReadInfo("line")==1){
+		  ReturnStatus("No errors found!");
+		  CurrentBuffer(parent);
+		  return;
+		} else {
+		  GotoLine(1);
+		  CurrentBuffer(parent);
+		  ReturnStatus("No more errors found!");
+		  return;
+		}	
+	  } else {
+		string errorMsg = substr(GetLine(),ReadInfo("byte_position")+3,ReadInfo("line_length")-ReadInfo("byte_position")-5);
+
+		CursorDown();
+
+		// Check "Code moved" etc
+		if (strcmp(errorMsg,"Code moved during pass 2")){
+		  int errLine = atoi(substr(GetLine(),0,5));
+		  string errorText = substr(GetLine(),39,ReadInfo("line_length")-39);
+
+		  CurrentBuffer(parent);
+
+		  GotoLine(errLine);
+
+		  if (0<Isfold()){
+			FoldShow();
+			FoldShow();
+			GotoLine(errLine);
+		  }
+
+		  ReturnStatus(errorMsg+" ("+errorText+")");
+		  return;
+		}
+	  }
+	}
+  }
+}
+
+
+export void trashMake()
+{
+  string path = ReadInfo("file_path");
+  if (!strlen(path))
+	path = ReadInfo("directory");
+
+  trashBuffer = 0;
+  Save();
+  SaveString("T:trashAssemble","cd "+path+"\nmake trash");
+  System("execute t:trashAssemble");
+}
+
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» TrashMOneMode settings ««
+ConstructInfo("trashProgress","","","LSH","",0,0,". ..........");
+
+SetInfo(-1,"status_line",ReadInfo("status_line")+" $'trashProgress'");
+
+ConstructInfo("trash_mode","","","LBH","",0,1,0);
+ConstructInfo("trash_mode_ext","","","GSWH","",0,0,"*asm*s*i*");
+ConstructInfo("trash_mode_exe","","","GSWH","",0,0,"AsmModeInit();");
+
+AddMode(1,"trash_mode", "trash_mode_ext", "trash_mode_exe"); // Add as major mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key Bindings ««
+AssignKey("assembleBuffer(0);","'esc'", "trash_mode");
+AssignKey("assembleBuffer(1);","shift 'esc'", "trash_mode");
+
+AssignKey("nextError();","control c '0x2a'","trash_mode");
+
+AssignKey("trashMake();","control c control c", "trash_mode");

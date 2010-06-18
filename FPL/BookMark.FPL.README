@@ -1,0 +1,57 @@
+#############################################################################
+File:		BookMark.FPL
+Author:		Kjell Ericson
+		Jesper Skov
+Email:		kjer@netcom.se
+		jskov@iesd.auc.dk
+Short:		Set and goto bookmarks.
+Version:	1.3
+Date:		11.9.95
+Local settings:	mark_adjust_marks, mark_save_marks
+Global settings:
+Keysequence:
+Type:		F1-F10, shift F1-F10
+Prereq:
+Copyright:
+#############################################################################
+
+FUNCTION
+ Creates ten bookmarks for each buffer. Set bookmarks with shift F-key and
+ jump to that bookmark by pressing the F-key alone.
+
+ If the variable "mark_adjust_marks" is checked, the position of the marks
+ will be adjusted whenever a line is inserted or deleted.
+
+ If the variable "mark_save_marks" is checked, the position information of
+ the marks will be loaded/saved in a seperate file ("<name>.Mrk").
+
+ The variable "mark_storage" contains information about where the mark file
+ should be saved. There are three cases:
+  1) Empty	: The ".Mrk" file is saved in the same directory as its
+		  master file.
+
+  2) Absolute	: An absolute path (i.e. containing ":"). All ".Mrk" files
+		  are saved to the specified directory.
+		  The path *must* end in ":" or "/"!
+
+  3) Local	: The ".Mrk" files are saved in a subdirectory named "marks".
+		  This directory will be automatically created.
+		  This mode is identified by a non-empty string, not
+		  containing the ":" character (e.g. "local").
+
+ The mark_storage is also used when loading files (obviously :).
+
+
+
+HISTORY (REV)
+ 01.03.94 (0)	First release. (Kjell)
+ 26.07.95 (1)	Added adjust and load/save. (Jesper)
+ 27.07.95 (2)	Added mark_storage control. (Jesper)
+ 11.09.95 (3)	Inserted Visible(0). (Kjell ?)
+BUGS
+
+
+TODO
+
+SEE ALSO
+

@@ -1,0 +1,22 @@
+void export Twist() 
+{
+  int tkn1, tkn2, im;
+  Visible(0);
+  tkn1=GetChar();
+  if (ReadInfo("byte_position")) {
+    if (tkn1<0 || Isnewline(tkn1)) {
+      if (ReadInfo("byte_position")==1)
+        return;
+      CursorLeft();
+      tkn1=GetChar();
+    }
+    im=ReadInfo("insert_mode");
+    CursorLeft();
+    tkn2=GetChar();
+    SetInfo(-1, "insert_mode", 0);
+    Output(sprintf("%c%c", tkn1, tkn2));
+    SetInfo(-1, "insert_mode", im);
+    Visible(1);
+  }
+}
+AssignKey("Twist();", "Control t");

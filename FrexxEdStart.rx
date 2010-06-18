@@ -1,0 +1,107 @@
+/*****************************************************************************
+ * $VER: FrexxFrontEd v2.1 (27.9.94) - by Daniel Stenberg & Michiel Willems
+ *
+ * Arexx script for FrexxEd as replacement for Ed used with Ced
+ *
+ *
+ * USAGE/DESCRIPTION:
+ *
+ * Arguments: rx FrexxEdStart.rx <Filename> [STICKY]
+ * Example  : rx FrexxEdStart S:Startup-Sequence
+ *
+ ****************************************************************************/
+
+OPTIONS RESULTS
+
+IF ~SHOW('L', "rexxsupport.library") THEN DO
+  IF ~ADDLIB('rexxsupport.library', 0, -30, 0)
+  THEN DO
+    Say "couldn't open rexxsupport.library!"
+    EXIT 10
+  END
+END
+
+PARSE ARG CMDLINE
+
+IF CMDLINE = "" THEN
+        NOARGS = 1
+
+NUMARGS = 0
+IF LEFT(UPPER(CMDLINE),6) == UPPER("sticky") THEN DO
+    STICKY = 1
+    PARSE VAR CMDLINE NAME.NUMARGS CMDLINE
+END
+ELSE DO
+    STICKY = 0
+END
+
+DO UNTIL CMDLINE = ""
+    CMDLINE = STRIP(CMDLINE)
+    IF LEFT(CMDLINE, 1) = '"' THEN DO
+        NUMARGS = NUMARGS + 1
+        PARSE VAR CMDLINE '"' NAME.NUMARGS '"' CMDLINE
+    END
+    ELSE DO
+        NUMARGS = NUMARGS + 1
+        PARSE VAR CMDLINE NAME.NUMARGS CMDLINE
+    END
+END
+
+FILE = NAME.1
+
+IF UPPER(NAME.2) == UPPER("sticky") THEN DO
+    STICKY = 1
+END
+
+DO
+  i = 1
+  DO while i<100 /* no more than 100 simultaneous startups! */
+    IF ~SHOW(P, ED_FREXXED.i) THEN DO
+      IF STICKY THEN DO
+        OURPORT = ED_FREXXED.i
+        cont = OPENPORT( OURPORT ) /* store progress in 'cont' */
+      END
+      ELSE DO
+        cont = 1 /* success! */
+      END
+      if cont THEN DO
+        i = 100
+      END
+    END
+    i = i + 1
+  END
+
+  IF cont THEN DO /* only if success! */
+
+    PortName = 'FREXXED.1'
+
+    IF ~SHOW(P, PortName) THEN DO
+        ADDRESS COMMAND "RUN <NIL: >NIL: Fred"
+        WaitForPort PortName
+    END
+    ADDRESS VALUE PortName
+    'int ID = Open (ARexxRead("FILE"));
+     if(ID && atoi(ARexxRead("STICKY"))) {
+       ReadInfo("_notifyport");
+       if(GetErrNo())
+         ExecuteFile("KillNotify.FPL");
+       SetInfo(ID, "_notifyport", ARexxRead("OURPORT"));
+       WindowToFront();
+     }
+     else {
+       ARexxSet("STICKY", "0");
+     }
+     '
+    IF STICKY THEN DO
+      DO WHILE ~ WAITPKT( OURPORT ) /* wait for message that tells us that the
+                                       previously opened buffer is killed */
+      END
+      packet = GETPKT( OURPORT ) /* get package, but ignore contents! */
+      CALL REPLY(packet, 0)   /* return OK! */
+    END
+  END
+  ELSE DO
+    Say "we found no free port to use!"
+  END
+END
+/*************************************/

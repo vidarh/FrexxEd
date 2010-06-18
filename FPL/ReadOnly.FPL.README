@@ -1,0 +1,34 @@
+#############################################################################
+File:            ReadOnly.FPL
+Author:          Andreas Vögele
+Email:           andreas@porky.apl.s.shuttle.de, FidoNet 2:246/1115.6
+Short:           Adds a read-only switch to the local settings
+Version:         1.1
+Date:            14.2.96
+Local settings:  "read_only"
+Global settings: "rwed_sensitive"
+Keysequence:     'Space', 'Backspace', "b", "q"
+Type:            hook, key
+Prereq:
+Copyright:       GNU General Public License
+#############################################################################
+
+FUNCTION
+  Creates a local boolean info variable named "read_only" that is set to TRUE
+if a write-protected file is loaded into FrexxEd.
+
+  If the info variables "read_only" and "rwed_sensitive" are activated the
+following keys may be used to browse through or quit a buffer:
+
+'Space'          - Page down
+'Backspace', "b" - Page up
+"q"              - Kill buffer
+
+HISTORY
+  1.1: Initial revision
+
+BUGS
+  None known.
+
+TODO
+  Maybe add some more keys. Any suggestions?

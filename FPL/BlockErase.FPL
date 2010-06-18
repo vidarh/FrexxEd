@@ -1,0 +1,24 @@
+export void BackspaceBlock(void)
+{
+	if (ReadInfo("block_exist") == 1) {
+		if ((ReadInfo("block_end_y") == ReadInfo("line")) && (ReadInfo("block_end_x") == ReadInfo("column"))) {
+			BlockDelete(0);
+			exit;
+		}
+	}
+	Backspace();
+}
+
+export void DeleteBlock(void)
+{
+	if (ReadInfo("block_exist") == 1) {
+		if ((ReadInfo("block_begin_y") == ReadInfo("line")) && (ReadInfo("block_begin_x") == ReadInfo("column"))) {
+			BlockDelete(0);
+			exit;
+		}
+	}
+	Delete();
+}
+
+AssignKey("BackspaceBlock();", "'Backspace'");
+AssignKey("DeleteBlock();", "'Delete'");

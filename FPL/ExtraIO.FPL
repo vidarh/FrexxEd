@@ -1,0 +1,258 @@
+string xfplf_filename="FrexxEd:FPL/";
+export int ExecuteFPLFile(string title)
+{
+  string newfile;
+  newfile=PromptFile(xfplf_filename, title, "#?.FP[L|C]");
+  if (strlen(newfile)) {
+    xfplf_filename=newfile;
+    ExecuteFile(newfile);
+  } else
+    ReturnStatus("Function cancel!");
+}
+
+export int Open(string file)
+{
+  string name;
+  int inputbuffer=GetEntryID();
+  int id=inputbuffer;
+  int ret;
+  int activate_mode=-1;
+
+  if (!strcmp(file, "menu_new_window")) {
+    /* Open in a new window (used from the menu) */
+    activate_mode=3;
+    file="";
+    id=New();
+  } else {
+    if (ReadInfo("changes") || ReadInfo("size"))
+      id=New();	/* If the buffer isn't empty or is changed, open a new */
+  }
+  if (id) {
+    CurrentBuffer(id);
+    if (id!=inputbuffer || strlen(file))
+      ret=Load(file, "Open file:");
+    else
+      ret=Load("", "Open file:", ReadInfo("full_file_name", id));
+    CurrentBuffer(inputbuffer);
+    if (ret<0) {
+      if (id!=inputbuffer)
+        Kill(id);
+      id=0;
+    } else {
+      if (id!=inputbuffer) {
+        Activate(id, activate_mode);
+        CurrentBuffer(id);
+      }
+    }
+  }
+  ReturnStatus(GetReturnMsg(ret));
+  return(id);
+}
+
+export int DeleteFile(string pattern)
+{
+  int numoffiles, a;
+  string files[1];
+  string question = "Are you sure you want to delete these?";
+
+  if(strlen(pattern)) {
+    numoffiles = GetFileList(pattern, &files);
+  }
+  else {
+    numoffiles = PromptFile("", "Select files to delete", "#?", "m", &files);
+  }
+  if(numoffiles) {
+    while(a<numoffiles) {
+      question += "\n\"" + files[a] + "\"";
+      a++;
+    }
+    numoffiles *= Request(question, "Delete these?");
+    while(numoffiles--) {
+      System(sprintf("C:delete FORCE QUIET FILE \"%s\"", files[numoffiles]));
+    }
+  }
+  if(!numoffiles)
+    ReturnStatus("No files were deleted!");
+
+  return numoffiles;
+}
+
+export int SaveAs()
+{
+  string name;
+  int ret=1;
+
+  name=PromptFile(ReadInfo("full_file_name"), "Save As", "", "s");
+
+  if (strlen(name)) {
+    if(Check(name))
+      ret = Request("File already exists!\nDo you want to replace it?");
+    if(ret) {
+      Rename(name);
+      if(0 > Save()) {
+        ReturnStatus(GetReturnMsg(GetErrNo()));
+        DisplayBeep();
+      }
+    }
+  }
+}
+
+
+export int BlockLoad()
+{
+  string filename=PromptFile("", "Load Block!");
+
+  if (strlen(filename)) {
+    string file;
+    int ret;
+    file=LoadString(filename);
+    ret=StringToBlock(file);    
+    if (ret!=0) {
+      ReturnStatus(GetReturnMsg(ret));
+      DisplayBeep();
+    }
+  }
+}
+
+export int BlockSave()
+{
+  string filename=PromptFile("", "Save Block!");
+
+  if (strlen(filename)) {
+    string file;
+    int ret;
+    file=GetBlock();
+    ret=SaveString(filename, file);
+    if (ret<0) {
+      ReturnStatus(GetReturnMsg(ret));
+      DisplayBeep();
+    }
+  }
+}
+
+export int SaveChanges()  /* Save only a changed buffer */
+{
+  if (ReadInfo("changes")) {
+    if(0 > Save()) {
+      ReturnStatus(GetReturnMsg(GetErrNo()));
+      DisplayBeep();
+    }
+  } else
+    ReturnStatus("No changes need to be saved!");
+}
+
+export int SaveAll()  /* Save all buffers */
+{
+  int currentid=GetEntryID();
+  int firstid=GetBufferID();
+  int id=firstid;
+
+  do {
+    if (ReadInfo("type")&1) {
+      if(0 > Save()) {
+        ReturnStatus(GetReturnMsg(GetErrNo()));
+        DisplayBeep();
+      }
+    }
+    id=NextBuffer(id);
+    if (id == firstid)
+      id=0;
+    else
+      CurrentBuffer(id);
+  } while (id);
+  CurrentBuffer(currentid);
+}
+
+export int SaveAllChanges()  /* Save all buffers */
+{
+  int activeentry=GetEntryID();
+  int firstid=GetBufferID();
+  int id=firstid;
+
+  do {
+    if (ReadInfo("changes") && (ReadInfo("type")&1)) {
+      if(0 > Save()) {
+        ReturnStatus(GetReturnMsg(GetErrNo()));
+        DisplayBeep();
+      }
+    }
+    id=NextBuffer(id);
+    if (id == firstid)
+      id=0;
+    else
+      CurrentBuffer(id);
+  } while (id);
+  CurrentBuffer(activeentry);
+}
+
+/* The Print functions will save the print file to t:PrintFile, make
+   a script to print it and start a new process that execute the script. */
+
+export int Print()
+{
+  int old_fold_save=ReadInfo("fold_save");
+  int save_ret;
+  int random=Random();  //random number to create a file
+
+  SetInfo(-1, "fold_save", 0);  // toggle fold save, so we don't see them printed
+  save_ret=Save(sprintf("t:PrintFile%d", random) , "");
+  SetInfo(-1, "fold_save", old_fold_save);
+
+  if (0 <= save_ret) {
+    if (0 <= SaveString(sprintf("t:PrintSkript%d", random),
+                        sprintf("type >prt: t:PrintFile%d \n"
+                                "Delete >NIL: t:PrintFile%d \n", random, random)))
+      System(sprintf("run >NIL: Execute t:PrintSkript%d", random));
+  }
+  else {
+    ReturnStatus(GetReturnMsg(GetErrNo()));
+    DisplayBeep();
+  }
+}
+
+export int BlockPrint()
+{
+  int random=Random();  //random number to create a file
+
+  if (0 <= SaveString(sprintf("t:PrintSkript%d", random), GetBlock())) {
+    if (0 <= SaveString("t:PrintSkript",
+                        sprintf("type >prt: t:PrintFile%d \n"
+                                "Delete >NIL: t:PrintFile%d \n", random, random)))
+      System(sprintf("run >NIL: Execute t:PrintSkript%d", random));
+  }
+  else {
+    ReturnStatus(GetReturnMsg(GetErrNo()));
+    DisplayBeep();
+  }
+}
+
+export int RenameQuery()
+{
+  string name=PromptFile(ReadInfo("full_file_name"));
+  if (strlen(name)) {
+    int ret=1;
+    if(Check(name))
+      ret = Request("File " + name + " already exists!\nDo you really want this file name?");
+    if(ret)
+      Rename(name);
+  }
+}
+
+export int SaveQuery()
+{
+  return !Request("File \"" + ReadInfo("full_file_name") + "\"\nhas been changed after FrexxEd loaded it.\nSave it anyway?");
+}
+
+int _SaveCheck;
+export int SaveCheck(string file, string packmode)
+{
+  if(!_SaveCheck && !strlen(file) && !strlen(ReadInfo("file_name"))) {
+    _SaveCheck++;
+    SaveAs();
+    _SaveCheck--;
+    return 1; /* already saved by now! */
+  }
+}
+
+Hook("FileChanged", "SaveQuery");
+Hook("Save", "SaveCheck");

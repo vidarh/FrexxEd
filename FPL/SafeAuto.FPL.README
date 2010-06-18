@@ -1,0 +1,41 @@
+############################################
+File:		SafeAuto.FPL
+Author:		Daniel Stenberg
+Email:		dast@sth.frontec.se, FidoNet 2:201/328
+Short:		Safe autosave
+Version:	1.2
+Date:		8.11.96
+Local settings: ("_asave" is hidden)
+Global settings: "asave_path"
+Keysequence:
+Type:		Hook
+Prereq:
+############################################
+
+FUNCTION
+
+  When enabling the 'AutoSave' exception of FrexxEd, this hook will be called
+after each 'autosave_interval' number of changes.
+
+  This autosave will store the temporary file in the same directory as the
+"real" file, but will call it "#<name>#" (using Emacs style). Backup directory
+is optionally set using the 'asave_path' global setting. When the buffer is
+saved "for real", the autosave file will be deleted.
+
+  Selecting a file for loading will always check for a possible autosave file
+that might be left from the previous editing session. If such a file is found,
+a requester will prompt the user if the autosave file should be loaded instead
+of the "real" file. If the user loads the autosave file, it will be renamed to
+the "real" file name.
+
+HISTORY
+  1.2	Only autosaves regular buffers now.
+
+BUGS
+  After an autosave, the 'changes' setting is set to 1 (not 0 to make the 'C'
+flag remain in the status line, not anything else cause we don't want too
+frequent autosaves!)
+
+  When loading an autosave file instead of the "real" file, a status line
+message will claim "Function cancelled!". That is because the function
+cancels the real load and performs its own. Ignore that message!

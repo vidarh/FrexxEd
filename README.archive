@@ -1,0 +1,76 @@
+ FrexxEd - Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
+
+ This README file is written on June 5th 1998 by Daniel Stenberg.
+
+HISTORY
+=======
+
+ FrexxEd was developed intensely during several years by us, and we released
+it as shareware during that time, asking for money in return for the efforts
+we put into the project.
+
+OPEN SOURCE
+===========
+
+ Now, in 1998, we have not touched this project for over a year and it is now
+obvious that we won't continue on this project. Not now and probably not in
+any later occation either. We therefore made a decision to release the source
+code to the community, to get or to dump, to use or to scrap. We do release it
+under a sufficiently strict open source license to prevent that other people
+will turn our project into theirs in any fashion.
+
+ NOTE! That this is a new license and new conditions for this package, this
+product and this release. Lots of older documentation existing in this package
+will still state that this is crippled shareware and such, although that is no
+longer true!
+
+ABOUT THE ARCHIVE
+=================
+
+ This package is the first release ever of the source. It is the latest
+FrexxEd release (found on i.e aminet) with later fixes and patches added. This
+archive has not yet been tried, nor does it look 100% like the original source
+tree off my (Daniel's) hard drive (details about that follows below).
+
+ This package will probably not be useful out-of-the-box but may need a few or
+many modifications to compile. I hope I'll get info, feedback and help from
+others to make this into a usable archive. If anyone wants it.
+
+KEYFILES
+========
+
+ Everyone is from now on granted permission to use whatever keyfile they want,
+or even produce their own new keyfiles. This package contains a valid keyfile
+in FrexxEd/ directory which i.e can be used (ok, it says FrexxEd is registered
+to Kjell and me, but thats just a minor detail).
+
+ The keyfile code and generator is in the FrexxEd/RSA/ directory.
+
+FPL
+===
+
+ The FPL source archive is not part of this. You can get the latest (14.12 at
+the time of writing) from http://www.fts.frontec.se/~dast/stuff/. The archive
+is multiplatform but there are no problems to built it on amiga.
+
+MODIFICATONS FROM MY ORIGINAL SOURCE TREE
+=========================================
+
+ Ok, the directory which is now named FrexxEd/src/ was created for this
+archive, and all sources moved into it. They were previously all stored in the
+FrexxEd/ root. There may still be things that depend on that structure.
+
+ A few things were copied into the archive tree from the 'distribution tree',
+which was developed and maintained at a separate place on my disk. I think
+those things will be appreciated since they include the docs and install
+directories and more...
+
+CURRENT ADDRESSES
+=================
+
+  The old sources and documents will be polluted with old and erroneous email
+addresses to me and Kjell. These are the correct and valid ones for the time
+being:
+
+  Daniel Stenberg <Daniel.Stenberg@sth.frontec.se>
+  Kjell Ericson <Kjell.Ericson@sth.frontec.se>

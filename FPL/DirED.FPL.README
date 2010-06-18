@@ -1,0 +1,144 @@
+#############################################################################
+File:		DirED.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		Simple directory management from within FrexxEd
+Version:	1.0
+Date:		31.12.95
+Local settings:
+Global settings:
+Keysequence:	See table in text
+Type:
+Prereq:		A few standard shell commands
+Copyright:	© 1995-1996, Jesper Skov
+#############################################################################
+
+INTRODUCTION
+
+ OK, I gotta give it to ya' - this project may seem a bit off track. "Gawd!
+ FrexxEd is AN EDITOR, you moron! Duh!", I hear you say... And I know that's
+ what you'll be saying if you haven't used Dired in Emacs - I used to think
+ Dired only was for the few who wanted to use Emacs as a shell until I
+ recently saw some good in it: I had to edit 15 or so files in my school
+ project. Now the files where scattered around in 6 subdirectories, and I had
+ to edit them multiple times (I was Ispell'ing our report text); whenever
+ someone in my project group had changed a bit of text, I checked it. I know
+ I could have waited until we were done, but I didn't (go figure).
+
+ Enter Dired in which I can easily move around the directories and check the
+ dates of the files at the same time. Also, when a file needs to be checked I
+ just have to press 'e' and it is loaded. When I kill it again, I return to
+ the same place in Dired, thus editing files in sequence via Dired saves you
+ some time.
+
+ Hm, bottom line on this PR: Check it out, and keep it in mind. It might come
+ in very handy some day!
+
+
+FUNCTION
+ 
+ You may start DirED from the Project menu. You will be asked for an initial
+ directory.
+
+ When the directory is read, it is presented to you in a buffer. Here is an
+ example:
+
+
+  ram:#?
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Dir Clipboards                     ----rwed Today    
+       Dir ENV                            ----rwed Today    
+  »    Dir T                              ----rwed Today    
+      3664 disk.info                      ----rw-d Today    
+
+
+ On the first line the current directory and file mask is displayed.
+
+ Below are directories and files listed, split in a directory and a file
+ section. Both sections are sorted alphabetically. If the directory is not
+ displaying a device, there will also be a "Dir /" - the same as parent
+ directory.
+
+ There are five columns:
+
+ Mark Indicates marked files ("T" is marked above).
+ Size Size of file or "Dir" if directory.
+ Name Full name of file/directory.
+ Prot Protection bits.
+ Date Date.
+
+ The status line displays how many dirs/files are marked.
+
+ Since the lists are made with the C:List command, this whole FPL script may
+ f*ck up if you use another language than English, *and* if C:List is
+ localized. I don't know since I only have English on my machine (and I'm too
+ lazy to install Danish just to check this out). If it's a problem, tell me
+ and I might do something about it.
+
+ Right, even though some of the keys are predefined to do miscellaneous
+ operations on the files, you still have full... er, passive editing options.
+ That is: the cursor is not bound in any way, and you may copy names/paths
+ whatever from the buffer if you like. The buffer is write protected though.
+ Usually the cursor will be put at the name-column whenever you execute some
+ operation (I like it that way, and it's the only reason it's done).
+
+ The key bindings in DirED can be seen in the table below. These are only
+ special bindings. Cursor control is not affected.
+
+
+ Key	Operation					Works on marked files
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+ q/ESC	Quit DirED (kills all DirED buffers!)
+
+ j	Jump to new path.
+ RETURN Enter directory  
+ BS 	Go to parent directory  
+
+ ?	Show path of current directory in status line
+ l	Refresh directory information (current directory only)
+
+ m	Change file mask
+
+ SPACE	Toggle mark of current file and move down (+SHIFT to stay)
+
+ p	Protect file
+ r	Rename file
+ c	Copy files							X
+ d	Delete files (be careful!)					X
+
+ e	Edit file
+ E	Edit file (split view)
+
+
+ Since I do not check if the directories change, you may need to refresh the
+ buffers from time to time. It's also a (slow) way of removing marks.
+
+
+HISTORY (REV)
+ 30.12.95 (0) First version. Lots of features for one days work!
+
+BUGS
+ Plenty, I'm sure. Let me know, please! At present I'm aware of the following
+ bugs:
+
+ The very thing I love about Dired (in Emacs) cannot be done in FrexxEd (I
+ know: Contradiction in terms.... but I have not figured out how to do it
+ yet 8^) When a file is loaded from DirED and later killed, one does *not*
+ return to the correct buffer... :(
+
+ No special handling of long paths (i.e. 80+ chars)
+
+ Presently only room for files less than 9.9M (no problem to change it).
+
+ Since C:List is confuzed about link-files, so is DirED.
+
+TODO
+ Date sort.
+ Toggle selected files.
+ Select files by pattern (I rely on List doing the pattern matching at the mo)
+  Also: select backup files, select auto-save files
+ Add mouse control :)
+ Full DOp*s emulation :)
+
+SEE ALSO
+ 

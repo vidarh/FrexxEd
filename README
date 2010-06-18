@@ -1,0 +1,102 @@
+TITLE
+
+	FrexxEd
+
+VERSION
+
+	2.0
+
+COMPANY
+
+	FrexxWare
+
+AUTHORS
+
+	Daniel Stenberg and Kjell Ericson
+	email: Daniel.Stenberg@sth.frontec.se and kjer@netcom.se
+	FidoNet to: 2:201/328
+
+DESCRIPTION
+
+	FrexxEd is probably the most configurable/programmable text editor
+	made for the Amiga.
+
+	The main mission with FrexxEd has been to create an editor which is
+        capable of doing whatever *YOU* want it to. To enable *very* much
+        reprogramming/configuration for those who feel the need.
+
+	Some of FrexxEd's features are:
+
+	o Any amount of windows or screens (on any public screen)
+	o Context-sensitive colouring/styling of text.
+	o Any amount of views available in all windows.
+	o Ability to edit the same file in all windows and views, or in none
+	  is selected.
+	o 100% recursive undo, changeable undobuffer size and on/off toggle
+	o unlimited number of buffers/blocks/macros in memory
+	o unlimited line lengths and buffer sizes
+	o 100% programmable, everything can be done by a script instead of
+	  interactive
+	o *very* C-like programming language (FPL)
+	o FPL compiler included, greatly enhances the script execution speed
+	o clipboard support, export to/import from any unit
+	o V39 aware, uses V39 functions when available
+	o file name extension aware icon usage
+	o easy macro record/edit/view/play/save/load
+	o customizeable look of any ASCII character (to i.e enable the inverse
+	  CED-look or the \xxx Emacs-look or...)
+	o programmable keyassigns, make any key do anything
+	o programmable mouseactions, make any mouse action perform whatever
+	  you want it to
+	o rectangular/column style block marks and block pastes
+	o programmable menustrip, make it contain whatever you please!
+	o supports XPK and PowerPacker compression/decompression and
+	  encryption/decryption.
+	o >600K documentation in amigaguide format
+	o ARexx port, capable of reading and writing ARexx variables!
+	o A *LOT* of additional scripts that perform a multitude of different
+	  things. From mousedragging-style blockmarking, archive-flag removal
+	  when saving, center line, binary editor, snake game, incremental
+	  search, interactive C indenting and word wrap to generic assembler
+	  filters, bookmarks, backup, autosave and programs that easy
+	  interfaces RCS...
+	o binary loading/editing/saving and true TABs
+	o font sensitive GUI
+	o ability to replace/change the workings of any internal function
+	  through an advanced hooking procedure
+	o mailing list and other eletronic mail support
+
+SPECIAL REQUIREMENTS
+
+	AmigaOS v2.04+ or later
+	Anything below 1MB ram wouldn't be useful
+	Hard disk is preferred (less than 1 MB is used)
+
+HOST NAME
+
+	ftp: Aminet, ftp.doc.ic.ac.uk
+
+	http://sunsite.auc.dk/frexxed and http://www.lysator.liu.se/~matax
+
+DIRECTORY
+
+	/pub/aminet/text/edit
+
+FILE NAME
+
+	FrexxEd_2.lha
+	FrexxEd_2.lha
+
+PRICE
+
+	200 SEK, 40US$ or 65DM
+
+DISTRIBUTABILITY
+
+	Shareware
+	Copyright (C) 1992-1996 by FrexxWare
+
+OTHER
+
+	Uses a keyfile system, unregistered versions feature a small amount of
+	cripples.

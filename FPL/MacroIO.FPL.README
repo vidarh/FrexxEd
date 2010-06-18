@@ -1,0 +1,25 @@
+############################################
+File:		MacroIO.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		FidoNet 2:201/328
+Short:		Save and load defined macros.
+Version:	1.4
+Date:		26.2.95
+Local settings:
+Global settings:
+Keysequence:
+Type: 		functions
+Prereq:
+############################################
+
+FUNCTION
+  SaveMacro() will let you choose a macro to save.  SaveMacro() adds a initial
+string at the top of the macro, that will be examined by LoadMacro().  This 
+string contains the hotkey for the macro.
+
+  The functions can be reached from the menu (defined in Menu.FPL) where the 
+string: 'ExecuteFile("MacroIO.FPL", "SaveMacro();");' is defined.
+
+HISTORY
+  1.3 The LoadMacro() function now usess a file name parameter.
+  1.4 Now exports the functions, to be used from Startup.FPL!

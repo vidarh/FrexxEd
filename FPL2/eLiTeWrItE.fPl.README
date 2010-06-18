@@ -1,0 +1,21 @@
+############################################
+File: eLiTeWrItE.fPl
+Author: Kjell Ericson
+Email: FidoNet 2:201/328
+Short description: toggle the case of written letters
+Version: 1.0
+Date: 21.5.94
+Local settings:
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+############################################
+
+FUNCTION
+  There are some people in the computer community who call themselved 'Elite'.
+Among them, have the strange habbit of writing with mixed letter cases grown.
+This little function makes all input to FrexxEd appear in that 'Elite' way!
+
+This is not useful in any way, just a fun way to show off the capabilities of
+editor programming!

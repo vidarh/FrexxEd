@@ -1,0 +1,167 @@
+#############################################################################
+File:		FMC.FPL
+Author:		Jesper Skov   (+ a bit by Daniel Stenberg)
+Email:		jskov@iesd.auc.dk / http://www.iesd.auc.dk/~jskov
+Short:		File Mode Control - switches on modes based on file's ext
+Version:	2.4
+Date:		24.07.96
+Local settings:
+Global settings:
+Keysequence:
+Type:
+Prereq:
+Copyright:	© 1995-1996, Jesper Skov
+#############################################################################
+
+FUNCTION
+  This package give FrexxEd the powerfull ability of recognizing different
+  file types, and act in a (by you) predefined manner. As of FrexxEd version
+  1.7, FMC is included by the FrexxEd.FPL file (you should remove it from
+  your User.FPL file if it's therein!)
+
+  I think I better give you some examples:
+
+  You load a file named "test.fpl". C style indention is automatically
+  switched on, and perhaps some ETags are loaded.
+
+  I create a file named "text.tex". LaTeX mode gets switched on as does
+  double mode (I'm Danish - we have funky letters :)
+
+  In both examples some other things may happen without you having to
+  explicitly specify it. This could be the syntax of comments being changed,
+  or needed external ARexx servers being launched.
+
+
+  For this to work FMC introduces a new concept - the major and minor modes.
+
+  What are modes?
+
+  Major mode:
+   A major mode is a FrexxEd "environment" which will allow communication
+   with external applications. This could be an assembler, compiler or a
+   viewer.
+   Only one major mode is active at a time.
+
+  Minor mode:
+   A minor mode is a more text oriented interface - making it easier for the
+   user to work with the format of the text/source used by external
+   applications. This could be indention control for C, assembler or Pascal.
+   Maybe some macro packages for LaTeX or HyperText (AmigaGuide format).
+   Also things like word wrap and my DoubleMode are considered minor modes.
+   In short, anything not an interface is a minor mode.
+   Many minor modes may be active at a time.
+
+
+  "OK", you ask. "What's the big deal here?"
+
+  Methaphorically speaking, you may now not only select what's for dinner,
+  but also what spices to use :)
+
+  This is possible because each major mode has the following information:
+
+  extensions: What file types should trigger this mode?
+              The extensions are case in-sensitive and separated with stars:
+              Examples: "*c*h*" - could be for a C mode.
+                        "*text*txt*readme*" - could be for a text mode.
+
+  execute: A string that will be executed when the mode is switched on. This
+           string (full FPL syntax) includes the code responsible for
+           switching on minor modes. There may also be calls to (major) mode
+           specific initialization - these should be default settings from
+           the authors side.
+           To make it easier for you to add more spice, you may use a
+           function called ME(string mode_name). It will switch on the minor
+           mode of name "mode_name" (beats writing SetInfo(-1,mode_name,1);).
+	   Some minor modes also contain a function which initializes
+	   miscellaneous settings like the comment strings. Check with the
+	   documentation (or FPL code) of a minor mode to se how you should
+	   start it.
+
+  You may change these settings with "Customizing->Program->Major Modes", and
+  the idividual buffer's major mode and minor modes with
+  "Customizing->Buffer Mode->Major/Minor".
+
+  Whenever you change a buffer's major mode, all minor modes are disabled. It
+  is then the job of the major mode's execute to enable the correct minor
+  modes.
+
+
+
+  You may also force a major mode by putting the string
+  "-*-<mode name>-*-" in the first line of a file. For example, if you write
+  many install scripts and have made a LISP major mode (it is LISP code,
+  right? Looks like it to me, anyway!) the first line of the file
+  "Install_english" could be "## -*-lisp_mode-*-" (## represents a comment -
+  I don't know the syntax, sorry). Now the buffer would be in LISP mode, even
+  though the file has no extension (as opposed to "file.lisp").
+
+
+  ------
+
+  If you want to make your own major/minor modes all you have to do is to call
+  the function AddMode described below:
+
+  AddMode(int type, string name, string extensions, string execute)
+
+  type:       0 = minor mode, 1 = major mode
+  name:       name of mode info variable (e.g. "latex_mode")
+              (boolean, "LBH")
+  extensions: name of extensions info variable (e.g. "latex_ext")
+              Only for major mode! (string, "GSWH")
+  execute:    name of execute info variable (e.g. "latex_exe")
+              Only for major mode! (string, "GSWH")
+
+  You must create the info variables yourself. They should have the type
+  strings listed above. If you are making a minor mode, extensions and
+  execute should be empty strings (e.g. AddMode(0,"double_mode","","")).
+
+  If you have already made something that should be a major/minor mode, and
+  have any questions about how to make it FMC compatible, please let me know.
+  Also, you may find answer to your questions in some of my (or others) modes.
+  Check out DoubleMode (minor mode) and PasTeXMode (major mode).
+
+
+  You may now (16.06.95) also consult the following files (please do!):
+
+  Major modes:	FPLmode.FPL, PasTeXMode.FPL, SNMAMode.FPL & TextMode.FPL
+
+  Minor modes:	AsmMode.FPL, CIndentMode.FPL, CMode.FPL, CommentMode.fpl,
+		DoubleMode.FPL, LaTeXMode.FPL & TextMode.FPL
+
+
+  Notice that TextMode is both Major and Minor mode!!! There really isn't any
+  interface part of editing a text (well, maybe printing) so I have made it a
+  major mode, which holds the functions normally found in minor modes.
+
+
+HISTORY (REV)
+  24.07.96 (4)	Related to the rev 3 fix; The 'face' setting was not reset.
+
+  07.07.96 (3)	Minor modes were not properly disabled when a major mode
+		was enabled at load time. This could result in C Indenting
+		being enabled when editing assembler sources...
+		Very annoying :)
+		Also fixed a few 'extern' key word inconsistencies.
+
+  21.10.95 (2)	The file extension is now also checked after a Rename (and
+		therefore also after SaveAs). Suggested by Mathias Axelsson.
+
+  18.08.95 (1)	Changing major mode was not properly handled. Fixed.
+
+  02.04.95 (0)	Written with experience from LMC and FMC1.1, and after
+                general acceptance of my ideas on the FrexxEd mailing
+                list =)
+
+BUGS
+  Be sure to report any bugs you may find!
+
+TODO
+  Get old FPL modes prepped to the FMC.
+  Make people use the mode concept in the future.
+  A better documentation here - describing how a mode should be programmed
+   (what functions should be included etc.) At the moment I urge you to check
+   out (all) the modes listed above, so you may figure out for yourself what
+   a mode should contain.
+
+SEE ALSO
+  Larry Niven & Steven Barnes' "The Barsoom Project" (ISBN: 0-330-31670-2)

@@ -1,0 +1,68 @@
+/*  ShowFPL.rx                                                                   */
+/*
+**  By Edd Dumbill © 1995
+**
+**  Creates an AmigaGuide document to browse FPL programs and their README files
+**  and also to install/remove FPL files from the startup directory
+**
+*/
+if ~ show('l', "rexxsupport.library") then do
+    if ~ addlib('rexxsupport.library', 0, -30, 0) then do
+        say 'rexxsupport.library not available - aborting.'
+        exit 10
+    end
+end
+PARSE ARG outputfile
+if ~ open('opf', outputfile, 'w') then do
+    say 'can''t open output file - aborting.'
+    exit 20
+end
+ADDRESS COMMAND
+    'list FrexxEd:fpl/#?.FPL LFORMAT %s >t:READMEs'
+    'sort FROM t:READMEs TO t:sortedREADMEs'
+    'delete t:READMEs quiet'
+ADDRESS
+if open('flist', 't:sortedREADMEs', 'R') then do
+    if open('fout', 't:output', 'W') then do
+        writeln('opf', '@database FPLindex')
+        writeln('opf', '@remark Created with ShowFPL.rx by and © Edd Dumbill 1995')
+        writeln('opf', '@node Main "Index of FPL programs in FrexxEd:FPL/"')
+        writeln('opf', 'Click on the filename to view FPL source or on the description')
+        writeln('opf', 'to view the README file.')
+        writeln('opf', 'Click on @{b}I@{ub} to install the FPL file in the startup directory,')
+        writeln('opf', 'and @{b}R@{ub} to remove it from there.')
+        writeln('opf', '')
+        do while ~ eof('flist')
+            fname = readln('flist')
+            if open('fplfile', 'FrexxEd:FPL/'||fname||'.README', 'r') then do
+                dummy = ""
+                do while (left(dummy,5) ~= 'Short' & (~ eof('fplfile')))
+                    dummy=readln('fplfile')
+                end
+                if (~eof('fplfile')) then do
+                    sst = strip(right(dummy, length(dummy)-6),'B');
+                    if (left(sst, 12)='description:') then do
+                        sst = strip(right(sst, length(sst)-12),'B');
+                    end
+                    sst = strip(sst,'B',D2C(9));
+                    padd=24-length(fname)
+                    if padd<1 then padd = 1
+                    ibutton=' @{fg fill}@{"I" system "makelink from FrexxEd:startup/'||fname' FrexxEd:FPL/'||fname'"}'
+                    rbutton='@{"R" system "delete FrexxEd:startup/'||fname||' QUIET"} '
+                    sstlink='@{fg text}@{"' || sst || '" link "FrexxEd:FPL/' || fname || '.README/main"}'
+                    writeln('opf',ibutton||rbutton||'@{fg shine}@{"'fname||'" link "FrexxEd:FPL/'||fname||'/main"}'||copies(' ',padd)||sstlink)
+                end
+                close('fplfile')
+            end
+        end
+        close('fout')
+        writeln('opf', '@endnode')
+    end
+    close('flist')
+end
+address command
+    'delete t:sortedREADMEs quiet'
+    'copy envarc:sys/def_guide.info 'outputfile||'.info QUIET'
+address
+close('opf')
+exit 0

@@ -1,0 +1,29 @@
+############################################
+File: HexDisplay.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: displays the current line with hexadecimal numbers
+Version: 1.0
+Date: 1.3.94
+Local settings:
+Global settings:
+Keysequence: "Amiga shift h"
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  The two lines below the current will display the contents of the current
+line in hexadecimal numbers (the lines below will *not* get changed by this
+operation, only change looks until the screen is refreshed). The most
+significant number is the uppermost.
+
+EXAMPLE
+  Below is a line consisting of two words. On that line we press the magic
+key sequence, and below that we see the output of this program:
+
+--------------
+  Example line
+224766766266660
+00581D0C50C9E5A
+--------------

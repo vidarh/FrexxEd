@@ -1,0 +1,37 @@
+//export int Blanker()
+{
+  string orignal_font = ReadInfo("system_font");
+  string line;
+  int x, y, xd, yd;
+  int t;
+  int col=ReadInfo("view_columns");
+  int lin=ReadInfo("view_lines");
+
+  for(t=0; t<ReadInfo("view_columns"); t++)
+    line+=" ";
+
+  CursorActive(0);
+
+  SetInfo(-1, "system_font", "topaz.font 2");
+
+  x = abs(Random()%col);
+  y = abs(Random()%lin);
+
+  do {
+    line[x]='*';
+    PrintLine(line, y);
+    line[x]=' ';
+
+    if((x+=Random()%4)>=col)
+      x=col-1;
+    else if(x<0)
+      x=0;
+    if((y+=Random()%4)>=lin)
+      y=lin-1;
+    else if(y<0)
+      y=0;
+    
+  } while(!strlen(GetKey(1)));
+  SetInfo(-1, "system_font", orignal_font);
+  RedrawScreen();
+}

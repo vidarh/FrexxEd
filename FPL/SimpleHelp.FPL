@@ -1,0 +1,53 @@
+export void SimpleHelp(string doc)
+{
+  string docfile="Guide:AllNodes";
+  int oldbuffer=GetEntryID();
+  int buffer;
+  string line, file;
+  int start=6, stop;
+  int found=0;
+
+  if (strlen(doc)) {
+    buffer=New();
+    if (buffer) {
+      found=1;
+      Visible(0);
+      CurrentBuffer(buffer);
+      Clean(joinstr("Load(\"", docfile, "\");"));
+      GotoLine(1, 0);
+      if (Search(joinstr("\"", doc, "\""), "fc+ow-")<0) {
+        if (Search(joinstr(" ", doc, " "), "fc+ow-")<0) {
+          if (Search(doc, "fco+w-")<0) {
+            found=0;
+          }
+        }
+      }
+      if (found) {
+        found=0;
+        line=GetLine();
+        if (line[start]=='\"')
+          stop=strstr(line, "\"", ++start);
+        else {
+          stop=strstr(line, " ", start);
+          if (stop==-1)
+            stop=strstr(line, "\n", start);
+        }
+        if (stop) {
+          line=substr(line, start, stop-start);
+          if (Search(":\n", "fow-")>=0) {
+            file=substr(GetLine(), 0, ReadInfo("byte_position"));
+            System(sprintf("run >nil: <nil: Amigaguide \"%s\" Document \"%s\" PubScreen \"%s\"", file, line, ReadInfo("current_screen", oldbuffer)));
+            ReturnStatus(sprintf("AMIGAGUIDE \"%s\" DOCUMENT \"%s\" PUBSCREEN \"%s\"", file, line, ReadInfo("current_screen", oldbuffer)));
+            found=1;
+          }
+        }
+      }
+      CurrentBuffer(oldbuffer);
+      Kill(buffer);
+    }
+  }
+  if (!found)
+	ReturnStatus("System call not found!");
+}
+AssignKey("SimpleHelp(PromptString(\"\", \"Help on word\"));", "Amiga Shift 'Help'");
+AssignKey("SimpleHelp(GetWord());", "'Help'");

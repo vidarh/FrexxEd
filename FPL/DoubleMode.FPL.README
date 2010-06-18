@@ -1,0 +1,48 @@
+#############################################################################
+File:		DoubleMode
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Two characters assigned to one key.
+Version:	1.3
+Date:		02.04.95
+Local settings:	double_mode (boolean)
+Global settings:
+Keysequence:	Danish:
+		;/;;  -> ז/;
+		:/::  -> ֶ/:
+		'/''  -> ר/'
+		"/""  -> ״/"
+		[/[[  -> ו/[
+		{/{{  -> ֵ/{
+Type:		function/key
+Prereq:		(FMC.FPL)
+Copyright:	© 1994-1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+  With this function it is possible to type two (different) letters with one
+  key. I know, sounds a bit strange. The point is: I'm Danish and when I'm
+  writing Danish texts I need the special Danish characters זרו/ֶ״ֵ. However,
+  I really hate the Danish keymap because... Erm, I just prefer the USA1
+  (or is the default Amiga keymap USA0?) keymap, OK? Right... So, the big
+  problem is how to assign two different letters to the same key!?! Well, a
+  solution is to let a single and a double "key press" have two different
+  outputs!!!
+  Sounds funky, but is actually pretty neat. Have a try if you don't know
+  what the h**l I'm talking about.
+  If you want to do a special adaption of the key bindings for your country's
+  keymap, please send them to me and I'll release an updated file (you'll
+  be credited, of course)
+
+HISTORY (REV)
+  02.04.95 (3)	Is now a minor mode.
+  06.03.95 (2)	Bug from clean up fixed.
+  02.03.95 (1)	Code cleaned up.
+  29.10.94 (0)	Initial release. Includes key bindings for the Danish keymap.
+
+BUGS
+  None known.
+
+SEE ALSO
+  FMC.FPL.readme
+  Arthur C. Clarke's "The City and the Stars" (ISBN: 0-553-28853-9)

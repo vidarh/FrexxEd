@@ -1,0 +1,66 @@
+string real_line, real_title;
+int time_id;
+int clockmode;
+int expunge;
+
+export int ClockUpdate()
+{
+  string clockline;
+  if (expunge) {
+    expunge=0;
+    switch(clockmode) {
+    case 1:
+      /* replace old status line */
+      SetInfo(0, "status_line", real_line);
+      break;
+    case 2:
+      /* replace old window title */
+      SetInfo(0, "window_title", real_title);
+      break;
+    }
+    clockmode=ReadInfo("clock");
+    if (!clockmode) {
+      /* delete old one! */
+      TimerDelete( time_id );
+      time_id = 0;
+      return;
+    }
+  }
+  switch(clockmode) {
+  case 1:
+    SetInfo(0, "status_line", real_line + " " + substr(GetDate(-1,2), 1, 5));
+    break;
+  case 2:
+    SetInfo(0, "window_title", ReadInfo("version_id") +"  " + substr(GetDate(-1,2), 1, 5));
+    break;
+  }
+}
+
+export void ClockToggle(void)
+{
+  switch(ReadInfo("clock")) {
+  case 1:
+    real_line = ReadInfo("status_line"); /* store the real one! */
+    break;
+  case 2:
+    real_title= ReadInfo("window_title"); /* store the real one! */
+    break;
+  }
+  if (!time_id)
+    time_id = TimerAdd(1, "ClockUpdate();", 10);
+  expunge=1;
+  ExecuteLater("ClockUpdate();");
+}
+
+export int ClockQuery(void)
+{
+  return Request("This feature updates a clock string\n"
+                 "on the right edge of your status line\n"
+                 "or in the window title (if registered).\n"
+                 "When in use, you won't be able to change\n"
+                 "status line appearance. Want it?",
+                 "Just answer",
+                 "status line|window title|off");
+}
+
+ConstructInfo("clock", "ClockToggle();", "ClockQuery();", "WCG", "off|status|title", 0, 0);

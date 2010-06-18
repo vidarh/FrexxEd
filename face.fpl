@@ -1,0 +1,51 @@
+
+
+{
+  int face = FaceGet("c-mode", 1); /* create one if missing */
+  if(face) {
+    int style;
+
+    /* Get the style named "c-keywords" OR create one that is bold with
+       foreground pen 3 and background pen 0. If none matched and none
+       could be created, it will return the style of the best match and
+       no style will be named like this. */
+    style = FaceStyle("c-keywords", "bold", 1, 0);
+    FaceAdd(face,  /* add word(s) to this face */
+            style, /* use the c-keywords style */
+            /* Specify all words we want to add to this face with this
+               particular style, we can of course add more words at a
+               later time */
+            "for|do|while|else|if|int|long|short|char|extern|"
+            "static|unsigned|signed|return|continue|break|void|"
+            "case|switch|WORD|LONG|struct",
+            "word" /* these are word-only matches, that must be surrounded
+                      with non-word letters to get recognized */
+            );
+
+    style = FaceStyle("c-comments", "italic", 3, 0);
+    FaceAdd(face, style, "/*", "anywhere|strong", "*/");
+    FaceAdd(face, style, "//", "anywhere|strong|doublechk", "\n");
+
+    style = FaceStyle("c-cpp", "normal", 2, 0);
+    FaceAdd(face, style, "#", "backslash|1nonspace|weak", "\n");
+
+    style = FaceStyle("c-string", "italic|bold", 2, 0);
+    FaceAdd(face, style, "\"", "backslash", "\"");
+  }
+  /* else
+    face is 0, which means GetFace() failed somehow! */
+}
+
+/*
+ FLAGS for FaceAdd():
+ ====================
+ usepipe   - the pipe ('|') letter is a part of the actual string
+ word      - the string(s) must match as a word-only
+ anywhere  - matches wherever it appears in the text
+ strong    - a strong string. Will conquer weak ones.
+ weak      - a weak string. Will be conquered by strong ones.
+ 1nonspace - must be the first non-whitespace on a line to match
+ backslash - a letter following a backslash will be ignored
+ doublechk - set this on strongs to make it check the weak too when
+             reaching the end (allowing them to end with the same string)
+*/

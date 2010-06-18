@@ -1,0 +1,21 @@
+############################################
+File:		SearchMark.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		FidoNet 2:201/328
+Short:		BlockMark searched word when found
+Version:	1.0
+Date:		6.8.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		Hook
+Prereq:
+############################################
+
+FUNCTION
+  After every successfull search, the matched string is block marked.
+
+HISTORY
+
+1.0 (6.8.95) First version.
+

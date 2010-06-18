@@ -1,0 +1,55 @@
+/******************************
+ * Read SafeAuto.FPL.README!  *
+ * Written by Daniel Stenberg *
+ ******************************/
+export int ASave_hook(int ID)
+{
+  string newname;
+  string bdir = ReadInfo("asave_path");
+  if(!(ReadInfo("type")&1))
+    return; /* only save regular buffers! */
+  if(!strlen(bdir))
+    bdir = ReadInfo("file_path", ID);
+  newname = joinstr(bdir, "#", ReadInfo("file_name", ID), "#");
+  SetInfo(-1, "_asave", 1);
+  Save(newname);
+  SetInfo(-1, "_asave", 0);
+  SetInfo(-1, "changes", 1);
+}
+
+export int Asave_hook(string file, string pack)
+{
+  string cmd;
+  string bdir = ReadInfo("asave_path");
+  if(!strlen(bdir))
+    bdir = ReadInfo("file_path");
+  cmd = joinstr("delete FORCE QUIET FILE \"",
+                bdir, "'#", ReadInfo("file_name"), "'#\"");
+  System(cmd);
+}
+
+export int Asave_getf(string path, string file)
+{
+  string bdir = ReadInfo("asave_path");
+  string newname;
+  if(!strlen(bdir))
+    bdir = path;
+  newname = joinstr(bdir, "#", file, "#");
+  if(Check(newname)) {
+    if(Request(joinstr("Autosave file found:\n",
+                       newname, "\nDo you want to load that instead?"))) {
+      SetInfo(-1, "_asave", 1);
+      Load(newname);
+      SetInfo(-1, "_asave", 0);
+      Rename(joinstr(path, file));
+      return 1;
+    }
+  }
+}
+
+Hook("GetFile", "Asave_getf", "!_asave");
+
+ConstructInfo("_asave", "", "", "LHB(io)", "", 0, 1, 0);
+ConstructInfo("asave_path", "", "", "GSW(io)", "", 0, 0);
+Hook("Save", "Asave_hook", "!_asave");
+Hook("AutoSave", "ASave_hook");

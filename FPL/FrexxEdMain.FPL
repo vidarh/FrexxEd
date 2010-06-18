@@ -1,0 +1,57 @@
+export int MySearch(int flag)	/* 0=forward, 1=backward */
+{
+  int ret;
+  if (flag==0)
+    SearchSet("f+");
+  else if (flag==1)
+    SearchSet("f-");
+  ret=Search();
+  if (ret<0) {
+    ReturnStatus(ret);	/* Some error occured */
+    DisplayBeep();
+  }
+}
+
+export int Home()   { GotoLine(ReadInfo("line")); }
+export int End()    { GotoLine(ReadInfo("line"), -1); }
+export int Top()    { GotoLine(1); }
+export int Bottom() { GotoLine(-1); }
+
+
+export void EnlargedSettingSave()
+{
+  switch (Request("Save local settings or default?", "Save Settings", "local|default|cancel")) {
+  case 0:
+    break; // Cancel
+  case 1:
+    SetSave("", -1); // Save local
+    break;
+  case 2:
+    SetSave("", 0); // Save default
+    break;
+  }
+}
+
+/*************************************************************
+ *
+ * While FrexxEd has a minimum of key assigns, we'll have to 
+ * assign some keys that we like ourself.
+ *
+ ****/
+	/* Cursor movements key */
+AssignKey("Home();", "Shift 'Left'");
+AssignKey("End();", "Shift 'Right'");
+AssignKey("Top();", "Control 'Up'");
+AssignKey("Bottom();", "Control 'Down'");
+AssignKey("PlaceCursor();", "MouseLeft");
+AssignKey("PlaceCursor();", "MouseLeftDrag");
+AssignKey("BlockMark();", "MouseLeftDouble");
+
+AssignKey("ResizeView(ReadInfo(\"view_lines\")-2);", "CTRL Shift 'Up'");
+AssignKey("ResizeView(ReadInfo(\"view_lines\")+2);", "CTRL Shift 'Down'");
+
+AssignKey("{ int ret; SearchSet(\"f-\"); if ((ret=SearchSet())>=0) { if (Search()<0) DisplayBeep(); } else ReturnStatus(ret); }", "Amiga A");
+
+	/* Set the height on the current view to the half */
+AssignKey("ResizeView(ReadInfo(\"view_lines\")/2);", "Amiga 2");
+

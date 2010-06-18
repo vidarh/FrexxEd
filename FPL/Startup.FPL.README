@@ -1,0 +1,36 @@
+#############################################################################
+File:		Startup.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Loads all macros and FPL programs in FrexxEd:Startup/
+Version:	1.3
+Date:		15.10.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		file
+Prereq:		MacroIO.FPL
+Copyright:
+#############################################################################
+
+FUNCTION
+  It loads all macros with .macro extensions and executes all FPL files with
+.FPL extensions that are in the FrexxEd:Startup/ directory
+
+HISTORY
+  1.0 - Original
+  1.1 - Now reads and executes all FPL-programs in an alphabetical order.
+  1.2 - Oops! Never sorted the programs, *now* it should be alphabetical! ;)
+  1.3 - Now the files are executed in alpha-order, the previous one did it in
+        a reversed order!
+
+BUGS
+  None known
+
+TODO
+  Ideas?
+
+SEE ALSO
+  MacroIO.FPL.README
+  FrexxEd.FPL - which runs this file in normal cases
+  User.FPL.README

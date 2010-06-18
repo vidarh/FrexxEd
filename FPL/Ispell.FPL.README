@@ -1,0 +1,168 @@
+#############################################################################
+File:		Ispell.FPL
+Author:		Jesper Skov
+Email:          jskov@iesd.auc.dk    ******
+Short:          Interface to Ispell. *Very* powerful spell checking!
+Version:        1.4                  ******
+Date:		04.10.95
+Local settings:	ispell_activeLanguage
+Global settings:
+Keysequence:	(Menu)
+Type:		Function/interface
+Prereq:		Ispell-3.1.18 Amiga patch 3+
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+ Have you ever wanted an easy way to check if a word is spelled correct? 
+ Well, with this interface to Ispell you get a more powerful spell checking
+ system than you would ever have believed possible! Also, you will most
+ likely not understand how you have survived until now without Ispell 8o)
+
+ You need to get the Ispell31p3bin.lha archive which is available  from
+ AmiNet. In this archive is included an English dictionary, but Ispell
+ can also handle other languages.
+
+ System requirements:
+ You should be aware that Ispell takes up 1MB+ of your RAM. Also, it uses
+ ixemul.library which in itself takes some 150KB+ of RAM.
+
+ Consult the Ispell documents for a description of Ispell. I assume you have a
+ general understanding of Ispell for the remainder of this document.
+
+ -*- Pull-down menus -*-
+
+ * Preferences (customizing->program->ispell):
+ 
+   ispell_bin:
+   ~~~~~~~~~~~
+	The name and path to the ispell binary.
+
+   ispell_flags:
+   ~~~~~~~~~~~~~
+	Ispell flags. "-r" is always set (server mode), as is "-d" (language)
+	control and "-p" is set if you have specified a private dictionary.
+
+   ispell_languages:
+   ~~~~~~~~~~~~~~~~~
+	What languages should selectable from the editor. You should
+	(obviously) have dictionaries for the languages.
+	Language names should be separated with "|", e.g. "english|dansk".
+
+   ispell_personalDict:
+   ~~~~~~~~~~~~~~~~~~~~
+	Personal dictionary if you don't want one for each language (default
+	is ".ispell_<language>").
+
+   ispell_gui:
+   ~~~~~~~~~~~
+	Check this if you prefer a GUI interface over the "raw" keyboard
+	interface.
+
+
+
+ * Control (Ispell->...)
+
+   Check Word:
+   ~~~~~~~~~~~
+	Check the word immediately under or in front of the cursor. If the
+	word is recognized you will be informed of this in the status line of
+	the active buffer.
+	If the word is not recognized, you have multiple choices. See below.
+
+   Check Block:
+   ~~~~~~~~~~~~
+	Check all the words in the marked block. For each miss spelled word
+	you will be offered the same options as with "Check Word".
+	Because of the manner in which this function has been implemented,
+	you may be asked to verify the same word multiple times. The
+	function should be smart enough to skip most of these cases though.
+
+   Check File:
+   ~~~~~~~~~~~
+	Checks the entire file (buffer) like "Check Block".
+
+   Kill server:
+   ~~~~~~~~~~~~
+	If you want to un-load the server. This will also flush the
+	dictionary to disk.
+	This function will automatically be called at exit if you have added
+	any words to your personal dictionary.
+
+
+ -*- Alternative words menu -*-
+
+ If Ispell does not directly recognize a word you give it, there will be
+ opened a buffer with a multiple choice menu:
+
+ < > : (0) alternative (1) alternative ... (9) alternative
+ 
+ The "<" and ">" identify that there are other alternatives than the ones
+ listed at this line. Press "," and "." to scroll through alternatives. When
+ you get to one of the ends of the buffer, the respective direction marker
+ will disappear; if there is only on line of alternatives there will be no
+ direction markers.
+ The alternative words are numbered 0..9. Pressing this number, the word will
+ be replaced with the respective alternative word. Example:
+
+ You check the word "TODO". The result could be:
+
+    : (0) TODD (1) TOGO (2) TO (3) TOTO (4) TO DO (5) TO-DO
+
+ That is; no other alternatives than the ones showed (both "<" and ">" are
+ deleted). If you now press "4" the word you checked would be replaced with
+ "TO DO".
+
+ If you don't see a correct alternative you have a set of other options;
+
+ SPC:	Accept this time; if the word is met again you will be prompted again.
+
+ "i":	Insert word in private dictionary.
+
+ "a":	Accept this session; if the word is met again in this session (i.e.
+	if you don't kill the server or reset the machine) it will be
+	accepted as a correct word.
+
+ "r":	Replace word; you will be prompted with a string requester where you
+	may enter a correct spelling of the word. The entered word will be
+	checked again.
+
+ "u":	Like "i", but the word is lower cased before it is inserted.
+
+ "q":	Quit (works like SPC if you are just checking a single word, but
+	stops checking if working on a buffer).
+
+ "?":	The control keys above are showed in the status line of the Ispell
+	buffer (in two sets). Press "?" to switch between the help strings.
+
+ -*- Alternative words menu (GUI) -*-
+
+ If you use the GUI interface, the alternatives will be listed in a request
+ window. In the window are also check markers for the commands listed above.
+ If you double click on a word in the list, it will replace the misspelled
+ word.
+
+ There are some limitations to the GUI interface;
+ If you want to enter a replacement word yourself, do it in the string
+ gadget. This string will *not* be rechecked! Also, if you select more of the
+ above listed commands, they will all be executed!
+
+
+
+HISTORY (REV)
+ 04.10.95 (4)	Made view with alternatives disappear in a cleaner way.
+ 29.08.95 (3)	Added highlighting of misspelled word.
+ 29.08.95 (2)	Added GUI per request from Kjell (used a bit of his code too).
+ 01.08.95 (1)	Added block and file check.
+		Added dictionary autosave at exit.
+ 17.07.95 (0)	Works pretty well. Still needs some work though.
+
+BUGS
+ If a word in column 1 at line 1 is misspelled and you are checking
+ block/file, the shit hits the fan. Don't really know what to do about it,
+ except (of course :) to add a dirty hack.
+
+TODO
+
+SEE ALSO
+ Ispell documentation (not included).

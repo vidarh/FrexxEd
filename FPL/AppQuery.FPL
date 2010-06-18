@@ -1,0 +1,27 @@
+export int Dropped(string file, int id)
+{
+  string query = sprintf("Open %s\ninto a new buffer or\ninsert it at current position?", file);
+  int ret;
+  if(ret = ReadInfo("AppQuery"))
+    ;
+  else
+    ret = Request(query, "AppQuery", "New|Insert|New Always|Cancel");
+  if (ret==1 || ret==3) {
+    int id = New();
+    int before = GetBufferID();
+    CurrentBuffer(id);    /* make it the current */
+    if(0>Load(file)) {
+      Kill(id);           /* failed loading */
+    } else {
+      CurrentBuffer(id);    /* make it the current */
+      Activate(id);       /* popup a view */
+    }
+    if(3==ret) {
+      SetInfo(-1, "AppQuery", 1);
+    }
+  }
+  WindowToFront();
+  return (ret!=2) ; /* stop the insert operation if "New" or "Cancel" was selected! */
+}
+ConstructInfo("AppQuery", "", "", "GCW", "Ask|New Always|Insert Always", 0, 0);
+Hook("IconDrop", "Dropped");

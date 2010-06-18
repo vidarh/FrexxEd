@@ -1,0 +1,71 @@
+#############################################################################
+File:		PhxAssMode.FPL
+Author:		Jesper Skov
+Email:		jskov@iesd.auc.dk
+Short:		Provides interface for the PhxAss assembler.
+Version:	1.0
+Date:		19.10.95
+Local settings:
+Global settings:
+Keysequence:	C-c C-c and C-c '
+Type:		interface (major mode)
+Prereq:		PhxAss archive (not included)
+Copyright:	© 1995, Jesper Skov
+#############################################################################
+
+FUNCTION
+ This is an interface to PhxAss. Version 1.0 is not very powerful, but I
+ hope later versions to be - this release is primarily intended to get me
+ some feed back from PhxAss users, so I can make a robust design.
+
+ At present there is only the following operations available (C = control):
+
+ C-c C-c	Start assembling/making.
+
+		If there is a "Makefile" in the file's directory, 'make' will
+		be called (without arguments. This should change. Any ideas?)
+		
+		If there is no "Makefile", PhxAss will be called. PhxAss
+		should be made resident for maximum performance. You may
+		select the name of the assembler in the preferences.
+
+
+ C-c '		If there were errors this will make the cursor jump to the
+		next erroneous line.
+
+		The statement above only holds if the error was found in the
+		active file. If not, you will just be notified... In later
+		versions, you will be asked if the erroneous file should be
+		loaded (if it is not already in FrexxEd).
+
+		When the last error has been found, the buffer is "wrapped",
+		so the next time you press C-c ', the first error is
+		displayed again.
+
+		
+
+ 
+HISTORY (REV)
+  19.10.95 (0)	Request For Comments :)
+
+BUGS
+  Maybe!?!?
+
+
+TODO
+  Auto load external erroneous files.
+
+  Better control of the make environment (options to make?).
+  
+  Should it be possible to save the assembler options? If so, should a
+  directory be considered a "project", thus associating an automatically
+  loaded/saved options file with the directory? (I don't think it's needed!)
+
+  Menu points to show/hide the _phx assemble_ buffer.
+
+  Make "Next Error" be relative to current position in the active buffer
+  (like in the PasTeX mode :)
+
+
+SEE ALSO
+

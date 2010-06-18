@@ -1,0 +1,6 @@
+.key _A0,_A1,_A2,_A3,_A4,_A5,_A6,_A7,_A8,_A9,_AA,_AB,_AC,_AD,_AE,_AF,_STICKY
+. I hope the user doesn't want more than 16 files, because that's all I've provided for
+. Note that _STICKY can be a filename too!
+.bra {
+.ket }
+rx FrexxEd:Rexx/FrexxEdStart.rx "{_A0}" "{_A1}" "{_A2}" "{_A3}" "{_A4}" "{_A5}" "{_A6}" "{_A7}" "{_A8}" "{_A9}" "{_AA}" "{_AB}" "{_AC}" "{_AD}" "{_AE}" "{_AF}" "{_STICKY}"

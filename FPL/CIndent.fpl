@@ -1,0 +1,605 @@
+// Various search strings
+string whitespace = "^[ \t]*";
+string any_character = "(\\sW|\\s!)";
+string left_brace_at_eol = "{[ \t]*((////.*)|//(\*).*(\*)//)?[ \t]*$";
+string left_or_right_brace = "(({[ \t]*((////.*)|//(\*).*(\*)//)?[ \t]*$)|(^[ \t]*}))";
+string case_or_default = "^[ \t]*((case[ \t]+.+)|(default[ \t]*)):";
+string if_or_while = "(if|while)[ \t]*\\(.*\\)[ \t]*((////.*)|//(\*).*(\*)//)?[ \t]*$";
+string _else = "else[ \t]*((////.*)|//(\*).*(\*)//)?[ \t]*$";
+string _switch = "switch[ \t]*\\(.*\\)[ \t]*{[ \t]*((////.*)|//(\*).*(\*)//)?[ \t]*$";
+string backward = "=w+f-";
+string forward = "=w+f+";
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CModePrefs() ««
+void export CIndentPrefs()
+{
+   int intelligence = ReadInfo("c_intelligence");
+   string indentkey = ReadInfo("c_indentkey");
+   int usetabs = ReadInfo("c_usetabs");
+   int indent_level = ReadInfo("c_indent_level");
+   int case_level = ReadInfo("c_case_level");
+   int brace_offset = ReadInfo("c_brace_offset");
+   int cont_offset = ReadInfo("c_cont_offset");
+   int delay = ReadInfo("c_delay");
+   int face  = ReadInfo("c_face_mode");
+
+   DeleteKey(indentkey);
+   
+   RequestWindow("C Indent Preferences", 15,
+      "Intelligence level", "c", &intelligence, "Stupid|Intelligent|Ninja",
+      "Force Indent key", "s", &indentkey,
+      "Use TAB character", "b", &usetabs,
+      "Autoenable coloured syntax", "b", &face,
+      "General indent level", "i", &indent_level,
+      "'case' indent level", "i", &case_level,
+      "Brace offset", "i", &brace_offset,
+      "Continuation offset", "i", &cont_offset,
+      "Parenthesis match delay", "i", &delay
+   );
+
+   AssignKey("ForceIndent();", indentkey, "c_indent_mode");
+
+   SetInfo(0, "c_intelligence", intelligence);
+   SetInfo(0, "c_indentkey", indentkey);
+   SetInfo(0, "c_usetabs", usetabs);
+   SetInfo(0, "c_indent_level", indent_level);
+   SetInfo(0, "c_case_level", case_level);
+   SetInfo(0, "c_brace_offset", brace_offset);
+   SetInfo(0, "c_cont_offset", cont_offset);
+   SetInfo(0, "c_delay", delay);
+   SetInfo(0, "c_face_mode", face);
+}
+
+int PrevLine()
+{
+   CursorStack(-1);
+   if(0 == Search(any_character, backward))
+   {
+      int line;
+
+      line = ReadInfo("line");
+      CursorStack(1);
+      return(line);
+   }
+   else
+   {
+      CursorStack(1);
+      return(1);
+   }
+}
+
+export void MatchIt(string paren)
+{
+   Output(paren);
+   CursorLeft(1);
+   if (MatchParen()>=0)
+   {
+      Delay(ReadInfo("c_delay"));
+      MatchParen();
+   }
+   else
+   {
+      ReturnStatus("No match!");
+   }
+   CursorRight(1);
+}
+
+string InsertIndent(string output, int indentation)
+{
+   int x;
+   int tabsize = ReadInfo("tab_size");
+   int tabs = indentation / tabsize;
+   int spaces= indentation % tabsize;
+
+   if (ReadInfo("c_usetabs"))
+   {
+      while(x < tabs)
+      {
+	 output += "\t";
+	 x++;
+      }
+      for (x = 0; x < spaces; x++)
+      {
+	 output += " ";
+      }
+   }
+   else
+   {
+      for (x = 0; x < indentation; x++)
+      {
+	 output += " ";
+      }
+   }
+   return (output);
+}
+
+export void HashMark()
+{
+   int v = Visible(0);
+   int dum = Output("#");
+   int line = ReadInfo("line");
+   string thisline = GetLine();
+   int thislinelen = strlen(thisline) - (line != ReadInfo("lines"));
+   
+   CursorStack(-1);
+   GotoLine(line, 0);
+   CursorLeft();	/* Fix! The search cannot find if we are at
+   			   the beginning of the line */
+   
+   if(0 <= Search("^[ \t]*\\#$",forward, thislinelen))
+   {
+      GotoLine(line, 0);
+      DeleteEol();
+      Output("#");
+   }
+   else
+   {
+      CursorStack(1);
+   }
+   Visible(v);
+}
+
+export void Colon()
+{
+   int v = Visible(0);
+   int dum = Output(":");
+   int line = ReadInfo("line");
+   string thisline = GetLine();
+   int thislinelen = strlen(thisline) - (line != ReadInfo("lines"));
+   
+   CursorStack(-1);
+   GotoLine(line, 0);
+   CursorLeft();	/* Fix! The search cannot find if we are at
+   			   the beginning of the line */
+   
+   if(0 <= Search(case_or_default, forward, thislinelen))
+   {
+      if (0 <= Search(_switch, backward))
+      {
+	 int x;
+	 int prevline = ReadInfo("line");
+	 int linelen = ReadInfo("line_length") - (prevline != ReadInfo("lines"));
+	 int indentation;
+	 
+	 GotoLine(prevline, 0);
+
+	 indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1 + ReadInfo("c_case_level");
+
+	 GotoLine(line, 0);
+	 Replace(2, whitespace, "", forward, linelen);
+
+	 Output(InsertIndent("", indentation));
+	 Search(":", forward);
+	 CursorRight();
+      }
+      else
+      {
+	 CursorStack(1);
+      }
+   }
+   else
+   {
+      CursorStack(1);
+   }
+   Visible(v);
+}
+
+export void LeftBrace()
+{
+   int v = Visible(0);
+   int line = ReadInfo("line");
+   int thislinelen = ReadInfo("line_length") - (line != ReadInfo("lines"));
+
+   Output("{");
+  
+   CursorStack(-1);
+   GotoLine(line, 0);
+   if (GetChar() != '{' && (0 <= Search("^[ \t]*{", forward, thislinelen)))
+   {
+      int x;
+      int prevline = PrevLine();
+      string input = GetLine(prevline);
+      int linelen = strlen(input) - (line != ReadInfo("lines"));
+      int indentation;
+      
+      GotoLine(prevline, 0);
+      indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1;
+
+      if(0 == Search(left_brace_at_eol, forward, linelen))
+      {
+	 indentation += ReadInfo("c_indent_level");
+      }
+
+      GotoLine(line, 0);
+
+      Replace(2, whitespace, "", forward, thislinelen);
+
+      Output(InsertIndent("", indentation));
+      CursorRight();
+   }
+   else
+   {
+      CursorStack(1);
+   }
+   Visible(v);
+}
+
+export void ForceIndent()
+{
+   int v = Visible(0);
+   int thisline = ReadInfo("line");
+   int thislinelen = ReadInfo("line_length") - (thisline != ReadInfo("lines"));
+   int linelen, prevline;
+   int indentation, intelligence;
+
+   CursorStack(-1);
+   GotoLine(ReadInfo("line"), 0);
+   prevline = PrevLine();
+
+   GotoLine(prevline, 0);
+   linelen = ReadInfo("line_length") - (ReadInfo("line") != ReadInfo("lines"));
+   indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1;
+
+   if (prevline < thisline)
+   {
+      CursorStack(1);
+      CursorStack(-1);
+
+      GotoLine(thisline, 0);
+
+      if (0 <= Search(case_or_default, forward, thislinelen))
+      {
+	 if (0 <= Search(_switch, backward))
+	 {
+	    int x;
+	    int prevline = ReadInfo("line");
+	    int linelen = ReadInfo("line_length") - (prevline != ReadInfo("lines"));
+
+	    GotoLine(prevline, 0);
+
+	    indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1 + ReadInfo("c_case_level");
+	 }
+      }
+      else if (0 <= Search("^[ \t]*\\#", forward, thislinelen))
+      {
+	 indentation = 0;
+      }
+      else if (GetChar() != '}' && 0 > Search("^[ \t]*}", forward, thislinelen))
+      {
+	 GotoLine(prevline, 0);
+	 if (0 == Search(left_brace_at_eol, forward, linelen))
+	 {
+	    indentation += ReadInfo("c_indent_level");
+	 }
+	 else if (intelligence = ReadInfo("c_intelligence"))
+	 {
+	    if (0 == Search(case_or_default, forward, linelen))
+	    {
+	       indentation += ReadInfo("c_indent_level");
+	    }
+	    else if (0 == Search(if_or_while, forward, linelen))
+	    {
+	       indentation += ReadInfo("c_cont_offset");
+	    }
+	    else if (0 == Search(_else, forward, linelen))
+	    {
+	       indentation += ReadInfo("c_cont_offset");
+	    }
+	    else if (intelligence > 1)
+	    {
+	       prevline = PrevLine();
+	       GotoLine(prevline, 0);
+	       linelen = ReadInfo("line_length");
+	       if (0 == Search(if_or_while, forward, linelen))
+	       {
+		  indentation -= ReadInfo("c_cont_offset");
+	       }
+	       else if (0 == Search(_else, forward, linelen))
+	       {
+		  indentation -= ReadInfo("c_cont_offset");
+	       }
+	    }
+	 }
+      }
+      else
+      {
+	 int prevline;
+	 int prevlen;
+	 string input;
+
+	 if (ReadInfo("c_intelligence"))
+	 {
+	    int end, left, right;
+
+	    right = 1;
+	    do
+	    {
+	       if (0 == (end = Search(left_or_right_brace, backward)))
+	       {
+		  if (GetChar() == '{')
+		     left++;
+		  else
+		     right++;
+	       }
+	    }
+	    while (!end && (left < right));
+
+	    if (left >= right)
+	    {
+	       prevline = ReadInfo("line");
+	       GotoLine(prevline, 0);
+	       indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1;
+	    }
+	 }
+      }
+   }
+
+   CursorStack(1);
+   GotoLine(ReadInfo("line"), 0);
+   Replace(2, whitespace, "", forward, linelen);
+
+   Output(InsertIndent("", indentation));
+   GotoLine(thisline, ReadInfo("line_length"));
+   Visible(v);
+}
+
+export void CIndent()
+{
+   int v = Visible(0);
+   int linelen = Output("\n");
+   int prevline = PrevLine();
+   int indentation, intelligence;
+
+   CursorStack(-1);
+   GotoLine(prevline, 0);
+   linelen = ReadInfo("line_length") - (ReadInfo("line") != ReadInfo("lines"));
+   indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1;
+
+   CursorStack(1);
+   CursorStack(-1);
+   if (GetChar() != '}' || 0 > Search("^[ \t]*}", forward, linelen))
+   {
+      GotoLine(prevline, 0);
+      if (0 == Search(left_brace_at_eol, forward, linelen))
+      {
+	 indentation += ReadInfo("c_indent_level");
+      }
+      else if (intelligence = ReadInfo("c_intelligence"))
+      {
+	 if (0 == Search(case_or_default, forward, linelen))
+	 {
+	    indentation += ReadInfo("c_indent_level");
+	 }
+	 else if (0 == Search(if_or_while, forward, linelen))
+	 {
+	    indentation += ReadInfo("c_cont_offset");
+	 }
+	 else if (0 == Search(_else, forward, linelen))
+	 {
+	    indentation += ReadInfo("c_cont_offset");
+	 }
+	 else if (intelligence > 1)
+	 {
+	    prevline = PrevLine();
+	    GotoLine(prevline, 0);
+	    linelen = ReadInfo("line_length");
+	    if (0 == Search(if_or_while, forward, linelen))
+	    {
+	       indentation -= ReadInfo("c_cont_offset");
+	    }
+	    else if (0 == Search(_else, forward, linelen))
+	    {
+	       indentation -= ReadInfo("c_cont_offset");
+	    }
+	 }
+      }
+   }
+   CursorStack(1);
+
+   Replace(2, whitespace, "", forward, linelen);
+
+   Output(InsertIndent("", indentation));
+   Visible(v);
+}
+
+export void RightBrace()
+{
+   int line = ReadInfo("line");
+   int dum = Output("}");
+   int v = Visible(0);
+   string thisline = GetLine();
+   int thislinelen = strlen(thisline) - (line != ReadInfo("lines"));
+   string output;
+   int x;
+
+   CursorStack(-1);
+   GotoLine(line, 0);
+   CursorLeft();
+   if (0 == Search("^[ \t]*}", forward, thislinelen))
+   {
+      int prevline;
+      int prevlen;
+      string input;
+
+      if(ReadInfo("c_intelligence"))
+      {
+	 int end, left, right;
+
+	 CursorStack(1);
+	 CursorStack(-1);
+	 do
+	 {
+	    if (0 == (end = Search(left_or_right_brace, backward)))
+	    {
+	       if (GetChar() == '{')
+		  left++;
+	       else
+		  right++;
+	    }
+	 } while (!end && (left != right));
+	 
+	 if (end)
+	 {
+	    CursorStack(-1);
+	    Visible(v);
+	 }
+	 else
+	 {
+	    int indentation;
+
+	    prevline = ReadInfo("line");
+	    GotoLine(prevline, 0);
+	    indentation = GetCursor(strlen(ReplaceMatch("[ \t]*", "\\&")), prevline) - 1;
+
+	    Visible(v);
+	    Delay(ReadInfo("c_delay"));
+	    MatchParen();
+	    v = Visible(0);
+	    GotoLine(line, 0);
+
+	    Replace(2, whitespace, "", forward, thislinelen);
+
+	    Output(InsertIndent("", indentation));
+	    CursorRight();
+	    Visible(v);
+	 }
+      }
+      else
+      {
+	 CursorStack(1);
+	 Visible(v);
+      }
+   }
+   else
+   {
+      CursorStack(1);
+      Visible(v);
+   }
+}
+
+export void Slash()
+{
+   int line = ReadInfo("line");
+   int dum = Output("/");
+   int pos = ReadInfo("byte_position");
+   int v = Visible(0);
+   string thisline = GetLine();
+   int thislinelen = strlen(thisline) - (line != ReadInfo("lines"));
+   string output;
+   int x;
+
+   CursorStack(-1);
+   if(pos > 1)
+   {
+      if(thisline[pos - 2] == '*')
+      {
+	 if(0 == Search("//(\*)", backward))
+	 {
+	    Visible(v);
+	    Delay(ReadInfo("c_delay"));
+	    CursorStack(1);
+	 }
+      }
+   }
+   else
+   {
+      Visible(v);
+   }
+}
+
+export void Cmode()
+{
+  if(ReadInfo("c_face_mode"))
+    SetInfo(-1, "face", "C");
+  else
+    SetInfo(-1, "face", "");
+}
+
+/* Create C face mode */
+{
+  int face = FaceGet("C", 1); /* create one if missing */
+  if(face) {
+    int style;
+
+    /* Get the style named "c-keywords" OR create one that is bold with
+       foreground pen 3 and background pen 0. If none matched and none
+       could be created, it will return the style of the best match and
+       no style will be named like this. */
+    style = FaceStyle("c-keywords", "bold", 1, 0);
+    FaceAdd(face,  /* add word(s) to this face */
+            style, /* use the c-keywords style */
+            /* Specify all words we want to add to this face with this
+               particular style, we can of course add more words at a
+               later time */
+            "for|do|while|else|if|int|long|short|char|extern|"
+            "static|auto|unsigned|signed|return|continue|break|void|"
+            "case|switch|WORD|LONG|struct|register|__regargs|enum|"
+            "float|double|goto|sizeof|union|default|typedef",
+            "word" /* these are word-only matches, that must be surrounded
+                      with non-word letters to get recognized */
+            );
+
+    /* a bunch of the most common standard C stdio functions */
+    style = FaceStyle("c-stdio", "bold", 1, 0);
+    FaceAdd(face,  /* add word(s) to this face */
+            style, /* use the c-stdio style */
+            /* Specify all words we want to add to this face with this
+               particular style, we can of course add more words at a
+               later time */
+            "printf|fprintf|sprintf|"
+            "strlen|strcpy|strncpy|strcmp|strncmp|"
+            "atoi|strtol|fopen|fclose|fgets|fread|fwrite|fputs|"
+            "getchar|gets|getch|putc|puts|fputc|fputs",
+            "word" /* these are word-only matches, that must be surrounded
+                      with non-word letters to get recognized */
+            );
+
+    style = FaceStyle("c-comments", "normal", 3, 0);
+    FaceAdd(face, style, "/*", "anywhere|strong", "*/");
+    FaceAdd(face, style, "//", "anywhere|strong|doublechk", "\n");
+
+    style = FaceStyle("c-cpp", "normal", 2, 0);
+    FaceAdd(face, style, "#", "backslash|1nonspace|weak", "\n");
+
+    style = FaceStyle("c-string", "bold", 2, 0);
+    FaceAdd(face, style, "\"", "backslash", "\"");
+
+    style = FaceStyle("c-apostrophe", "normal", 2, 0);
+    FaceAdd(face, style, "\'", "backslash", "\'");
+  }
+  /* else
+    face is 0, which means GetFace() failed somehow! */
+}
+
+ConstructInfo("c_indent_mode", "Cmode();", "", "HLB", "", 0, 1, 0);
+ConstructInfo("c_indent_level", "", "", "HLIW", "", 0, 0, 3);
+ConstructInfo("c_brace_offset", "", "", "HLIW", "", 0, 0, 0);
+ConstructInfo("c_cont_offset", "", "", "HLIW", "", 0, 0, 3);
+ConstructInfo("c_case_level", "", "", "HLIW", "", 0, 0, 3);
+ConstructInfo("c_usetabs", "", "", "HLBW", "", 0, 1, 1);
+ConstructInfo("c_delay", "", "", "HGIW", "", 0, 0, 5);
+ConstructInfo("c_intelligence", "", "", "HGCW", "Stupid|Intelligent|Ninja", 0, 0, 2);
+ConstructInfo("c_indentkey", "", "", "HGSW", "", 0, 0, "Alt i");
+ConstructInfo("c_face_mode", "", "", "HGBW", "", 0, 1, 1);
+
+AssignKey("RightBrace();", "}", "c_indent_mode");
+AssignKey("Output(\"\n\");", "Shift 'Return'", "c_indent_mode");
+AssignKey("CIndent();", "'Return'", "c_indent_mode");
+AssignKey("LeftBrace();", "{", "c_indent_mode");
+AssignKey("HashMark();", "#", "c_indent_mode");
+AssignKey("Colon();", ":", "c_indent_mode&c_intelligence");
+AssignKey("Slash();", "/", "c_indent_mode");
+AssignKey("ForceIndent();", ReadInfo("c_indentkey"), "c_indent_mode");
+
+AssignKey("MatchIt(\")\");", ")", "c_indent_mode");
+AssignKey("MatchIt(\"]\");", "]", "c_indent_mode");
+
+AddMode(0,"c_indent_mode", "", "");			// Add as minor mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CIndent menu ««
+MenuAdd("s", "C Indent...", "CIndentPrefs();", "",
+        ReadInfo("menu_program_title"),
+        ReadInfo("menu_program_item"),-1); // Add to PackageSettings
+MenuBuild();
+
+ExecuteFile("FaceEdit.FPL"); /* To enable the users to change the styles */

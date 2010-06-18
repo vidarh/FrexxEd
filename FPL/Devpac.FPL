@@ -1,0 +1,201 @@
+/******************************
+ * Read Devpac.FPL.README!    *
+ * Written by Peter Carlsson  *
+ ******************************/
+
+/* Assemble file */
+
+export void Asm_Assemble(void)
+{
+	string file = ReadInfo("file_name");
+
+	string command = sprintf("CD \"%s\"\n%s >T:GenAmOutput %s %s",
+		ReadInfo("file_path"),
+		ReadInfo("_Assembler"),
+		ReadInfo("_Asm_opt"),
+		file);
+
+	SaveChanges();
+	Status(0, sprintf("Assembling %s", file));
+	System(command);
+	Asm_InitErrors();
+}
+
+/* Debug file */
+
+export void Asm_Debug(void)
+{
+	string file = ReadInfo("full_file_name");
+	file = substr(file, 0 , strstr(file, ".s"));
+
+	if(Check(file)) {
+		Status(0, sprintf("Debugging %s", Stcgfn(file)));
+		System(sprintf("CD \"%s\"\n%s %s",
+			Stcgfp(file),
+			ReadInfo("_Debugger"),
+			Stcgfn(file)));
+	} else
+		ReturnStatus("No executable file found");
+}
+
+/* Make executable file */
+
+export void Asm_Make(void)
+{
+	string file = ReadInfo("file_name");
+
+	string command = sprintf("CD \"%s\"\n%s >T:GenAmOutput %s %s",
+		ReadInfo("file_path"),
+		ReadInfo("_Assembler"),
+		ReadInfo("_Make_opt"),
+		file);
+
+	SaveChanges();
+	Status(0, "Making executable file");
+	System(command);
+	Asm_InitErrors();
+}
+
+/* Execute file */
+
+export void Asm_Execute(void)
+{
+	string file = ReadInfo("full_file_name");
+	file = substr(file, 0 , strstr(file, ".s"));
+
+	if(Check(file)) {
+		Status(0, sprintf("Executing %s", Stcgfn(file)));
+		System(sprintf("CD \"%s\"\n%s",
+			Stcgfp(file),
+			Stcgfn(file)));
+	} else
+		ReturnStatus("No executable file found");
+}
+
+/* Set pointer to first error (if any) */
+
+export void Asm_InitErrors(void)
+{
+	System(ReadInfo("_Parser"));
+
+	errorNr = -1;
+	LoadBlock("T:FrexxGenOutput");
+	if (strlen(GetBlockLine(0))) {
+		maxError = (ReadInfo("lines", errorID) - 1) / 3;
+		Asm_NextError();
+	} else
+		ReturnStatus("No errors");
+}
+
+/* Jump to error */
+
+export void Asm_NextError(void)
+{
+	if ((++errorNr) >= maxError) {
+		errorNr--;
+		DisplayBeep();
+		ReturnStatus("Last error");
+	} else
+		JumpError();
+}
+
+export void Asm_PrevError(void)
+{
+	if ((--errorNr) < 0) {
+		errorNr++;
+		DisplayBeep();
+		ReturnStatus("First error");
+	} else
+		JumpError();
+}
+
+void JumpError(void)
+{
+	errPosY = atoi(GetBlockLine((errorNr * 3) + 1));
+	errPosX = atoi(GetBlockLine((errorNr * 3) + 2));
+
+	GotoLine(errPosY, errPosX - 1);
+	CenterView();
+	ReturnStatus(GetBlockLine((errorNr * 3) + 3));
+}
+
+int LoadBlock(string fileName)
+{
+	if (errorID) {
+		Kill(errorID);
+		errorID = 0;
+	}
+	errorID = BlockCreate("AssembleErrors");
+	return (StringToBlock(LoadString(fileName), errorID));
+}
+
+string GetBlockLine(int lineNum)
+{
+	int currentID = GetBufferID();
+	string lineStr;
+
+	CurrentBuffer(errorID);
+	lineStr = substr(GetLine(lineNum), 0, strlen(GetLine(lineNum)) - 1);
+	CurrentBuffer(currentID);
+	return (lineStr);
+}
+
+/* Change settings */
+
+export void Asm_Settings(void)
+{
+	string assembler = ReadInfo("_Assembler"),
+		   make      = ReadInfo("_Make"),
+		   debugger  = ReadInfo("_Debugger"),
+           asmopt    = ReadInfo("_Asm_opt"),
+           makeopt   = ReadInfo("_Make_opt"),
+		   parser    = ReadInfo("_Parser");
+
+	if (RequestWindow("Assembler Settings",
+		"Assembler",              "S", &assembler,
+		"Make",                   "S", &make,
+		"Debugger",               "S", &debugger,
+		"Assembler Options",      "S", &asmopt,
+		"Assembler Make Options", "S", &makeopt,
+		"Parser",                 "S", &parser))
+	{
+		SetInfo(0, "_Assembler", assembler,
+                   "_Make",      make,
+                   "_Debugger",  debugger,
+                   "_Asm_opt",   asmopt,
+                   "_Make_opt",  makeopt,
+                   "_Parser",    parser);
+	}
+}
+
+/* Globals */
+
+export int errorID   = 0;
+export int errorNr   = 0;
+export int errPosY   = 0;
+export int errPosX   = 0;
+export int maxError  = 0;
+
+/* Infos */
+
+ConstructInfo("_Assembler", "", "", "GSHW", "", 0, 0, "DevPac:GenAm");
+ConstructInfo("_Parser"   , "", "", "GSHW", "", 0, 0, "FrexxEd:Bin/FrexxGen");
+ConstructInfo("_Debugger" , "", "", "GSHW", "", 0, 0, "DevPac:MonAm");
+ConstructInfo("_Make"     , "", "", "GSHW", "", 0, 0, "DevPac:GenAm");
+ConstructInfo("_Asm_opt"  , "", "", "GSHW", "", 0, 0, "DEBUG O+");
+ConstructInfo("_Make_opt" , "", "", "GSHW", "", 0, 0, "NODEBUG O+");
+
+/* Menu shortcuts */
+
+MenuAdd("t", "Assembler");
+	MenuAdd("i", "Assemble"      , "Asm_Assemble();",  "Control a");
+	MenuAdd("i", "Make"          , "Asm_Make();",      "Control m");
+	MenuAdd("i", "Debug"         , "Asm_Debug();",     "Control d");
+	MenuAdd("i", "Execute"       , "Asm_Execute();",   "Control x");
+    MenuAdd("i", "---");
+	MenuAdd("i", "Next Error"    , "Asm_NextError();", "Control n");
+	MenuAdd("i", "Previous Error", "Asm_PrevError();", "Control p");
+    MenuAdd("i", "---");
+	MenuAdd("i", "Settings..."   , "Asm_Settings();");
+MenuBuild();
+

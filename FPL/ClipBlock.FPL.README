@@ -1,0 +1,23 @@
+############################################
+File: ClipBlock.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: automatic block cut/paste conversion to the clipboard
+Version: 1.1
+Date: 13.10.94
+Local settings:
+Global settings:
+Keysequence:
+Type: Hook
+Prereq:
+############################################
+
+FUNCTION
+  A hook is executed before a BlockCopy() is executed.  If it is the default block
+that shall be the destination block, the block is first copied/cutted and then sent
+to the clipboard device 0.
+
+  If a paste of the default block is executed, a hook get the clipboard device 0 
+string and paste that string instead.
+
+

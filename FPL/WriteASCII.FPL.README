@@ -1,0 +1,20 @@
+############################################
+File: WriteASCII.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: Write an absolut ASCII value at the current position.
+Version: 1.0
+Date: 1.8.94
+Local settings:
+Global settings:
+Keysequence: 'Amiga Control a'
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+
+  An ASCII value is requested.  This value can be any value typed as a C styled
+value (ie 0x20 or 10).  The ASCII char will then be outputted at the current
+position.
+

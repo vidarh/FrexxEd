@@ -1,0 +1,49 @@
+
+export int SameName_danne(string filename, int BufferID)
+{
+  int ret=1;
+
+  if (!Stricmp(filename, ReadInfo("full_file_name", BufferID))) {
+    ret=Request(joinstr("Do you want to load '", filename, "' again?"), "Same path!", "Yes!|..and kill the old!|Activate the old!|Ooops!");
+    if (ret==2)
+      Clean(joinstr("Kill(", itoa(BufferID), ");"));
+  }
+  if (ret==3) {
+    ExecuteLater(joinstr("CurrentBuffer(Activate(GetEntryID(\"", filename, "\")));"));
+    ret=0;
+  }
+  return(!ret);
+}
+
+HookClear("SameName", "SameName_hook");
+Hook("SameName", "SameName_danne");
+
+ExecuteFile("IncSearch.FPL");
+ExecuteFile("AutoMatch.FPL");
+ExecuteFile("GotoChange.FPL");
+ExecuteFile("ScrollAll.FPL");
+ExecuteFile("SimpleDiff.FPL");
+ExecuteFile("SwapBuffer.FPL");
+ExecuteFile("MultiBlock.FPL");
+ExecuteFile("Cmode.FPL");
+//ExecuteFile("CIndent.FPL");
+
+ExecuteFile("CompleteWord.FPL");
+ExecuteFile("RememberView.FPL");
+ExecuteFile("ETags.FPL");
+ExecuteFile("RepeatFunction.FPL");
+
+
+AssignKey("WindowToFront();", "'F10'");
+{
+  int count;
+  Visible(0);
+  for(count=0; count<32; count++)
+    if(count != '\t' && count != '\n')
+      FACT( count, 'S', joinstr( "^", itoc(count+64) ) );
+  Visible(1);
+}
+
+FACT('_', 'W');
+
+/* AssignKey("BlockPaste", "MouseMiddle"); */

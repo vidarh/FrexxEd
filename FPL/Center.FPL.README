@@ -1,0 +1,52 @@
+############################################
+File: Center.FPL
+Author: Daniel Stenberg
+Email: dast@sth.frontec.se, FidoNet 2:201/328
+Short description: Horizontally centers a line or block
+Version: 1.0
+Date: 22.4.94
+Local settings: "wall_left", "wall_right"
+Global settings:
+Keysequence: "Amiga -"
+Type: Function
+Prereq:
+############################################
+
+When editing text files I often feel the need for centering certain lines for
+layout reasons. This file brings two such a functions. One for a single line
+and one for the marked block. To know how to center a line, two local settings
+are created, "wall_left" and "wall_right", that sets the margins to use.
+
+The default values for the settins are 79 for wall_right and 0 for wall_left.
+The function "CenterLine(0);" is put on the key sequence "amiga -" when the
+block isn't marked, and the "CenterBlock();" is on the same keysequence when
+there exist a marked block.
+
+NAME	CenterLine - Horizontally centers a text line.
+
+SYNOPSIS
+	Failure CenterLine( Line );
+
+	int CenterLine ( int );
+
+FUNCTION
+	The specified line number (or current if 0 (zero) is specified) is
+	centered according to the values set in "wall_left" and "wall_right".
+
+INPUTS
+	Line -	Which line that should be centered, or 0 (zero) for the
+		current.
+
+RESULT
+	0 if everything is OK, otherwise non-zero.
+
+NAME	CenterBlock - Horizontally centers the marked block.
+
+SYNOPSIS
+	void CenterBlock( void );
+
+	CenterLine ( );
+
+FUNCTION
+	The marked block is centered according to the values set in
+	"wall_left" and "wall_right".

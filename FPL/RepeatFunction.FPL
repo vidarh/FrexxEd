@@ -1,0 +1,15 @@
+export void RepeatFunction()
+{
+  string func;
+  int number;
+  CursorActive(0);
+  Status(0, "Give keystroke!");
+  func=KeyPress();
+  if (strlen(func)) {
+    number=PromptInt("Repeat function", 0, func);
+    Visible(0);
+    while (--number>=0)
+      ExecuteString(func);
+  }
+}
+AssignKey("RepeatFunction();", "Amiga Control r");

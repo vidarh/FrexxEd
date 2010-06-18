@@ -1,0 +1,67 @@
+string frexxtools;
+int nothingmore;
+
+export int MakeYourOwnMenuHook(int title_no, int item_no, int sub_no)
+{
+  string type, str, program, key;
+  MenuRead(&type, &str, &program, &key, title_no, item_no, sub_no);
+  if(Request( "Add \"" + str + "\" to the toolbox?"))
+    frexxtools += str + ":" + program + "\n";
+  return 1;
+}
+
+export int MakeYourOwnShutOff(int what)
+{
+  if(strlen(frexxtools)) {
+    string filename = PromptFile("FrexxEd:FrexxTool.setup");
+  
+    if(strlen(filename)) {
+      string command = sprintf("run FrexxEd:bin/FrexxTool SETUP \"%s\"", filename);
+      SetInfo(-1, "_toolbox", command);
+      SaveString(filename, frexxtools);
+      Request("Your menu selections are now stored in the specified\n"
+              "file and FrexxTool is about to get started using that.\n"
+              "Each time you run this FPL program, the toolbox will get\n"
+              "started like this. Read further in the FrexxTool manual\n"
+              "to get to know how to customize it even more.", "", "OK!");
+
+      /*
+       * We use an ExecuteLater() here simply to make it easier for the
+       * program! Since FrexxTool will call our ARexx port to find our
+       * screen, we can just as well finish our function first!
+       */
+      ExecuteLater("System(ReadInfo(\"_toolbox\"));");
+      return 1; /* prevent the actual backspace! */
+    }
+  }
+  else {
+    if(!Request("No buttons added!", "", "Continue|Cancel")) {
+      /* we should cancel the operation! */
+      SetInfo(-1, "_toolbox", "-"); /* dummy string */
+    }
+  }
+}
+
+Hook("MenuSelect", "MakeYourOwnMenuHook", "!_toolbox");
+Hook("Backspace", "MakeYourOwnShutOff", "!_toolbox");
+
+ConstructInfo("_toolbox", "", "", "WGHS", "", 0, 0, "");
+
+/*
+ * If the '_toolbox' variable has been saved previously, it will contain a
+ * real string by now!
+ */
+{
+  string tools;
+  tools = ReadInfo("_toolbox");
+  if(!strlen(tools)) {
+    Request("Select the menu items you would like to\n"
+            "have included in your personal toolbox.\n"
+            "When you're done, press backspace!", "Select!", "OK!");
+    frexxtools="";
+  }
+  else {
+    System(tools);
+  }
+}
+

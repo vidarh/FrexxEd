@@ -1,0 +1,43 @@
+
+export int LoadFilter(string fullfile, string filter, string options)
+{
+  int i;
+  string tempfile;
+  while( i++<10 ) {
+    tempfile = sprintf("T:LFilter.%ld", i);
+    if(!Check(tempfile))
+      break;
+  }
+  if(i == 10)
+    return 0;
+  System(sprintf("%s <\"%s\" >%s %s", filter, fullfile, tempfile, options));
+
+  i = Load(tempfile);
+
+  if(!i) {
+    Rename(fullfile);
+    SetInfo(-1, "changes", 1);
+  }
+  System(sprintf("delete %s", tempfile));
+  return i;
+}
+
+export int SaveFilter(string fullfile, string filter, string options)
+{
+  int i;
+  string tempfile;
+  while( i++<10 ) {
+    tempfile = sprintf("T:SFilter.%ld", i);
+    if(!Check(tempfile))
+      break;
+  }
+  if(i == 10)
+    return 0;
+
+  Save(tempfile);
+
+  System(sprintf("%s <%s >\"%s\" %s", filter, tempfile, fullfile, options));
+
+  System(sprintf("delete %s", tempfile));
+  return i;
+}

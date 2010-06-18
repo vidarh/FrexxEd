@@ -1,0 +1,33 @@
+############################################
+File:		Window.FPL
+Author:		Kjell Ericson/Daniel Stenberg
+Email:		kjer@netcom.se, FidoNet 2:201/328
+Short:		Functions to control windows (used as default)
+Version:	1.2
+Date:		21.7.96
+Local settings:
+Global settings:
+Keysequence:
+Type: function
+Prereq:
+############################################
+
+FUNCTION
+
+ In this file you have several functions that can rearrange and work with
+windows.
+
+ The file is executed as default.
+
+
+ WindowNew() -
+   Opens a new editor window. If the "opener" is a screen, it makes sure it
+   opens a window anyway. All new windows will be placed on the same screen
+   as the "opener" is on.
+
+HISTORY
+
+  1.0	23.03.96  First version
+  1.1	20.04.96  Deny tile/cascade on screens.
+  1.2	Daniel Stenberg added WindowNew() that opens a window even if the
+	"father" is a screen.

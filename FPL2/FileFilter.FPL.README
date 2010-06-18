@@ -1,0 +1,82 @@
+############################################
+File:		FileFilter.FPL
+Author:		Daniel Stenberg
+Email:		dast@sth.frontec.se, FidoNet 2:201/328
+Short:		Load/Save a file through a "filter"
+Version:	1.2
+Date:		20.1.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		function
+Prereq:
+############################################
+
+HISTORY
+	1.1 -	Added the SaveFilter() function.
+	1.2 -	Replaced all Sprintf() with sprintf().
+
+NAME	LoadFilter - Load a file through a "filter"
+
+SYNOPSIS
+	Failure LoadFilter ( fullfile, filter, options );
+
+	int LoadFilter ( string, string, string );
+
+FUNCTION
+	The specified file is first run through the 'filter' program and then
+	loaded into FrexxEd. The filter program must accept the raw file as
+	stdin and produce output on stdout.
+
+INPUTS
+	fullfile -	File name to load through the filter.
+
+	filter -	Full path name to the filter executable.
+
+	options -	Command line options to send to the filter program.
+
+RESULT
+	0 if everything is OK, otherwise non-zero.
+
+EXAMPLE
+	This function was kind of made for the frexxwrap filter, but I decided
+	to make this a general filter loading function. To use the frexxwrap
+	word wrapping filter on a file called dh0:mail/to_my_lov, issue the
+	following function instead of a straight Load():
+
+		LoadFilter("dh0:mail/to_my_lov",
+			   "FrexxEd:bin/fwrap",
+			   "-s \"\" -c 79");
+
+NAME	SaveFilter - Save a file through a "filter"
+
+SYNOPSIS
+	Failure SaveFilter ( fullfile, filter, options );
+
+	int SaveFilter ( string, string, string );
+
+FUNCTION
+	The current buffer is run through the 'filter' program and stored with
+	the 'fullfile' name when saved.
+	The filter program must accept the raw file as stdin and produce
+	output on stdout.
+
+INPUTS
+	fullfile -	File name to load through the filter.
+
+	filter -	Full path name to the filter executable.
+
+	options -	Command line options to send to the filter program.
+
+RESULT
+	0 if everything is OK, otherwise non-zero.
+
+EXAMPLE
+	To encrypt the file "to_my_lov" you're saving, using the enryption
+	program called 'cipher' (usage 'cipher -k <key>'), run the following:
+
+		string key = GetString("enter password");
+		SaveFilter("dh0:mail/to_my_lov",
+			   "cipher",
+			   joinstr("-k ", key));
+

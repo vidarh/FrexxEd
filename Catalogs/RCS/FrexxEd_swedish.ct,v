@@ -1,0 +1,624 @@
+head	1.1;
+access;
+symbols;
+locks
+	Daniel:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	94.09.22.18.19.48;	author Daniel;	state Exp;
+branches;
+next	;
+
+
+desc
+@Swedish catalog for FrexxEd
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@## name FrexxEd.catalog
+## version $VER: FrexxEd_Catalog 0.80 (14.4.94)
+## codeset 0
+## language svenska
+;
+MSG_UNKNOWN_COMMAND
+Okänt kommando!
+;
+MSG_OUT_OF_MEMORY
+Slut på minne!
+;
+MSG_SYNTAX_ERROR
+Syntaxfel!
+;
+MSG_NOTHING_LEFT_TO_UNDO
+Ingenting kvar att få ogjort!
+;
+MSG_NO_BLOCK_MARKED
+Inget block markerat!
+;
+MSG_CANT_DELETE_ANYTHING
+Kan inte ta bort något!
+;
+MSG_ERROR_DURING_OPEN
+Fel under öppnandet!
+;
+MSG_BLOCK_BUFFER_IS_EMPTY
+Blockbufferten är tom!
+;
+MSG_NO_MORE_MATCHES_FOUND
+Inga fler matchningar funna!
+;
+MSG_FUNCTION_CANCELLED
+Funktionen avbruten!
+;
+MSG_NO_MATCHING_CHARACTER_FOUND
+Inget matchande tecken funnet!
+;
+MSG_WRONG_TYPE_OF_BLOCK
+Fel sorts block!
+;
+MSG_COULDNT_CHANGE_SETTING
+Kunde inte ändra önskad 'setting'!
+;
+MSG_FPL_PROGRAM_NOT_FOUND
+Hittade inte FPL programet!
+;
+MSG_FILE_NOT_FOUND
+Hittade inte filen!
+;
+MSG_NO_BLOCK_FOUND
+Hittade inget block!
+;
+MSG_IFF_ERROR
+IFF-fel!
+;
+MSG_CANT_LOCK_BUFFER
+Kan inte låsa bufferten!
+;
+MSG_CANT_FIND_BUFFER
+Kan inte hitta bufferten!
+;
+MSG_WRONG_FILE_NAME
+Fel filnamn!
+;
+MSG_INFO_ALREADY_EXISTS
+Info variabel finns redan!
+;
+MSG_UNREG_VERSION
+Oregistrerad version
+;
+MSG_READ_PROTECTED
+Lässkyddad!
+;
+MSG_WRITE_PROTECTED
+Skrivskyddad!
+;
+MSG_DELETE_PROTECTED
+Raderingsskyddad!
+;
+MSG_DUMMY1
+
+MSG_DUMMY2
+
+MSG_DUMMY3
+
+MSG_DUMMY4
+
+; Reserverade för framtiden.
+;
+MSG_GARBAGE_COLLECTION_IN_PROCESS
+Garbage Collection pågår!
+;
+MSG_MOVING_BLOCK
+Flyttar block...
+;
+MSG_MOVE_BLOCK_TEXT
+Flytta block:  <-  ->  Y(ja) Q(Avsluta)
+;
+MSG_OK_GADGET
+OK
+;
+MSG_CANCEL_GADGET
+AVBRYT
+;
+MSG_PRESS_BUTTONS
+Tryck på knapparna!
+;
+MSG_RETRY_OPEN_SCREEN
+Kunde inte öppna skärmen.\nNytt försök?
+;
+MSG_SAVE_SETTING
+Spar inställingar:
+;
+MSG_FILE_NAME
+Filnamn:
+;
+MSG_YESNO
+Ja|Nej
+; MSG_YESNO should be one positive and one negative responce to a true/false
+; question. The words must be separated with a vertical bar '|'.
+;
+MSG_FREXXED_REQUEST
+FrexxEd begär!
+;
+MSG_PICK_SCREEN_MODE
+Välj skärmläge:
+;
+MSG_ABOUT_TEXT
+All programmering är utförd av\n%s och\n%s\n\n\
+ARexxport: %s\nSkärmnamn: %s\nGrafikminne: %ld\nÖvrigt minne: %ld\n\
+Allokerat minne: %ld
+; MSG_ABOUT_TEXT gets some parameters, and they are (in order of appearance):
+; %1s - "Daniel Stenberg"
+; %2s - "Kjell Ericson"
+; %3s - Arexx port name (which is MSG_NONE if no port is available)
+; %4s - Screen name
+; %1d - Chip memory available (in bytes)
+; %2d - Fast memory available (in bytes)
+; %3d - Allocated memory
+;
+MSG_SORT_ACCORDING_FIELD
+Sortera med hänsyn till fält:
+;
+MSG_MAKE_YOUR_CHOICE
+Gör ditt val!
+;
+MSG_GOTO_LINE
+Gå till rad:
+;
+MSG_PICK_FILE_INCLUDE
+Välj fil att infoga:
+;
+MSG_LOAD_FILE
+Hämta fil:
+;
+MSG_BEGIN_RECORDING
+Börjar inspelning!
+;
+MSG_ENTER_DESIRED_VALUE
+Skriv in önskat värde:
+;
+MSG_NO_SCREEN_FOUND
+Hittade ingen skärm!
+;
+MSG_EDITING_NEW_FILE
+Editerar en ny fil!
+;
+MSG_LOADING
+Hämtar %s...
+; The %s parameter to this message is a complete file name.
+;
+MSG_LOADING_READY
+Hämtar %s... Klart! (%ld bytes)
+; This message holds two parameters, first %s which is a complete file name
+; and then %ld which is the size of that file in bytes.
+;
+MSG_FILE_CHANGED_SINCE_LOADED
+Filen %s\nhar ändrats sedan FrexxEd hämtade den.\nSpara den i alla fall?
+; The %s parameter to this message is a file name.
+;
+MSG_CRUNCHING_BUFFER
+Packar bufferten!
+;
+MSG_SAVING_TEXT
+Sparar %s...
+; The %s parameter to this message is a complete file name.
+;
+MSG_XPKSAVING_TEXT
+XPK-Sparar %s...
+; The %s parameter to this message is a complete file name.
+;
+MSG_SAVE_IT_NORMAL_ADD
+\n\nSpara den normalt?
+;
+MSG_XPK_ERROR
+xpk fel:
+;
+MSG_CANT_CRUNCH_BUFFER
+Kan inte packa bufferten.\nSpara den normalt?
+;
+MSG_SAVING_TROUBLE
+Spar-problem! Filen har tagits bort men inte sparats!
+;
+MSG_WRITE_ERROR
+Skrivfel
+;
+MSG_WROTE
+Skrev %s
+; The %s parameter to this message is a complete file name.
+;
+MSG_OPEN_ERROR
+Öppningsfel
+;
+MSG_SELECT_FONT
+Välj teckensnitt!
+;
+MSG_ENTER_NUMBER
+Skriv in nummer:
+;
+MSG_ENTER_STRING
+Skriv in sträng:
+;
+MSG_FPL_ERROR_ADD
+\npå rad %ld i %s
+; This message is added to an error message from FPL. The error message states
+; something about that 'there is a XXXX error'. The parameters to this is
+; first %ld (which is the line number of the failure) and then %s (which is the
+; file name in which the FPL program is, if not applicable "<unknown program>"
+; will be the name).
+;
+MSG_FPL_HALTED
+FPL stoppat
+;
+MSG_NONE
+<ingen>
+;
+MSG_GET_MEMORY
+få minne
+;
+MSG_FREXXED_INIT
+ Frexxed - Skrivet av Daniel Stenberg och Kjell Ericson!
+;
+MSG_FREXXED_REQUIRES_204
+FrexxEd kräver minst Kickstart 2.04\n
+;
+MSG_ERROR_WITH_FPL_FILE
+Fel med FPL-filen '%s'
+; The %s parameter to this message is a complete file name.
+;
+MSG_CANT_FIND_STARTUP_FILE
+Kan inte hitta uppstartsfilen!
+;
+MSG_IMPORTANT
+Viktigt
+;
+MSG_NO_SHIT
+Å fan!
+;
+MSG_NEW_FONT_INSTALLED
+Nytt teckensnitt installerad!
+;
+MSG_CANT_INSTALL_FONT
+Kan inte installera teckensnittet!
+;
+MSG_COULDNT_OPEN_FONT
+Kunde inte öppna det teckensnittet!
+;
+MSG_FONT_TOO_BIG
+Det teckensnittet var för stort!
+;
+MSG_INPUT_KEY_STROKE
+Tangent tryck #%ld (escape avslutar)
+; Parameter: %ld
+;
+MSG_KEY_SEQUENCE
+Tangentsekvens
+;
+MSG_FUNCTION
+Funktion:
+;
+MSG_KEY_ASSIGN
+Tangenttilldelning!
+;
+MSG_ERROR
+Fel
+;
+MSG_FUNCTION_ASSIGNED_TO_KEY
+Funktion tilldelad till tangent!
+;
+MSG_MACRO_NAME
+Makronamn:
+;
+MSG_MACRO_ASSIGN
+Makrotilldelning!
+;
+MSG_NO_KEYSTROKE_FOUND
+Ingen tangenttryckning funnen!
+;
+MSG_WAITING_FOR_ANOTHER_KEY
+Väntar på ett till tangenttryck!
+;
+MSG_NO_FUNCTION_ASSIGNED_TO_KEY
+Ingen funktion är tilldelad till den tangenten.
+;
+MSG_ILLEGAL_COMMAND
+Illegalt kommando.
+;
+MSG_REPLACE_OPTIONS
+Y(ja), Nej, L(sist) Globalt, Alla, Q(avsluta)
+;
+MSG_GLOBAL_REPLACE_WORKING
+Global ersättning pågår...
+;
+MSG_BREAK_REPLACE_WITH_SPACE
+Avbryt ersätt med mellanslag!
+;
+MSG_INIT_FPL
+initiera FPL!
+;
+MSG_FREXXED_COULDNT
+FrexxEd kunde inte %s!
+; Högst 40 tecken lång text!!!
+; This message is used in error exceptions, and the %s parameter is a string
+; specifying what FrexxEd couldn't do.
+;
+MSG_FREXXED_CAN_CONTINUE_BEFORE
+FrexxEd kan inte fortsätta innan du\nhar stängt alla fönster!
+;
+MSG_TRY_AGAIN
+Försök igen!
+;
+MSG_GET_PUBLIC_SCREEN
+få en Public skärm
+;
+MSG_CREATE_WRITE_PORT
+skapa en write port
+;
+MSG_CREATE_WRITE_REQUEST
+skapa en write request
+;
+MSG_CREATE_READ_PORT
+skapa en read port
+;
+MSG_CREATE_MESSAGE_PORT
+skapa en meddelande port
+;
+MSG_OPEN_SCREEN
+öppna en skärm
+;
+MSG_GET_VISUALINFO
+få VisualInfo
+;
+MSG_OPEN_WINDOW
+öppna önskat fönster
+;
+MSG_CREATE_MENUS
+skapa menyer
+;
+MSG_OPEN_CONSOLE_DEVICE
+öppna console device
+;
+MSG_SEARCH_FLAGS
+Sökflaggor!
+;
+MSG_SEARCH_REPLACE
+Sök/Ersätt:
+;
+MSG_SEARCH_FOR
+Sök efter:
+;
+MSG_LINE
+Rad
+; Max 5 tecken text!
+; This is the text in the status line that preceeds the line number.
+;
+MSG_COL
+Kol
+; Max 5 tecken text!
+; This is the text in the status line that preceeds the column number.
+;
+MSG_SELECT_ITEM
+Välj alternativ:
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Here Follows the default menu setup
+;
+MSG_PROJECT_MENU
+Projekt
+;
+MSG_PROJECT_NEW
+Nytt
+;
+MSG_PROJECT_LOAD
+Hämta...
+;
+MSG_PROJECT_SAVE
+Spar
+;
+MSG_PROJECT_ABOUT
+Om
+;
+MSG_PROJECT_KILL
+Avsluta
+;
+MSG_PROJECT_QUIT_ALL
+Avsluta allt
+;
+MSG_BLOCK_MENU
+Block
+;
+MSG_BLOCK_MARK
+Markera
+;
+MSG_BLOCK_CUT
+Klipp
+;
+MSG_BLOCK_COPY
+Kopiera
+;
+MSG_BLOCK_INSERT
+Infoga
+;
+MSG_EDIT_MENU
+Editera
+;
+MSG_EDIT_UNDO
+Ångra
+;
+MSG_EDIT_UNDO_RESTART
+Börja om ångra
+;
+MSG_MOVEVIEW_MENU
+Flytta/vy
+;
+MSG_MOVEVIEW_GOTO_BUFFER
+Gå till buffert
+;
+MSG_MOVEVIEW_GOTO_LINE
+Gå till rad
+;
+MSG_SEARCHREPLACE_MENU
+Sök/Ersätt
+;
+MSG_SEARCHREPLACE_R_SEARCH_FRW
+Repetera sök framåt
+;
+MSG_SEARCHREPLACE_SEARCH
+Sök...
+;
+MSG_SEARCHREPLACE_REPEAT_REPLACE
+Repetera ersätt
+;
+MSG_SEARCHREPLACE_REPLACE
+Ersätt...
+;
+MSG_CUSTOMIZING_MENU
+Skräddarsy
+;
+MSG_CUSTOMIZING_SETTINGS
+Inställningar
+;
+MSG_CUSTOMIZING_SETTINGS_LOCALS
+Lokala
+;
+MSG_CUSTOMIZING_SETTINGS_ALL_LOCALS
+Alla lokala
+;
+MSG_CUSTOMIZING_SETTINGS_GLOBALS
+Globala
+;
+MSG_CUSTOMIZING_SETTINGS_SAVE
+Spara
+;
+MSG_CUSTOMIZING_SETTINGS_SCREENMODE
+Skärmläge
+;
+MSG_SPECIAL_MENU
+Special
+;
+MSG_SPECIAL_EXECUTE_FILE
+Exekvera FPL-fil
+;
+MSG_SPECIAL_LOAD_MENUS
+Ladda nya menyer
+;
+MSG_SPECIAL_PROMPT
+Prompt
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; End of default menu setup!
+;
+MSG_REPLACE_GADGET
+Ersätt
+;
+MSG_HALF_GADGET
+Dela
+;
+MSG_FULL_GADGET
+Hela
+;
+MSG_NONE_GADGET
+Ingen
+;
+MSG_RIGHT_GADGET
+Höger
+;
+MSG_LEFT_GADGET
+Vänster
+;
+MSG_SCREEN_GADGET
+Skärm
+;
+MSG_WINDOW_GADGET
+Fönster
+;
+MSG_BACKDROP_GADGET
+Bakgrund
+;
+MSG_VISIBLE_GADGET
+Synlig
+;
+MSG_ABSOLUTE_GADGET
+Absolut
+;
+MSG_OFF_GADGET
+Av
+;
+MSG_MARKING_GADGET
+Markerande
+;
+MSG_EXIST_GADGET
+Existerande
+;
+MSG_EXPAND_RELATIVE_GADGET
+Relativt
+;
+MSG_EXPAND_ALL_GADGET
+Alla
+;
+; Here follows a few strings that appears beside boolean buttons in the
+; search/replace requester. Using '@@' in front of any character will make
+; that character underlined and that character will be accepted as short-
+; cut!
+;
+MSG_WILDCARD
+@@Mönster
+;
+MSG_CASE_SENSITIVE
+@@Passa VERSALER/gemener
+;
+MSG_ONLY_WORDS
+Bara @@Ord
+;
+MSG_FORWARD_SEARCH
+Sök @@Framåt
+;
+MSG_INSIDE_BLOCK
+@@Inuti block
+;
+MSG_PROMPT_REPLACE
+@@Bekräfta ersättning
+;
+MSG_LIMIT_WILDCARD
+@@Avgränsa mönster
+;
+; END OF SPECIAL SEARCH/REPLACE STRINGS
+;
+; Here follows the password window texts.
+MSG_ENTER_PASSWORD_TITLE
+Lösenord
+;
+; Request window body text
+MSG_ENTER_PASSWORD
+Skriv in lösenordet:
+;
+MSG_UNREG_VERSION_LONG
+Den här versionen är inte registrerad!\n\n\
+Betala registreringsavgiften ordentligt\n\
+så kan du använda alla FrexxEds funktioner!
+;
+MSG_CHOOSE_ENTRY
+Välj alternativ:
+;
+MSG_END_OF_FILE
+Slut på filen!
+;
+MSG_REGISTERED_TO
+Registrerad till
+;
+MSG_ICON_NEVER
+Aldrig
+;
+MSG_ICON_ALWAYS
+Alltid
+;
+MSG_ICON_IF_PARENT
+Moder
+;
+@

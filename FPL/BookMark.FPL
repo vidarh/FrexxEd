@@ -1,0 +1,182 @@
+// $Id: BookMark.FPL 1.3 1995/09/29 10:16:51 jskov Exp $
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» GotoBookMark() ««
+export int GotoBookMark(int num)
+{
+  string book;
+  int x, y;
+
+  book=joinstr("BookMark_y", ltostr(num));
+  y=ReadInfo(book);
+  if (y) {
+    book=joinstr("BookMark_x", ltostr(num));
+    x=ReadInfo(book);
+    Visible(0);
+    GotoLine(y, x);
+    CenterView();
+    Visible(1);
+  } else
+    ReturnStatus("No book mark stored!");
+
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» SetBookMark() ««
+export int SetBookMark(int num)
+{
+  string book;
+
+  book=joinstr("BookMark_y", ltostr(num));
+  SetInfo(-1, book, ReadInfo("line"));
+  book=joinstr("BookMark_x", ltostr(num));
+  SetInfo(-1, book, ReadInfo("byte_position"));
+
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» loadBookMarks() ««
+// Mark storage format:  "m1Line:m1BytePos:m2Line:m2....m10BytePos:"
+
+export int loadBookMarks()
+{
+  string s;
+
+  if (strlen(s=ReadInfo("mark_storage"))){
+	if (-1<strstr(s,":"))					// absolute?
+	  s = LoadString(s+ReadInfo("file_name")+".Mrk");
+	else
+	  s = LoadString(ReadInfo("file_path")+"marks/"+ReadInfo("file_name")+".Mrk");
+  } else
+    s = LoadString(ReadInfo("full_file_name")+".Mrk");
+
+  if (strlen(s)){
+	int counter;
+	int i=0;
+	int pos;
+	string book;
+
+	for (counter=1; counter<=10; counter++) {
+	  book=joinstr("BookMark_y", ltostr(counter)); // Fix line
+	  pos = atoi(substr(s,i,i-(i=strstr(s,":",i)+1)));
+	  SetInfo(-1,book, pos);
+	  book=joinstr("BookMark_x", ltostr(counter)); // Fix byteposition
+	  pos = atoi(substr(s,i,i-(i=strstr(s,":",i)+1)));
+	  SetInfo(-1,book, pos);
+	}
+	ReturnStatus("Marks successfully loaded!");
+  } else
+    ReturnStatus("No marks loaded!");
+  return 0;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» saveBookMarks() ««
+export int saveBookMarks()
+{
+  string s;									// Contain marks in string form
+  string book;
+  int counter;
+
+  int sum;									// Simple check; all marks unused
+
+
+  for (counter=1; counter<=10; counter++) {
+	book=joinstr("BookMark_y", ltostr(counter)); // Fix line
+	s += itoa(ReadInfo(book)) + ":";
+	sum += ReadInfo(book);
+	book=joinstr("BookMark_x", ltostr(counter)); // Fix byteposition
+	s += itoa(ReadInfo(book)) + ":";
+	sum += ReadInfo(book);
+  }
+
+  if (sum){									// Only save if any active bookmarks!
+
+	if (strlen(book=ReadInfo("mark_storage"))){
+	  if (-1<strstr(book,":"))				// absolute?
+		book = book+ReadInfo("file_name")+".Mrk";
+	  else {
+		if (!Check(ReadInfo("file_path")+"marks")) // Always make directory!
+		  System("makedir "+ReadInfo("file_path")+"marks");
+		book = ReadInfo("file_path")+"marks/"+ReadInfo("file_name")+".Mrk";
+	  }
+	} else
+	  book = ReadInfo("full_file_name")+".Mrk";
+
+	SaveString(book,s);
+  }
+  return 0;
+}
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» updateMarks ««
+
+int preLine;
+
+export int markHook()						// Let's remember current line
+{
+  preLine = ReadInfo("line");
+  return 0;
+}
+
+export int markHookPast()
+{											// Compare the now current line
+  if (preLine!=ReadInfo("line")){			// with the previously recorded!
+	int diff = preLine-ReadInfo("line");
+	int counter;
+	string book;
+
+	for (counter=1; counter<=10; counter++) {
+	  book=joinstr("BookMark_y", ltostr(counter)); // Construct mark name
+	  if (ReadInfo(book)>preLine)			// If mark below affected area
+		SetInfo(-1,book,ReadInfo(book)-diff); // adjust its position (line wise)
+	}
+  }
+  return 0;
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Init ««
+{ // Hook functions which may affect mark positions
+  Hook("BlockPaste","markHook();","mark_adjust_marks");
+  Hook("BlockCut","markHook();","mark_adjust_marks");
+  Hook("Delete","markHook();","mark_adjust_marks");
+  Hook("DeleteLine","markHook();","mark_adjust_marks");
+  Hook("DeleteWord","markHook();","mark_adjust_marks");
+  Hook("Backspace","markHook();","mark_adjust_marks");
+  Hook("BackspaceWord","markHook();","mark_adjust_marks");
+  Hook("Output","markHook();","mark_adjust_marks");
+  Hook("Yank","markHook();","mark_adjust_marks");
+  Hook("InsertFile","markHook();","mark_adjust_marks");
+
+  HookPast("BlockPaste","markHookPast();","mark_adjust_marks");
+  HookPast("BlockCut","markHookPast();","mark_adjust_marks");
+  HookPast("Delete","markHookPast();","mark_adjust_marks");
+  HookPast("DeleteLine","markHookPast();","mark_adjust_marks");
+  HookPast("DeleteWord","markHookPast();","mark_adjust_marks");
+  HookPast("Backspace","markHookPast();","mark_adjust_marks");
+  HookPast("BackspaceWord","markHookPast();","mark_adjust_marks");
+  HookPast("Output","markHookPast();","mark_adjust_marks");
+  HookPast("Yank","markHookPast();","mark_adjust_marks");
+  HookPast("InsertFile","markHookPast();","mark_adjust_marks");
+
+
+  HookPast("Save","saveBookMarks();","mark_save_marks");
+  HookPast("Load","loadBookMarks();","mark_save_marks");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Create Mark info vars ««
+{
+  int counter;
+  string book, key;
+  for (counter=1; counter<=10; counter++) {
+    book=joinstr("BookMark_y", ltostr(counter));
+    ConstructInfo(book, "", "", "ILH", "", 0, 0);
+    book=joinstr("BookMark_x", ltostr(counter));
+    ConstructInfo(book, "", "", "ILH", "", 0, 0);
+
+    key=joinstr("'F", ltostr(counter), "'");
+    AssignKey(joinstr("GotoBookMark(", ltostr(counter), ");"), key);
+    key=joinstr("'F", ltostr(counter+10), "'");
+    AssignKey(joinstr("SetBookMark(", ltostr(counter), ");"), key);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info ««
+ConstructInfo("mark_adjust_marks","","","WBL","",0,1,0);
+ConstructInfo("mark_save_marks","","","WBL","",0,1,0);
+ConstructInfo("mark_storage","","","WSG(io)","",0,0,"local");

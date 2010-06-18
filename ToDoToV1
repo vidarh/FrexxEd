@@ -1,0 +1,137 @@
+  Kjelles Todo-lista inför FrexxEd v1.0
+
+_____________________________KJELLE SKA FIXA___________________________
+FIXAT:
+
+-------------------------------------------------------------
+TH>> De ddr markera-block-rutinerna, ndr kommer de??
+ DS> Du menar drag-markera block? Tja, jag meste tjata lite mer pe Linus!?
+?
+Tja, och med shift-cursor. Precis som i en ordbeh.?
+? 
+-------------------------------------------------------------
+RM> Samt att jag fortfarande inte kan gvra mer dn en unik svkning.
+---------------------------------------------------------------
+---------------------------------------------------------------------------
+* Dundertesta replacen.      
+* Testa att ta bort insert-mode.
+-------------------------------------------------------------------------           
+-------------------------------------------------------------------------           
+* DeleteLine gav mungwall-hittar (rört utanför allokering 2 bytes).
+----------------------------------------------------------------------
+Jag mdrkte just att defaultbibliotek i nya buffrar dr samma som biblioteket
+FrexxEd startades fren.  Det vore IMHO bdttre om det defaultbiblioteket vore 
+biblioteket fvr bufferten man stod i ndr man skapade den nya bufferten, som i 
+CygnusEd.  Det kan jag vdl iofs antagligen implementera sjdlv, tdnkte bara se 
+ifall negon annan heller med.?
+
+Med andra ord, om jag stdller mig i filen Work:Fred/FPL/FrexxEd.FPL och
+trycker Amiga-N vill jag att den nya filen ska fe defaultbibliotek
+Work:Fred/FPL.  Annars meste jag ju leta mig fram till samma stdlle "manuellt"
+fvr varje ny fil jag skapar / vppnar.
+
+fungerar...? 
+-------------------------------------------------------------------------           
+* Iconify med resize först.
+
+* Om en requester kommer fram pga musknappen, så tappas det första musinputten sedan.
+
+* Kolla in att man kan göra ett macroassign med tangentavkänning.
+  Checka in lite i Ced.
+
+* Allokeringstester.  Kan vi fria buffrar för att skapa minne?  Kan inte minnespekarna behövas.
+
+* Någon ändrar GlobalEmptyString.
+
+_______________________________________________________________________
+______________________________DANNE SKA FIXA___________________________
+* Unika buffernamn.
+
+* JK> Systemet kraschade nyss ndr jag anvdnde Amiga-G.  Jag
+ JK> fick upp fvnstret med fem filer att vdlja mellan, varav
+ JK> en var *NONAME*, gick runt med markvren lite, valde  
+
+-----------------------------ÄNDRA I MANUALEN/ÄNDRINGAR--------------------------
+
+------------------------------KEY FILE--------------------------------
+* Begränsa fillängderna.
+* Ta bort StringToClip() eller tvärs om?
+* En requester var 4095'e action.
+------------------------------Tillbakavisade tankar--------------------
+
+--------------------Ska vara fixat, men borde kollas lite extra---------
+* Ta bort den sparade filen om den inte får plats.
+* Rensa blockmarkeringen vid Clear().
+* stackextend behövs i Execute.c
+? Makedir på Save funkar inte.
+* Det går inte att breakea Solitair.FPL första gången.
+* "Control I" index.fpl
+* Blockmarkera från/till mitten av en rad.  BlockSort()  Guru:80000003
+? Assign 'shift rawkey'
+* Qualifier-checken.
+* Ladda in och spara macros.
+*? GetKey fungerar inte förrän ModifyIDCMP har gjorts en gång.
+* Fyll i ScreenMode-requestern.
+* GetFile-exception måste kolla filnummer när den ändras.
+* Fixa till 'NextBuf(macro)' i menyerna och testa....
+* AutoSaves.
+* Snabbare replace.
+* Prova med 'AssignKey("BlockMarkRect", "Amiga Shift b");'
+            'AssignKey("BlockMove", "Amiga Shift b m");'
+  Ingen större kontroll på multiplingen.
+* Kolla ordning på Visible-flaggan...
+* Om copywb är på ska kanske inte defaultvärdena ändras.
+* Kunna skicka tangenttryck genom ReturnMessage-systemet.
+* Gör en linkadlista i SharedStructen.
+* PublicScreen tjafs.
+* EndOfLine-tecken,
+* Flagga bland searchflaggorna för att inte fråga efter replace.
+* Wildcard-radorienteringsflagga.
+* SearchWildCard bakåt funkar inte.  'file|name'.
+* Markera en hel fil och gör uppercase. Skriv ett tecken.
+  Dealloc forgotten från Undo.c 447.
+* Vissa Statusmeddelanden kan skrivas ut utan att buffer är synlig.
+  Kan bli besvärligt när det gäller KeyAssign, Replace mfl.
+* Gör en StringToBlockAppend (BlockAppend) och BlockCutRect.
+* DragBaren över slidern.
+
+
+__________BUGGAR SOM VI INTE KUNNAT UPPREPA PÅ BEGÄRAN__________________
+* copy_wb på, FrexxEd på en skärm och FrexxEds skärm envisas med att att göra sin skärm
+  större (NTSC-lace).
+* Kolla att vi tar bort appicon.
+* Dealloc Error i Block.c 981. (BlockCopy).
+* Sätt på PAL-max Overscan-superhires-interlace.
+* Resiza fönstret mycket och den kan tappa fattningen?
+* Amiga-k'a en väldigt lång rad (Pelle-bug)
+* Mystiska tecken kommer in när man pastar.
+* Att flytta ett maximerat fönster gurar.
+
+____________TILL VERSION 2_________________________________________________
+ MA> En sak som irriterar mig ganska ofta dr att filvdljaren
+ MA> inte kommer iheg svkmvnstret mellan gengerna. Kan ni
+ MA> inte ldgga in en variabel fvr varje view som inneheller
+ MA> svkmvnstret och som ldggs in i filvdljaren ndr man
+ MA> vppnar den? 
+-----------------------------------------------
+* Man ska inte kunna ändra Write-protectade filer (settingen finns).
+* Kom ihåg vilken listitem som är selectad för gadgeten och aktivera den med gadgeten.
+* FPL klarar inte statiska variabler i en funktion.
+? Ser inte bra ut i menyerna 2 färger (bara under v40)
+* Search hittar inte den första positionen.
+* Gå igenom settings och ta bort så många READ_ONLY.
+* '*noname*' ska ha filnumrering.
+* Beroende på flera variabler.
+* copywb ska ghosta andra gadgetar (de ska vara beroende på copywb).
+* FPL-call från settingslistan för att ge input.
+* PromptColor.
+* LoadString i wildcard.
+* BufferID till Output.
+* Vi ställer inte om 'cursor_x_wanted' vid Delete().
+* Cycle gadget på search_prompt_replace
+? ExamineLine.FPL ska kolla om man står i en amigaguide-link
+* Dålig uppdatering av en splittad buffer (blockmarkering, string_pos eller cursor_x?).
+? Uppdaterar Backspace andra duplikaters cursorposition?  (TabToSpace.FPL på "test")
+
+
+--------KJELLE_SKRIPTAR---------------------------------------------------------

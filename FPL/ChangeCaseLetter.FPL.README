@@ -1,0 +1,18 @@
+############################################
+File: ChangeCaseLetter.FPL
+Author: Kjell Ericson/Andreas Stenmark
+Email: FidoNet 2:201/328
+Short description: Change case of the current character
+Version: 1.1
+Date: 17.7.95
+Local settings:
+Global settings:
+Keysequence: Amiga g
+Type: key
+Prereq:
+############################################
+
+FUNCTION
+  Pressing this key will make a lowercase character under the cursor turn into
+uppercase, or an uppcase turn into lowercase. After the conversion, the cursor
+will be moved one step to the right.

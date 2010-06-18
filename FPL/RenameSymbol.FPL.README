@@ -1,0 +1,21 @@
+############################################
+File: RenameSymbol.FPL
+Author: Kjell Ericson
+Email: kjer@netcom.se, FidoNet 2:201/328
+Short description: rename or remove a FPL symbol
+Version: 1.0
+Date: 24.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type: Function
+Prereq:
+############################################
+
+FUNCTION
+  A requester will appear, where you can select a symbol to rename.
+You cannot rename a symbol to an already existing symbol.  If the
+rename string is empty, the symbol is deleted.
+ 
+
+

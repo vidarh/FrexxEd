@@ -1,0 +1,152 @@
+/***********************************************************
+ *
+ *  Snake
+ *
+ *  Play snake.  Control with cursor keys.
+ *
+ *********/
+void addhighscore(string name, int score)
+{
+  int id=New();
+  int oldid=GetEntryID();
+
+  if (score<0)
+    score=0;
+
+  if (id) {
+    CurrentBuffer(id);
+    System("makedir FrexxEd:FPL/highscore", "", "NIL:");
+    Load("FrexxEd:FPL/highscore/Snake.score");
+    GotoLine(-1);
+    Output(sprintf("%8d - %s\n", score, name));
+    BlockSort(id,0,2);
+    while (ReadInfo("lines")>11) {
+      GotoLine(11);
+      DeleteLine();
+    }
+    Save();
+    Request(sprintf("Your score: %d\n\n HIGHSCORES:\n%s",score,GetBlock(id)), "SNAKE HIGHSCORE", "Doobie!");
+    Clean("Kill();");
+    CurrentBuffer(oldid);
+  }
+}
+
+{
+  int view_lines=ReadInfo("view_lines");
+  int view_columns=ReadInfo("view_columns");
+  string text[view_lines+1];
+  int col[4096], line[4096];
+  int length=10, count, game=1, delay=0, points=0;
+  int posy=view_lines/2, posx=view_columns/2, poscount=0;
+  int yspeed=0, xspeed=1;
+  int change;
+  string key;
+  int blipx, blipy;
+  int increase=(view_lines+view_columns)/10+1;
+  int cheat=0;
+  string name;
+
+  CursorActive(0);
+
+  for (count=view_columns-1; count>=0; count--) {
+    text[1]+="*";
+    text[2]+=" ";
+  }
+  text[view_lines]=text[1];
+  text[2][0]='*';
+  text[2][view_columns-1]='*';
+
+  for (count=view_lines-1; count>1; count--)
+    text[count]=text[2];
+
+  text[view_lines/3][view_columns/2]='+';
+
+  for (count=view_lines; count>0; count--)
+    PrintLine(text[count], count);
+
+  name=PromptString(name, "SNAKE", "Enter name:");
+  if (!strlen(name))
+    name="Unknown";
+
+  length=PromptInt("Length", 10, "Start length of your snake");
+  if (length<0) {
+    cheat=1;
+    length=abs(length);
+  }
+  length++;
+  points=length/5;
+  Status(0, joinstr("Points: ", ltostr(points)));
+  PrintLine("* Press a key to begin...", view_lines/2);
+  GetKey(0);
+
+  while (game) {
+    key=GetKey(1);
+    if (strlen(key)) {
+      if (key[0]==0x9b) {
+        switch (key[1]) {
+        case 'A':
+          yspeed=-1;
+          xspeed=0;
+          break;
+        case 'B':
+          yspeed=1;
+          xspeed=0;
+          break;
+        case 'D':
+          yspeed=0;
+          xspeed=-1;
+          break;
+        case 'C':
+          yspeed=0;
+          xspeed=1;
+          break;
+        }
+      } else {
+        length+=increase;
+        increase++;
+        points+=10;
+        Status(0, joinstr("Points: ", ltostr(points)));
+      }
+    }
+    change=line[(poscount-length)&4095];
+    if (change>0)
+      text[line[(poscount-length)&4095]][col[(poscount-length)&4095]]=' ';
+    line[(poscount-length)&4095]=0;
+    posy+=yspeed;
+    posx+=xspeed;
+    switch (text[posy][posx]) {
+    default:
+      if (cheat && text[posy][posx]=='o') {
+        points-=110;
+      }
+      if (!cheat || points<0 || text[posy][posx]!='o') {
+        game=0;
+        break;
+      }
+    case '+':
+      points+=10;
+      Status(0, joinstr("Points: ", ltostr(points)));
+      length+=increase;
+      increase++;
+      do {
+        blipx=abs((Random()%(view_columns-2)))+1;
+        blipy=abs((Random()%(view_lines-2)))+1;
+      } while (text[blipy][blipx]!=' ');
+      text[blipy][blipx]='+';
+      PrintLine(text[blipy], blipy);
+    case ' ':
+      text[posy][posx]='o';
+      col[poscount]=posx;
+      line[poscount]=posy;
+      PrintLine(text[posy], posy);
+      if (change>0)
+        PrintLine(text[change], change);
+      poscount=(poscount+1)&4095;
+      break;
+    }
+  }
+  addhighscore(name, points);
+  RedrawScreen(0);
+}
+
+

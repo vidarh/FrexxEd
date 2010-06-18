@@ -1,0 +1,134 @@
+// $Id: CommentMode.FPL 1.11 1996/04/02 18:37:31 jskov Exp $
+// $VER: CommentMode.FPL 2.2 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Comment Preference Interface ««
+void export CommentModePrefs()
+{
+  PromptInfo(-1,"Comment preferences",-1,-1,
+    "comment_column",
+    "comment_end",
+    "comment_start",
+    "comment_start_skip",
+    "line_comment_body",
+    "line_comment_end",
+    "line_comment_start"
+   );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» LineComment() ««
+void export LineComment()
+{
+  int width = ReadInfo("wall_right");
+  string comment = joinstr(" ",PromptString("","Enter line comment","")," ");
+  int col;
+  string output;
+  string body = ReadInfo("line_comment_body");
+  string start = ReadInfo("line_comment_start");
+  string end = ReadInfo("line_comment_end");
+
+  if ((strlen(comment)!=2) && (strlen(comment) < (width - strlen(start) - strlen(end)))){
+    if (width==0)							// Fallback if no right_wall
+      width = 79;
+
+    output += ReadInfo("line_comment_start");
+    for (col = strlen(start); col < (width-strlen(end)-1-strlen(comment)); col++)
+      output = joinstr(output, body);
+
+    GotoLine(ReadInfo("line"));				// on an empty line
+
+    output = joinstr(output, comment, ReadInfo("line_comment_end"));
+
+    if (1!=ReadInfo("line_length"))
+      output += "\n";
+
+    Output(output);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» InsertComment() ««
+void export InsertComment()
+{
+  string tempString=GetLine();
+
+  GotoLine(ReadInfo("line"));
+
+  if (Search(ReadInfo("comment_start_skip"), "=f+w+", ReadInfo("line_length"))){
+    // Let's make a new comment!
+    string com=joinstr(ReadInfo("comment_start"), ReadInfo("comment_end"));
+    GotoLine(ReadInfo("line"), ReadInfo("line_length"));
+    Output(com);
+    CursorLeft(strlen(com));
+  }
+
+  // There is already a comment!
+  if (ReadInfo("comment_column")!=ReadInfo("column")){
+    // Wrong indent!
+    int i=ReadInfo("byte_position");
+    int cont=1;
+
+    if (1<strlen(tempString)){
+      while (i>0 && cont){
+        i--;
+        if (!Isspace(tempString[i]))
+          cont=0;
+      }
+      if (CursorLeft(ReadInfo("byte_position")-i-1))
+        DeleteWord();
+    }
+    IndentToCC();							// Get correct indention
+  }
+  CursorRight(strlen(ReplaceMatch(ReadInfo("comment_start_skip"), "\\&")));
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» IndentToCC ««
+void IndentToCC()
+{
+  int col = ReadInfo("comment_column") - ReadInfo("column");
+  int tab = ReadInfo("tab_size");
+  string out;
+   
+  if (0 >= col)
+    out= " ";								// simply insert one space
+  else {
+    if(ReadInfo("indent_uses_tabs")){
+      if ((ReadInfo("column")/tab+1)*tab <= ReadInfo("comment_column"))
+        Output("\t");						// First align to tabular column
+      col = ReadInfo("comment_column") - ReadInfo("column");
+      while(col>=tab){						// Then work by calculating
+        out += "\t";
+        col = col-tab;
+      }
+    }
+    while(col>0){
+      out += " ";
+      col--;
+    }
+  }
+  Output(out);
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("InsertComment();","amiga ;", "comment_mode"); 
+AssignKey("LineComment();","amiga :", "comment_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info variables ««
+ConstructInfo("comment_column","","","WHLI","",1,999,45);
+
+ConstructInfo("comment_start_skip","","","WHLS","",0,0,"//\\*+ ");
+ConstructInfo("comment_start","","","WHLS","",0,0,"/* ");
+ConstructInfo("comment_end","","","WHLS","",0,0," */");
+
+ConstructInfo("line_comment_body","","","WHLS","",0,0,"»");
+ConstructInfo("line_comment_end","","","WHLS","",0,0,"««");
+ConstructInfo("line_comment_start","","","WHLS","",0,0,"//");
+
+ConstructInfo("indent_uses_tabs","","","WLB","",0,1,1);
+ConstructInfo("wall_right", "", "", "WIL", "", 0, 999, 79);
+
+ConstructInfo("comment_mode","","","LBH","",0,1,0);
+
+AddMode(0,"comment_mode", "", ""); // Add as minor mode
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» CommentMode menu ««
+MenuAdd("s", "CommentMode...", "CommentModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1);// Add to PackageSettings
+MenuBuild();

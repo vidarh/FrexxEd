@@ -1,0 +1,749 @@
+; FrexxEd locale catalog strings
+; $VER: FrexxEd_Catalog 0.80 (14.4.94)
+;
+;************************************************************
+; FrexxEd catalog decsription file
+;************************************************************
+;
+; Get back to me (dast@sth.frontec.se) if any of these senteces/words
+; doesn't make sence or any other question!
+;
+;
+;
+; Let's start with some simple error texts...
+;
+; =================================================================
+; Portuguese translation by António Santos (L38058@ALFA.IST.UTL.PT)
+; =================================================================
+;
+MSG_UNKNOWN_COMMAND (//)
+Comando desconhecido!
+;
+MSG_OUT_OF_MEMORY (//)
+Memória insuficiente!
+;
+MSG_SYNTAX_ERROR  (//)
+Erro de sintaxe!
+;
+MSG_NOTHING_LEFT_TO_UNDO (//)
+Nada guardado para fazer undo!
+;
+MSG_NO_BLOCK_MARKED (//)
+Nenhum bloco marcado!
+;
+MSG_CANT_DELETE_ANYTHING (//)
+Não posso apagar tudo!
+;
+MSG_ERROR_DURING_OPEN (//)
+Erro durante abertura!
+;
+MSG_BLOCK_BUFFER_IS_EMPTY (//)
+O buffer de blocos está vazio!
+The block buffer is empty!
+;
+MSG_NO_MORE_MATCHES_FOUND (//)
+Mais nenhuma palavra igual encontrada!
+;
+MSG_FUNCTION_CANCELLED (//)
+Função cancelada!
+;
+MSG_NO_MATCHING_CHARACTER_FOUND (//)
+Nenhum caracter igual encontrado!
+;
+MSG_WRONG_TYPE_OF_BLOCK (//)
+Tipo de bloco errado!
+;
+MSG_COULDNT_CHANGE_SETTING (//)
+Não foi possível modificar as opções!
+;
+MSG_FPL_PROGRAM_NOT_FOUND (//)
+Programa FPL não encontrado!
+;
+MSG_FILE_NOT_FOUND (//)
+Ficheiro não encontrado!
+;
+MSG_NO_BLOCK_FOUND (//)
+Nenhum bloco encontrado!
+;
+MSG_IFF_ERROR (//)
+Erro IFF!
+;
+MSG_CANT_LOCK_BUFFER (//)
+Não consigo segurar o buffer!
+;
+MSG_CANT_FIND_BUFFER (//)
+Não consigo encontrar o buffer!
+;
+MSG_WRONG_FILE_NAME (//)
+Nome de ficheiro enganado!
+;
+MSG_INFO_ALREADY_EXISTS (//)
+A variavel de info já existe!
+;
+MSG_UNREG_VERSION (//)
+Versão não registada
+;
+MSG_READ_PROTECTED (//)
+Leitura protegida!
+;
+MSG_WRITE_PROTECTED (//)
+Escrita protegida!
+;
+MSG_DELETE_PROTECTED (//)
+Protegido contra apagamento!
+;
+; THIS FOLLOWING PHRASE WAS ADDED TO VERSION 1.1!
+;
+MSG_WORKBENCH_NOT_RUNNING (//)
+O Workbench não está a executar!
+;
+;
+;
+MSG_DUMMY1 (//)
+
+MSG_DUMMY2 (//)
+
+MSG_DUMMY3 (//)
+
+; These MSG_DUMMY entries are reserved for future use. They should be left
+; blank.
+;
+;
+; Here follows three simple status line informations...
+;
+MSG_GARBAGE_COLLECTION_IN_PROCESS (//)
+Colecção de lixo em progresso!
+;
+MSG_MOVING_BLOCK (//)
+Movendo bloco...
+;
+MSG_MOVE_BLOCK_TEXT (//)
+Mover bloco: <- -> Sim Não.
+;
+;
+;
+; On a few requesters, there will be one "OK" (positive) and one "CANCEL"
+; (negative) response alternative. Here are those!
+;
+MSG_OK_GADGET (//)
+OK
+;
+MSG_CANCEL_GADGET (//)
+CANCELAR
+;
+;
+;
+MSG_PRESS_BUTTONS (//)
+Carregue nos botões!
+; This is a simple default window title for a window full of different
+; gadgets to press on and fill in.
+;
+;
+MSG_RETRY_OPEN_SCREEN (//)
+Não consegui abrir o ecrã.\nTentar de novo?
+; Screen opening failure text.
+;
+MSG_SAVE_SETTING (//)
+Gravar opções:
+; Occurs when the preferenses, the "settings", is to be saved!
+;
+MSG_FILE_NAME (//)
+Nome Ficheiro:
+; Default file requester window title.
+;
+MSG_YESNO (//)
+Sim|Não
+; MSG_YESNO should be one positive and one negative responce to a true/false
+; question. The words must be separated with a vertical bar '|'. These words
+; will appears in one button each in a default requester.
+;
+MSG_FREXXED_REQUEST (//)
+Pedido do FrexxEd!
+; Window title of a default requester
+;
+MSG_PICK_SCREEN_MODE (//)
+Escolha um modo de ecrã:
+; Window title of the screenmode requester
+;
+MSG_ABOUT_TEXT (//)
+Todo o código é feito por\n\
+%s e\n%s\n\n\
+porto ARexx: %s\n\
+nome Ecrã: %s\n\
+Memória Gráfica: %ld\n\
+Outra memória: %ld\n\
+Memória usada: %ld\n\n\
+Nome do disco: %s\n\
+Versão FrexxEd: %s
+; MSG_ABOUT_TEXT gets some parameters, and they are (in order of appearance):
+; 1s - "Daniel Stenberg"
+; 2s - "Kjell Ericson"
+; 3s - Arexx port name (which is MSG_NONE if no port is available)
+; 4s - Screen name
+; 5d - Chip memory available (in bytes)
+; 6d - Fast memory available (in bytes)
+; 7d - Amount of memory allocated by FrexxEd
+; 8s - Name of the filehandler volume
+; 9s - frexxed.library version
+;-- This text appears in the About window.
+;
+MSG_SORT_ACCORDING_FIELD (//)
+Ordenar de acordo com o campo:
+; Message in the sort requester.
+;
+MSG_MAKE_YOUR_CHOICE (//)
+Faça a sua escolha!
+; Palette requester window title
+;
+MSG_GOTO_LINE (//)
+Ir para a linha:
+; Go to line requester title ;
+MSG_PICK_FILE_INCLUDE (//)
+Escolha ficheiro para incluir:
+; Include file requester title
+;
+MSG_LOAD_FILE (//)
+Lêr ficheiro:
+; Load file requester title
+;
+MSG_BEGIN_RECORDING (//)
+Começar a gravar!
+; Status line message when macro recording starts
+;
+MSG_ENTER_DESIRED_VALUE (//)
+Insira o valor desejado:
+; Default integer requester title
+;
+MSG_NO_SCREEN_FOUND (//)
+Nenhum ecrã para ser encontrado!
+;
+MSG_EDITING_NEW_FILE (//)
+Editando um novo ficheiro!
+; Text appearing in the status line when user wanted to load a file that didn't
+; exist!
+;
+MSG_LOADING (//)
+Lendo %s...
+; Message in the status line when loading a buffer into FrexxEd. The %s
+; parameter to this message is a complete file name.
+;
+MSG_LOADING_READY (//)
+Lendo %s... Acabado! (%ld bytes)
+; Message written in the status line when a file has been loaded.
+; This message holds two parameters, first %s which is a complete file name
+; and then %ld which is the size of that file in bytes.
+;
+MSG_EMPTY (//)
+
+; This one was removed on the 18th of November '94!
+;
+MSG_CRUNCHING_BUFFER (//)
+Compactando o buffer!
+; Message while powerpacking!
+;
+MSG_SAVING_TEXT (//)
+Gravando %s...
+; Message in status line while saving a buffer.
+; The %s parameter to this message is a complete file name.
+;
+MSG_XPKSAVING_TEXT (//)
+XPK-Gravando %s...
+; Message in status line while saving a buffer using an XPK-library
+; The %s parameter to this message is a complete file name.
+;
+MSG_SAVE_IT_NORMAL_ADD (//)
+\n\nGravá-lo normalmente?
+; A save action failed and this quesion will appear to prompt the
+; user for a "normal" save instead of saving in a temporary file name and then
+; rename it.
+;
+MSG_XPK_ERROR (//)
+erro xpk:
+; Any failure in XPK will bring up an alert window with this title.
+;
+MSG_CANT_CRUNCH_BUFFER (//)
+Não consigo compactar o buffer.\nGravá-lo normalmente?
+; Packing error alert.
+;
+MSG_SAVING_TROUBLE (//)
+Problemas gravando! O ficheiro foi apagado mas não foi gravado!
+; May occurs during the save operation.
+;
+MSG_WRITE_ERROR (//)
+Erro de escrita
+; As reported by dos.library!
+;
+MSG_WROTE (//)
+Escrevi %s
+; Message in the status line when a file has been written to disk.
+; The %s parameter to this message is a complete file name.
+;
+MSG_OPEN_ERROR (//)
+Erro de abertura
+; dos.library reported open failure of a file
+;
+MSG_SELECT_FONT (//)
+Escolha tipo de letra!
+; Font selection list window title
+;
+MSG_ENTER_NUMBER (//)
+Insira número:
+;
+MSG_ENTER_STRING (//)
+Insira texto:
+;
+MSG_FPL_ERROR_ADD (//)
+\n na linha %ld de %s
+; This message is added to an error message from FPL. The error message states
+; something about that 'there is a XXXX error'. The parameters to this is
+; first %ld (which is the line number of the failure) and then %s (which is the
+; file name in which the FPL program is, if not applicable "<unknown program>"
+; will be the name).
+;
+MSG_FPL_HALTED (//)
+FPL parado
+; Message when an FPL program has been manually halted with escape.
+;
+MSG_NONE (//)
+<nenhum>
+; Used in a few occations when the user can select "none".
+;
+MSG_GET_MEMORY (//)
+obter memória
+; String sent to the MSG_FREXXED_COULDNT message!
+;
+MSG_FREXXED_INIT (//)
+ Frexxed - Programado por Daniel Stenberg e Kjell Ericson!
+; Startup status line message
+;
+MSG_FREXXED_REQUIRES_204 (//)
+O FrexxEd necessita pelo menos da Kickstart 2.04\n
+; Error message for poor users!
+;
+MSG_ERROR_WITH_FPL_FILE (//)
+Erro com o FPL no ficheiro '%s'
+; Tried executing a non-existant FPL file.
+; The %s parameter to this message is a complete file name.
+;
+MSG_CANT_FIND_STARTUP_FILE (//)
+Não consigo encontrar o ficheiro de inicialização!
+; The specified startup file is missing!
+;
+MSG_IMPORTANT (//)
+Importante
+; Just a default button text to a text window requester.
+;
+MSG_NO_SHIT (//)
+Não me digas!
+; Button text in the default about requester!
+;
+MSG_NEW_FONT_INSTALLED (//)
+Novo tipo de letra Instalada!
+;
+MSG_CANT_INSTALL_FONT (//)
+Não posso instalar tipo de letra!
+;
+MSG_COULDNT_OPEN_FONT (//)
+Não consegui abrir esse tipo de letra!
+;
+MSG_FONT_TOO_BIG (//)
+Esse tipo de letra era muito grande!
+;
+MSG_INPUT_KEY_STROKE (//)
+Tecla #%ld tocada! (ESC para acabar)
+; Parameter: %ld
+;
+MSG_KEY_SEQUENCE (//)
+Sequência de teclado:
+;
+MSG_FUNCTION (//)
+Função:
+;
+MSG_KEY_ASSIGN (//)
+Escolha de tecla!
+;
+MSG_ERROR (//)
+Erro
+;
+MSG_FUNCTION_ASSIGNED_TO_KEY (//)
+Função escolhida para a tecla!
+;
+MSG_MACRO_NAME (//)
+Nome da macro:
+;
+MSG_MACRO_ASSIGN (//)
+Escolha de macro:
+;
+MSG_NO_KEYSTROKE_FOUND (//)
+Nenhuma tecla escolhida!
+;
+MSG_WAITING_FOR_ANOTHER_KEY (//)
+ Esperando por outra tecla!
+;
+MSG_NO_FUNCTION_ASSIGNED_TO_KEY (//)
+Nenhuma função escolhida para essa tecla!
+;
+MSG_ILLEGAL_COMMAND (//)
+Comando ilegal.
+;
+MSG_REPLACE_OPTIONS (//)
+Sim, Não, Último, Global, Todos, Sair.
+; Message appearing on status line when prompted replace is taking place.
+; Note that the capitals of this english message is the same as the keys that
+; should be pressed to select the option. Try to make those keys obvious in the
+; translation!
+;
+MSG_GLOBAL_REPLACE_WORKING (//)
+Trabalhando na substituição global...
+; Message written in status line while replacing!
+;
+MSG_BREAK_REPLACE_WITH_SPACE (//)
+Break substituido com espaço!
+;
+MSG_INIT_FPL (//)
+inicializar o FPL!
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_FREXXED_COULDNT (//40)
+O FrexxEd não conseguio %s!
+; This message is used in error exceptions, and the %s parameter is a string
+; specifying what FrexxEd couldn't do.
+;
+MSG_FREXXED_CAN_CONTINUE_BEFORE (//)
+O FrexxEd não pode continuar sem que você\ntenha fechado todas as janelas!
+; FrexxEd was opened as a public screen, and at least one hosting window is
+; left on the screen when QuitAll() was invoked!
+;
+MSG_TRY_AGAIN (//)
+Tente de novo!
+; Button text for the above requester text.
+;
+MSG_GET_PUBLIC_SCREEN (//)
+agarrar o ecrã Publico
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_WRITE_PORT (//)
+criar o porto de escrita
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_WRITE_REQUEST (//)
+criar o pedido de escrita
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_READ_PORT (//)
+criar o porto de leitura
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_MESSAGE_PORT (//)
+criar o porto de mensagens
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_SCREEN (//)
+abrir o ecrã
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_GET_VISUALINFO (//)
+obter o VisualInfo
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_WINDOW (//)
+abrir a janela pedida
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_CREATE_MENUS (//)
+criar os menus
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_OPEN_CONSOLE_DEVICE (//)
+abrir o device da consola
+; Message used in the MSG_FREXXED_COULDNT text.
+;
+MSG_SEARCH_FLAGS (//)
+Procurar flags!
+;
+MSG_SEARCH_REPLACE (//)
+Procurar/Substituir:
+; search/replace window title
+;
+MSG_SEARCH_FOR (//)
+Procurar por:
+; search window title
+;
+MSG_LINE (//5)
+Linha
+; This is the text in the status line that preceeds the line number.
+; Max length 5 letters
+;
+MSG_COL (//5)
+Col
+; This is the text in the status line that preceeds the column number.
+; Max length 5 letters
+;
+MSG_SELECT_ITEM (//)
+Escolha um item:
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Here Follows the default menu setup
+;
+MSG_PROJECT_MENU (//)
+Projecto
+;
+MSG_PROJECT_NEW (//)
+Novo
+;
+MSG_PROJECT_LOAD (//)
+Lêr
+;
+MSG_PROJECT_SAVE (//)
+Gravar
+;
+MSG_PROJECT_ABOUT (//)
+Acerca
+;
+MSG_PROJECT_KILL (//)
+Matar
+;
+MSG_PROJECT_QUIT_ALL (//)
+Sair todos
+;
+MSG_BLOCK_MENU (//)
+Bloco
+;
+MSG_BLOCK_MARK (//)
+Marcar
+;
+MSG_BLOCK_CUT (//)
+Cortar
+;
+MSG_BLOCK_COPY (//)
+Copiar
+;
+MSG_BLOCK_INSERT (//)
+Inserir
+;
+MSG_EDIT_MENU (//)
+Editar
+;
+MSG_EDIT_UNDO (//)
+Atrás
+;
+MSG_EDIT_UNDO_RESTART (//)
+Recomeçar atrás
+;
+MSG_MOVEVIEW_MENU (//)
+Mover/vista
+;
+MSG_MOVEVIEW_GOTO_BUFFER (//)
+Ir para o buffer
+;
+MSG_MOVEVIEW_GOTO_LINE (//)
+Ir para a linha
+;
+MSG_SEARCHREPLACE_MENU (//)
+Procurar/Substituir
+;
+MSG_SEARCHREPLACE_R_SEARCH_FRW (//)
+Repetir procura para a frente
+;
+MSG_SEARCHREPLACE_SEARCH (//)
+Procurar...
+;
+MSG_SEARCHREPLACE_REPEAT_REPLACE (//)
+Repetir substituição
+;
+MSG_SEARCHREPLACE_REPLACE (//)
+Substituir...
+;
+MSG_CUSTOMIZING_MENU (//)
+Customizando
+;
+MSG_CUSTOMIZING_SETTINGS (//)
+Opções
+;
+MSG_CUSTOMIZING_SETTINGS_LOCALS (//)
+Locais
+;
+MSG_CUSTOMIZING_SETTINGS_ALL_LOCALS (//)
+Todas as locais
+;
+MSG_CUSTOMIZING_SETTINGS_GLOBALS (//)
+Globais
+;
+MSG_CUSTOMIZING_SETTINGS_SAVE (//)
+Gravar
+;
+MSG_CUSTOMIZING_SETTINGS_SCREENMODE (//)
+Modo de Ecrã
+;
+MSG_SPECIAL_MENU (//)
+Especial
+;
+MSG_SPECIAL_EXECUTE_FILE (//)
+Executar ficheiro FPL
+;
+MSG_SPECIAL_LOAD_MENUS(//)
+Lêr menus novos
+;
+MSG_SPECIAL_PROMPT (//)
+Perguntar
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; End of default menu setup!
+;
+MSG_REPLACE_GADGET (//)
+Substituir
+;
+MSG_HALF_GADGET (//)
+Metade
+;
+MSG_FULL_GADGET (//)
+Completa
+;
+MSG_NONE_GADGET (//)
+Nenhuma
+;
+MSG_RIGHT_GADGET (//)
+Direita
+;
+MSG_LEFT_GADGET (//)
+Esquerda
+;
+MSG_SCREEN_GADGET (//)
+Ecrã
+;
+MSG_WINDOW_GADGET (//)
+Janela
+;
+MSG_BACKDROP_GADGET (//)
+Ao fundo
+;
+MSG_VISIBLE_GADGET (//)
+Visível
+;
+MSG_ABSOLUTE_GADGET (//)
+Absoluto
+;
+MSG_OFF_GADGET (//)
+Desligado
+;
+MSG_MARKING_GADGET (//)
+Marcando
+;
+MSG_EXIST_GADGET (//)
+Existe
+;
+MSG_EXPAND_RELATIVE_GADGET (//)
+Relativamente
+;
+MSG_EXPAND_ALL_GADGET (//)
+Todas
+;
+; Here follows a few strings that appears beside boolean buttons in the
+; search/replace requester. Using '@' in front of any character will make
+; that character underlined and that character will be accepted as short-
+; cut! There must only be *ONE* '@' character for each string.
+;
+; Do *not* put anything on 'v' since "amiga v" will paste the block in the
+; string!
+;
+MSG_WILDCARD (//)
+@Wildcards
+;
+MSG_CASE_SENSITIVE (//)
+@Sensível a Maiúsculas/Minúsculas
+;
+MSG_ONLY_WORDS (//)
+Só @Palavras
+;
+MSG_FORWARD_SEARCH (//)
+Procura para a @Frente
+;
+MSG_INSIDE_BLOCK (//)
+Dentro de @Bloco
+;
+MSG_PROMPT_REPLACE (//)
+P@erguntar substituição
+;
+MSG_LIMIT_WILDCARD (//)
+@Limitar Wildcard
+;
+; END OF SPECIAL SEARCH/REPLACE STRINGS
+;
+; Here follows the password window texts.
+MSG_ENTER_PASSWORD_TITLE (//)
+Código de acesso:
+;
+; Request window body text
+MSG_ENTER_PASSWORD (//)
+Insira código de acesso:
+;
+MSG_UNREG_VERSION_LONG (//)
+Esta versão não é registrada!\n\n\
+Page o registo para que\n\
+possa usar todas as funções do FrexxEd!
+;
+MSG_CHOOSE_ENTRY (//)
+Escolha uma entrada:
+;
+MSG_END_OF_FILE (//)
+Fim de ficheiro!
+;
+MSG_REGISTERED_TO (//30)
+Registado a
+;
+MSG_ICON_NEVER (//)
+Nunca
+;
+MSG_ICON_ALWAYS (//)
+Sempre
+;
+MSG_ICON_IF_PARENT (//)
+Nível atrás
+;
+MSG_MOVEVIEW_MAXIVIEW (//)
+Maximizar a vista
+; String that appears in the built-in menu setup.
+;
+; NEW STRINGS FROM 0.97:
+;
+MSG_SORT_FORWARD (//)
+@Frente
+; "forward sort" in the sort block requester
+; The @ in front of a character, makes that character the 'hotkey'
+;
+MSG_SORT_CASE_SENSITIVE (//)
+@Sensível a Maiúsculas/Minúsculas (ASCII)
+; "case sensitive sort" in the sort block requester
+; The @ in front of a character, makes that character the 'hotkey'
+;
+;
+; NEW STRINGS FROM 0.99 (941102):
+;
+MSG_SAVE_NONAME_FILE (//)
+Gravar ficheiro sem nome:
+; Window title of the save-a-unnamed-buffer requester.
+;
+;
+; NEW STRINGS FROM 1.6 (950424):
+;
+MSG_INSIDE_FOLD (//)
+@Dentro de folds
+;
+; This text appears in the search/replace requester to enable search/replace
+;to search within or outside of folds.
+;The @-character makes the following character useable as hotkey together
+;with the Amiga-key.
+;
+;
+MSG_CANT_QUIT (//)
+O FrexxEd não pode sair: %ld ficheiros estão\nainda seguros pelo filehandler!
+;
+;Requester text that is shown when an attempt to quit FrexxEd is done and
+;the filehandler is locked/used by other programs/processes.
+;%ld - will display the amount of locks.
+MSG_WINSCREEN_GADGET (//12)
+JanelaEcrã
+;
+;Text that appears as the 4th alternative for the 'window' info variable.
+;It makes FrexxEd pop up as a window on its own screen. Keep it short!
+;

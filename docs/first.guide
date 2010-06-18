@@ -1,0 +1,47 @@
+@database 07725350-0
+@master FrexxEd/docs/first.guide
+@$VER: 1.1
+@author "Daniel Stenberg"
+@(c) "FrexxWare (C) 1992-1996"
+@width 78
+@remark Created with Heddley v1.20ß © Edd Dumbill 1994-5
+
+@node "Main" "Welcome to FrexxEd"
+              @{u}Welcome to the world of FrexxEd!@{uu}
+
+ We are proud to announce that you have just installed @{fg shine}four years@{fg text} of hard work
+on your Amiga.
+
+ FrexxEd offers a @{b}*large*@{ub} amount of functions, features and comfortable
+details. Even more can be added by the user; if the proper FPL program is
+started or if the right commands are typed in.
+ To properly get to know FrexxEd, you ought to give it at least a little time
+and a little reading!
+
+ @{"Make a first customization" system "execute FrexxEd:docs/install_FPL"} - select which FPL programs to run at startup.
+ (It takes a while to build the list, but hang on!)
+
+ @{"What is FrexxEd?" link "FrexxEd.guide/About_project" 0} - Text about the principles behind all this...
+
+ @{"Changes since last version" link "FrexxEd.guide/history_of_changes" 0} - What has been done lately?
+
+ @{"Display the online manual from start" link "FrexxEd.guide/main" 0} - Main gate into ~700 KB manual!
+
+ @{"Show me the feature list" link "FrexxEd.guide/features" 0} - Just a few things FrexxEd can do...
+
+ @{"How do I start FrexxEd?" link "FrexxEd.guide/starting_FrexxEd" 0} - Command line options/tool types etc.
+
+ @{"Internal function reference" link "Functions.guide/main" 0} (*HUGE*)
+
+ @{"Distribution details and rules" link "FrexxEd.guide/Distribution" 0} - Freely distributable but ShareWare!
+
+ Problems or questions, complaints or ideas. Mail us at:
+        Daniel Stenberg - @{fg shine}Daniel.Stenberg@sth.frontec.se@{fg text}
+        Kjell Ericson -   @{fg shine}kjer@netcom.se@{fg text}
+        Mailing list -    @{"frexxed-list@sunsite.auc.dk" link "Mailing.doc/main" 0}
+
+ You won't find FrexxEd to be a beautiful editor, not even as user-friendly as
+many other editors can be. But when you look under the hood, you'll find an
+engine with power enough to dance around just about any competitor...
+@endnode
+

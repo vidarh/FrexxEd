@@ -1,0 +1,476 @@
+// $Id: DirED.FPL 1.6 1996/08/13 08:57:48 jskov Exp $
+// $VER: DirED.FPL 1.0 (30.12.95) © Jesper Skov
+
+string diredMask = "#?";
+int diredMark = '»';
+string files[1];
+int types[1];								// file types (1=dir)
+int noOfFiles = 0;
+
+// These columns must match the LFORMAT
+int colName = 9;
+int colNameEnd = colName+30;
+int colDir = 5;
+int colMark = 0;
+int colProt = 41;
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» dired() ««
+export void dired(string path)
+{
+  int newDiredBuf;
+  
+  if(path[strlen(path)-1]!=':' && path[strlen(path)-1]!='/')
+	path += "/";
+  
+  System("list \""+path+"\" dirs lformat \"%8L %-30N %8A %D\" > t:dired.d");
+  System("list \""+path+diredMask+"\" files lformat \"%8L %-30N %8A %D\" > t:dired.f");
+  System("sort t:dired.d t:dired.d. colstart "+itoa(colName+1));
+  System("sort t:dired.f t:dired.f. colstart "+itoa(colName+1));
+  
+  newDiredBuf = New();
+  SetInfo(-1,"__diredParent",CurrentBuffer(newDiredBuf));
+  Load("t:dired.d.");
+  GotoLine(-1);
+  InsertFile("t:dired.f.");
+
+  System("delete QUIET FORCE t:dired.#?");
+  
+  GotoLine(0);
+  Output(path+diredMask+"\n");
+  Output("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+
+  if(path[strlen(path)-1]!=':'){			// add /-parent if not device
+	Output("     Dir /                               \n");
+	SetInfo(-1,"__diredDevice",0);
+  }
+
+  SetInfo(-1,"autosave",0);					// set vars and name
+  SetInfo(-1,"__dired",1);
+  SetInfo(-1,"protection","red");
+  SetInfo(-1,"__diredPath",path);
+
+  GotoLine(3,colName);
+  Activate(0,0,ReadInfo("__diredParent"));
+
+  diredShowMarked();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Misc Routines ««
+int isDir()
+{
+  if(strcmp("Dir",substr(GetLine(),colDir,3)))
+	return 0;
+  else
+	return 1;
+}
+
+string getName()
+{
+  int i=colNameEnd;
+  string line = GetLine();
+  
+  while(line[i]==' ')						// find end of name
+	i--;
+
+  return substr(line,colName,i-(colName-1));
+}
+
+void dispOff()
+{
+  Visible(0);
+  SetInfo(-1,"protection","rwed");
+  SetInfo(-1,"insert_mode",0);
+}
+
+void dispOn()
+{
+  SetInfo(-1,"insert_mode",1);
+  SetInfo(-1,"protection","red");
+  Visible(1);
+  RedrawScreen();
+}
+
+void diredSelectedFiles()
+{
+  int line = ReadInfo("line");
+  int i;
+  
+  Visible(0);
+  
+  GotoLine(2);
+  
+  while(CursorDown())
+	if(GetChar(0)==diredMark)
+	  i++;
+
+  resize files[noOfFiles=i];
+  resize types[noOfFiles];
+  
+  GotoLine(2);
+  
+  i=0;
+  while(CursorDown())
+	if(GetChar(0)==diredMark){
+	  files[i]=getName();
+	  types[i++] = (GetChar(colDir)=='D') ? 1:0;
+	}
+  GotoLine(line,colName);
+}
+
+void diredSelectedFilesOne()
+{
+  diredSelectedFiles();
+
+  if(!noOfFiles){							// do on current file
+	noOfFiles = 1;
+	resize files[1];
+	files[0] = getName();
+  }
+}
+
+  //»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredRefresh() ««
+export void diredRefresh()
+{
+  string path = ReadInfo("__diredPath");
+  int line = ReadInfo("line");
+  int parent = ReadInfo("__diredParent");
+  
+  Visible(0);
+  Clean("Kill();");
+  dired(path);
+  
+  SetInfo(-1,"__diredParent",parent);
+  GotoLine(line,colName);
+  if(ReadInfo("column")!=colName+1)
+	GotoLine(ReadInfo("lines")-1, colName);
+  
+  Visible(1);
+  RedrawScreen();
+}
+  
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredDown() ««
+// o Check if directory ("Dir")
+// o Check if /-parent -> go up
+// o Dive
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+export void diredDown()
+{
+  string line = GetLine();
+  
+  if(!isDir())
+	ReturnStatus("Not a directory!");
+  else {
+	string name = getName();
+
+	if(!strcmp(name,"/"))
+	  diredUp();
+	else
+	  dired(ReadInfo("__diredPath")+name);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredUp() ««
+// Move to parent directory
+// o If buffer has __dired parent, no problem
+// o If not, check if path is device -> cannot go up
+// o Last, strip directory off path to go one up (slow)
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+export void diredUp()
+{
+  int child = CurrentBuffer(ReadInfo("__diredParent"));
+
+  // if parent is __dired, simply go up.
+  if(ReadInfo("__dired")){
+	Activate(0,0,child);
+	Clean("Kill("+itoa(child)+");");
+  } else {
+	// Examine path to see if a directory can be stripped off
+	string path = ReadInfo("__diredPath",child);
+	
+	if(path[strlen(path)-1]==':'){			// device -> cannot go up
+	  ReturnStatus("Cannot go up!");
+	  CurrentBuffer(child);
+	  return;
+	}
+
+	path[strlen(path)-1]=0;					// strip off last directory
+	path = Stcgfp(path);
+
+	Visible(0);
+	Clean("Kill("+itoa(child)+");");
+	dired(path);							// and go up (is very slow)
+	Visible(1);
+	RedrawScreen();
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredKillAll() ««
+// Scan through all buffers and kill ones marked with __dired
+// Quite ugly, but it works :)
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+export void diredKillAll()
+{
+  int i, b, c;
+
+  b = NextBuffer(-1);
+  i = ReadInfo("buffers");
+  
+  for(;i>0;i--){
+	c = NextBuffer(b);
+	if(ReadInfo("__dired",b))
+	  Clean("Kill("+itoa(b)+");");
+	b = c;
+  }
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredChangeMask() ««
+export void diredChangeMask()
+{
+  string mask = PromptString("","Enter new mask");
+  if(!GetErrNo())
+	diredMask = mask;
+  diredRefresh();
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredEditFile() ««
+export void diredEditFile(int popupForce)
+{
+  string name = getName();
+  int popupOrg = ReadInfo("popup_view");
+  
+  SetInfo(-1,"popup_view", popupForce);
+  
+  Open(ReadInfo("__diredPath")+name);
+
+  SetInfo(-1,"popup_view", popupOrg);
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredRenameFile() ««
+export void diredRenameFile()
+{
+  string path = ReadInfo("__diredPath");
+  string oldName = getName();
+  string newName = PromptString(oldName,"Enter new name");
+  
+  if(strlen(newName))
+	if(System("rename FROM \""+path+oldName+"\" TO \""+path+newName+"\" QUIET")){
+	  ReturnStatus("Renaming failed!");
+	  return;
+	} else
+	  diredRefresh();
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredMarkFile() ««
+export void diredMarkFile(int move)
+{
+  // first check if below the static stuff
+  if(ReadInfo("line")>(ReadInfo("__diredDevice") ? 2 : 3)){
+  
+	int mark = diredMark;
+	string line = GetLine();
+  
+	if(line[colMark]==mark)
+	  mark = ' ';
+
+	dispOff();
+	GotoLine(ReadInfo("line"));
+	Output(itoc(mark));
+
+	if(move)
+	  CursorDown();
+	
+	diredShowMarked();
+//	dispOn();
+	
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredShowMarked() ««
+void diredShowMarked()
+{
+  int d, f, md, mf;
+  int line = ReadInfo("line");
+  
+  dispOff();
+  
+  if(ReadInfo("__diredDevice"))
+	GotoLine(2);
+  else
+	GotoLine(3);
+  
+  while(CursorDown()){
+	if(GetChar(colDir)=='D'){
+	  d++;
+	  if(GetChar(colMark)==diredMark)
+		md++;
+	} else {
+	  f++;
+	  if(GetChar(colMark)==diredMark)
+		mf++;
+	}
+  }
+  f--;										// above loop is 1 off!
+  
+  Rename(sprintf("*Dired* Dirs=(%.3d|%.3d) Files=(%.3d|%.3d)",d,md,f,mf));
+  GotoLine(line,colName);
+  
+  dispOn();
+}
+	
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredNewPath() ««
+export void diredNewPath()
+{
+  string newPath = PromptString("","New path");
+  
+  if(!GetErrNo()){
+	if(!Check(newPath))
+	  ReturnStatus("Illegal path!");
+	else {
+	  Visible(0);
+	  diredKillAll();
+	  dired(newPath);
+	  Visible(1);
+	  RedrawScreen();
+	}
+  }
+}	
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredShowDir() ««
+export void diredShowDir()
+{
+  ReturnStatus(ReadInfo("__diredPath"));
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredProtectFile() ««
+export void diredProtectFile()
+{
+  string protection = substr(GetLine(),colProt,7);
+  int script = (protection[0]!='-');
+  int pure = (protection[1]!='-');
+  int archive = (protection[2]!='-');
+  int read = (protection[3]!='-');
+  int write = (protection[4]!='-');
+  int execute = (protection[5]!='-');
+  int delete = (protection[6]!='-');
+
+  if(RequestWindow("DirED file protection",20,
+				 "script","b", &script,
+				 "pure","b", &pure,
+				 "archive","b", &archive,
+                 "read","b", &read,
+				 "write","b", &write,
+				 "execute","b", &execute,
+				 "delete","b", &delete)){
+				   
+    protection = "";
+	protection += (script) ? "s" : "";
+	protection += (pure) ? "p" : "";
+	protection += (archive) ? "a" : "";
+	protection += (read) ? "r" : "";
+	protection += (write) ? "w" : "";
+	protection += (execute) ? "e" : "";
+	protection += (delete) ? "d" : "";
+				   
+	System("protect \""+ReadInfo("__diredPath")+getName()+"\" "+protection);
+	diredRefresh();
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredDeleteFile() ««
+export void diredDeleteFile()
+{
+  int line = ReadInfo("line");
+  int i,  w, current=0, force=0;
+  string key;
+  
+  diredSelectedFilesOne();
+
+  for(i=0;i<noOfFiles;i++){
+	if(!force){
+	  Status(0,"Delete "+files[i]+"? (Yes/No/All)");
+	  current = w = 0;
+	  while(!w){
+		key = GetKey();
+		switch(key[0]){
+		case 0x1b:
+		  diredRefresh();
+		  return;
+		case 0x07:
+		  diredRefresh();
+		  return;
+		case 'a':
+		  force = current = w = 1;
+		  break;
+		case 'y':
+		  current = w = 1;
+		  break;
+		case 'n':
+		  w = 1;
+		  break;
+		}
+	  }
+	}
+	
+	if(current)
+	  System("Delete \""+ReadInfo("__diredPath")+files[i]+"\" ALL QUIET");
+  }
+  diredRefresh();
+}
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» diredCopyFile() ««
+export void diredCopyFile()
+{
+  string dest = PromptFile("", "Select destination", "", "ds");
+  
+  if(strlen(dest)){
+	int i;
+	
+	diredSelectedFilesOne();
+
+	for(i=0;i<noOfFiles;i++){
+	  Status(0,"Copying "+files[i]+"...");
+	  System("Copy \""+ReadInfo("__diredPath")+files[i]+"\" TO \""+dest+"\" ALL NOREQ QUIET");
+	}  
+  }
+}
+  
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Key bindings ««
+AssignKey("diredDown();","'return'","__dired");
+AssignKey("diredUp();","'backspace'","__dired");
+AssignKey("diredKillAll();","q","__dired");
+AssignKey("diredKillAll();","'escape'","__dired");
+
+AssignKey("diredChangeMask();","m","__dired");
+AssignKey("diredRefresh();","l","__dired");
+AssignKey("diredNewPath();","j","__dired");
+
+AssignKey("diredEditFile(0);","e","__dired");
+AssignKey("diredEditFile(1);","E","__dired");
+
+AssignKey("diredRenameFile();","r","__dired");
+AssignKey("diredProtectFile();","p","__dired");
+AssignKey("diredDeleteFile();","d","__dired");
+AssignKey("diredCopyFile();","c","__dired");
+
+AssignKey("diredShowDir();","?","__dired");
+
+AssignKey("diredMarkFile(1);","'space'","__dired");
+AssignKey("diredMarkFile(0);","shift 'space'","__dired");
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» Info vars ««
+ConstructInfo("__dired","","","HLB","",0,1,0);
+ConstructInfo("__diredDevice","","","HLB","",0,1,1);
+ConstructInfo("__diredPath","","","HLS","",0,0);
+ConstructInfo("__diredParent","","","HLI","",0,0x7fffffff,0);
+
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» DirED Menu ««
+MenuAdd("i", "DirED", "string path = PromptFile(\"\",\"DirED path\",\"\",\"d\");if(strlen(path)) dired(path);","",1,17);
+MenuAdd("i", "---","","",1,18);
+MenuBuild();

@@ -1,0 +1,23 @@
+############################################
+File:		SearchCount.FPL
+Author:		Kjell Ericson
+Email:		FidoNet 2:201/328, kjer@netcom.se
+Short:		Counts number of occurences of a string.
+Version:	1.1
+Date:		1.8.94
+Local settings:
+Global settings:
+Keysequence:	'Amiga Control s'
+Type:		key
+Prereq:
+############################################
+
+FUNCTION
+
+  This function will use the content of the search buffer and count the number
+of existance in the current buffer.
+  It will also duplicate the entry in order to keep the view as it is, and kill
+that duplicate when finnished.
+
+  The result is showed in a requester.
+

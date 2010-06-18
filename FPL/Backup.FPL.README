@@ -1,0 +1,36 @@
+############################################
+File:		Backup.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se, FidoNet 2:201/328
+Short: 		Make backups at save-time
+Version:	1.0
+Date:		22.4.94
+Local settings: "backup" ("_backup" is hidden)
+Global settings: "backup_suffix"
+Keysequence:
+Type:		Hook
+Prereq:
+############################################
+
+FUNCTION
+
+  The reason for this program is to save us all from the following scenario:
+You load a file, modify and save it and then quit. You try to compile the
+new file and after the compiler has discovered the 47 errors in the file,
+you get second thoughts about the latest modification and want to get back the
+previous version of the file.
+
+  This program performs a safety copy of the file that is to be overwritten
+by a save. The backup is only performed at the first save of the file.
+
+  The backup file will get a suffix that defaults to ".bak" (changeable
+through the "backup_suffix" global setting). If the backup file already exists
+when the backup copy is about to perform, a requester will appear propting if
+the file should be overwritten or not. Whether the answer is true or false,
+the operation will be marked internally as if the backup has been done!
+
+  The backup option is switchable on/off with the local boolean setting called
+"backup".
+
+BUGS
+  None?

@@ -1,0 +1,55 @@
+int SearchCountA(string searchstring)
+{
+  int foundcount=0;
+  GotoLine(1, 0);
+  while (Search(searchstring)>=0)
+    foundcount++;
+  return(foundcount);
+}
+
+export int PreCompile()
+{
+  int BufferID=DuplicateEntry();
+  int currentbuffer=GetBufferID();
+  int foundcount1, foundcount2;
+  string result="";
+
+  if (BufferID) {
+    Status(0, "Wait...");
+    CurrentBuffer(BufferID);
+
+    foundcount1=SearchCountA("\"");
+    result=joinstr("'\"' is found ", ltostr(foundcount1), " times!  ");
+    if (foundcount1 & 1)
+      result=joinstr(result, "Not good!");
+    else
+      result=joinstr(result, "Good!");
+    foundcount1=SearchCountA("{");
+    result=joinstr(result, "\n'{' is found ", ltostr(foundcount1), " times!  ");
+    foundcount2=SearchCountA("}");
+    result=joinstr(result, "\n'}' is found ", ltostr(foundcount2), " times!  ");
+    if (foundcount1!=foundcount2)
+      result=joinstr(result, "Not good!");
+    else
+      result=joinstr(result, "Good!");
+
+    foundcount1=SearchCountA("(");
+    result=joinstr(result, "\n'(' is found ", ltostr(foundcount1), " times!  ");
+    foundcount2=SearchCountA(")");
+    result=joinstr(result, "\n')' is found ", ltostr(foundcount2), " times!  ");
+    if (foundcount1!=foundcount2)
+      result=joinstr(result, "Not good!");
+    else
+      result=joinstr(result, "Good!");
+
+    CurrentBuffer(currentbuffer);
+    Kill(BufferID);
+    Status();
+    Request(result, "PreCompile", "Yeah!");
+  }
+}
+
+/* Assign "amiga control shift p" to the function */
+
+AssignKey("PreCompile();", "amiga control shift p");
+

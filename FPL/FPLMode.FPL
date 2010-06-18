@@ -1,0 +1,10 @@
+// $Id: FPLmode.FPL 1.2 1995/07/21 10:34:13 jskov Exp $
+// $VER: FPLMode.FPL 1.0 (15.06.95) © Jesper Skov
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» FPLMode settings ««
+ConstructInfo("fpl_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("fpl_mode_ext", "","", "GSHW","", 0,0,"*fpl*");
+ConstructInfo("fpl_mode_exe", "","", "GSHW","", 0,0,"CppModeInit();");
+
+AddMode(1, "fpl_mode", "fpl_mode_ext", "fpl_mode_exe");
+

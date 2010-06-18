@@ -1,0 +1,36 @@
+{
+  string hex[16]={"0", "1", "2", "3", "4", "5", "6", "7",
+                  "8", "9", "A", "B", "C", "D", "E", "F"};
+  
+  int counter;		/* A counter to the for()loops */
+  int oldvisible;
+  
+  oldvisible=Visible(0);  /* We turn off the visible flag to get a
+  			   smooth execution. We also store the old
+  			   visible flag in order to restore it. */
+  
+  	/* Change ASCII 0-31 to display reversed "\xx" */
+  
+  for (counter=0; counter<=31; counter++)
+    if (counter!='\t' && counter!='\n')// Don't change the tab or newline sign
+      FACT(counter, 'S',		// Assign a new string
+           joinstr("#R\\", hex[counter>>4], hex[counter&15]));
+  
+  
+  	/* Change ASCII 128-159 to display reversed "\xx" */
+  
+  for (counter=128; counter<=159; counter++)
+    FACT(counter, 'S',		// Assign a new string
+         joinstr("#R\\", hex[counter>>4], hex[counter&15]));
+  
+  
+       /* Change the 'NotEndOfLine' sign to a '»' */
+  FACT(-2, 'S', "»");
+  
+  
+        /* Setup the 'EndOfFile' sign */
+  FACT(-1, 'S', "#REnd of file!");
+  
+  
+  Visible(oldvisible);	/* Restore the visible flag. */
+}

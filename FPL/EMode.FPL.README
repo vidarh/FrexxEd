@@ -1,0 +1,36 @@
+#############################################################################
+File:		EMode.FPL
+Author:		Jørgen 'Da' Larsen
+Email:		dapp@iesd.auc.dk
+Short:		Major mode for programmming in Amiga E.
+Version:	1.2
+Date:		18.03.96
+Local settings:
+Global settings:
+Keysequence:
+Type:		Major mode
+Prereq:		FMC.FPL
+Copyright:	© 1996, Jørgen 'Da' Larsen
+#############################################################################
+
+FUNCTION
+  Amiga E major mode.
+
+HISTORY (REV)
+  14.10.95 (0)	Init.
+  31.10.95 (1)	Cleanup Code a little bit.
+  18.03.96 (2)  Added support for 'face' (FrexxEd V2.0b1)
+
+BUGS
+  Nah.
+
+TODO
+  A LOT
+    o E-server.
+    o Cleanup code (again).
+    o ...
+
+SEE ALSO
+  EFace.fpl
+  My Face.
+  DaPP the movie

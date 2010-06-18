@@ -1,0 +1,40 @@
+#############################################################################
+File:	RememberMenuAction.FPL
+Author:	Carsten Orthbandt
+Email:	s6357@fb1.fhtw-berlin.de
+Short:	Remember last menu selection and repeats it on keystroke
+Version:	1.0
+Date:	17.03.1995
+Local settings:
+Global settings: 
+Keysequence: Amiga A
+Type:	Menu Hook, Key assignment
+Prereq:
+Copyright:	none
+#############################################################################
+
+FUNCTION
+ Almost every function in FrexxEd´s default menus has a shortcut. Almost.
+ Having some user menus added, it´s quite hard to find suitable menu
+ shortcuts for them. This is were RememberMenuAction comes in.
+ Everytime you select a menu item, this is remembered in a global var
+ "LastMenuCommand". Now, when you press "Amiga A" (SHIFT-a !), this
+ string gets executed. So, if you want to call the same menu function
+ ten times, select it once only and press "Amiga A" nine times.
+ Remark: My memory var "LastMenuCommand" is NO info var ! 
+
+
+HISTORY
+ 1.0  17.03.1995  - initial version
+
+
+BUGS
+ Ehm, I had one guru on FrexxEd shutdown after using RememberMenuAction.
+ Can´t imagine why.  
+
+
+TODO
+ Nothing - it´s absolutely perfect, ok ?
+
+SEE ALSO
+ Menu-Exception. Great feature !

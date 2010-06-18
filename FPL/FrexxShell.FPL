@@ -1,0 +1,120 @@
+/* FrexxEd Shell Environment
+   by Carsten Orthbandt
+   $VER: FrexxShell V 1.0 5.7.95
+   Read FrexxShell.FPL.README for further information
+*/
+
+int bufferid;
+string currentdir;
+string cmdfname,outfname,dirfname,errfname;
+
+int ValidCommand(string cmd)
+{
+  int count, len;
+  len=strlen(cmd);
+
+  for (count=0; count<len; count++) {
+    if (cmd[count]>32)
+      return 1;
+  }
+  return 0;
+}
+
+void DoShellCmnd(string cmd)
+{
+ int errc;
+ if(ReadInfo("filehandler")) {
+   outfname = ReadInfo("disk_name")+":"+ReadInfo("full_file_name");
+   if (ReadInfo("file_number")>1)
+     outfname+=","+ltostr(ReadInfo("file_number"));
+ }
+ if (strlen(cmd) && cmd[strlen(cmd)-1]<32)
+   cmd[strlen(cmd)-1]=' ';
+
+ SaveString(cmdfname,"failat 21\ncd \""+currentdir+"\"\n"+cmd+" <NIL: >>"+outfname+"\ncd >"+dirfname+"\n");
+ errc=System("Execute >>"+outfname+" "+cmdfname,"",errfname);
+ GotoLine(-1,-1);
+ if(!ReadInfo("filehandler")) {
+   InsertFile(outfname);
+   Output(LoadString(errfname));
+ }
+ currentdir=LoadString(dirfname);
+ currentdir=substr(currentdir,0,strlen(currentdir)-1);
+ Output(currentdir+">"); 
+ SetInfo(-1,"changes",0);
+}
+
+export void TabFNC()
+{
+ int cmndstrt,flns;
+ string cmline,flnm,nflnm;
+ string files[1];
+ int filecnt;
+ if (GetBufferID()==bufferid)
+ {
+  GotoLine(-1,260);
+  cmline=GetLine();
+  cmndstrt=strstr(cmline,">",0)+1;
+  cmline=substr(cmline,cmndstrt,-1);
+  flns=strlen(cmline)-1;
+  if (flns!=-1){
+  while ((flns>=0)&&(cmline[flns] != ' ')&&(cmline[flns] != '\"'))
+  {flns--;};flns++;}
+  else{flns=0;};
+  flnm=substr(cmline,flns,-1);
+  cmline=substr(cmline,0,flns);
+  if (strlen(flnm)==0){flnm=currentdir;};
+  nflnm=flnm;
+  filecnt=GetFileList(nflnm+"#?",&files);
+  if(RequestWindow("Select File",50,"","A",&files,&nflnm,filecnt))
+  {
+   cmline=cmline+nflnm;
+  }else
+  {
+   cmline=cmline+flnm;
+  }
+  GotoLine(-1,cmndstrt);DeleteEol();
+  Output(cmline);
+ }else
+ {
+  Output("\t");
+ }
+}
+
+export void ProcessShellCmndLine()
+{
+ int cmndstrt;
+ string cmline;
+ cmline=GetLine();
+ Output("\n");
+ if (GetBufferID()==bufferid)
+ {
+  GotoLine(-1,260);
+  cmndstrt=strstr(cmline,">",0)+1;
+  cmline=substr(cmline,cmndstrt,-1);
+  if (ValidCommand(cmline))
+   {DoShellCmnd(cmline);}else{DoShellCmnd("Echo");};
+  System("Delete "+outfname,"","NIL:");
+ }
+}
+
+void SetupFrexxShell()
+{
+ string bfids;
+ AssignKey("ProcessShellCmndLine();","'Return'");
+ AssignKey("TabFNC();","'Tab'");
+ currentdir="SYS:";
+ bufferid=New();
+ Activate(bufferid,1);
+ CurrentBuffer(bufferid);
+ Rename("FrexxCon");
+ bufferid=GetBufferID("FrexxCon");
+ bfids=itoa(bufferid);
+ cmdfname="T:FShCmd_"+bfids;
+ outfname="T:FShOut_"+bfids;
+ dirfname="T:FShDir_"+bfids;
+ errfname="T:FShErr_"+bfids;
+ DoShellCmnd("echo FrexxShell by Carsten Orthbandt");
+}
+
+SetupFrexxShell();

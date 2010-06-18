@@ -1,0 +1,58 @@
+############################################
+File:		ChangeFACT.FPL
+Author:		Carsten Orthbandt
+Email:		s6357@fb1.fhtw-berlin.de
+Short:		Change your FACT by GUI.
+Version:	1.0
+Date:		14.7.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		Requester
+Prereq:		FrexxEd 1.7, FPL 12
+############################################
+
+FUNCTION
+ This gives you a small GUI to change the FACT.
+ After running this script you have the additional commands FACTChangeRequest() and
+ FACTAttrWindow().
+
+ void FACTChangeRequest();
+  takes no arguments and gives you a list of all (including the specials -5..-1)
+  FACT entries. It4s initial state is the character the cursor is currrently on.
+  After selection FACTAttrWindow() is called. When done with the window you are
+  presented the list again. The list display will take some time because I have
+  to build a list of 261 elements. This is rather slow since there is no FPL
+  compiler yet. (Heard that, Daniel ? ;)
+
+ void FACTAttrWindow( int );
+  takes an integer (character number) and displays a window with all (AFAIK) FACT
+  options currently available. The window is initialized to the current settings.
+  Now you may change FACT attributes:
+    Display string  - the string displayed every time this char occurs in
+                          your text
+    Type            - Type, can be None,Word,Space,Symbol,Tab or Newline
+    Case            - Case, can be None,Upper or Lower
+     Opposite       - If char is upper case, this is the corresponding lower one
+                      and vice versa.
+    Delimiter       - Delimiter type, can be None,Opening or Closing. This is
+                      useful for brackets.
+     Opposite       - For opening delimiters this is the closing one, e.g. editing
+                      the char '(', one should set delimiter type to opening and
+                      the opposite to ')'.
+
+  A useful menu item could be:
+   MenuAdd("i","ChangeFact","FACTAttrWindow(GetChar());");
+  to change the FACT attributes of the current character.
+
+  Since the char class attributes are mutually exclusive, I chose cycle gadgets.
+  There are quite much states for a cycle gadget, so I recommend using somthing
+  like Cycle2Menu.
+
+BUGS
+ This stuff does NOT support the local FACT feature I requested that often because
+ some FACT functions (e.g. FACTString()) don4t support it.
+
+
+SEE ALSO
+ Any FACT related chapters in FrexxEd.guide and Functions.guide

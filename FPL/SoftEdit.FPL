@@ -1,0 +1,340 @@
+//*******************************************************************
+//  This program adds a X-window/Mac/Windows style editing with mouse
+//  marking and Cut/Copy/Paste in a slightly different way. Read
+//  SoftEdit.FPL.README for more information.
+//*******************************************************************
+
+export int SE_MouseMark(int mode)
+{
+   SetInfo(-1, "softedit_cursor_marking", 0);
+   BlockMark(mode);
+   PlaceCursor(ReadInfo("mouse_x"), ReadInfo("mouse_y"));
+}
+
+export int SE_MouseMarkWord()
+{
+   string str;
+   int x, y;
+   int v = Visible(0);
+
+   BlockMark(0);
+   PlaceCursor(ReadInfo("mouse_x"), ReadInfo("mouse_y"));
+   str = GetLine();
+   SetInfo(-1, "softedit_cursor_marking", 1);
+   CursorRightWord();
+   CursorLeftWord();
+   x = ReadInfo("byte_position");
+
+   while (Isword(str[x++]))
+      y++;
+
+   BlockMark(1);
+   CursorRight(y);
+   SetInfo(-1, "softedit_cursor_marking", 0);
+   Visible(v);
+}
+
+export int SE_BlockHook()
+{
+   if (!ReadInfo("softedit_cursor_marking"))
+   {
+      BlockMark(0);
+      return (0);
+   }
+   return(0);
+}
+
+export int SE_OutputHook()
+{
+   BlockDelete();
+   return (0);
+}
+
+export void SE_Paste(void)
+{
+   int x = Visible(0);
+   BlockDelete();
+   BlockPaste(-1);
+   Visible(x);
+}
+
+export void SE_BlockMarkKey(void)
+{
+   BlockMark();
+   SetInfo(-1, "softedit_cursor_marking", ReadInfo("block_exist"));
+}
+
+export void SE_BlockCopyKey(void)
+{
+   BlockCopy();
+   SetInfo(-1, "softedit_cursor_marking", ReadInfo("block_exist"));
+}
+
+export void SE_BlockCutKey(void)
+{
+   BlockCut();
+   SetInfo(-1, "softedit_cursor_marking", ReadInfo("block_exist"));
+}
+
+void ReplaceMenuItems(void)
+{
+   string slask, name;
+
+   if (MenuRead(&slask, &name, &slask, &slask, 2, 9, 0) >= 0)
+   {
+      MenuDelete(2, 9, 0);
+      MenuAdd("item", name, "SE_Paste();", "Amiga i", 2, 9, 0);
+      MenuBuild();
+   }
+}
+
+void SoftEditAssignKeys(void)
+{
+   if(stristr(ReadInfo("softedit_dragbutton"), "Mouse") >= 0)
+   {
+      AssignKey("SE_MouseMark(0);", ReadInfo("softedit_dragbutton"));
+      AssignKey("SE_MouseMark(1);", ReadInfo("softedit_dragbutton") + "Drag");
+      AssignKey("BlockMark(2);", ReadInfo("softedit_dragbutton") + "Up", "block_exist");
+   }
+
+   if(stristr(ReadInfo("softedit_cutbutton"), "Mouse") >= 0)
+   {
+      AssignKey("BlockCut();", ReadInfo("softedit_cutbutton"));
+   }
+
+   if(stristr(ReadInfo("softedit_copybutton"), "Mouse") >= 0)
+   {
+      AssignKey("BlockCopy();", ReadInfo("softedit_copybutton"));
+   }
+
+   if(stristr(ReadInfo("softedit_pastebutton"), "Mouse") >= 0)
+   {
+      AssignKey("SE_Paste();", ReadInfo("softedit_pastebutton"));
+      // If we have assigned with singleclick then
+      // we assign the same function to double and triple as well
+      if((stristr(ReadInfo("softedit_pastebutton"), "Double") < 0) &&
+      	 (stristr(ReadInfo("softedit_pastebutton"), "Triple") < 0))
+      {
+	 AssignKey("SE_Paste();", ReadInfo("softedit_pastebutton") + "Double");
+	 AssignKey("SE_Paste();", ReadInfo("softedit_pastebutton") + "Triple");
+      }
+   }
+
+   if(stristr(ReadInfo("softedit_wordmarkbutton"), "Mouse") >= 0)
+   {
+      AssignKey("SE_MouseMarkWord();", ReadInfo("softedit_wordmarkbutton"));
+   }
+
+   if(stristr(ReadInfo("softedit_extendmarkbutton"), "Mouse") >= 0)
+   {
+      AssignKey("SE_MouseMark(1);", ReadInfo("softedit_extendmarkbutton"));
+   }
+}
+
+export void SoftEditSettings(void)
+{
+   int persist = ReadInfo("softedit_persistent_blocks");
+   int dragkey, dragqual;
+   int cutkey, cutqual, cutclicks;
+   int copykey, copyqual, copyclicks;
+   int pastekey, pastequal, pasteclicks;
+   int wordmarkkey, wordmarkqual, wordmarkclicks;
+   int extendmarkkey, extendmarkqual, extendmarkclicks;
+   int x;
+   string dragbutton = ReadInfo("softedit_dragbutton");
+   string cutbutton = ReadInfo("softedit_cutbutton");
+   string copybutton = ReadInfo("softedit_copybutton");
+   string pastebutton = ReadInfo("softedit_pastebutton");
+   string wordmarkbutton = ReadInfo("softedit_wordmarkbutton");
+   string extendmarkbutton = ReadInfo("softedit_extendmarkbutton");
+
+   string quals[5] = {"", "Shift", "Ctrl", "Amiga", "Alt"};
+   string keys[4] = {"", "MouseLeft", "MouseMiddle", "MouseRight"};
+   string clicks[3] = {"", "Double", "Triple"};
+
+   DeleteKey(dragbutton);
+   DeleteKey(dragbutton + "Drag");
+   DeleteKey(dragbutton + "Up");
+   DeleteKey(cutbutton);
+   DeleteKey(copybutton);
+   DeleteKey(pastebutton);
+   DeleteKey(wordmarkbutton);
+   DeleteKey(extendmarkbutton);
+
+   // Remove all assigns to double and triple click as well
+   if((stristr(pastebutton, "Double") < 0) && (stristr(pastebutton, "Triple") < 0))
+   {
+      DeleteKey(pastebutton + "Double");
+      DeleteKey(pastebutton + "Triple");
+   }
+
+   for(x = 1;x < 5;x++)
+   {
+      if(stristr(dragbutton, quals[x]) >= 0)
+      {
+	 dragqual = x;
+      }
+      if(stristr(cutbutton, quals[x]) >= 0)
+      {
+	 cutqual = x;
+      }
+      if(stristr(copybutton, quals[x]) >= 0)
+      {
+	 copyqual = x;
+      }
+      if(stristr(pastebutton, quals[x]) >= 0)
+      {
+	 pastequal = x;
+      }
+      if(stristr(wordmarkbutton, quals[x]) >= 0)
+      {
+	 wordmarkqual = x;
+      }
+      if(stristr(extendmarkbutton, quals[x]) >= 0)
+      {
+	 extendmarkqual = x;
+      }
+   }
+
+   for(x = 1;x < 4;x++)
+   {
+      if(stristr(dragbutton, keys[x]) >= 0)
+      {
+	 dragkey = x;
+      }
+      if(stristr(cutbutton, keys[x]) >= 0)
+      {
+	 cutkey = x;
+      }
+      if(stristr(copybutton, keys[x]) >= 0)
+      {
+	 copykey = x;
+      }
+      if(stristr(pastebutton, keys[x]) >= 0)
+      {
+	 pastekey = x;
+      }
+      if(stristr(wordmarkbutton, keys[x]) >= 0)
+      {
+	 wordmarkkey = x;
+      }
+      if(stristr(extendmarkbutton, keys[x]) >= 0)
+      {
+	 extendmarkkey = x;
+      }
+   }
+
+   for(x = 1;x < 3;x++)
+   {
+      if(stristr(cutbutton, clicks[x]) >= 0)
+      {
+	 cutclicks = x;
+      }
+      if(stristr(copybutton, clicks[x]) >= 0)
+      {
+	 copyclicks = x;
+      }
+      if(stristr(pastebutton, clicks[x]) >= 0)
+      {
+	 pasteclicks = x;
+      }
+      if(stristr(wordmarkbutton, clicks[x]) >= 0)
+      {
+	 wordmarkclicks = x;
+      }
+      if(stristr(extendmarkbutton, clicks[x]) >= 0)
+      {
+	 extendmarkclicks = x;
+      }
+   }
+
+   RequestWindow("SoftEdit Settings", 15,
+   		"Persistent blocks", "b", &persist,
+   		"Drag qualifier", "c", &dragqual,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Drag button", "c", &dragkey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Cut qualifier", "c", &cutqual,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Cut button", "c", &cutkey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Cut clicks", "c", &cutclicks,
+		"Single|Double|Triple",
+   		"Copy qualifier", "c", &copyqual,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Copy button", "c", &copykey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Copy clicks", "c", &copyclicks,
+		"Single|Double|Triple",
+   		"Paste qualifier", "c", &pastequal,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Paste button", "c", &pastekey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Paste clicks", "c", &pasteclicks,
+		"Single|Double|Triple",
+   		"Word mark qualifier", "c", &wordmarkqual,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Word mark button", "c", &wordmarkkey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Word mark clicks", "c", &wordmarkclicks,
+		"Single|Double|Triple",
+   		"Extend mark qualifier", "c", &extendmarkqual,
+		"None|Shift|Ctrl|Amiga|Alt",
+   		"Extend mark button", "c", &extendmarkkey,
+		"None|MouseLeft|MouseMiddle|MouseRight",
+   		"Extend mark clicks", "c", &extendmarkclicks,
+		"Single|Double|Triple");
+
+   SetInfo(-1, "softedit_persistent_blocks", persist);
+   SetInfo(-1, "softedit_dragbutton", quals[dragqual] + " " + keys[dragkey]);
+   SetInfo(-1, "softedit_cutbutton", quals[cutqual] + " " + keys[cutkey] + clicks[cutclicks]);
+   SetInfo(-1, "softedit_copybutton", quals[copyqual] + " " + keys[copykey] + clicks[copyclicks]);
+   SetInfo(-1, "softedit_pastebutton", quals[pastequal] + " " + keys[pastekey] + clicks[pasteclicks]);
+   SetInfo(-1, "softedit_extendmarkbutton", quals[extendmarkqual] + " " + keys[extendmarkkey] + clicks[extendmarkclicks]);
+   SetInfo(-1, "softedit_wordmarkbutton", quals[wordmarkqual] + " " + keys[wordmarkkey] + clicks[wordmarkclicks]);
+
+   SoftEditAssignKeys();
+}
+
+// Clicking clears the marked block
+AssignKey("BlockMark(0);\
+   	PlaceCursor(ReadInfo(\"mouse_x\"), ReadInfo(\"mouse_y\"));", "MouseLeft");
+
+// Output clears the marked block
+Hook("Output", "SE_OutputHook();", "block_exist&!softedit_persistent_blocks");
+
+// Cursor movements removes the block marking
+Hook("CursorUp", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("CursorDown", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("CursorLeft", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("CursorRight", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("CursorLeftWord", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("CursorRightWord", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("PageUp", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("PageDown", "SE_BlockHook();", "block_exist&!softedit_persistent_blocks");
+Hook("Backspace", "SE_OutputHook(); return(1);", "block_exist&!softedit_persistent_blocks");
+Hook("Delete", "SE_OutputHook(); return(1);", "block_exist&!softedit_persistent_blocks");
+
+// This hack makes it possible for us to mark with Amiga b as usual
+ConstructInfo("softedit_cursor_marking", "", "", "LBH", "", 0, 1);
+SetInfo(-2, "softedit_cursor_marking", 0);
+
+AssignKey("SE_BlockMarkKey();", "Amiga b");
+AssignKey("SE_BlockCopyKey();", "Amiga c");
+AssignKey("SE_BlockCutKey();", "Amiga x");
+
+// Replace the "Insert" choice in the menu
+ReplaceMenuItems();
+
+ConstructInfo("softedit_persistent_blocks", "", "", "HBW", "", 0, 1, 0);
+ConstructInfo("softedit_dragbutton", "", "", "HSW", "", 0, 0, "MouseLeft");
+ConstructInfo("softedit_cutbutton", "", "", "HSW", "", 0, 0, "Shift MouseRight");
+ConstructInfo("softedit_copybutton", "", "", "HSW", "", 0, 0, "MouseRight");
+ConstructInfo("softedit_pastebutton", "", "", "HSW", "", 0, 0, "MouseMiddle");
+ConstructInfo("softedit_wordmarkbutton", "", "", "HSW", "", 0, 0, "MouseLeftDouble");
+ConstructInfo("softedit_extendmarkbutton", "", "", "HSW", "", 0, 0, "Shift MouseLeft");
+
+SoftEditAssignKeys();
+
+MenuAdd("S", "Softedit...", "SoftEditSettings();", "", 6, 6, -1);
+MenuBuild();

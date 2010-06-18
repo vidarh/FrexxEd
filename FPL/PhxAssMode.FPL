@@ -1,0 +1,148 @@
+// $Id: PhxAssMode.FPL 1.6 1996/04/21 14:00:58 jskov Exp $
+// $VER: PhxAssMode.FPL 1.1 (21.04.96) © Jesper Skov
+
+int parseLine = 0;
+
+int entryID;
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» phxAssemble() ««
+export void phxAssemble()
+{
+  int parent = GetBufferID();
+  string path = ReadInfo("file_path");
+  string me, make;
+  int stat;
+
+  if(!ReadInfo("filehandler")){
+	SetInfo(-2,"filehandler",1);
+	Delay(50);								// wait 2 secs
+  }
+	
+  me = "\""+ReadInfo("disk_name")+":_phxAssemble_\"";
+
+  if (!strlen(path))
+	path = ReadInfo("directory");
+
+  if(!(entryID = GetEntryID("_phxAssemble_"))){
+	entryID = New();
+	parent = CurrentBuffer(entryID);
+	Rename("_phxAssemble_");
+	CurrentBuffer(parent);
+
+	Visible(0);
+	Activate(entryID,1);
+	ResizeView(ReadInfo("view_lines")+ReadInfo("view_lines",entryID)-ReadInfo("phxass_output_height"),parent);
+
+	Visible(1);
+	RedrawScreen();
+  }
+
+  if(ReadInfo("phxass_auto_save"))
+	 Save();
+
+  CurrentBuffer(entryID);
+  GotoLine(1);
+  CurrentBuffer(parent);
+
+  if(Check(path+"Makefile")){
+	 make = "make -C"+path+" "+ReadInfo("phx_make_options");
+  
+	 System("echo \"Running "+make+"\" >"+me);
+	 SaveString("T:phxAssemble",make+" >>"+me+" 2>>&1\n");
+	 stat = System("run bin:sh t:phxAssemble");
+  } else 
+    stat = System(ReadInfo("phxass_assembler")+" >"+me+" FROM "+ReadInfo("full_file_name")+" "+ReadInfo("phxass_options"));
+
+  if(stat)
+	ReturnStatus("There were errors! Press C-c ' to find them!");
+  else
+    ReturnStatus("Successful operation!");
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» phxAssParseError() ««
+export void phxAssParseError()
+{
+  int parent = CurrentBuffer(entryID);
+
+  if(Search("(= line ","=f+")){
+	if(ReadInfo("line")==1){
+	  ReturnStatus("No errors found!");
+	  CurrentBuffer(parent);
+	  return;
+	} else {
+	  GotoLine(1);
+	  CurrentBuffer(parent);
+	  ReturnStatus("No more errors found!");
+	  return;
+	}	
+  } else {
+	int errLine;
+	string errFile, errText;
+
+	CursorRight(8);
+	errLine = atoi(GetWord());
+	CursorRightWord(2);
+	errFile = substr(GetLine(),ReadInfo("byte_position"),ReadInfo("line_length")-ReadInfo("byte_position")-2);
+	GotoLine(ReadInfo("line")-1,0);
+	CursorRightWord();
+	errText = substr(GetLine(),ReadInfo("byte_position"),ReadInfo("line_length")-ReadInfo("byte_position")-1);
+	CursorDown(2);
+	InverseLine(ReadInfo("cursor_y")-1);
+	InverseLine(ReadInfo("cursor_y")-2);
+	InverseLine(ReadInfo("cursor_y")-3);
+
+	if(stricmp(Stcgfn(errFile),ReadInfo("file_name",parent))){
+	  int other = GetBufferID(Stcgfn(errFile));
+
+	  if (!other){
+		other = New();
+		CurrentBuffer(other);
+		Load(errFile);
+	  }
+	  CurrentBuffer(other);
+	  Activate(other, 0, parent);			// replace parent with erroneous
+	} else
+	  CurrentBuffer(parent);
+
+	GotoLine(errLine);
+	ReturnStatus(errText);
+  }
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» phxAssPrefs() ««
+export void PhxAssModePrefs()
+{
+  PromptInfo(-1,"PhxAssMode Preferences",-1,-1,
+   "phxass_assembler",
+   "phxass_output_height",
+   "phxass_make_options"
+   "phxass_options"
+  );
+}
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» key bindings ««
+AssignKey("phxAssemble();","control c control c", "phxass_mode");
+AssignKey("phxAssParseError();","control c '0x2a'","phxass_mode");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PhxAssMode settings ««
+
+ConstructInfo("phxass_assembler", "","", "GSHW","", 0,0,"phxass");
+ConstructInfo("phxass_options", "","", "GSHW","", 0,0,"");
+ConstructInfo("phxass_make_options", "","", "GSHW","", 0,0,"");
+ConstructInfo("phxass_output_height","","","GIHW","",0,100,14);
+ConstructInfo("phxass_auto_save", "","", "GBWH","", 0,0,1);
+
+ConstructInfo("phxass_mode", "","", "LBH","", 0,0,0);
+ConstructInfo("phxass_mode_ext", "","", "GSHW","", 0,0,"*s*i*asm*");
+ConstructInfo("phxass_mode_exe", "","", "GSHW","", 0,0,"AsmModeInit();");
+
+AddMode(1, "phxass_mode", "phxass_mode_ext", "phxass_mode_exe");
+
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» PhxAss menu ««
+MenuAdd("i", "PhxAss", "", "", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Assemble", "phxAssemble();","", ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "---","","",ReadInfo("Program_Menu"), -1);
+ MenuAdd("s", "Next error", "phxAssParseError();","",ReadInfo("Program_Menu"), -1);
+
+MenuAdd("s", "PhxAss...", "PhxAssModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1);
+MenuBuild();

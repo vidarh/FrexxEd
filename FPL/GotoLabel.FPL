@@ -1,0 +1,55 @@
+export void GotoLabel()
+{
+  int line = ReadInfo("line");
+  int col = ReadInfo("byte_position");
+
+  string labels[100];
+  int linenum[100];
+  string junk;
+  int numoflab=0;
+  int size=100;
+  const string validlabel= "^([a-zA-Z_0-9]+):$";
+  int moved;
+
+  Visible(0);
+  GotoLine(1); /* from the start! */
+
+  while(!Search(validlabel, "=wf+")) {
+    junk = ReplaceMatch(validlabel, "\\1");
+    if(strlen(junk)) {
+      labels[ numoflab ] = junk;
+      linenum [ numoflab ] = ReadInfo("line");
+      numoflab++;
+      if(numoflab == size) {
+        /* Filled up the arrays, increase the sizes! */
+        size += 100;
+        resize labels[size];
+        resize linenum[size];
+      }
+    }
+  }
+  if(numoflab) {
+    string selection;
+    /* we've found some labels */
+    if(RequestWindow("Jump to label",
+                     "", "A", &labels, &selection, numoflab) &&
+       strlen(selection)) {
+      /* We have an OK! */
+      int a;
+      while(a < numoflab) {
+        if(!strcmp(selection, labels[a])) {
+          /* this is the label! */
+		  GotoLine(linenum[a]); /* jump to the label! */
+		  if((a = ReadInfo("cursor_y")) > 2)
+			ScrollDown(a-2);
+          return;
+        }
+        a++;
+      }
+    }
+  }
+  else
+    ReturnStatus("No labels found!");
+  if(!moved)
+    GotoLine(line, col); // get back to start
+}

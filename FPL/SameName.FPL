@@ -1,0 +1,21 @@
+
+export int SameName_hook(string filename, int BufferID)
+{
+  int ret=0;
+
+  if (!Stricmp(filename, ReadInfo("full_file_name", BufferID))) {
+    ret=Request(joinstr("Do you want to load '", filename, "' again?"), "Same path!", "Yes!|..and kill the old!|Activate the old!|Ooops!");
+    if (ret==2)
+      Clean(joinstr("Kill(", itoa(BufferID), ");"));
+  } else {
+    ret=Request(joinstr("Do you want to load another file\ncalled '", ReadInfo("file_name", BufferID), "' ?"), "Same name!", "Why not!|Not in this life!");
+  }
+  if (ret==3) {
+    ExecuteLater(joinstr("CurrentBuffer(Activate(GetEntryID(\"", filename, "\")));"));
+    ret=0;
+  }
+  return(!ret);
+}
+
+
+Hook("SameName", "SameName_hook");

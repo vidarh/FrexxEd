@@ -1,0 +1,93 @@
+#############################################################################
+File:				Comment.FPL
+Author:				Jesper Skov
+Email:				jskov@iesd.auc.dk
+Short:				Easy source code commenting
+Version:			2.1
+Date:				02.03.95
+Local settings:		quite a few!
+Global settings:
+Keysequence:		"amiga ;" and "amiga :"
+Type:				function
+Prereq:
+Copyright:			© 1994-1995, Jesper Skov
+					Use/distribute according to the terms of GNU GPL.
+					(See the file 'COPYING.GNU' for more info!)
+#############################################################################
+
+FUNCTION
+  The comment functions have been completely rewritten to improve
+  control of how the comments look. With these functions it should be
+  a bit easier to keep your code well commented :)
+
+  Key-bindings: <amiga ;> InsertComment
+                <amiga :> LineComment
+
+
+  The InsertComment function is a copy-cat of the Emacs "indent-for-comment"
+  function. The variable "comment_start_skip" is a regular expression
+  describing how to find a comment on the line. It must therefore match
+  the string you put in "comment_start". This variable and "comment_end"
+  describe how the comment looks.
+
+  The default values are:
+   comment_start_skip : "//\\*+ " - a / followed by one or more *'s and a
+                                    space.
+   comment_start      : "/* "
+   comment_end        : " */"
+
+  These give you the standard C comment style (/*<comment>*/).
+
+  I personally use these values:
+   comment_start_skip : "////+ " - two or more /'s, followed by a space.
+   comment_start      : "// "
+   comment_end        : "" (empty)
+
+  Which gives me C++/FPL comment style (// <comment>EOL).
+
+  Activating this function on a line which already has a comment, will
+  try to indent the comment to the correct "comment_column" and place
+  the cursor after the string matching comment_start_skip.
+  
+
+  The LineComment function gives you an easy way of (visually) splitting the
+  source code into function/routine "areas". When invoking this function
+  you will be asked for a describing text, which will be right justified
+  in the comment block. Example:
+ 
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» This comment is created by LineComment ««
+
+  The width of the comment block may be controlled with the "wall_right"
+  variable. The appearance of the line comment is defined by the three
+  variables below. Their default values are also listed:
+
+   line_comment_start : "//"
+   line_comment_body  : "»"  (This variable must be a single character!)
+   line_comment_end   : "««"
+
+  An empty string cancels the operation (as does the Cancel gadget :)
+
+
+  You may change the variables by activating the function CommentPrefs(),
+  which should also be accessible in the menu:
+  Customizing->Package settings->Comment
+  (this depends on what Daniel thinks of my idea, though =)
+
+
+HISTORY (REV)
+  02.03.95 (1)	Put CommentPrefs in the menu.
+  26.02.95 (0)	Rewritten from scratch. Much better commenting!
+  05.11.94 (2)	Added right_wall constructor.
+  23.10.94 (1)	ReadInfo("linelength") -> ReadInfo("line_length")
+  09.10.94 (0)	Initial revision
+
+BUGS
+  Nah, not today anyway :)
+
+
+IDEAS
+  Kill comment.
+  Wrapped comment (continue writing on next line).
+
+SEE ALSO
+  C.J.Cherryh's "The Paladin" (ISBN: 0-671-65417-9)

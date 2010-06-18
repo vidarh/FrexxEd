@@ -1,0 +1,51 @@
+#############################################################################
+File:		GotoLabel.FPL
+Author:		Daniel Stenberg
+Email:		Daniel.Stenberg@sth.frontec.se
+Short:		Pop up requester with a program's labels, jump to selected
+Version:	1.0
+Date:		12.1.95
+Local settings:
+Global settings:
+Keysequence:
+Type:		function
+Prereq:
+Copyright:	FrexxWare 1995
+#############################################################################
+
+FUNCTION
+  GotoLabel()
+
+  It scans through the current buffer and collects all labels in a list,
+  brings up a requester showing all the existing labels (in the order of
+  occurence), allows the user to select a label and then jumps to the selected
+  label's line.
+
+  A label must start as the first non-whitespace character of a line, it may
+  only contain a-z, A-Z, 0-9 and '_', and it must have a colon ':' after the
+  word separated from the label name with nothing or simply whitespace.
+
+  Examples of valid labels:
+
+  looppoint:
+     another_place_to_jump_to      :
+   1995ishere :
+
+  Examples of Non-valid labels:
+
+  ; label:
+  case banana:
+   jump here :
+  $l1:
+
+HISTORY
+  1.0 - Initial version
+
+BUGS
+  None yet found
+
+TODO
+  Make a similar one that pops up all function declarations in a C program!
+
+SEE ALSO
+

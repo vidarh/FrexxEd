@@ -1,0 +1,11 @@
+/*
+ * This file gets executed from FrexxEd.FPL. Change this to include all those
+ * actions you want performed on a regular FrexxEd startup.
+ *
+ * Examples:
+ *
+ * ExecuteFile("CIndent.FPL");
+ *
+ * AssignKey("Save();", "amiga s");
+ *
+ */
