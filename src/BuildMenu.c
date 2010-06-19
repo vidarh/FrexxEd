@@ -10,6 +10,7 @@ MenuAdd(type, string, FPL);
 
 **********************************************************************/
 
+#ifdef AMIGA
 #include <exec/execbase.h>
 #include <intuition/intuition.h>
 #include <libraries/gadtools.h>
@@ -17,6 +18,8 @@ MenuAdd(type, string, FPL);
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>
+#endif
+
 #include <string.h>
 
 #include "Buf.h"
@@ -183,7 +186,7 @@ int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
 
     if(fill->flags&OWNMENU_COPYLABEL && fill->nm_Label!=NM_BARLABEL) {
       (*add)->flags|=OWNMENU_COPYLABEL;
-      (*add)->nm_Label=(STRPTR)Strdup(fill->nm_Label);
+      (*add)->nm_Label=(STRPTR)Strdup((STRPTR)fill->nm_Label);
     } else
       (*add)->nm_Label=(STRPTR)fill->nm_Label;
   

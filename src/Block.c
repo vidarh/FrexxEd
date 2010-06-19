@@ -12,6 +12,7 @@
 *
 *******/
 
+#ifdef AMIGA
 #include <exec/memory.h>
 #include <intuition/preferences.h>
 #include <libraries/iffparse.h>
@@ -24,6 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/commifmt.h>
+#endif
+
+#include <string.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -717,7 +721,7 @@ int __regargs Block2String(BufStruct *Storage, BlockStruct *block, char **retstr
     if (!block)
       return(OUT_OF_MEM);
     memset(block, 0, sizeof(BlockStruct));
-    ret=BlockCopy(Storage, block, BUF(blocktype)==bl_COLUMNAR?NULL:bl_NOALLOC, NULL);
+    ret=BlockCopy(Storage, block, BUF(blocktype)==bl_COLUMNAR?0:bl_NOALLOC, 0);
   }
   if (ret==OK) {
     {
@@ -846,7 +850,7 @@ int __regargs String2Block(BlockStruct *block, char *string, int stringlen, char
       block->text[block->line].flags=0;
     }
     if (block->Entry) {
-      Command(NULL, DO_NOTHING|NO_HOOK, NULL, NULL, NULL);
+      Command(NULL, DO_NOTHING|NO_HOOK, 0, NULL, 0);
       FreeUndoLines(block, block->Undotop+1);
       UpdateDupScreen(block->Entry);
       MoveSlider(block->Entry);

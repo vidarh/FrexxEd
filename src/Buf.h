@@ -13,12 +13,14 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <exec/types.h>
 #include <exec/tasks.h>
 #include <libraries/dos.h>
 #include <libraries/reqtools.h>
 #include <intuition/intuition.h>
 #include <proto/dos.h>
+#endif
 
 #include "Strings.h"
 #include "Function.h"

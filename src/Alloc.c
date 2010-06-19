@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef AMIGA
 #include <exec/execbase.h>
 #include <exec/types.h>
 #include <exec/memory.h>
@@ -22,6 +23,7 @@
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <proto/dos.h>
+#endif
 
 #include "Buf.h"
 #include "Alloc.h"

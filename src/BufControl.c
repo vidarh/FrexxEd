@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <exec/semaphores.h>
@@ -26,6 +27,9 @@
 #include <error.h>
 #include <libraries/reqtools.h>
 #include <proto/reqtools.h>
+#endif
+
+#include <string.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -33,11 +37,11 @@
 #include "Command.h"
 #include "Cursor.h"
 #include "Face.h"
-#include "Fact.h"
+#include "FACT.h"
 #include "GetFile.h"
 #include "Hook.h"
 #include "Init.h"
-#include "limit.h"
+#include "Limit.h"
 #include "OpenClose.h"
 #include "Reqlist.h"
 #include "Request.h"
@@ -51,12 +55,12 @@
 
 /********** Globals **********/
 
-extern errno;
+extern int errno;
 extern char *sys_errlist[];
 
 extern char GlobalEmptyString[];
 extern FACT *UsingFact;
-extern antalsets;
+extern int antalsets;
 extern struct Setting **sets;
 extern struct IntuitionBase *IntuitionBase;
 extern struct Gadget VertSlider;
@@ -282,14 +286,14 @@ BufStruct __regargs *Activate(BufStruct *Storage, BufStruct *Storage3, int flag)
             Storage2=Storage4;
             Storage4=Storage4->NextShowBuf;
             RemoveBufGadget(Storage2);
-            Storage2->NextShowBuf=NULL;
-            Storage2->PrevShowBuf=NULL;
-            Storage2->window=NULL;
+            Storage2->NextShowBuf=0;
+            Storage2->PrevShowBuf=0;
+            Storage2->window=0;
           }
         }
         Storage3->window->NextShowBuf=Storage3;
-        Storage3->NextShowBuf=NULL;
-        Storage3->PrevShowBuf=NULL;
+        Storage3->NextShowBuf=0;
+        Storage3->PrevShowBuf=0;
         Storage3->screen_lines=win->window_lines; // Ska in i fönsterstructen
         Storage3->screen_col=win->window_col;
         Storage3->top_offset=1;
@@ -308,8 +312,8 @@ activate_replace: //tillkallas om minnet är slut (för acNEW_WINDOW)
         } else
           Storage3->window->NextShowBuf=Storage3;
 
-        BUF(NextShowBuf)=NULL;
-        BUF(PrevShowBuf)=NULL;
+        BUF(NextShowBuf)=0;
+        BUF(PrevShowBuf)=0;
         Storage3->screen_lines=BUF(screen_lines);
         Storage3->screen_col=BUF(screen_col);
         Storage3->top_offset=BUF(top_offset);
@@ -325,7 +329,7 @@ activate_replace: //tillkallas om minnet är slut (för acNEW_WINDOW)
         Showstat(Storage);
         Storage3->namedisplayed=FALSE;
         Showstat(Storage3);
-        BUF(window)=NULL;
+        BUF(window)=0;
         return(Storage3);
       } else if (flag==acHALF_SIZE) {/* Half Size Buf */
         Storage3->window=BUF(window);
@@ -411,7 +415,7 @@ BufStruct __regargs *Free(BufStruct *Storage, BOOL returnwanted, BOOL hook)
 
   if (hook && shard==1) {
     BUF(locked)++;
-    RunHook(Storage, DO_BUFFER_KILL, 1, (char **)&Storage, NULL);
+    RunHook(Storage, DO_BUFFER_KILL, 1, (char **)&Storage, 0);
     BUF(locked)--;
   }
   Storage3=DeleteEntry(Storage, returnwanted);
@@ -513,7 +517,7 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
     }
   } else {
     RemoveBufGadget(Storage);
-    Storage3=NULL;
+    Storage3=0;
     if (BUF(window)) {
       if (BUF(PrevShowBuf))
         BUF(PrevShowBuf)->NextShowBuf=BUF(NextShowBuf);
@@ -541,7 +545,7 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
     {
       register LockStruct *lock=SHS(Locks);
       while(lock) { /* OBS, idag kan det bara finnas EN write lock på filen */
-        lock->type=NULL;
+        lock->type=0;
         lock=lock->Next;
       }
     }
@@ -557,7 +561,7 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
     }
     Storage2=BUF(PrevBuf);
     Storage2->NextBuf=BUF(NextBuf);
-    if (Storage2=BUF(NextBuf))
+    if ((Storage2=BUF(NextBuf)))
       Storage2->PrevBuf=BUF(PrevBuf);
 
     if (SHS(Next))		/* Connect the link */
@@ -627,7 +631,7 @@ void __regargs FreeLokalInfo(SharedStruct *shared)
       Dealloc((char *)shared->LokalInfo[sets[counter]->offset]);
   }
   Dealloc(shared->LokalInfo);
-  shared->LokalInfo=NULL;
+  shared->LokalInfo=0;
 }
 
 /***********************************************
@@ -655,10 +659,10 @@ BufStruct __regargs *MakeNewBuf(BufStruct *Storage3)
       SHS(UndoBuf)=(UndoStruct **)Malloc(SHS(Undomax) * sizeof(UndoStruct));
       Default.Buffers++;	// Increase number of buffers
       Default.Entries++;	// Increase number of entries
-      CheckName(Storage, FALSE, TRUE, NULL);
+      CheckName(Storage, FALSE, TRUE, 0);
     } else {
       Dealloc(Storage);
-      Storage=NULL;
+      Storage=0;
     }
   }
   return(Storage);
@@ -700,7 +704,7 @@ BOOL __regargs Init(BufStruct *Storage2, BufStruct *Storage)
           }
           SHS(taket)=ALLOC_STEP;
           SHS(line)=1;
-          RAD(1)=NULL;
+          RAD(1)=0;
           LEN(1)=0;
           FOLD(1)=0;
           LFLAGS(1)=0;

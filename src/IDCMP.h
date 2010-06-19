@@ -4,6 +4,9 @@
  * This file is open-source software. Please refer to the file LEGAL
  * for the licensing conditions and responsibilities.
  */
+
+#include "compat.h"
+
 #define GetKey Getkey
 
 /****************************************************************
@@ -34,7 +37,8 @@ int __regargs ReSizeWindow(BufStruct *Storage);
 typedef struct ARexxCmd {
   char *cmd;
   int func;
-};
+} ARexxCmd;
+
 struct ReturnMsgStruct {
   int retvalue;
   int command;

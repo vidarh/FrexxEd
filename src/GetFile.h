@@ -9,7 +9,10 @@
  * GetFile.h
  *
  *********/
+
+#ifdef AMIGA
 #include <dos/dos.h>
+#endif
 
 typedef struct Files {
   char *name;

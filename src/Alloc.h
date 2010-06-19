@@ -70,6 +70,9 @@ void *InitAlloc(void);
 #endif
 void KillAlloc(void);
 
+// Defined in Execute.h
+struct UserData;
+
 void __asm FPLfree(register __a1 void *mem,
                    register __d0 int size,
                    register __a0 struct UserData *);
