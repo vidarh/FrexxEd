@@ -11,13 +11,12 @@
 **********/
 
 #include <devices/keymap.h>
-#include <dos.h>
 #include <dos/dos.h>
 #include <dos/dosextens.h>
 #include <exec/types.h>
 #include <exec/semaphores.h>
-#include <fcntl.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/rastport.h>
 #include <intuition/intuition.h>
 #include <libraries/reqtools.h>
@@ -612,7 +611,7 @@ int __regargs Change(BufStruct *Storage, int type, int vald, int newvalue)
                     if (win->window_pointer) {
                       if (newvalue) {
                         if (win->window!=FX_SCREEN)
-                          win->appwindow_pointer = AddAppWindow(0, NULL, win->window_pointer, WBMsgPort, NULL);
+                          win->appwindow_pointer = AddAppWindow(0, 0, win->window_pointer, WBMsgPort, 0);
                       } else {
                         if (win->appwindow_pointer) {
                           RemoveAppWindow(win->appwindow_pointer);
