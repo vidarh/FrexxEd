@@ -15,6 +15,7 @@
 #include <dos/dosextens.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#include <clib/alib_protos.h>
 #include <exec/semaphores.h>
 #include "mount.h"
 #include <stdio.h>
