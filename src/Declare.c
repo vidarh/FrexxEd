@@ -614,7 +614,7 @@ struct TextAttr topazfont = {
 char *lastprompt=NULL;	/* Innehållet i senaste promptningen. */
 
 #define SETS(x) (offsetof(SharedStruct, x))
-#define SETL(x) (offsetof(BufStruct, Flag.x))
+#define SETL(x) (offsetof(BufStruct, Flag) + offsetof(Flags,x))
 #define SETB(x) (offsetof(BufStruct, x))
 #define SETG(x) (offsetof(DefaultStruct, x))
 #define SETW(x) (offsetof(WindowStruct, x))
@@ -896,9 +896,9 @@ struct Setting defaultsets[]={
   {"directory",		SE_NOTHING,	NULL,	ST_STRING|ST_GLOBAL|ST_NOSAVE, 0, 0, SETG(directory), SEUP_DIRECTORY, NULL, INPUT_DIR, MS_GLOBAL|MS_IO},					// Default directory. GLOBAL/INT
   {"disk_name",		SE_NOTHING,	NULL,	ST_STRING|ST_GLOBAL|ST_HIDDEN|ST_READ|ST_NOSAVE,0, 0, SETG(diskname), NULL, NULL, NULL, MS_GLOBAL|MS_IO|MS_HIDDEN|MS_READ},	// FrexxEd's filehandler disk name  GLOBAL/STRING/READONLY/NOSAVE.
   {"display_id",	SE_REOPEN,	NULL,	ST_NUM|ST_WINDOW|ST_SCREEN|ST_HIDDEN|ST_ALL_WINSCREEN,0, 0, SETW(DisplayID), NULL, NULL, NULL, MS_LOCAL|MS_SCREEN|MS_HIDDEN},			// display_id.  Likställt med Intuitions display_id som används när man öppnar en screen.  Den finns framförallt för att den ska sparas i defaultfilen.  GLOBAL/INT
-  {"ds_Days",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date.ds_Days), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			// Bufferdatum.  Antal dagar/sekunder/ticks sedan 1 Jan 1978.  BUFFER/INT/READ/NOSAVE
-  {"ds_Minute",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date.ds_Minute), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			//  - "" -
-  {"ds_Tick",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date.ds_Tick), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			//  - "" -
+  {"ds_Days",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date)+offsetof(struct DateStamp,ds_Days), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			// Bufferdatum.  Antal dagar/sekunder/ticks sedan 1 Jan 1978.  BUFFER/INT/READ/NOSAVE
+  {"ds_Minute",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date)+offsetof(struct DateStamp,ds_Minute), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			//  - "" -
+  {"ds_Tick",		SE_NOTHING,	NULL,	ST_NUM|ST_SHARED|ST_NOSAVE|ST_HIDDEN, 0, 0, SETS(date)+offsetof(struct DateStamp,ds_Tick), NULL, NULL, NULL, MS_LOCAL|MS_IO|MS_HIDDEN},			//  - "" -
   {"entries",		SE_NOTHING,	NULL,	ST_NUM|ST_NOSAVE|ST_READ|ST_GLOBAL|ST_HIDDEN,0, 0, SETG(Entries), NULL, NULL, NULL, MS_GLOBAL|MS_READ|MS_SYSTEM|MS_HIDDEN},	// Antal entrys i minnet.  GLOBAL/INT/READ/NOSAVE 
   {"expand_path",	SE_NOTHING,	(char **)&expandpathtext,	ST_CYCLE|ST_GLOBAL,0, 2, SETG(full_path), NULL, NULL, NULL, MS_GLOBAL|MS_IO},				// Hela pathen ska tas ut när man laddar in en fil.  GLOBAL/BOOL
   {"face",		SE_UPDATE,	NULL,	ST_STRING|ST_SHARED,0, 0, SETS(face_name), SEUP_FACE_CHANGE, NULL, NULL, MS_LOCAL|MS_DISPLAY},					// Vilken FACT som ska användas för bufferten.  LOCAL/STRING/NOSAVE/SCREEN
