@@ -6,7 +6,6 @@
  */
 #define _USEOLDEXEC_ 1
 
-#include <dos.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
