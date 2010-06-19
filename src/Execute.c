@@ -15,13 +15,13 @@
 
 #include <devices/console.h>
 #include <devices/inputevent.h>
-#include <dos.h>
 #include <dos/dostags.h>
 #include <dos/var.h>
 #include <exec/types.h>
 #include <exec/tasks.h>
 #include <fpl/reference.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/rastport.h>
 #include <intuition/intuition.h>
 #include <libraries/FPL.h>
