@@ -8,7 +8,7 @@ FREDLIB = # frexxed.library
 
 CC = vc
 AS = vc -c
-CFLAGS = -g -c -c99 -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -Dtest
+CFLAGS = -g -c -c99 -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest
 LDFLAGS=
 ASMFLAGS = -c
 LIBS = amiga.lib
