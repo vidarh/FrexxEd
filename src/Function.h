@@ -1,3 +1,5 @@
+#ifndef __FREXXED_FUNCTION_H
+#define __FREXXED_FUNCTION_H
 /*
  * FrexxEd - Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
  *
@@ -320,4 +322,6 @@ typedef struct FrexxEdFunction {
   char *format;
   char type;	// Initieringen ska ske i 'första gruppen'
 } FrexxEdFunction;
+
+#endif
 
