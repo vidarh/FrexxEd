@@ -12,28 +12,32 @@
 
 #include <clib/exec_protos.h>
 #include <clib/intuition_protos.h>
-#include <dos.h>
 #include <dos/dos.h>
 #include <dos/dosasl.h>
 #include <exec/types.h>
-#include <fcntl.h>
 #include <graphics/gfxbase.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
 #include <libraries/ppbase.h>
 #include <libraries/reqtools.h>
-#include <libraries/xpksub.h>
+#include <xpk/xpk.h>
+#include <proto/xpkmaster.h>
+#include <inline/xpkmaster_protos.h>
+#include <proto/xpksub.h>
+#include <inline/xpksub_protos.h> 
 #include <proto/dos.h>
 #include <proto/fpl.h>
 #include <proto/exec.h>
 #include <proto/intuition.h>
 #include <proto/powerpacker.h>
+#include <inline/powerpacker_protos.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "stat.h"
 #include "Buf.h"
 #include "Alloc.h"
 #include "Block.h"
@@ -1061,22 +1065,22 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
         if (ret>=OK) {
           if(Default.unpack && XpkBase &&
              !XpkExamineTags(&fileinfo, XPK_InName, buffer, TAG_DONE) &&
-             fileinfo.Type == XPKTYPE_PACKED) {
+             fileinfo.xf_Type == XPKTYPE_PACKED) {
             buffer[200]=0;
-            if(fileinfo.Flags & XPKFLAGS_PASSWORD) {
+            if(fileinfo.xf_Flags & XPKFLAGS_PASSWORD) {
               rtGetString(&buffer[200], 79, /* only 79 character password! */
                           RetString(STR_ENTER_PASSWORD_TITLE), NULL,
       	              RTGS_TextFmt, RetString(STR_ENTER_PASSWORD),
       	              TAG_END);
             }
-            size = fileinfo.ULen;
+            size = fileinfo.xf_ULen;
             if(program=Malloc(size+XPK_MARGIN)) {
               if(XpkUnpackTags(XPK_InName, buffer, XPK_OutBuf, program,
     			   XPK_Password, &buffer[200],
                                XPK_OutBufLen, size+XPK_MARGIN, TAG_DONE))
                 ret = OPEN_ERROR;
               else {
-                strcpy(RFS->pack, fileinfo.Packer);
+                strcpy(RFS->pack, fileinfo.xf_Packer);
                 strcpy(RFS->password, &buffer[200]);
               }
             } else
