@@ -113,6 +113,12 @@ struct Window {
 #undef NULL
 #define NULL (0L)
 
+#ifdef __inline
+#undef __inline
+#endif
+// We want to rely on the compiler to get this right except in exceptional cases
+#define __inline
+
 #endif
 
 #include "stat.h"
