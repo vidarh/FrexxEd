@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/commifmt.h>
 
 #include "Buf.h"
 #include "Alloc.h"
