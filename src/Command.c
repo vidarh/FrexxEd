@@ -29,9 +29,9 @@
 #include <proto/utility.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/commifmt.h>
 
 #include <proto/graphics.h>
+#undef GetOutlinePen
 #include <graphics/gfxmacros.h>
 #include <graphics/rastport.h>
 
