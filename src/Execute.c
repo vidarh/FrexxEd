@@ -131,7 +131,9 @@ int __regargs InitFPL(char type)
   int ret=0;
 
   if (!Anchor) {
+#ifdef REG_A4
     userdata.a4 = getreg(REG_A4);
+#endif
     Anchor=fplInitTags(fpl_functions,
                        FPLTAG_INTERVAL, (long)StopCheck,
                        FPLTAG_CACHEALLFILES, FPLCACHE_EXPORTS,
@@ -495,7 +497,7 @@ long __asm __stackext run_functions(register __a0 struct fplArgument *arg)
           fact=FindFACT(arg->argv[1]);
         }
         if (fact) {
-          tempint=FactInfo(fact, (int)argID, (short)arg->argv[0]);
+          tempint=FactInfo(fact, (int)argID, (int)arg->argv[0]);
           if (tempint>=256) {
             fplSendTags(arg->key, FPLSEND_STRING, buffer,
                         FPLSEND_STRLEN, tempint-256,
