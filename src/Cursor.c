@@ -14,6 +14,7 @@
 
 #include <graphics/rastport.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <intuition/screens.h>
