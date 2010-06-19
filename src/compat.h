@@ -111,4 +111,6 @@ struct Window {
 
 #endif
 
+#include "stat.h"
+#include "util.h"
 #endif
