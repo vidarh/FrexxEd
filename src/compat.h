@@ -108,6 +108,10 @@ struct Window {
 #define __asm
 
 #define __stackext
+#define __aligned
+
+#undef NULL
+#define NULL (0L)
 
 #endif
 
