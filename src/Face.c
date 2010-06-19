@@ -240,8 +240,7 @@ long __regargs AddFaceString(struct FaceControl *facecontrol,
   return OK;
 }
 
-struct Face * __inline
-MatchWord(struct Face *face,
+struct Face * MatchWord(struct Face *face,
           long col,
           long flags)
 {
