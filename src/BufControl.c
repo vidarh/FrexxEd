@@ -12,6 +12,8 @@
  *
  *********/
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
@@ -24,7 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <error.h>
 #include <libraries/reqtools.h>
 #include <proto/reqtools.h>
 #endif
