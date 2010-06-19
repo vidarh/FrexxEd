@@ -106,8 +106,11 @@ void * __asm FPLmalloc(register __d0 int size,
                        register __a0 struct UserData *user)
 {
   char *ret;
+  // FIXME: Is this needed at all?
+#ifdef REG_A4
   register long a4 = getreg(REG_A4);
   putreg(REG_A4, user->a4);
+#endif
 #ifdef  FPL_ALLOCTEST
 CheckAllocs(fpl_firstalloc);
   size+=sizeof(PostAllocStruct);
@@ -145,7 +148,9 @@ if (ret) memset(ret, 0, size);  //DEBUG
   if (ret)
     *((int *)(((char *)ret)+((size-4)&~3)))=MUNGWALL_POSTVALUE;
 #endif
+#ifdef REG_A4
   putreg(REG_A4, a4);
+#endif
   return (void *)ret;
 }
 
@@ -153,8 +158,10 @@ void __asm FPLfree(register __a1 void *mem,
                    register __d0 int size,
                    register __a0 struct UserData *user)
 {
+#ifdef REG_A4
   register long a4 = getreg(REG_A4);
   putreg(REG_A4, user->a4);
+#endif
 #ifdef  FPL_ALLOCTEST
   CheckAllocs(fpl_firstalloc);
   {
@@ -214,7 +221,9 @@ void __asm FPLfree(register __a1 void *mem,
 #else
   FreeMem((char *)mem, size);
 #endif
+#ifdef REG_A4
   putreg(REG_A4, a4);
+#endif
 }
 
 /************************************************
