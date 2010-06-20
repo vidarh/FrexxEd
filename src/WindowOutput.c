@@ -11,6 +11,7 @@
  *********/
 
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/rastport.h>
 #include <graphics/text.h>
 #include <intuition/intuition.h>
@@ -564,7 +565,7 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
         {
           if (xpos>=0) {
             SetDrMd(rp,COMPLEMENT);
-            SetWrMsk(rp, oldmask)
+            SetWrMsk(rp, oldmask);
             if (y!=-2) {
               if (shade) {
                 SetAfPt(rp, (USHORT *)&areapat, 1);
@@ -610,7 +611,7 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
             rp=BUF(window->window_pointer->RPort);
             oldmask=BUF(window->cursor_pen);
             SetDrMd(rp,COMPLEMENT);
-            SetWrMsk(rp, BUF(window->cursor_pen))
+            SetWrMsk(rp, BUF(window->cursor_pen));
             if (shade ||
                 !(BUF(window->window_pointer)->Flags&WFLG_WINDOWACTIVE)) { /*!activewindow*/
               shade=TRUE;
