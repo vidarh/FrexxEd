@@ -219,6 +219,10 @@ enum regexpcode
 #define FALSE 0
 #endif
 
+#ifdef DEBUG
+#undef DEBUG
+#endif
+
 #if 1
 #define DEBUG(x,y)
 #define DEBUGCHAR(x,y)
