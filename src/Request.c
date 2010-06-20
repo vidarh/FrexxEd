@@ -22,11 +22,14 @@
 #include <exec/types.h>
 #include <graphics/gfxbase.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/text.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
 #include <libraries/reqtools.h>
-#include <pragmas/reqtools.h>
+#include <inline/reqtools_protos.h>
+#include <inline/reqtools_protos.h>
+#include <proto/reqtools.h>
 #include <proto/exec.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
@@ -191,8 +194,9 @@ int __regargs Ok_Cancel(BufStruct *Storage, char *messy, char *title, char *answ
     struct Screen *screen=NULL;
     if (!FRONTWINDOW || !FRONTWINDOW->window_pointer)
       screen=LockPubScreen(NULL);
-    i=(int)rtEZRequestTags("%s", answer, NULL, &messy, 
-                           !screen?RT_Window:TAG_IGNORE, FRONTWINDOW->window_pointer,
+	i = 0;
+    i=(int)rtEZRequest("%s", answer, NULL, &messy, 
+					   !screen?RT_Window:TAG_IGNORE, FRONTWINDOW->window_pointer,
 			   !screen?RT_WaitPointer:TAG_IGNORE, OwnWindow,
                            screen?RT_Screen:TAG_IGNORE, screen,
 			   RT_TextAttr, &Default.RequestFontAttr,
