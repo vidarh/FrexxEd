@@ -1,3 +1,6 @@
+#ifndef __FREXXED_REGEX_H
+#define __FREXXED_REGEX_H
+
 /*
  * FrexxEd - Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
  *
@@ -5,12 +8,12 @@
  * for the licensing conditions and responsibilities.
  */
 
-#ifdef AMIGA
+#ifdef __SASC
 #define REGARGS __regargs
 #define INLINE  __inline
 #else
 #define REGARGS
-#define INLINE __inline__
+#define INLINE
 #endif
 
 #ifdef FREXXED
@@ -148,4 +151,7 @@ int REGARGS re_search(struct re_pattern_buffer * ,
 int REGARGS re_match(struct re_pattern_buffer *,
                      struct re_registers *,
                      struct re_position *);
+
+
+#endif
 
