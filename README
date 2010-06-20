@@ -4,17 +4,15 @@ TITLE
 
 VERSION
 
-	2.0
-
-COMPANY
-
-	FrexxWare
+	2.2 alpha
 
 AUTHORS
 
 	Daniel Stenberg and Kjell Ericson
 	email: Daniel.Stenberg@sth.frontec.se and kjer@netcom.se
 	FidoNet to: 2:201/328
+
+    Updated by Vidar Hokstad <vidar@hokstad.com>
 
 DESCRIPTION
 
@@ -72,31 +70,25 @@ SPECIAL REQUIREMENTS
 	Anything below 1MB ram wouldn't be useful
 	Hard disk is preferred (less than 1 MB is used)
 
-HOST NAME
+LOCATION
 
-	ftp: Aminet, ftp.doc.ic.ac.uk
+	http://www.aminet.net/pub/aminet/text/edit
 
-	http://sunsite.auc.dk/frexxed and http://www.lysator.liu.se/~matax
-
-DIRECTORY
-
-	/pub/aminet/text/edit
-
-FILE NAME
-
-	FrexxEd_2.lha
-	FrexxEd_2.lha
-
-PRICE
-
-	200 SEK, 40US$ or 65DM
+    NOTE: Current Aminet binaries are versions 2.0 and 2.1 which 
+    were built by the original authors. This archive is modified
+    significantly from the versions available on Aminet. New binaries
+    will not be uploaded to Aminet until it's been tested.
 
 DISTRIBUTABILITY
 
-	Shareware
-	Copyright (C) 1992-1996 by FrexxWare
+    Open Source. See LEGAL
+
+    Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
+    Some parts, copyright (C) 2010 Vidar Hokstad
 
 OTHER
 
 	Uses a keyfile system, unregistered versions feature a small amount of
 	cripples.
+
+    NOTE: The keyfile will be removed in a future release.
