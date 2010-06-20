@@ -14,7 +14,6 @@
 
 #include <devices/console.h>
 #include <devices/inputevent.h>
-#include <dos.h>
 #include <exec/execbase.h>
 #include <exec/types.h>
 #include <graphics/displayinfo.h>
@@ -178,8 +177,9 @@ static int __asm
   int *pos=NULL, oldtop=-1;
   char movecursor=TRUE;
 //  long olda4=getreg(REG_A4);
-  
+#ifdef REG_A4  
   putreg(REG_A4, list->a4);
+#endif
 
   if (list->number) {
     if (object->Gadget==list->gadget1)
@@ -489,7 +489,9 @@ int Reqlist(BufStruct *Storage, int data, ...)
   list.block=BlockBuffer;
   list.listpos1=-1;
   list.listpos2=-1;
+#ifdef REG_A4
   list.a4=getreg(REG_A4);
+#endif
 
   /* set all member of the ReqLStruct: */
   LineH=RequestFont->tf_YSize;
