@@ -8,6 +8,7 @@
 /* All Rights Reserved */
 
 #include "process.h"
+#include <clib/alib_protos.h>
 
 void process_starter(void)
 {
@@ -23,8 +24,9 @@ void process_starter(void)
 
    /* gather necessary info from message */
    fp = mess->fp;
+#ifdef REG_A4
    putreg(REG_A4, (long)mess->global_data);
-   
+#endif   
    
    /* Call the desired function */
    mess->return_code = (*fp)();
@@ -63,7 +65,7 @@ char *procname;
    /* Fill in Fake SegList */
    seg_ptr->space = 0;
    seg_ptr->length = (sizeof(*seg_ptr) + 3) & ~3;
-   seg_ptr->nextseg = NULL;
+   seg_ptr->nextseg = 0;
    
    /* Fill in JMP to function */
    seg_ptr->jmp = 0x4EF9;  /* JMP instruction */
@@ -92,8 +94,10 @@ char *procname;
    start_msg->msg.mn_ReplyPort = CreatePort(0,0);
    start_msg->msg.mn_Node.ln_Type = NT_MESSAGE;
    
+#ifdef REG_A4
    /* save global data reg (A4) */
    start_msg->global_data = (void *)getreg(REG_A4);
+#endif
 
    start_msg->seg = seg_ptr;
    start_msg->fp = fp;                 /* Fill in function pointer */
