@@ -6,7 +6,6 @@
 ;
 
 
-	CSECT	MultProg
 	xdef	_MultML
 	xdef	_BigMult
 
