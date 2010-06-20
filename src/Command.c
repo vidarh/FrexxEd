@@ -1246,7 +1246,9 @@ int __regargs Command(BufStruct *Storage, cmd command, int Argc, char **Argv, in
         }
         break;
       case DO_SLASK2:               /* Amiga 9 */
+#ifdef alloctest
         CheckAllocs(NULL);
+#endif
 #if 0
         {
           register counter;
