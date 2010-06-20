@@ -12,8 +12,13 @@
  *
  *********/
 
-#include <clib/dos_protos.h>
+#include <proto/dos.h>
+#include <proto/intuition.h>
+#include <proto/icon.h>
+#include <proto/gadtools.h>
+#include <proto/wb.h>
 #include <devices/console.h>
+#include <devices/keymap.h>
 #include <exec/execbase.h>
 #include <exec/io.h>
 #include <exec/semaphores.h>
@@ -23,6 +28,7 @@
 #include <graphics/gfxbase.h>
 #include <graphics/view.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <intuition/preferences.h>
@@ -32,8 +38,9 @@
 #include <libraries/reqtools.h>
 #include <libraries/locale.h>
 #include <libraries/FPL.h>
-#include <libraries/xpk.h>
-#include <proto/all.h>
+#include <xpk/xpk.h>
+#include <proto/xpkmaster.h>
+#include <proto/xpksub.h>
 #include <proto/graphics.h>
 #include <proto/powerpacker.h>
 #include <proto/locale.h>
@@ -236,7 +243,7 @@ extern int total_fpl_alloc;
 */
 static BOOL __regargs CleanUpScreens(struct Screen *add)
 {
-  typedef struct screen_list {
+  struct screen_list {
     struct screen_list *next;
     struct Screen *pointer;
   };
@@ -276,14 +283,14 @@ static BOOL __regargs CleanUpScreens(struct Screen *add)
 static BOOL __regargs FrexxEdCloseScreen(struct Screen *screen)
 {
   while (!CloseScreen(screen)) {
-    if (0==rtEZRequestTags(RetString(STR_FREXXED_CAN_CONTINUE_BEFORE), RetString(STR_TRY_AGAIN), NULL, NULL,
+    if (0==rtEZRequest(RetString(STR_FREXXED_CAN_CONTINUE_BEFORE), RetString(STR_TRY_AGAIN), NULL, NULL,
 			RT_Screen, screen,
 			RT_TextAttr, &Default.RequestFontAttr,
 			RTEZ_ReqTitle, RetString(STR_IMPORTANT),
 			TAG_END)) {
       CleanUpScreens(screen);  // Addera till flushlistan.
       return FALSE;
-    }
+	}
   }
   return TRUE;
 }
