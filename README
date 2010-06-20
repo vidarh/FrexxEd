@@ -8,11 +8,14 @@ VERSION
 
 AUTHORS
 
-	Daniel Stenberg and Kjell Ericson
-	email: Daniel.Stenberg@sth.frontec.se and kjer@netcom.se
-	FidoNet to: 2:201/328
+	Original versions (up to 2.1): Daniel Stenberg and Kjell Ericson
 
     Updated by Vidar Hokstad <vidar@hokstad.com>
+
+    The original authors have no further involvement with this
+    version other than graciously releasing FrexxEd as open source.
+    If you have questions or bug reports, please report them to 
+    Vidar Hokstad, not the original authors.
 
 DESCRIPTION
 
