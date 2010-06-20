@@ -9,9 +9,8 @@ FREDLIB = # frexxed.library
 CC = vc
 AS = vc -c
 CFLAGS = -g -c -c99 -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest
-LDFLAGS=
+LDFLAGS= -lamiga -lvc -lauto -lreqtools
 ASMFLAGS = -c
-LIBS = amiga.lib
 
 OBJS = \
  Alloc.o Block.o BufControl.o BuildMenu.o Button.o Change.o ClipBoard.o\
@@ -21,9 +20,9 @@ OBJS = \
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
  Replace.o Reqlist.o Request.o Rexx.o RSADecrypt.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o WinSign.o WindowOutput.o
+ UpdtScreenC.o WinSign.o WindowOutput.o util.o WBPath.o
 
-NONLIBOJBS = Main.o FrexxEd_rev.o
+NONLIBOBJS = Main.o FrexxEd_rev.o
 
 all:	$(TARGET) $(FREDLIB)
 
@@ -32,7 +31,7 @@ FrexxEd_rev.o: FrexxEd_rev.c Makefile
 	$(CC) $(CFLAGS) -o FrexxEd_rev.o FrexxEd_rev.c
 
 $(TARGET): $(OBJS) $(NONLIBOBJS)
-	vc -o $(TARGET) -lamiga -lvc -lauto $+
+	$(CC) -o $(TARGET) $(LDFLAGS) $+
 
 
 Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
