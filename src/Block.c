@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/commifmt.h>
 #endif
 
 #include <string.h>
@@ -1381,7 +1380,7 @@ int __regargs BlockMovement(BufStruct *Storage)
     loop=TRUE;
     while (loop) {
       if (key=GetKey(Storage, gkWAIT)) {
-        if (buffer[0]=='\x9B') {
+        if (buffer[0]==(unsigned char)'\x9B') {
           if (buffer[1]=='D' && move>-BUF(screen_col)) {
             move--;
             loop=FALSE;
