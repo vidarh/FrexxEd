@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FESIZE 32
+#include "compat.h"
 
 /* Get the filename extension. */
 
