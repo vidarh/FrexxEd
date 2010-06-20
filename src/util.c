@@ -49,7 +49,5 @@ void strmfp(char *name, const char *path, const char *node)
 
 
 void movmem(char *src, char *dest, int num) {
-  fprintf(stderr,"movem('%s',%p,%d)\n", src,dest,num);
-  // FIXME: Same semantics?
-  memcpy(dest,src,num);
+  memmove(dest,src,num);
 }
