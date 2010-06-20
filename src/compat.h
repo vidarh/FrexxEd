@@ -121,6 +121,9 @@ struct Window {
 
 #endif
 
+#define FESIZE 32
+
 #include "stat.h"
 #include "util.h"
+
 #endif
