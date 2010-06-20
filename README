@@ -6,6 +6,9 @@ VERSION
 
 	2.2 alpha
 
+    WARNING: THIS VERSION IS BUGGY. DO NOT USE UNLESS YOU REALLY
+    WANT TO LOSE YOUR WORK
+
 AUTHORS
 
 	Original versions (up to 2.1): Daniel Stenberg and Kjell Ericson
