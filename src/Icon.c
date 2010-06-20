@@ -10,6 +10,8 @@
  *
  *********/
 
+#include "compat.h"
+
 #include <exec/types.h>
 #include <proto/icon.h>
 #include <proto/exec.h>
@@ -17,8 +19,6 @@
 #include <workbench/startup.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <dos.h> /* 'FESIZE' define */
 
 #include "buf.h"
 #include "command.h"
@@ -203,7 +203,7 @@ static struct DiskObject Icon = {
     (APTR) &Image1,
     (APTR) &Image2,
     NULL,
-    NULL,
+    0,
     NULL,
     0,
     NULL

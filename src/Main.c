@@ -20,7 +20,6 @@
  *
  *********/
 #include <dos/rdargs.h>
-#include <error.h>
 #include <exec/execbase.h>
 #include <exec/memory.h>
 #include <workbench/startup.h>
@@ -31,9 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dos.h>
 #include <workbench/workbench.h>
 
+#include "compat.h"
 #include "Startup.h"
 
 #define MAX_LINE 4000

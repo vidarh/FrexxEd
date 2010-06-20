@@ -18,7 +18,6 @@
 #include <limits.h>
 #include <math.h> 
 #include <proto/FPL.h>
-#include <proto/all.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

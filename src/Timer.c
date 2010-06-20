@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <clib/alib_protos.h>
 
 #include "Buf.h"
 #include "Alloc.h"

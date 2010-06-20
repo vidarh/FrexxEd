@@ -14,12 +14,12 @@
 
 #include <devices/console.h>
 #include <devices/inputevent.h>
-#include <dos.h>
 #include <exec/io.h>
 #include <exec/memory.h>
 #include <exec/semaphores.h>
 #include <exec/types.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/rastport.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>

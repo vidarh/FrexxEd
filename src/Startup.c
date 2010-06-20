@@ -13,12 +13,12 @@
  *********/
 
 #include <dos/rdargs.h>
-#include <error.h>
 #include <exec/execbase.h>
 #include <exec/ports.h>
 #include <exec/tasks.h>
 #include <graphics/rastport.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <workbench/startup.h>
@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dos.h>
 
 #include <dos/dostags.h> /* for the CreateNewProc() tags! */
 

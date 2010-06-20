@@ -17,11 +17,13 @@
 #include <proto/rexxsyslib.h>
 #include <proto/utility.h>
 #include <proto/FPL.h>
+#include <inline/fpl_protos.h>
 #include <libraries/FPL.h>
 #include <rexx/storage.h>
 #include <rexx/rxslib.h>
 #include <rexx/errors.h>
 #include <string.h>
+#include <clib/alib_protos.h>
 
 extern char DebugOpt;
 

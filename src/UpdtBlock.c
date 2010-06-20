@@ -14,8 +14,9 @@
 
 
 #include <exec/types.h>
-#include <proto/graphics.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
+#include <proto/graphics.h>
 #include <stdio.h>
 #include <string.h>
 #include "Buf.h"

@@ -14,11 +14,10 @@
 
 #include <devices/console.h>
 #include <dos/dos.h>
-#include <sys/commifmt.h>
-#include <error.h>
 #include <exec/execbase.h>
 #include <graphics/displayinfo.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <libraries/dos.h>
