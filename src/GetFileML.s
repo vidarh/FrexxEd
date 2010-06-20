@@ -6,7 +6,6 @@
 ;
 
 
-	CSECT	FindCharProg
 	xdef	_FindChar
 
 _FindChar:	; D1 = char
