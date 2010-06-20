@@ -13,10 +13,10 @@
  *********/
 
 #include <devices/console.h>
-#include <dos.h>
 #include <exec/io.h>
 #include <exec/types.h>
 #include <graphics/gfxmacros.h>
+#undef GetOutlinePen
 #include <graphics/rastport.h>
 #include <graphics/text.h>
 #include <intuition/intuition.h>
@@ -27,7 +27,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/commifmt.h>
+
+#include "util.h"
 
 #include "Buf.h"
 #include "Block.h"
@@ -812,7 +813,7 @@ void __regargs Showplace(BufStruct *Storage)
           case '\'':	// setting
             syntax++;
             {
-              register char *stop=stpchr(syntax, '\'');
+              register char *stop=strchr(syntax, '\'');
               if (stop) {
                 memcpy(&buffer[1000], syntax, stop-syntax);
                 buffer[1000+stop-syntax]=0;
