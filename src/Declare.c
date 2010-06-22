@@ -1021,10 +1021,6 @@ struct SettingSaved *saved_default_setting=NULL;
 struct Library *RexxSysBase=NULL;
 AREXXCONTEXT RexxHandle;
 
-/***************************** RSADecrypt.c *************************/
-String keybuff={NULL, 0};
-int constant=435261;	// Konstant för maxfillängd utan registrering.
-
 /***************************** Search.c *******************************/
 HistoryStruct SearchHistory={NULL, 0, 0, 0};
 

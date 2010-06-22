@@ -53,7 +53,6 @@
 #include "Limit.h"
 #include "OpenClose.h"
 #include "Request.h"
-#include "RSADecrypt.h"
 #include "Setting.h"
 #include "UpdtScreen.h"
 
@@ -80,7 +79,6 @@ extern char *ReturnBuffer;
 extern struct Library *IconBase;
 extern struct MenuInfo menu;
 extern char *mothername;
-extern String keybuff;
 extern BufStruct *NewStorageWanted;
 extern int UpDtNeeded;
 extern BOOL cache_allocs;
@@ -136,8 +134,6 @@ char __saveds *InitFrexxEd()
     register char *ret;  
     ret=OpenLibraries();
 
-    ReadKeyFile();
-
     InitDefaultBuf();     /* init defaultBUF */
     if (ret)
       return(ret);
@@ -162,7 +158,6 @@ static BufStruct __regargs *real_main(LONG *opts)
 
   {
 
-    RSADecrypt(&keybuff);
     CacheClearU();
 
     FirstOpen();
@@ -420,20 +415,6 @@ static void __regargs ReadInitFPL(BufStruct *Storage)
         ReadInitFPLInfoWindow(Storage, tempfile, result);
       }
     }
-  }
-}
-
-void __regargs ReadKeyFile()
-{
-  ReadFileStruct RFS;
-  memset(&RFS, 0, sizeof(ReadFileStruct));
-  RFS.filename=KEYFILE;
-  if (ReadFile(NULL, &RFS)>=OK) {
-    if (RFS.length>140) {
-      keybuff.length=RFS.length;
-      keybuff.string=RFS.program;
-    } else
-      Dealloc(RFS.program);
   }
 }
 

@@ -77,7 +77,6 @@
 #include "KeyAssign.h"
 #include "OpenClose.h"
 #include "Rexx.h"
-#include "RSADecrypt.h"
 #include "Search.h"
 #include "Setting.h"
 #include "Slider.h"
@@ -206,7 +205,6 @@ extern AREXXCONTEXT RexxHandle;
 extern UWORD zoom[];
 extern int zoomstate;
 extern char *lastprompt;	/* Innehållet i senaste promptningen. */
-extern String keybuff;
 extern char GlobalEmptyString[];
 
 extern int redrawneeded;
@@ -859,7 +857,6 @@ void __saveds __asm CloseFrexxEd(register __a0 char *string)
   ClearBlock(&MacroBuffer);
 
   Dealloc(ScreenBuffer.beginning);
-  Dealloc(keybuff.string);
   Dealloc(title);
   Dealloc(cl_init);
 
@@ -1124,13 +1121,10 @@ char __regargs *OpenMyScreen(WindowStruct *win)
       Sprintf(title, screen_title, FrexxName);
     else {
       register char *buf;
-      buf=keybuff.string+78;
-      title=Realloc(title, 60+strlen(buf));
+      title=Realloc(title, 60);
       if (title) {
-        Sprintf(title, "%s %s %s",
-                FrexxName,
-                RetString(STR_REGISTERED_TO),
-                buf);
+        Sprintf(title, "%s",
+                FrexxName);
       } else
         title=GlobalEmptyString;
     }

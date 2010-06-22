@@ -84,7 +84,6 @@ extern char cursorhidden;
 
 long __asm fpl_functions(register __a0 struct fplArgument *);
 extern struct Library *FPLBase;
-extern String keybuff;
 
 extern AREXXCONTEXT RexxHandle;
 

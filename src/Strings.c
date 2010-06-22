@@ -228,7 +228,7 @@ char __regargs *RetString(String_Num string)
     
     "End of file!",
     
-    "Registered to",
+    "", // Obsolete "Registered to"
     
     "Never",
     "Always",
