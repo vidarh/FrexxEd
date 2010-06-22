@@ -1,5 +1,0 @@
--97 13:05:55Page 1-1
-
- num hunk         size filename             punit                type         base  alv     size
-   0 JumpTabl      158 o/JumpTable.o        JumpTable.asm        code            0    0       74
-                       o/Crypt.o            Crypt.c              code           74    0       e4
