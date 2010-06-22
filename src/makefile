@@ -8,7 +8,7 @@ FREDLIB = # frexxed.library
 
 CC = vc
 AS = vc -c
-CFLAGS = -g -c -c99 -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest
+CFLAGS = -c -c99 -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest
 LDFLAGS= -lamiga -lvc -lauto -lreqtools
 ASMFLAGS = -c
 
