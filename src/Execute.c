@@ -690,16 +690,7 @@ long __asm __stackext run_functions(register __a0 struct fplArgument *arg)
       }
       break;
     case SC_STRING2CLIP:             // 'StringToClip(int unit, char *string)'
-      if (!BUF(reg.reg)) {
-        register int __asm (*func) STRING2CLIP;
-#pragma msg 147 ignore
-        func=(keybuff.string+70);
-#pragma msg 147 warning
-        ret=func(arg->argv[1], FPL_STRING_LENGTH(arg, 1), (int)arg->argv[0]);
-      } else {
-        ret=UNREG_VERSION;
-        SendReturnMsg(cmd_RET, ret, NULL, NULL, NULL);
-      }
+	  ret=String2Clip(arg->argv[1], FPL_STRING_LENGTH(arg, 1), (int)arg->argv[0]);
       ReturnInt=&ret;
       break;
     case SC_BLOCK_ALLOC:         // 'BlockAlloc(char *blockname)'

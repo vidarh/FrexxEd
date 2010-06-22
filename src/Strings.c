@@ -52,7 +52,7 @@ char __regargs *RetString(String_Num string)
     "Can't find buffer!",
     "Wrong file name!",
     "Info already exist!",
-    "Unregistered version!",
+    "", // Obsolete "Unregistered Version!"
 
     "Read protected!",
     "Write protected!",
@@ -222,9 +222,7 @@ char __regargs *RetString(String_Num string)
     "Password",
     "Enter password:",
     
-    "This version is not registered!\n\n"\
-    "Pay your register fee in order\n"\
-    "to use all FrexxEd functions!",
+    "", // Obsolete STR_UNREG_VERSION_LONG
     
     "Choose entry:",
     
@@ -254,9 +252,6 @@ char __regargs *RetString(String_Num string)
   register char *retstring=AllStrings[string];
   if(LocaleBase)
      retstring=GetCatalogStr(catalog, string, AllStrings[string]);
-
-  if (string==STR_UNREG_VERSION)
-    Ok_Cancel(NULL, RetString(STR_UNREG_VERSION_LONG), retstring, RetString(STR_OK_GADGET));
 
   /* no locale.library: */
   return(retstring);

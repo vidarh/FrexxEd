@@ -872,16 +872,7 @@ void __regargs IDCMP(BufStruct *Storage)
               freelockedalloc=FALSE;
             }
           }
-#ifdef DEBUGTEST
-          if (DebugOpt || Default.BufStructDefault.reg.reg)
-#else      
-          if (Default.BufStructDefault.reg.reg)
-#endif
-          {
-            if (!((++actioncount)&4095))
-              RetString(STR_UNREG_VERSION);
-          }
-        }
+	}
         if (NewStorageWanted)
           CommandStorage=NewStorageWanted;
         if (Default.posthook[command&~LOCKINFO_BITS]) {

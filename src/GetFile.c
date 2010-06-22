@@ -1033,16 +1033,9 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
             Stcgfp(RFS->realpath, buffer);
         }
         size=fileinfo.fib_Size;
-        if ((size+constant>67217+435261) && Storage && BUF(reg.reg)) {
-          SendReturnMsg(cmd_RET, UNREG_VERSION, NULL, NULL, NULL);
-//          ret=OPEN_ERROR;
-        }
-//        else 
-        {
-          RFS->fileprotection=fileinfo.fib_Protection;
-          memcpy(&RFS->comment, fileinfo.fib_Comment, 80);
-          memcpy(&RFS->date, &fileinfo.fib_Date, sizeof(struct DateStamp));
-        }
+		RFS->fileprotection=fileinfo.fib_Protection;
+		memcpy(&RFS->comment, fileinfo.fib_Comment, 80);
+		memcpy(&RFS->date, &fileinfo.fib_Date, sizeof(struct DateStamp));
       }
     } else
       ret=OPEN_ERROR;
