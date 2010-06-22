@@ -23,7 +23,7 @@ OBJS = \
  o/Execute.o o/Face.o o/FACT.o o/FH_packets.o o/FileHandler.o o/Fold.o o/GetFile.o\
  o/GetFileML.o o/GetFont.o o/Hook.o o/Icon.o o/IDCMP.o o/Init.o o/KeyAssign.o\
  o/Match.o o/Mount.o o/MultML.o o/OpenClose.o o/Process.o o/Prompt.o o/Regex.o\
- o/Replace.o o/Reqlist.o o/Request.o o/Rexx.o o/RSADecrypt.o o/Search.o o/Setting.o o/Sort.o\
+ o/Replace.o o/Reqlist.o o/Request.o o/Rexx.o o/Search.o o/Setting.o o/Sort.o\
  o/Slider.o o/Startup.o o/Strings.o o/Timer.o o/Undo.o o/UpdtBlock.o o/UpdtScreen.o\
  o/UpdtScreenC.o o/WinSign.o o/WindowOutput.o
 
@@ -149,8 +149,6 @@ o/Main.o:		Main.c
         DEFINE=DEBUGTEST\
 	DEFINE=LIB $<
 
-o/GetFileML.o:		GetFileML.a
-	$(CC) $(ASMFLAGS) $<
 o/MultML.o:		MultML.a
 	$(CC) $(ASMFLAGS) $<
 o/NewTaskML.o:		NewTaskML.a

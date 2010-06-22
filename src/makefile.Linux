@@ -18,7 +18,7 @@ OBJS = \
  Execute.o Face.o FACT.o FH_packets.o FileHandler.o Fold.o GetFile.o\
  GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
- Replace.o Reqlist.o Request.o Rexx.o RSADecrypt.o Search.o Setting.o Sort.o\
+ Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
  UpdtScreenC.o WinSign.o WindowOutput.o
 
