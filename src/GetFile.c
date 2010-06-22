@@ -830,7 +830,6 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
 
   if (DefaultFact->newlinecheck) {
     if (DefaultFact->newlinecheck==1) {
-#if 0	// C-code, spara
       register char newline=DefaultFact->newlinechar;
       if (len && (*mem)==newline)
         rows++;
@@ -838,10 +837,6 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
         if (*(++mem)==newline)
           rows++;
       }
-#else
-	// Ass-code
-      rows=FindChar(DefaultFact->newlinechar, len, mem);
-#endif
     } else {
       mem--;
       while (len>0) {

@@ -16,7 +16,7 @@ OBJS = \
  Alloc.o Block.o BufControl.o BuildMenu.o Button.o Change.o ClipBoard.o\
  Command.o Cursor.o Declare.o DoSearch.o Edit.o\
  Execute.o Face.o FACT.o FH_packets.o FileHandler.o Fold.o GetFile.o\
- GetFileML.o GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
+ GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
  Replace.o Reqlist.o Request.o Rexx.o RSADecrypt.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
@@ -87,8 +87,6 @@ WindowOutput.o:	WindowOutput.c Buf.h Function.h UpdtScreenC.h
 Main.o:		Main.c
 	$(CC) $(CFLAGS) -DFREXXED -o Main.o $<
 
-GetFileML.o:		GetFileML.s
-	$(CC) $(ASMFLAGS) -o GetFileML.o $<
 MultML.o:		MultML.s
 	$(CC) $(ASMFLAGS) -o MultML.o $<
 NewTaskML.o:		NewTaskML.s
