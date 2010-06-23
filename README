@@ -6,19 +6,19 @@ VERSION
 
 	2.2 alpha
 
-    WARNING: THIS VERSION IS BUGGY. DO NOT USE UNLESS YOU REALLY
-    WANT TO LOSE YOUR WORK
+	WARNING: THIS VERSION IS BUGGY. DO NOT USE UNLESS YOU REALLY
+	WANT TO LOSE YOUR WORK
 
 AUTHORS
 
 	Original versions (up to 2.1): Daniel Stenberg and Kjell Ericson
 
-    Updated by Vidar Hokstad <vidar@hokstad.com>
+	Updated by Vidar Hokstad <vidar@hokstad.com>
 
-    The original authors have no further involvement with this
-    version other than graciously releasing FrexxEd as open source.
-    If you have questions or bug reports, please report them to 
-    Vidar Hokstad, not the original authors.
+	The original authors have no further involvement with this
+	version other than graciously releasing FrexxEd as open source.
+	If you have questions or bug reports, please report them to 
+	Vidar Hokstad, not the original authors.
 
 DESCRIPTION
 
@@ -26,8 +26,8 @@ DESCRIPTION
 	made for the Amiga.
 
 	The main mission with FrexxEd has been to create an editor which is
-        capable of doing whatever *YOU* want it to. To enable *very* much
-        reprogramming/configuration for those who feel the need.
+	capable of doing whatever *YOU* want it to. To enable *very* much
+	reprogramming/configuration for those who feel the need.
 
 	Some of FrexxEd's features are:
 
@@ -79,22 +79,17 @@ SPECIAL REQUIREMENTS
 LOCATION
 
 	http://www.aminet.net/pub/aminet/text/edit
+	http://github.com/vidarh/FrexxEd
 
-    NOTE: Current Aminet binaries are versions 2.0 and 2.1 which 
-    were built by the original authors. This archive is modified
-    significantly from the versions available on Aminet. New binaries
-    will not be uploaded to Aminet until it's been tested.
+	NOTE: Current Aminet binaries are versions 2.0 and 2.1 which 
+	were built by the original authors. This archive is modified
+	significantly from the versions available on Aminet. New binaries
+	will not be uploaded to Aminet until it's been tested.
 
 DISTRIBUTABILITY
 
-    Open Source. See LEGAL
+	Open Source. See LEGAL
 
-    Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
-    Some parts, copyright (C) 2010 Vidar Hokstad
+	Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
+	Some parts, copyright (C) 2010 Vidar Hokstad
 
-OTHER
-
-	Uses a keyfile system, unregistered versions feature a small amount of
-	cripples.
-
-    NOTE: The keyfile will be removed in a future release.

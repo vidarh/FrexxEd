@@ -1,6 +1,9 @@
  FrexxEd - Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
 
  This README file is written on June 5th 1998 by Daniel Stenberg.
+ 
+ [NOTE: June 23rd 2010, by Vidar Hokstad: This file has been modified
+ to strip obsolete information and add corrections]
 
 HISTORY
 =======
@@ -36,34 +39,22 @@ tree off my (Daniel's) hard drive (details about that follows below).
 many modifications to compile. I hope I'll get info, feedback and help from
 others to make this into a usable archive. If anyone wants it.
 
+[AS OF June 2010, this archive will compile on AmigaOS 3.x with VBCC without
+ modifications, but requires ReqTools, XPK and PowerPacker includes in addition
+ to the NDK - Vidar]
+
 KEYFILES
 ========
 
- Everyone is from now on granted permission to use whatever keyfile they want,
-or even produce their own new keyfiles. This package contains a valid keyfile
-in FrexxEd/ directory which i.e can be used (ok, it says FrexxEd is registered
-to Kjell and me, but thats just a minor detail).
-
- The keyfile code and generator is in the FrexxEd/RSA/ directory.
+ [The current version of FrexxEd as of June 2010 does not use a keyfile
+anymore. The keyfile generator has been stripped from this archive.]
 
 FPL
 ===
 
  The FPL source archive is not part of this. You can get the latest (14.12 at
-the time of writing) from http://www.fts.frontec.se/~dast/stuff/. The archive
+the time of writing) from http://daniel.haxx.se/stuff/ . The archive
 is multiplatform but there are no problems to built it on amiga.
-
-MODIFICATONS FROM MY ORIGINAL SOURCE TREE
-=========================================
-
- Ok, the directory which is now named FrexxEd/src/ was created for this
-archive, and all sources moved into it. They were previously all stored in the
-FrexxEd/ root. There may still be things that depend on that structure.
-
- A few things were copied into the archive tree from the 'distribution tree',
-which was developed and maintained at a separate place on my disk. I think
-those things will be appreciated since they include the docs and install
-directories and more...
 
 CURRENT ADDRESSES
 =================
@@ -72,5 +63,12 @@ CURRENT ADDRESSES
 addresses to me and Kjell. These are the correct and valid ones for the time
 being:
 
-  Daniel Stenberg <Daniel.Stenberg@sth.frontec.se>
-  Kjell Ericson <Kjell.Ericson@sth.frontec.se>
+  [Removed, since they were obsolete. Daniel's current website is
+   http://daniel.haxx.se/ - I haven't added his e-mail here since I haven't
+   asked if he wants it here. I don't know Kjell's address.
+
+   Note that they have no involvement (apart from Daniel graciously answering
+   a couple of questions) with the new versions of FrexxEd. If you have
+   questions / bug reports etc., please first contact me.
+  
+       Vidar Hokstad <vidar@hokstad.com> ]
