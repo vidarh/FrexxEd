@@ -10,8 +10,5 @@
  *
  ************/
 
-int __asm MultML(register __d1 int a, register __d2 int b, register __d3 int c);
-void __asm BigMult(register __a0 char *result,
-                   register __a1 char *fakt1,
-                   register __a2 char *fakt2);
+int MultML(register __d1 int a, register __d2 int b, register __d3 int c);
 
