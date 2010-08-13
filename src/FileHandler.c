@@ -17,11 +17,11 @@
 #include <proto/dos.h>
 #include <clib/alib_protos.h>
 #include <exec/semaphores.h>
-#include "mount.h"
+#include "Mount.h"
 #include <stdio.h>
 
 #include "Buf.h"
-#include "process.h"
+#include "Process.h"
 #include "FH_packets.h"
 #include "FileHandler.h"
 

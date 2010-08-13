@@ -61,7 +61,7 @@
 #include "UpdtScreen.h"
 #include "UpdtScreenC.h"
 #include "WindowOutput.h"
-#include "process.h" /* for the wait_process() prototype */
+#include "Process.h" /* for the wait_process() prototype */
 #include "FileHandler.h" /* for the FileHandler() prototype */
 
 extern HistoryStruct SearchHistory;

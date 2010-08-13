@@ -98,7 +98,7 @@
 #include "fastGraphics_proto.h"
 #endif
 
-#include "process.h"
+#include "Process.h"
 
 extern struct Library *XpkBase;
 
@@ -154,7 +154,7 @@ extern struct Process *editprocess;
 extern struct Library *ConsoleDevice; /* Changed definition in 6.0! */
 extern struct PPBase *PPBase;
 extern struct ExecBase *execbase;
-extern SHORT charbredd, charhojd, baseline;
+extern WORD charbredd, charhojd, baseline;
 extern struct Library *LocalBase;
 extern struct Catalog *catalog;
 
@@ -164,7 +164,7 @@ extern char *FrexxName;
 extern char *screen_title;
 
 extern int clipri;
-extern struct MsgPort *msgport;			/* msgport för STICK */
+extern struct MsgPort *msgport;			/* msgport for STICK */
 extern struct MsgPort *msgreply;
 extern struct Message msgsend;
 
@@ -519,14 +519,16 @@ char __regargs *OpenLibraries()
   if(DebugOpt)
     FPrintf(Output(), "Open PowerPacker\n");
 #endif
+#ifndef NO_PPACKER
   PPBase = (struct PPBase *)OpenLibrary ("powerpacker.library", 20);
-
+#endif
 #ifdef DEBUGTEST
   if(DebugOpt)
     FPrintf(Output(), "Open xpk.library\n");
 #endif
+#ifndef NO_XPK
   XpkBase = (struct Library *)OpenLibrary (XPKNAME, 0);
-
+#endif
 #ifdef DEBUGTEST
   if(DebugOpt)
     FPrintf(Output(), "Open worbench\n");
@@ -693,7 +695,7 @@ void CloseAll(char *string)
   longjmp(return_stackpoint, 1);
 }
 
-void __saveds __asm CloseFrexxEd(register __a0 char *string)
+void CloseFrexxEd(char *string)
 {
   Visible=VISIBLE_OFF;
   hook_enabled=FALSE;
@@ -1023,7 +1025,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
     0,                           /* height */
     3, 1,                        /* detail-, blockpen */
     NULL,		         /* IDCMP */
-    BACKDROP|BORDERLESS|ACTIVATE|REPORTMOUSE, /* flags */
+    WFLG_BACKDROP|WFLG_BORDERLESS|WFLG_ACTIVATE|WFLG_REPORTMOUSE, /* flags */
     NULL,                        /* gadget */
     NULL,                        /* image */
     NULL,                        /* title */
@@ -1268,7 +1270,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   if (!cl_iconify && !win->iconify) {
   /* open window */
     if (win->window&FX_WINDOWBIT) {
-      newwindow.Flags=ACTIVATE|REPORTMOUSE|WINDOWDRAG|WINDOWDEPTH|WFLG_CLOSEGADGET|WFLG_NEWLOOKMENUS;
+      newwindow.Flags=WFLG_ACTIVATE|WFLG_REPORTMOUSE|WFLG_DRAGBAR|WFLG_DEPTHGADGET|WFLG_CLOSEGADGET|WFLG_NEWLOOKMENUS;
     }
     {
       char *str=win->window_title;
@@ -1402,9 +1404,9 @@ char __regargs *OpenMyScreen(WindowStruct *win)
 
     win->window_pointer->UserPort=WindowPort;  /* Set up shared port */
 
-    ModifyIDCMP(win->window_pointer, RAWKEY|MOUSEMOVE|MOUSEBUTTONS|INTUITICKS|IDCMP_NEWSIZE|
-              IDCMP_CHANGEWINDOW|CLOSEWINDOW|MENUPICK|GADGETDOWN|GADGETUP|
-	      IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|(!firstopen?MENUVERIFY:NULL));
+    ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEMOVE|IDCMP_MOUSEBUTTONS|IDCMP_INTUITICKS|IDCMP_NEWSIZE|
+              IDCMP_CHANGEWINDOW|IDCMP_CLOSEWINDOW|IDCMP_MENUPICK|IDCMP_GADGETDOWN|IDCMP_GADGETUP|
+	      IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|(!firstopen?IDCMP_MENUVERIFY:NULL));
 
     OwnWindow=TRUE;
   }
@@ -1545,9 +1547,9 @@ int OpenUpScreen(WindowStruct *win)
   UpdateAll();
 //  ClearVisible();
   if (win->window_pointer) {
-    ModifyIDCMP(win->window_pointer, RAWKEY|MOUSEBUTTONS|MENUPICK|GADGETDOWN|GADGETUP|
-	        MOUSEMOVE|MENUVERIFY|IDCMP_CHANGEWINDOW|CLOSEWINDOW|
-	        IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|INTUITICKS);
+    ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEBUTTONS|IDCMP_MENUPICK|IDCMP_GADGETDOWN|IDCMP_GADGETUP|
+	        IDCMP_MOUSEMOVE|IDCMP_MENUVERIFY|IDCMP_CHANGEWINDOW|IDCMP_CLOSEWINDOW|
+	        IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_INTUITICKS);
   }
   return(TRUE);
 }
