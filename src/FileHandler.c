@@ -20,10 +20,10 @@
 #include "mount.h"
 #include <stdio.h>
 
-#include "buf.h"
+#include "Buf.h"
 #include "process.h"
-#include "fh_packets.h"
-#include "filehandler.h"
+#include "FH_packets.h"
+#include "FileHandler.h"
 
 #include "Alloc.h" /* for the Strdup() */
 
