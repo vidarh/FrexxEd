@@ -1,9 +1,6 @@
 #ifndef __FREXXED_COMPAT_H
 #define __FREXXED_COMPAT_H
 
-// FIXME: This is blatantly a hack
-#define REG_A4 1
-
 
 #ifndef AMIGA
 #define __regargs
