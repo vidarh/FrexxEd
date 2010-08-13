@@ -675,7 +675,7 @@ __regargs long ReplyToPacket(struct DosPacket *Packet,
        if(l1->fl_Task == l2->fl_Task &&
           l1->fl_Task == filehandlerport) {
          *res2 = 0; /* no error code */
-         *res1 = LOCK_SAME_HANDLER;
+         *res1 = LOCK_SAME_VOLUME;
          if( GetBufferFromLock(l1) == GetBufferFromLock(l2) ) {
            *res1 = LOCK_SAME;
            DEB(FPrintf(out, " SAME!!!\n"));
