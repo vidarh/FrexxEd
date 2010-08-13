@@ -34,15 +34,21 @@
 #include <intuition/preferences.h>
 #include <intuition/screens.h>
 #include <libraries/gadtools.h>
+#ifndef NO_PPACKER
 #include <libraries/ppbase.h>
+#endif
 #include <libraries/reqtools.h>
 #include <libraries/locale.h>
 #include <libraries/FPL.h>
+#ifndef NO_XPK
 #include <xpk/xpk.h>
 #include <proto/xpkmaster.h>
 #include <proto/xpksub.h>
+#endif
 #include <proto/graphics.h>
+#ifndef NO_PPACKER
 #include <proto/powerpacker.h>
+#endif
 #include <proto/locale.h>
 #include <proto/FPL.h>
 #include <proto/reqtools.h>
@@ -66,7 +72,7 @@
 #include "Execute.h"
 #include "FACT.h"
 #include "Face.h"
-#include "FrexxED_rev.c"
+#include "FrexxEd_rev.c"
 #include "GetFont.h"
 #include "GetFile.h"
 #include "Icon.h"

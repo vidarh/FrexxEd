@@ -53,7 +53,7 @@
 #include "KeyAssign.h"
 #include "Limit.h"
 #include "OpenClose.h"
-#include "Rawkeys.h"
+#include "RawKeys.h"
 #include "Request.h"
 #include "Rexx.h"
 #include "Setting.h"
@@ -66,7 +66,6 @@
 
 extern struct Gadget VertSlider;
 extern struct IOStdReq *WriteReq;
-extern struct Library *ConsoleDevice;
 extern DefaultStruct Default;
 extern int Visible;
 extern char CursorOnOff;
@@ -117,9 +116,9 @@ extern struct OwnMenu *menu_settingchain;
 
 #define NUM_OF_CHARS 32 /* max number of chars to recieve from keymap */
 
-#define IDCMP1 INTUITICKS|RAWKEY|MOUSEBUTTONS|MENUPICK|MOUSEMOVE|\
-               IDCMP_CHANGEWINDOW|CLOSEWINDOW|GADGETDOWN|GADGETUP|\
-               MENUVERIFY|IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_NEWSIZE
+#define IDCMP1 IDCMP_INTUITICKS|IDCMP_RAWKEY|IDCMP_MOUSEBUTTONS|IDCMP_MENUPICK|IDCMP_MOUSEMOVE|\
+               IDCMP_CHANGEWINDOW|IDCMP_CLOSEWINDOW|IDCMP_GADGETDOWN|IDCMP_GADGETUP|\
+               IDCMP_MENUVERIFY|IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_NEWSIZE
 
 extern struct InputEvent ievent;        /* used for RawKeyConvert() */
 extern BOOL frexxedrunning;
@@ -174,7 +173,7 @@ void __regargs IDCMP(BufStruct *Storage)
   BufStruct *resizeStorage=NULL;
   WORD coords[10];
   struct Border border={ 0, 0, 1, 0, COMPLEMENT, 5, NULL, NULL};
-  SHORT lasty=-2;
+  WORD lasty=-2;
   int activated=0;
   struct AppMessage *appmsg;
   ReturnMsgStruct *retmsg=NULL;
@@ -406,7 +405,7 @@ void __regargs IDCMP(BufStruct *Storage)
 //        if (mousebutton==2 && !(IDCMPmsg->Qualifier&(IEQUALIFIER_LEFTBUTTON|IEQUALIFIER_MIDBUTTON|IEQUALIFIER_RBUTTON)))
 //          mousebutton=0;
         switch(IDCMPmsg->Class) {
-        case INTUITICKS:
+        case IDCMP_INTUITICKS:
 #ifdef DEBUGTEST
   if (DebugOpt)
     FPrintf(Output(), "intuitick\n");
@@ -465,7 +464,7 @@ void __regargs IDCMP(BufStruct *Storage)
         case IDCMP_ACTIVEWINDOW:
           {
             if (WindowActivated(Storage, IDCMPmsg)) {
-              ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|INTUITICKS);
+              ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
               activated=2;
             }
             if (NewStorageWanted)
@@ -482,7 +481,7 @@ void __regargs IDCMP(BufStruct *Storage)
 //          ret=ReSizeWindow(Storage);
 //          windowresized++;
           break;
-        case MENUVERIFY:
+        case IDCMP_MENUVERIFY:
           if (IDCMPmsg->Code==MENUHOT) {
             if(resize || (Default.RMB && 
                           IDCMPmsg->MouseY>=BUF(window)->text_start ||
@@ -500,7 +499,7 @@ void __regargs IDCMP(BufStruct *Storage)
               } else {
                 rawkeypressed=MOUSERIGHT;
                 mousebutton=1;
-                ModifyIDCMP(BUF(window)->window_pointer, INTUITICKS|IDCMP1);
+                ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
               }
               IDCMPmsg->Code=MENUCANCEL;
             } else {
@@ -510,7 +509,7 @@ void __regargs IDCMP(BufStruct *Storage)
             }
           }
           break;
-        case MENUPICK:
+        case IDCMP_MENUPICK:
           {
             register UWORD menunumber=IDCMPmsg->Code;
             register struct MenuItem *item;
@@ -529,10 +528,10 @@ void __regargs IDCMP(BufStruct *Storage)
             }
           }
           break;
-        case CLOSEWINDOW:
+        case IDCMP_CLOSEWINDOW:
           command=DO_CLOSE_WINDOW;
           break;
-        case GADGETDOWN:
+        case IDCMP_GADGETDOWN:
           CommandStorage=(BufStruct *)GadgetAddress(Storage, IDCMPmsg);
           command=DO_SLIDER;
           break;
@@ -550,7 +549,7 @@ void __regargs IDCMP(BufStruct *Storage)
             }
           }
           break;
-        case MOUSEBUTTONS:
+        case IDCMP_MOUSEBUTTONS:
           if (BUF(window)) {
             switch(IDCMPmsg->Code) {
             case SELECTUP:
@@ -606,7 +605,7 @@ void __regargs IDCMP(BufStruct *Storage)
                   if (Storage2) {
                     if (Storage==Storage2) {
                       rawkeypressed=MOUSELEFT;
-                      ModifyIDCMP(BUF(window)->window_pointer, INTUITICKS|IDCMP1);
+                      ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
                     } else {
                       if (undoantal)
                         Command(Storage, DO_NOTHING, 0, NULL, NULL);  /* For the undo buffer */
@@ -641,7 +640,7 @@ void __regargs IDCMP(BufStruct *Storage)
               if (!resize) {
                 rawkeypressed=MOUSEMIDDLE;
                 mousebutton=1;
-                ModifyIDCMP(BUF(window)->window_pointer, INTUITICKS|IDCMP1);
+                ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
               }
               break;
             case MIDDLEUP:
@@ -676,7 +675,7 @@ void __regargs IDCMP(BufStruct *Storage)
             }
           }
           break;
-        case RAWKEY:
+        case IDCMP_RAWKEY:
 /*
 {
   static count=0;
@@ -1075,14 +1074,14 @@ int __regargs GetKey(BufStruct *Storage, int flags)
       }
       while (!stop) {
         if (flags & gkWAIT) {
-          ModifyIDCMP(win->window_pointer, RAWKEY|MOUSEBUTTONS|MENUVERIFY|IDCMP_CHANGEWINDOW|
+          ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEBUTTONS|IDCMP_MENUVERIFY|IDCMP_CHANGEWINDOW|
                       IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW);
           Wait(1 << WindowPort->mp_SigBit);
         } else
           stop=TRUE;
         while (msg=(struct IntuiMessage *)GetMsg(WindowPort)) {
           switch(msg->Class) {
-          case INTUITICKS:
+          case IDCMP_INTUITICKS:
             if (ignoreresize)
               ignoreresize--;
             break;
@@ -1109,13 +1108,13 @@ int __regargs GetKey(BufStruct *Storage, int flags)
           case IDCMP_INACTIVEWINDOW:
             WindowActivated(Storage, msg);
             break;
-          case MENUVERIFY:
+          case IDCMP_MENUVERIFY:
             msg->Code=MENUCANCEL;
             stop=flags&gkNOCHACHED;
             if (stop)
               ret=0;
             break;
-          case MOUSEBUTTONS:
+          case IDCMP_MOUSEBUTTONS:
             if (flags&gkNOCHACHED) {
               if (msg->Code==SELECTDOWN ||
                   msg->Code==MIDDLEDOWN ||
@@ -1127,7 +1126,7 @@ int __regargs GetKey(BufStruct *Storage, int flags)
               }
             }
             break;
-          case RAWKEY:
+          case IDCMP_RAWKEY:
             if ((flags & gkNOTEQ) && lastmsgCode==msg->Code)
               break;
             lastmsgCode=msg->Code;
@@ -1557,7 +1556,7 @@ int __regargs ExamineKeyPress(BufStruct *Storage)
           } else
             val=val->next;
         } else {
-          ModifyIDCMP(win->window_pointer, RAWKEY|MOUSEBUTTONS|MENUVERIFY|IDCMP_ACTIVEWINDOW|
+          ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEBUTTONS|IDCMP_MENUVERIFY|IDCMP_ACTIVEWINDOW|
                       IDCMP_INACTIVEWINDOW|IDCMP_CHANGEWINDOW);
           buffer[0]=0;
           if(val->Command)
@@ -1615,7 +1614,7 @@ int __regargs ExamineKeyPress(BufStruct *Storage)
                   keyconverted=FALSE;
                 }
                 break;
-              case MOUSEBUTTONS:
+              case IDCMP_MOUSEBUTTONS:
                 switch(IDCMPmsg->Code) {
                 case SELECTUP:
                   /* IDCMP for the button released condition */
@@ -1651,7 +1650,7 @@ int __regargs ExamineKeyPress(BufStruct *Storage)
                   break;
                 }
                 break;
-              case MENUVERIFY:
+              case IDCMP_MENUVERIFY:
                 IDCMPmsg->Code=MENUCANCEL;
                 if (mousebutton!=1) {
                   rawkeypressed=MOUSERIGHT;
@@ -1665,7 +1664,7 @@ int __regargs ExamineKeyPress(BufStruct *Storage)
                   idcmpbuffer=TRUE;
                 }
                 break;
-              case INTUITICKS:
+              case IDCMP_INTUITICKS:
                 if (ignoreresize)
                   ignoreresize--;
               default:             /* 960121 */
@@ -1701,7 +1700,7 @@ int __regargs ExamineKeyPress(BufStruct *Storage)
       command=SC_OUTPUT;
     }
   } else if (raus) {
-    ModifyIDCMP(win->window_pointer, IDCMP1|(mousebutton?INTUITICKS:0));
+    ModifyIDCMP(win->window_pointer, IDCMP1|(mousebutton?IDCMP_INTUITICKS:0));
     if (command==DO_NOTHING)
       Status(Storage, RetString(STR_NO_FUNCTION_ASSIGNED_TO_KEY), 3);
   }

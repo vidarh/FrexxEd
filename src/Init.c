@@ -42,7 +42,7 @@
 #include "KeyAssign.h"
 #include "Limit.h"
 #include "OpenClose.h"
-#include "Rawkeys.h"
+#include "RawKeys.h"
 #include "Search.h" /* Search-flaggorna måste vi ju ha... */
 #include "Slider.h"
 #include "UpdtScreen.h"

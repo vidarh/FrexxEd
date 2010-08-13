@@ -16,7 +16,7 @@
 #include <libraries/FPL.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
@@ -812,8 +812,9 @@ void __regargs DeleteKmap(struct Kmap *Kmap)
   Dealloc(Kmap);
 }
 
-/* lägg till en i listan */
-struct Kmap __regargs *AddKey(int flags, int qual, USHORT code, char *string, int cmd, struct Kmap *fatherkmap, char *depended)
+/* Add another one to the list */
+struct Kmap __regargs *AddKey(int flags, int qual,UWORD code,
+ char *string, int cmd, struct Kmap *fatherkmap, char *depended)
 {
   struct Kmap *val=(struct Kmap *)Malloc(sizeof(struct Kmap));
   struct Kmap *remap;

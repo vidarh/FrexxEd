@@ -27,7 +27,7 @@
 #include <proto/diskfont.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/graphics.h>
 #include <proto/iffparse.h>
 #include <proto/intuition.h>

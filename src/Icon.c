@@ -20,14 +20,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "buf.h"
-#include "command.h"
-#include "alloc.h"
-#include "icon.h"
+#include "Buf.h"
+#include "Command.h"
+#include "Alloc.h"
+#include "Icon.h"
 
 /* IE ICON GENERATION */
 
-static USHORT Image1Data[] = {
+static UWORD Image1Data[] = {
   0x0000, 0x0000, 0x8000, 
   0x0000, 0x0000, 0x4000, 
   0x0000, 0x0000, 0x2000, 
@@ -109,7 +109,7 @@ static struct Image Image1 = {
   0, 0, 41, 37, 2, &Image1Data[0], 3, 0, NULL
 };
 
-static USHORT Image2Data[] = {
+static UWORD Image2Data[] = {
   0x0000, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x4000, 
   0x0000, 0x0000, 0x2000, 
@@ -197,9 +197,9 @@ static struct DiskObject Icon = {
   {
     NULL,
     104, 109, 41, 38,
-    GADGIMAGE | GADGHIMAGE,
-    RELVERIFY | GADGIMMEDIATE,
-    BOOLGADGET,
+    GFLG_GADGIMAGE | GFLG_GADGHIMAGE,
+    GACT_RELVERIFY | GACT_IMMEDIATE,
+    GTYP_BOOLGADGET,
     (APTR) &Image1,
     (APTR) &Image2,
     NULL,

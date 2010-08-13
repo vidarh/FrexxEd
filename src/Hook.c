@@ -26,11 +26,11 @@
 #include "Command.h"
 #include "Function.h"  /* for the frexxed function structure */
 #include "FACT.h"      /* the include below wants this! */
-#include "Keyassign.h" /* for the convertstring shit */
+#include "KeyAssign.h" /* for the convertstring shit */
 #include "Execute.h"
 #include "Setting.h"
 #include "Hook.h"
-#include "change.h"
+#include "Change.h"
 
 extern DefaultStruct Default;
 extern const int nofuncs;
@@ -59,7 +59,7 @@ static int __regargs GoHook(BufStruct *, struct FrexxHook *, int, char **, int);
  ****/
 
 int __regargs RunHook(BufStruct *Storage,
-                      cmd command,
+                      int command,
                       int Argc,
                       char **Argv,
                       int flags)
