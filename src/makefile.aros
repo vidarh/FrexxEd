@@ -8,7 +8,9 @@ FREDLIB = # frexxed.library
 
 CC = gcc
 AS = gcc -c
-CFLAGS = -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/
+
+# Initial compile without PowerPacker or XPK support
+CFLAGS = -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK
 LDFLAGS= -lamiga -lvc -lauto -lreqtools
 ASMFLAGS = -c
 
@@ -49,7 +51,7 @@ Edit.o:		Edit.c Buf.h Function.h UpdtScreenC.h Edit.h
 Execute.o:		Execute.c Buf.h Function.h
 Face.o:		Face.c Face.h Buf.h Function.h
 FACT.o:		FACT.c FACT.h Buf.h Function.h
-FileHandler.o:	FileHandler.c FileHandler.h Buf.h fh_packets.h
+FileHandler.o:	FileHandler.c FileHandler.h Buf.h FH_packets.h
 FH_packets.o:		FH_packets.c FH_packets.h
 Fold.o:		Fold.c Buf.h Function.h
 GetFile.o:		GetFile.c Buf.h Function.h

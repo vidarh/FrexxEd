@@ -18,19 +18,31 @@
 #include <graphics/gfxbase.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
+
+#ifndef NO_PPACKER
 #include <libraries/ppbase.h>
+#endif
+
 #include <libraries/reqtools.h>
+
+#ifndef NO_XPK
 #include <xpk/xpk.h>
 #include <proto/xpkmaster.h>
 #include <inline/xpkmaster_protos.h>
 #include <proto/xpksub.h>
 #include <inline/xpksub_protos.h> 
+#endif
+
 #include <proto/dos.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/exec.h>
 #include <proto/intuition.h>
+
+#ifndef NO_PPACKER
 #include <proto/powerpacker.h>
 #include <inline/powerpacker_protos.h>
+#endif
+
 #include <proto/reqtools.h>
 #include <proto/utility.h>
 #include <stdio.h>
@@ -506,6 +518,7 @@ int __regargs Save(BufStruct *Storage, int flag, char *string, char *file, char 
       BOOL fine=FALSE;
       if (FoldCompactBuf(BUF(shared), &fileblock)==OK) {
         if (!Stricmp("PP20", packmode)) {
+#ifndef NO_PPACKER
           if (PPBase) {
             APTR crunchinfo;
             ULONG crunchlen;
@@ -540,7 +553,9 @@ int __regargs Save(BufStruct *Storage, int flag, char *string, char *file, char 
               }
             }
           }
-        } else {
+#endif
+	}  else {
+#ifndef NO_XPK
           if (XpkBase) {
           /* xpk packing selected! */
             Sprintf(filename, RetString(STR_XPKSAVING_TEXT), text);
@@ -563,6 +578,7 @@ int __regargs Save(BufStruct *Storage, int flag, char *string, char *file, char 
             } else
               resave=FALSE;
           }
+#endif
         }
       }
       if (!fine) {
@@ -1042,7 +1058,9 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
     UnLock((BPTR)lock);
     if (fileinfo.fib_EntryType<0) {
       if (ret==OK) {
+#ifndef NO_XPK
         struct XpkFib fileinfo;
+#endif
         if (!Default.rwed_sensitive && (RFS->fileprotection & S_IREAD)) {
           SetProtection(buffer, 0);
         } else {
@@ -1050,6 +1068,7 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
             ret=READ_PROTECTED;
         }
         if (ret>=OK) {
+#ifndef NO_XPK
           if(Default.unpack && XpkBase &&
              !XpkExamineTags(&fileinfo, XPK_InName, buffer, TAG_DONE) &&
              fileinfo.xf_Type == XPKTYPE_PACKED) {
@@ -1072,7 +1091,9 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
               }
             } else
               ret=OUT_OF_MEM;
-          } else if (!(program=Malloc(size+1)))
+          } else
+#endif
+	  /* .. else */ if (!(program=Malloc(size+1)))
             ret=OUT_OF_MEM;
           else if (fileread=(struct FileHandle *)Open((UBYTE *)buffer, MODE_OLDFILE)) {
             fileret=Read((BPTR)fileread, (APTR)program, (long)size);
@@ -1081,6 +1102,7 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
               ret=OPEN_ERROR;
             } else {
               char *prog;
+#ifndef NO_PPACKER
               if (Default.unpack && PPBase) {
                 if (size>=4 && (*(int *)program)==(*(int *)"PP20")) {
                   int newsize=(*(int *)((int)program+size-4)) >> 8;
@@ -1097,6 +1119,7 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
                   }
                 }
               }
+#endif
             }
           } else
             ret=OPEN_ERROR;
