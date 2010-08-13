@@ -94,8 +94,7 @@ static void __regargs ReadInitFPL(BufStruct *Storage);
 extern struct ProcMsg *filehandlerproc;
 extern struct Task *FrexxEdTask;
 
-int __saveds __asm secondmain(register __a0 long *opts,
-                              register __a1 char **fromwb)
+int secondmain(long *opts, char **fromwb)
 {
   BufStruct *Storage;
   if (!setjmp(return_stackpoint)) {
@@ -114,7 +113,7 @@ int __saveds __asm secondmain(register __a0 long *opts,
 }
 
 
-char __saveds *InitFrexxEd()
+char *InitFrexxEd()
 {
   Default.olddirectory=-1;	// Pre-init.  Annars kan det krascha.
 #ifdef AMIGA
@@ -258,8 +257,7 @@ static BufStruct __regargs *real_main(LONG *opts)
   return(Storage);
 }
 
-void __saveds __asm ParseArg(register __a0 char *string,
-                             register __a1 LONG *opts)
+void ParseArg(char *string, LONG *opts)
 {
   struct RDArgs rdargs;
   struct RDArgs *result;

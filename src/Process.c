@@ -9,6 +9,7 @@
 
 #include "process.h"
 #include <clib/alib_protos.h>
+#include <exec/memory.h>
 
 void process_starter(void)
 {
@@ -39,7 +40,7 @@ void process_starter(void)
    ReplyMsg((struct Message *)mess);
 }
 
-
+#warning M68k Specific mess used for the file handler follows.
 struct ProcMsg *start_process(fp, priority, stacksize, procname)
 long (*fp)(void);
 long priority,stacksize;

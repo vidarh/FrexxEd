@@ -12,7 +12,7 @@
 
 #include <exec/types.h>
 #include <libraries/FPL.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/utility.h>
 #include <stdio.h>
 #include <stdlib.h>

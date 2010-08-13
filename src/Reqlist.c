@@ -41,7 +41,7 @@
 #include "Button.h"
 #include "Edit.h"
 #include "Limit.h"
-#include "Rawkeys.h"
+#include "RawKeys.h"
 #include "Reqlist.h"
 #include "Request.h"
 #include "Sort.h"
@@ -303,7 +303,7 @@ static int __asm
             GT_SetGadgetAttrs(gadget,
                               list->buts->winbutton,
                               NULL,
-                              GTCB_Checked, (gadget->Flags & SELECTED)?FALSE:TRUE,
+                              GTCB_Checked, (gadget->Flags & GFLG_SELECTED)?FALSE:TRUE,
                               TAG_END);
           }
         }
@@ -772,7 +772,7 @@ int Reqlist(BufStruct *Storage, int data, ...)
       int id;
       setcur=TRUE;
       switch(msg->Class) {
-      case GADGETUP:
+      case IDCMP_GADGETUP:
 	switch( id=GetGadgetID(msg) ) {
 	case Ok_button_ID:  /* OKAY button */
 	  flagi = FALSE;
@@ -816,7 +816,7 @@ int Reqlist(BufStruct *Storage, int data, ...)
           break;
 	}
 	break;
-      case GADGETDOWN:
+      case IDCMP_GADGETDOWN:
 	switch (GetGadgetID(msg)) {
 	case REQLIST_STRING1: /* upper string gadget */
           stringno=1;
@@ -826,7 +826,7 @@ int Reqlist(BufStruct *Storage, int data, ...)
 	  break;
 	}
 	break;
-      case RAWKEY:
+      case IDCMP_RAWKEY:
         setcur=FALSE;
         ievent.ie_Code=msg->Code;
         ievent.ie_Qualifier=msg->Qualifier;
@@ -838,7 +838,7 @@ int Reqlist(BufStruct *Storage, int data, ...)
               GT_SetGadgetAttrs(gadget,
                                 Buttons->winbutton,
                                 NULL,
-                                GTCB_Checked, (gadget->Flags & SELECTED)?FALSE:TRUE,
+                                GTCB_Checked, (gadget->Flags & GFLG_SELECTED)?FALSE:TRUE,
                                 TAG_END);
             }
           } else {
@@ -859,7 +859,7 @@ int Reqlist(BufStruct *Storage, int data, ...)
           }
         }
         break;
-      case CLOSEWINDOW:
+      case IDCMP_CLOSEWINDOW:
 	flagi=FALSE;
 	cancel=TRUE;
 	break;

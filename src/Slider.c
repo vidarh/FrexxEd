@@ -219,9 +219,9 @@ void __regargs InitBorder(BufStruct *Storage)
   if (gadget && BUF(window) && BUF(window)->window_pointer) {
 
     if (BUF(window->slider)==sl_RIGHT /* || ((BUF(window)->window&FX_WINDOWBIT) && BUF(window->slider)==sl_LEFT) */)
-      BUF(slide.Border.gadget.Flags)=GADGHBOX|GFLG_RELRIGHT|GACT_RIGHTBORDER;
+      BUF(slide.Border.gadget.Flags)=GFLG_GADGHBOX|GFLG_RELRIGHT|GACT_RIGHTBORDER;
     else
-      BUF(slide.Border.gadget.Flags)=GADGHBOX;
+      BUF(slide.Border.gadget.Flags)=GFLG_GADGHBOX;
 
     if (BUF(window->slider)==sl_RIGHT)
       BUF(slide.Border.gadget.LeftEdge)=-BUF(window)->window_pointer->BorderRight+3;

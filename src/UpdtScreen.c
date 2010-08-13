@@ -68,7 +68,7 @@ extern char buffer[];
 extern int bufferlen;
 extern DefaultStruct Default;
 extern char LoChar, HiChar;
-extern SHORT charbredd, charhojd, baseline;
+extern WORD charbredd, charhojd, baseline;
 extern char *statusbuffer;
 extern WORD sliderhighlite, statuscolor, statustextcolor;
 extern BOOL OwnWindow;

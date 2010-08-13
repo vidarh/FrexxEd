@@ -37,7 +37,7 @@
 extern int Visible;
 extern struct IntuitionBase *IntuitionBase;
 extern char CursorOnOff;
-extern SHORT charbredd, charhojd, baseline;
+extern WORD charbredd, charhojd, baseline;
 extern struct TextFont *SystemFont;
 extern struct TextFont *RequestFont;
 extern struct screen_buffer ScreenBuffer;
@@ -403,7 +403,7 @@ void __regargs ScrollScreen(BufStruct *Storage, int totaldif, int special)
             if (!(msg=(struct IntuiMessage *)GetMsg(WindowPort)))
               Wait(1 << WindowPort->mp_SigBit);
             if (msg || (msg=(struct IntuiMessage *)GetMsg(WindowPort))) {
-              if (msg->Class==GADGETUP)
+              if (msg->Class==IDCMP_GADGETUP)
                 stop=TRUE;
               ReplyMsg((struct Message *)msg);
             }
@@ -548,7 +548,7 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
   static int xpos=-1, ypos=-1, mode=0, shade=FALSE, xwidth=0, ywidth;
   static short oldmask=0;
   static struct RastPort *rp;
-  static USHORT areapat[2][2] = {
+  static UWORD areapat[2][2] = {
     { 0x5555, 0xaaaa },
     { 0xaaaa, 0x5555 }
   };
@@ -568,7 +568,7 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
             SetWrMsk(rp, oldmask);
             if (y!=-2) {
               if (shade) {
-                SetAfPt(rp, (USHORT *)&areapat, 1);
+                SetAfPt(rp, (UWORD *)&areapat, 1);
                 shade=FALSE;
               }
               RectFill(rp, xpos, ypos, xpos+xwidth-1, ypos+ywidth-1);
@@ -615,7 +615,7 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
             if (shade ||
                 !(BUF(window->window_pointer)->Flags&WFLG_WINDOWACTIVE)) { /*!activewindow*/
               shade=TRUE;
-              SetAfPt(rp, (USHORT *)&areapat, 1);
+              SetAfPt(rp, (UWORD *)&areapat, 1);
             }
             RectFill(rp, xpos, ypos, xpos+xwidth-1, ypos+ywidth-1);
             SetAfPt(rp, NULL, 0);

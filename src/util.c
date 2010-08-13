@@ -21,6 +21,7 @@ int stcgfe(char *ext, const char *name)
    return 0;
 }
 
+#ifndef __AROS__
 /* Copy the q to the n chars buffer pointed by p.
    The result is null terminated.
    Returns the number of copied bytes, including '\0'. */
@@ -32,6 +33,7 @@ int stccpy(char *p, const char *q, int n)
    p[-1] = '\0';
    return p - t;
 }
+#endif
 
 /* Append a file name to a path. */
 // GPL, from http://trac.yam.ch/browser/trunk/yamos/extrasrc/?rev=80

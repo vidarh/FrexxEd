@@ -17,7 +17,9 @@
 #include <proto/rexxsyslib.h>
 #include <proto/utility.h>
 #include <proto/FPL.h>
+#ifndef __AROS__
 #include <inline/fpl_protos.h>
+#endif
 #include <libraries/FPL.h>
 #include <rexx/storage.h>
 #include <rexx/rxslib.h>
@@ -338,7 +340,7 @@ void __regargs FreeARexx(AREXXCONTEXT RexxContext)
      * Make sure we close the library...
      */
     if (RexxSysBase)
-      CloseLibrary(RexxSysBase);
+      CloseLibrary((struct Library *)RexxSysBase);
       
     /*
      * Free the memory of the RexxContext

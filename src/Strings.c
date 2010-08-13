@@ -24,7 +24,6 @@
 #include "Request.h"
 #include "Strings.h"
 
-extern struct Library *LocaleBase;
 extern struct Catalog *catalog;
 extern char GlobalEmptyString[];
 
