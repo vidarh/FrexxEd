@@ -804,7 +804,7 @@ int __regargs CheckName(BufStruct *Storage, int requester, int update, char *nam
  **********/
 int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufStruct *can_be_folded)
 {
-  register char *mem=text;
+  unsigned char *mem=text;
   register len=length;
   register char *flags=DefaultFact->flags;
   register int rows=0;
@@ -813,8 +813,8 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
   int size=0;
   int fold_no=0, fold_flags=0;
   BOOL fold_found;
-  char *next_foldstart=text+length+1;
-  char *next_foldend=text+length+1;
+  unsigned char *next_foldstart=text+length+1;
+  unsigned char *next_foldend=text+length+1;
   String search_beg_text, search_beg_string;
   String search_end_text, search_end_string;
   int fold_start_len=0, fold_end_len=0, copy_len, see_level=0;
@@ -892,10 +892,10 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
         }
         while (mem>=next_foldend) {
           register int maxlen=16;
-          register char *temppek=next_foldend+sizeof(FOLD_STRING_END)-1;
+          register unsigned char *temppek=next_foldend+sizeof(FOLD_STRING_END)-1;
           while (--maxlen>=0 && *(temppek++)!='.');
           temppek+=fold_end_len;
-          if (temppek-1<=mem) { // -1 för att acceptera sista raden.
+          if (temppek-1<=mem) { // -1 to accept last row
             copy_len=mem-(next_foldend-fold_start_len);
             memcpy(next_foldend-fold_start_len, temppek, copy_len);
             copy_len=temppek-(next_foldend-fold_start_len);
@@ -923,7 +923,7 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
             next_foldend=text+length+1;
         }
         if (mem>=next_foldstart) {
-          register char *temppek=next_foldstart+sizeof(FOLD_STRING_BEGIN)-1;
+          unsigned char *temppek=next_foldstart+sizeof(FOLD_STRING_BEGIN)-1;
           if (!fold_found) {
             {
               register int maxlen=8;

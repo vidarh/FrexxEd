@@ -10,12 +10,7 @@
  *
  *********/
 
-int __saveds __asm secondmain(register __a0 long *,
-                              register __a1 char **);
-
-char __saveds *InitFrexxEd(void);
-
-void __saveds __asm CloseFrexxEd(register __a0 char *);
-
-void __saveds __asm ParseArg(register __a0 char *,
-                             register __a1 LONG *);
+int secondmain(long *, char **);
+char *InitFrexxEd(void);
+void CloseFrexxEd(char *);
+void ParseArg(char *, LONG *);

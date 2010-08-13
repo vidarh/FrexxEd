@@ -40,7 +40,7 @@
 
 /* Struktur för textpekare.  Storleken definieras även i UpdtScreenML.i */
 typedef struct {
-  char *text;
+  unsigned char *text;
   int length;
   WORD fold_no;
   WORD flags;
@@ -151,7 +151,7 @@ typedef struct
 typedef struct
 {
   int length;
-  char *string;
+  unsigned char *string;
 } String;
 
 struct SharedStruct

@@ -7,7 +7,7 @@
 /* Copyright (c) 1993 SAS Institute, Inc, Cary, NC, USA */
 /* All Rights Reserved */
 
-#include "process.h"
+#include "Process.h"
 #include <clib/alib_protos.h>
 #include <exec/memory.h>
 

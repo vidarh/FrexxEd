@@ -4,6 +4,11 @@
 
 #include "compat.h"
 
+void __stack_chk_fail() {}
+
+inline int min(int left, int right) { return left <= right ? left : right; }
+inline int max(int left, int right) { return left >= right ? left : right; }
+
 /* Get the filename extension. */
 
 // GPL, from http://trac.yam.ch/browser/trunk/yamos/extrasrc/?rev=80

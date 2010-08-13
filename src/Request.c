@@ -27,8 +27,9 @@
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
 #include <libraries/reqtools.h>
+#ifndef __AROS__
 #include <inline/reqtools_protos.h>
-#include <inline/reqtools_protos.h>
+#endif
 #include <proto/reqtools.h>
 #include <proto/exec.h>
 #include <proto/graphics.h>
@@ -42,7 +43,7 @@
 #include <libraries/reqtools.h>
 
 #include "Buf.h"
-#include "Rawkeys.h"
+#include "RawKeys.h"
 #include "Reqlist.h"
 #include "Alloc.h"
 #include "BufControl.h"
@@ -230,7 +231,7 @@ void __regargs FreezeEditor(int mode)
         if (win->window_pointer) {
           struct Gadget *gadget=win->window_pointer->FirstGadget;
           while (gadget) {
-            if (gadget->GadgetType==PROPGADGET) {
+            if (gadget->GadgetType==GTYP_PROPGADGET) {
               OffGadget(gadget, win->window_pointer, NULL);
             }
             gadget=gadget->NextGadget;
@@ -269,12 +270,13 @@ void ActivateEditor(void)
             win->flags&=~WINDOW_FLAG_FREEZED;
             rtUnlockWindow(win->window_pointer, win->window_lock_id);  // Remove due to a bug with rtFontRequest
             CursorXY(NULL, -3, 0);
-            ModifyIDCMP(win->window_pointer, RAWKEY|MOUSEBUTTONS|MENUPICK|GADGETDOWN|GADGETUP|MENUVERIFY|IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_CHANGEWINDOW|CLOSEWINDOW|INTUITICKS);
+            ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEBUTTONS|IDCMP_MENUPICK|IDCMP_GADGETDOWN|
+			IDCMP_GADGETUP|IDCMP_MENUVERIFY|IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_CHANGEWINDOW|IDCMP_CLOSEWINDOW|IDCMP_INTUITICKS);
             {
               struct Gadget *gadget=win->window_pointer->FirstGadget;
             
               while (gadget) {
-                if (gadget->GadgetType==PROPGADGET) {
+                if (gadget->GadgetType==GTYP_PROPGADGET) {
                   OnGadget(gadget, win->window_pointer, NULL);
                 }
                 gadget=gadget->NextGadget;

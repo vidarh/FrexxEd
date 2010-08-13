@@ -89,16 +89,16 @@ BOOL __regargs DoSearch(SearchStruct *search, FACT *fact)
     return(FALSE);
 
   do {
-    char *text=search->text[line].text;
+    unsigned char *text=search->text[line].text;
     do {
       if (!(jump=search_fastmap[text[byte]])) {
-        char *tempradpek;
-        register char *temptext=&text[byte];
+        unsigned char *tempradpek;
+        register unsigned char *temptext=&text[byte];
         register int count=1;
         templine=line;
         tempradpek=search->text[line].text;
         if (line==search->begin_y)
-          tempradpek+=search->begin_x;	// Borde behöve en Col2Byte-konvertering (950504)
+          tempradpek+=search->begin_x;	// Ought to need a Col2Byte-konvertering (950504)
         do {
           if (count==search->buflength) {
             register OK=TRUE;
@@ -220,12 +220,11 @@ BOOL __regargs DoSearchBack(SearchStruct *search, FACT *fact)
     return(FALSE);
 
   do {
-    char *text=search->text[line].text;
+    unsigned char *text=search->text[line].text;
     do {
       if (!(jump=search_fastmap[text[byte]])) {
-      /* När vi har hittat första tecknet så letar vi fram som vanligt och
-         checkar om resten av strängen är rätt. */
-        register char *temptext=&text[byte];
+	/* When we have found the first character we search as normal to see if the rest of the string matches */
+        register unsigned char *temptext=&text[byte];
         register int count=0;
         templength=linelength;
         templine=line;
@@ -301,7 +300,7 @@ BOOL __regargs DoSearchBack(SearchStruct *search, FACT *fact)
 char __regargs *FindTextInString(String *text, String *searchstring)
 {
   char fastmap[256];	// Place it on the stack
-  char *byte;
+  unsigned char *byte;
   int range;
   int jump;
   int count;

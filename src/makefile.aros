@@ -10,8 +10,8 @@ CC = gcc
 AS = gcc -c
 
 # Initial compile without PowerPacker or XPK support
-CFLAGS = -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK
-LDFLAGS= -lamiga -lvc -lauto -lreqtools
+CFLAGS = -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
+LDFLAGS= -lamiga #-lreqtools
 ASMFLAGS = -c
 
 OBJS = \
@@ -20,15 +20,15 @@ OBJS = \
  Execute.o Face.o FACT.o FH_packets.o FileHandler.o Fold.o GetFile.o\
  GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
  Match.o Mount.o OpenClose.o Process.o Prompt.o Regex.o\
- Replace.o Reqlist.o Request.o Rexx.o RSADecrypt.o Search.o Setting.o Sort.o\
+ Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o WinSign.o WindowOutput.o util.o WBPath.o
+ UpdtScreenC.o Winsign.o WindowOutput.o util.o WBPath.o
 
 NONLIBOBJS = Main.o FrexxEd_rev.o
 
 all:	$(TARGET) $(FREDLIB)
 
-FrexxEd_rev.o: FrexxEd_rev.c Makefile
+FrexxEd_rev.o: FrexxEd_rev.c
 #	AutoRev FrexxEd_rev.c Verbose
 	$(CC) $(CFLAGS) -o FrexxEd_rev.o FrexxEd_rev.c
 
