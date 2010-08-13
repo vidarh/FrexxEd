@@ -15,12 +15,12 @@
 #include <dos/dosextens.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <exec/memory.h>
 #include <string.h>
 #include <stdlib.h> /* for the atoi() */
 
-#include "buf.h"
+#include "Buf.h"
 #include "Block.h" /* for the String2Block() function */
 #include "BufControl.h" /* for the FindBuffer() function */
 #include "Edit.h"
@@ -29,7 +29,7 @@
 #include "Limit.h"
 #include "Strings.h" /* for the Sprintf() */
 #include "Undo.h"
-#include "fh_packets.h"
+#include "FH_packets.h"
 
 extern struct DeviceList *device;
 extern struct MsgPort *filehandlerport;

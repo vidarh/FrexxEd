@@ -1,3 +1,5 @@
+#ifndef __UpdtScreenC_H__
+#define __UpdtScreenC_H__
 /*
  * FrexxEd - Copyright (C) 1998, Daniel Stenberg and Kjell Ericson
  *
@@ -32,3 +34,4 @@ void __regargs Updated_Face(SharedStruct *shared, int line);
 
 extern BOOL face_update;
 
+#endif

@@ -86,7 +86,7 @@ char __regargs *FindKey(BufStruct *Storage, char *string);
  *********/
 void __regargs DeleteKmap(struct Kmap *Kmap);
 
-struct Kmap __regargs *AddKey(int flags, int qual, USHORT code, char *string, int cmd, struct Kmap *kmap, char *depended);
+struct Kmap *AddKey(int flags, int qual, UWORD code, char *string, int cmd, struct Kmap *kmap, char *depended);
 
 #define akCMD		1	/* cmd is a command */
 #define akFPL		2	/* cmd is a pointer to a FPLstring */

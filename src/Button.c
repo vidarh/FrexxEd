@@ -22,11 +22,11 @@
 #include <intuition/gadgetclass.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
-#include <libraries/fpl.h>
+#include <libraries/FPL.h>
 #include <libraries/gadtools.h>
 #include <math.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/gadtools.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
@@ -44,8 +44,8 @@
 #include "Edit.h"
 #include "Execute.h"
 #include "Limit.h"
-#include "Rawkeys.h"
-#include "ReqList.h"
+#include "RawKeys.h"
+#include "Reqlist.h"
 #include "Request.h"
 #include "Setting.h"
 
@@ -97,7 +97,7 @@ int __regargs ButtonPress(BufStruct *Storage, ButtonStruct *Buttons)
     Wait(1L << BUT(winbutton->UserPort->mp_SigBit));
     while(msg=(struct IntuiMessage *)GT_GetIMsg(BUT(winbutton->UserPort))) {
       switch(msg->Class) {
-      case RAWKEY:
+      case IDCMP_RAWKEY:
 	switch(msg->Code) {
 	case RAW_ESC:
 	  ret=-1;
@@ -112,11 +112,11 @@ int __regargs ButtonPress(BufStruct *Storage, ButtonStruct *Buttons)
 	  break;
 	}
         break;
-      case CLOSEWINDOW:
+      case IDCMP_CLOSEWINDOW:
         flagi=FALSE;
         ret=-1;
 	break;
-      case GADGETUP:
+      case IDCMP_GADGETUP:
         pressed=(struct Gadget *) (msg->IAddress);
         if (pressed->GadgetID==Ok_button_ID)
           flagi=FALSE;
@@ -248,8 +248,8 @@ int __regargs OpenButton(ButtonStruct *Buttons)
 {
   struct NewWindow buttonwin = {
     0, 0, 0, 0, 0, 1,
-    GADGETDOWN+GADGETUP+CLOSEWINDOW+RAWKEY,
-    WINDOWDRAG+WINDOWDEPTH+WINDOWCLOSE+NOCAREREFRESH+SMART_REFRESH+ACTIVATE,
+    IDCMP_GADGETDOWN | IDCMP_GADGETUP | IDCMP_CLOSEWINDOW | IDCMP_RAWKEY,
+    WFLG_DRAGBAR | WFLG_DEPTHGADGET | WFLG_CLOSEGADGET | WFLG_NOCAREREFRESH | WFLG_SMART_REFRESH | WFLG_ACTIVATE,
     NULL, NULL,
     NULL, NULL, NULL,
     0, 0, 0, 0, WBENCHSCREEN
@@ -352,7 +352,7 @@ int __regargs SetButton(ButtonStruct *Buttons)
         BUT(array[count].shortcut)=pos[1];
     }
 
-    newgad.ng_TopEdge=(SHORT)((RequestFont->tf_YSize+(max(4,RequestFont->tf_YSize>>1)))*radcount+BUT(yoffset));
+    newgad.ng_TopEdge=(WORD)((RequestFont->tf_YSize+(max(4,RequestFont->tf_YSize>>1)))*radcount+BUT(yoffset));
     newgad.ng_UserData=NULL;
     newgad.ng_GadgetText=BUT(array[count].name);
     stringbredd=TextLength(&ButtonRastPort, BUT(array[count].name),
@@ -363,9 +363,9 @@ int __regargs SetButton(ButtonStruct *Buttons)
       stringbredd+=6;
       newgad.ng_UserData=(void *)count;
       newgad.ng_Width=stringbredd;
-      newgad.ng_LeftEdge=(SHORT)(breddcount+spaltcount*8+BUT(xoffset)+requestfontwidth*BUT(string_width))+8;
+      newgad.ng_LeftEdge=(WORD)(breddcount+spaltcount*8+BUT(xoffset)+requestfontwidth*BUT(string_width))+8;
       stringbredd+=8;
-      newgad.ng_GadgetID=(USHORT)FPL_ADDITION_GADGET_ID;
+      newgad.ng_GadgetID=(UWORD)FPL_ADDITION_GADGET_ID;
       newgad.ng_Flags=PLACETEXT_IN;
       BUT(gad)=CreateGadget(BUTTON_KIND, BUT(gad), &newgad, TAG_END);
       BUT(array[gadgetcount].additiongadget)=BUT(gad);
@@ -373,8 +373,8 @@ int __regargs SetButton(ButtonStruct *Buttons)
     }
     newgad.ng_Width=BUT(string_width)*requestfontwidth;
     stringbredd+=newgad.ng_Width;
-    newgad.ng_LeftEdge=(SHORT)(breddcount+spaltcount*8+BUT(xoffset));
-    newgad.ng_GadgetID=(USHORT)count;
+    newgad.ng_LeftEdge=(WORD)(breddcount+spaltcount*8+BUT(xoffset));
+    newgad.ng_GadgetID=(UWORD)count;
     newgad.ng_Flags=PLACETEXT_RIGHT;
 
     if (stringbredd>bredd) {
@@ -445,11 +445,11 @@ int __regargs SetButton(ButtonStruct *Buttons)
   BUT(height)=BUT(antalrader)*(RequestFont->tf_YSize+(max(4,RequestFont->tf_YSize>>1)));
 
   if (BUT(OkCancel)) {
-    newgad.ng_TopEdge=(SHORT)(BUT(height)+BUT(yoffset));
-    newgad.ng_LeftEdge=(SHORT)BUT(xoffset);
+    newgad.ng_TopEdge=(WORD)(BUT(height)+BUT(yoffset));
+    newgad.ng_LeftEdge=(WORD)BUT(xoffset);
     newgad.ng_Width=requestfontwidth*9+2;
     newgad.ng_Height=RequestFont->tf_YSize+6;
-    newgad.ng_GadgetID=(USHORT)Ok_button_ID;
+    newgad.ng_GadgetID=(UWORD)Ok_button_ID;
     newgad.ng_GadgetText=RetString(STR_OK_GADGET);
     newgad.ng_Flags=PLACETEXT_IN;
     newgad.ng_UserData=NULL;
@@ -465,7 +465,7 @@ int __regargs SetButton(ButtonStruct *Buttons)
       newgad.ng_LeftEdge=BUT(bredd);
 
     newgad.ng_LeftEdge+=-9*(requestfontwidth)+BUT(xoffset);
-    newgad.ng_GadgetID=(USHORT)Cancel_button_ID;
+    newgad.ng_GadgetID=(UWORD)Cancel_button_ID;
     newgad.ng_GadgetText=RetString(STR_CANCEL_GADGET);
     BUT(gad)=CreateGadget(BUTTON_KIND, BUT(gad), &newgad, TAG_END);
     BUT(antalrader)++;
@@ -488,7 +488,7 @@ void __regargs ReadButtons(ButtonStruct *Buttons)
     gadget=BUT(array[count].gadget);
     if (!BUT(array[count].types) ||
         BUT(array[count].types)==ST_BOOL) {
-      if (gadget->Flags & SELECTED)
+      if (gadget->Flags & GFLG_SELECTED)
         BUT(array[count].flags)=1;
       else
         BUT(array[count].flags)=0;

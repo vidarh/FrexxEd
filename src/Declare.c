@@ -34,7 +34,7 @@
 #include "Command.h"
 #include "Declare.h"
 #include "Execute.h"
-#include "Fact.h"
+#include "FACT.h"
 #include "FrexxEd_rev.c"
 #include "Function.h" /* the struct FrexxEdFunction */
 #include "IDCMP.h"
@@ -45,7 +45,7 @@
 #include "Setting.h"
 #include "Init.h"
 #include "UpdtScreenC.h"
-#include "Buildmenu.h" /* for struct MenuInfo */
+#include "BuildMenu.h" /* for struct MenuInfo */
 #ifdef USE_FASTSCROLL
 #include "fastGraphics.h"
 #endif
@@ -216,8 +216,8 @@ struct Image SliderImage = {			/* Default */
 struct Gadget VertSlider = {			/* Default */
   NULL, -20, 20, 16, 20,
   NULL,
-  RELVERIFY|GADGIMMEDIATE,
-  PROPGADGET,                   /* Proportional Gadget */
+  GACT_RELVERIFY|GACT_IMMEDIATE,
+  GTYP_PROPGADGET,                   /* Proportional Gadget */
   NULL, 			  /* Slider Imagry */
   NULL,NULL,NULL,
   NULL,			  /* SpecialInfo structure */
@@ -228,9 +228,9 @@ struct Gadget VertSlider = {			/* Default */
 FrexxBorder borderdef = {
   {
     NULL, 0, 0, 8, 0,
-    GADGHBOX,
+    GFLG_GADGHBOX,
     NULL, //RELVERIFY,
-    BOOLGADGET,
+    GTYP_BOOLGADGET,
     NULL,
     NULL,NULL,NULL,
     NULL,
@@ -328,7 +328,7 @@ int visible_width=0;
 
 char *appiconname=NULL;
 
-static USHORT Image1Data[] = {
+static UWORD Image1Data[] = {
   0x00FF, 0xFFFF, 0xFFC0, 
   0x0080, 0x0FFC, 0x0000, 
   0x01C0, 0x07F8, 0x0000, 
@@ -412,7 +412,7 @@ struct Image AppIcon1 = {
   0, 0, 44, 38, 2, &Image1Data[0], 3, 0, NULL
 };
 
-static USHORT Image2Data[] = {
+static UWORD Image2Data[] = {
   0x00FF, 0xFFFF, 0xFFC0, 
   0x0080, 0x0FFC, 0x0000, 
   0x01C0, 0x07F8, 0x0000, 
@@ -503,7 +503,7 @@ struct DiskObject AppIconDObj =
     {                                            /* Embedded Gadget Structure */
         NULL,                                    /* Next Gadget Pointer */
         0, 0, 44, 39,                            /* Left,Top,Width,Height */
-        GADGHIMAGE,                              /* Flags */
+        GFLG_GADGHIMAGE,                              /* Flags */
         NULL,                                    /* Activation Flags */
         NULL,                                    /* Gadget Type */
         (APTR) & AppIcon1,                       /* Render Image */
@@ -585,7 +585,7 @@ struct Window *iconw=NULL;
 int BarHeight=0;
 int BorderWidth=-1, BorderHeight=-1;
 struct TextFont *font=NULL;
-SHORT charbredd, charhojd, baseline;
+WORD charbredd, charhojd, baseline;
 /*
 UWORD DRI[]={
  3,1, 1,2,

@@ -5,6 +5,9 @@
  * for the licensing conditions and responsibilities.
  */
 
+#include "UpdtScreen.h"
+#include "UpdtScreenC.h"
+
 struct FaceType {
   char  style; /* BOLD / ITALICS / UNDERLINE / NORMAL */
   short pen;   /* fg*256+bg */
@@ -127,11 +130,11 @@ struct FaceControl {
 #define ADD_IMPORTANT 16
 
 
-void __regargs StringMatchInit(BufStruct *storage,
-                    char *text,                 /* buffer line */
-                    struct screen_buffer *dest, /* destination storage */
-                    int offset,                 /* start offset */
-                    int line);			/* line */
+void StringMatchInit(BufStruct *storage,
+		     char *text,                 /* buffer line */
+		     struct screen_buffer *dest, /* destination storage */
+		     int offset,                 /* start offset */
+		     int line);			/* line */
 int __regargs StringMatchEnd(BufStruct *storage,
                              int line); /* returns TRUE if changed */
 void __regargs StringMatch(char byte, /* character in text */

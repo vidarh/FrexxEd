@@ -10,6 +10,8 @@
  *
  *********/
 
+#include "compat.h"
+
 void FirstOpen(void);
 void LastOpen(void);
 
@@ -19,7 +21,7 @@ void __regargs CloseLibraries(char *message);
 char __regargs *OpenMyScreen(WindowStruct *win);
 
 void CloseAll(char *string);
-void __saveds __asm CloseFrexxEd(register __a0 char *string);
+void CloseFrexxEd(register __a0 char *string);
 
 void PrintScreenInit(void);
 

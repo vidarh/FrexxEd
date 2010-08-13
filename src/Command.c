@@ -22,7 +22,7 @@
 #include <limits.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
@@ -82,7 +82,7 @@ extern FACT *DefaultFact;
 extern BOOL clear_all_currents;
 extern int ErrNo;		// Global Error value storage.
 
-int __regargs Command(BufStruct *Storage, cmd command, int Argc, char **Argv, int flags)
+int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
 {
   static int lastcounter=-1;
   static BOOL lastinsertmode=-1;

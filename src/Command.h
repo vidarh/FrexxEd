@@ -28,7 +28,7 @@
  * All commands are listed above as defines.
  *
  *********/
-int __regargs Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags);
+int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags);
 
 /**************************************************
 *

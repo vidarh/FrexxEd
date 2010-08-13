@@ -296,11 +296,11 @@ MatchAnyWhere(struct Face *face,
   return NULL; /* none found */
 }
 
-void __regargs StringMatchInit(BufStruct *storage,
-                    char *text,                 /* buffer line */
-                    struct screen_buffer *dest, /* destination storage */
-                    int offset,                 /* start offset */
-                    int line)			/* line */
+void StringMatchInit(BufStruct *storage,
+		     char *text,                 /* buffer line */
+		     struct screen_buffer *dest, /* destination storage */
+		     int offset,                 /* start offset */
+		     int line)			/* line */
 {
   screentext = text;
   screenstore = dest;

@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "Buf.h"
-#include "Fact.h"
+#include "FACT.h"
 #include "Fold.h"
 #include "Search.h"
 

@@ -10,6 +10,8 @@
  *
  *********/
 
+#include "UpdtScreenC.h"
+
 void __regargs SystemPrint(BufStruct *Storage, struct screen_buffer *buf, int len, int line);
 
 /********************************************************************

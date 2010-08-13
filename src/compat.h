@@ -1,6 +1,10 @@
 #ifndef __FREXXED_COMPAT_H
 #define __FREXXED_COMPAT_H
 
+// FIXME: This is blatantly a hack
+#define REG_A4 1
+
+
 #ifndef AMIGA
 #define __regargs
 #define __a0
@@ -79,12 +83,14 @@ struct Window {
 #define FALSE 0
 #define TRUE 1
 
+#else
+
+/* Amiga / AROS */
+
+#ifndef __reg
+#define __reg(x)
 #endif
 
-
-
-
-#ifdef __VBCC__
 #define __regargs
 
 #define __a0 __reg("a0")
@@ -119,7 +125,9 @@ struct Window {
 // We want to rely on the compiler to get this right except in exceptional cases
 #define __inline
 
-#endif
+#endif /* Amiga / AROS */
+
+
 
 #define FESIZE 32
 

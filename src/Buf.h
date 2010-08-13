@@ -72,7 +72,7 @@ typedef struct {
 typedef struct {	/* for the slider border */
   struct Gadget gadget;
   struct Border border1;
-  SHORT pairs1[10];
+  WORD pairs1[10];
 } FrexxBorder;
 
 
@@ -94,7 +94,7 @@ struct Script { /* FPL program structure */
 
 struct Kmap { /* Internal keymap-structure */
   int Qual;	      /* Qualifier info. ORed !!! */
-  USHORT Code;        /* RAWKEY values! */
+  UWORD Code;         /* RAWKEY values! */
   char *string;       /* Keymap string to invoke function */
   int Command;	      /* Function define from "Command.h"
   			 If linked list: pointer to a text. */

@@ -111,9 +111,9 @@ Fax:   +33 27595206
 
 /*** symbol export ***/
 
-BPTR __stdargs cloneWorkbenchPath(struct ExecBase *,
+BPTR cloneWorkbenchPath(struct ExecBase *,
  struct DosLibrary *, struct WBStartup *);
-void __stdargs freeWorkbenchPath(struct ExecBase *,
+void freeWorkbenchPath(struct ExecBase *,
  struct DosLibrary *, BPTR);
 
 #endif /* WBPATH_H */

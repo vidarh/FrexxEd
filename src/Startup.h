@@ -58,13 +58,7 @@ enum {
 };
 
 #ifndef LIB
-void __saveds __asm ParseArg(register __a0 char *string,
-                             register __a1 LONG *opts);
-
-void __regargs ReadKeyFile(void);
-
-int __saveds __asm secondmain(register __a0 long *opts,
-                              register __a1 char **fromwb);
-
-char __saveds *InitFrexxEd(void);
+void ParseArg(char *string, LONG *opts);
+int secondmain(long *opts, char **fromwb);
+char *InitFrexxEd(void);
 #endif

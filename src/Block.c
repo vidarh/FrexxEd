@@ -17,7 +17,7 @@
 #include <intuition/preferences.h>
 #include <libraries/iffparse.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/iffparse.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>

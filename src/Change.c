@@ -20,11 +20,11 @@
 #include <graphics/rastport.h>
 #include <intuition/intuition.h>
 #include <libraries/reqtools.h>
-#include <libraries/fpl.h>
+#include <libraries/FPL.h>
 #include <limits.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/fpl.h>
+#include <proto/FPL.h>
 #include <proto/graphics.h>
 #include <proto/icon.h>
 #include <proto/intuition.h>

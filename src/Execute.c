@@ -384,7 +384,7 @@ long __asm fpl_functions(register __a0 struct fplArgument *arg)
     ret=run_functions(arg);
   return(ret);
 }
-void __stdargs _CXOVF(void)
+void _CXOVF(void)
 {
 //  Ok_Cancel(NULL, "FrexxEd is out of stack!", "Ooops", NULL);
   longjmp(oldfplstackpoint, FPLERR_OUT_OF_MEMORY);
