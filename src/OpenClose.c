@@ -567,10 +567,11 @@ char __regargs *OpenLibraries()
   if(DebugOpt)
     FPrintf(Output(), "Open FPL\n");
 #endif
+#ifdef NO_STATIC_FPL
   FPLBase=OpenLibrary("fpl.library", 13); /* open fpl.library version 13 */
   if (!FPLBase || (FPLBase->lib_Version==13 && FPLBase->lib_Revision<0))
     return("open fpl.library v13");
-
+#endif
 #ifdef USE_FASTSCROLL
 #ifdef DEBUGTEST
   if(DebugOpt)
@@ -654,9 +655,11 @@ void __regargs CloseLibraries(char *string)
   if(DebugOpt)
     FPrintf(Output(), "Close libraries 3\n");
 #endif
+#ifdef NO_STATIC_FPL
   if (FPLBase) {
     CloseLibrary(FPLBase);
   }
+#endif
 #ifdef DEBUGTEST
   if(DebugOpt)
     FPrintf(Output(), "Close libraries 4\n");
