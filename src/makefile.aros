@@ -10,7 +10,7 @@ CC = gcc
 AS = gcc -c
 
 # Initial compile without PowerPacker or XPK support
-CFLAGS = -g -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
+CFLAGS = -g -Wall -c -unsigned-char -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
 LDFLAGS= -lamiga
 #-lreqtools 
 ASMFLAGS = -c

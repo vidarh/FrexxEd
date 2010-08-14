@@ -204,7 +204,7 @@ int main(int argc, char **argv)
           FreeMem(tempbuffer, MAX_LINE);
         }
         if (!opts[opt_ASK]) {
-          secondmain((LONG *)&opts, FromWb);
+          secondmain((long int *)&opts, FromWb);
           if(FromWb) {
             for(i=0; i<noof_files; i++) {
               if(files[i]) {

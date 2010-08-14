@@ -58,7 +58,7 @@ static void __regargs AddLinesCount(void)
 }
 
 
-static int __regargs FixLine(BufStruct *Storage, char *text, int length,
+static int __regargs FixLine(BufStruct *Storage, unsigned char *text, int length,
                              struct screen_buffer *dest, int offset, int line,
                              int view_line, BOOL face)
 {
@@ -352,7 +352,7 @@ int __regargs UpdtOneLineC(BufStruct *Storage, TextStruct *text,
 int __regargs UpdtLinesC(BufStruct *Storage, struct screen_buffer *dest,
                          int topline, int lines, int topoffset)
 {
-  char *rad;
+  unsigned char *rad;
   int length;
   int totallength=0;
 

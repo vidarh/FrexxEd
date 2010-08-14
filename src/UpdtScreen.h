@@ -66,7 +66,7 @@ int __regargs Col2Byte(BufStruct *Storage, int var, char *text, int length);
 * Returns (int) the screen length of (int) bytes of the string (char *).
 *
 *****/
-int __regargs Byte2Col(BufStruct *Storage, int var, char *text);
+int __regargs Byte2Col(BufStruct *Storage, int var, unsigned char *text);
 
 /*****************************************
 *

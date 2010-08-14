@@ -48,7 +48,7 @@ extern DefaultStruct Default;
 extern WORD sliderhighlite, statuscolor, statustextcolor;
 extern int UpDtNeeded;
 extern char cursorhidden;
-extern char *statusbuffer;
+extern unsigned char *statusbuffer;
 extern struct MsgPort *WindowPort;
 
 
@@ -240,7 +240,7 @@ void __regargs SystemPrint(BufStruct *Storage, struct screen_buffer *buf,
             fgText(rp, pos, printlen, fast_gfx_table);
           else
 #endif
-            Text(rp, pos, printlen);
+            Text(rp, (CONST_STRPTR)pos, printlen);
         }
       }      
     }
@@ -316,7 +316,7 @@ void __regargs Status(BufStruct *Storage, char *text, int mode)
       SetWrMsk(rp, (unsigned char)-1);
       SetBPen(rp, statuscolor);
 
-      pos=stccpy(statusbuffer, text, bredd+1)-1;
+      pos=stccpy((char *)statusbuffer, text, bredd+1)-1;
 
       if (pos<bredd) {
         memset(statusbuffer+pos, ' ', bredd-pos+1);
@@ -585,11 +585,11 @@ void __regargs CursorXY(BufStruct *Storage, int x, int y)
               xwidth=charbredd;
               ywidth=charhojd;
               if (Storage) {		// Räkna ut bredden på cursorn
-                register rad=BUF(curr_line);
+                int rad=BUF(curr_line);
                 if (rad<SHS(line) || BUF(string_pos)<LEN(rad)) {
-                  register char *line=RAD(rad);
+                  unsigned char *line=RAD(rad);
                   if (line) {
-                    register char tkn=line[BUF(string_pos)];
+                    unsigned char tkn=line[BUF(string_pos)];
                     if (!(BUF(using_fact)->flags[tkn]&fact_TAB)) {
                       tkn=BUF(using_fact)->length[tkn];
                       if (tkn>0) {		// Ändra bara om längden är större än noll.
