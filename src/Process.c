@@ -40,7 +40,6 @@ void process_starter(void)
    ReplyMsg((struct Message *)mess);
 }
 
-#warning M68k Specific mess used for the file handler follows.
 struct ProcMsg *start_process(fp, priority, stacksize, procname)
 long (*fp)(void);
 long priority,stacksize;
@@ -48,48 +47,20 @@ char *procname;
 {
    struct MsgPort *child_port;
    struct ProcMsg *start_msg;
-   struct FAKE_SegList *seg_ptr;
-   
-   /* Allocate memory for both fake seglist and startup message */
-   /* If either fail we can return, before the CreateProc()     */ 
-   seg_ptr = (struct FAKE_SegList *)AllocMem(sizeof (*seg_ptr), MEMF_PUBLIC);
-   if (seg_ptr == NULL) return NULL;
-   start_msg = (struct ProcMsg *)AllocMem(sizeof(struct ProcMsg), 
-                                          MEMF_PUBLIC|MEMF_CLEAR);
-   if (start_msg == NULL)
-   {
-      FreeMem(seg_ptr, sizeof (*seg_ptr));
-      return NULL;
-   }
-   
-   
-   /* Fill in Fake SegList */
-   seg_ptr->space = 0;
-   seg_ptr->length = (sizeof(*seg_ptr) + 3) & ~3;
-   seg_ptr->nextseg = 0;
-   
-   /* Fill in JMP to function */
-   seg_ptr->jmp = 0x4EF9;  /* JMP instruction */
-   seg_ptr->func = process_starter;
-   
-   /* If we're running under 2.0 it's possible to be on a 68040 */
-   /* Therefore the cache needs to be flushed before the child  */
-   /* can start executing.                                      */
-   if (SysBase->LibNode.lib_Version >= 36)
-      CacheClearU();
-      
-   /* create the child process */   
-   if((child_port = CreateProc(procname,
-                               priority,
-                               (BPTR)((long)&seg_ptr->nextseg>>2),
-                               stacksize)) == NULL)
-   {
-      /* error, cleanup and abort */
-      FreeMem(seg_ptr, sizeof(*seg_ptr));
-      FreeMem(start_msg, sizeof(*start_msg));
-      return NULL;
-   }
-   
+   struct Process *proc;
+
+   struct TagItem tags[] = {
+     NP_Entry, process_starter,
+     NP_Name, procname,
+     NP_StackSize, stacksize,
+     TAG_END,0
+   };
+
+   start_msg = (struct ProcMsg *)AllocMem(sizeof(struct ProcMsg),MEMF_PUBLIC|MEMF_CLEAR);
+   if (start_msg == NULL) return NULL;
+   if((proc = CreateNewProcTagList( tags)) == NULL) return NULL;
+   child_port = &proc->pr_MsgPort;
+
    /* Create the startup message */
    start_msg->msg.mn_Length = sizeof(struct ProcMsg) - sizeof(struct Message);
    start_msg->msg.mn_ReplyPort = CreatePort(0,0);
@@ -100,7 +71,7 @@ char *procname;
    start_msg->global_data = (void *)getreg(REG_A4);
 #endif
 
-   start_msg->seg = seg_ptr;
+   start_msg->seg = 0;
    start_msg->fp = fp;                 /* Fill in function pointer */
    
    /* send startup message to child */
@@ -117,15 +88,14 @@ struct ProcMsg *start_msg;
            
     /* Wait for child to reply, signifying that it is finished */
     while ((msg = (struct ProcMsg *)
-                   WaitPort(start_msg->msg.mn_ReplyPort)) != start_msg) 
-          ReplyMsg((struct Message *)msg);
+	    WaitPort(start_msg->msg.mn_ReplyPort)) != start_msg) 
+      ReplyMsg((struct Message *)msg);
 
     /* get return code */
     ret = msg->return_code;
 
     /* Free up remaining resources */
     DeletePort(start_msg->msg.mn_ReplyPort);
-    FreeMem((void *)start_msg->seg, sizeof(struct FAKE_SegList));
     FreeMem((void *)start_msg, sizeof(*start_msg));
 
     return(ret);
