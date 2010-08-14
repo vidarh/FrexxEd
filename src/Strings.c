@@ -264,8 +264,8 @@ AROS_UFC2(void, PutChProc,
 void PutChProc(register __d0 UBYTE ch, register __a3 APTR PutChData)
 #endif
 {
-  *(char *)PutChData = ch;
-  ++PutChData;
+  ((char **)PutChData)[0][0] = ch;
+  ++(*(char **)PutChData);
 }
 
 int __regargs Sprintf(char *buffer, char *format, ...)
@@ -274,7 +274,7 @@ int __regargs Sprintf(char *buffer, char *format, ...)
   va_start(args, format);
   /* FIXME: INLINE asm as hex? WTF?!? 0x4e75 is RTS, but what is 0x16c0? Need to look it up */
 
-  RawDoFmt(format, args, (void (*))PutChProc, buffer);
+  RawDoFmt(format, args, (void (*))PutChProc, &(buffer));
   va_end(args);
   return (int)strlen(buffer);
 }
