@@ -12,10 +12,10 @@
 
 #define COMPILE_DATE "(17.11.96)"
 #define COMPILE_TIME "10:15:07"
-#define COMPILE_REVISION 0
+#define COMPILE_REVISION 2
 #define COMPILE_VERSION 2
 #define PROGRAM_NAME "FrexxEd"
-#define PROGRAM_VER "2.0"
+#define PROGRAM_VER "2.2alpha"
 
 #define FREXXED_VER PROGRAM_NAME" "PROGRAM_VER
 
