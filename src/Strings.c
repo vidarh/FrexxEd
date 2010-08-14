@@ -256,8 +256,16 @@ char __regargs *RetString(String_Num string)
   return(retstring);
 }
 
-void foo()
+#ifdef AROS
+AROS_UFC2(void, PutChProc,
+	  AROS_UFCA(UBYTE, ch,      D0),
+	  AROS_UFCA(APTR , PutChData, A3))
+#else
+void PutChProc(register __d0 UBYTE ch, register __a3 APTR PutChData)
+#endif
 {
+  *(char *)PutChData = ch;
+  ++PutChData;
 }
 
 int __regargs Sprintf(char *buffer, char *format, ...)
@@ -265,7 +273,8 @@ int __regargs Sprintf(char *buffer, char *format, ...)
   va_list args;
   va_start(args, format);
   /* FIXME: INLINE asm as hex? WTF?!? 0x4e75 is RTS, but what is 0x16c0? Need to look it up */
-  RawDoFmt(format, args, (void (*))foo, buffer);
+
+  RawDoFmt(format, args, (void (*))PutChProc, buffer);
   va_end(args);
   return (int)strlen(buffer);
 }
