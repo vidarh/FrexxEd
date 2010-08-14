@@ -1128,17 +1128,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
       GetDimension(mode);
     }
     open_copywb=FALSE;
-    if (reg)
-      Sprintf(title, screen_title, FrexxName);
-    else {
-      register char *buf;
-      title=Realloc(title, 60);
-      if (title) {
-        Sprintf(title, "%s",
-                FrexxName);
-      } else
-        title=GlobalEmptyString;
-    }
+    Sprintf(title, screen_title, FrexxName);
   }
 
 #ifdef DEBUGTEST
