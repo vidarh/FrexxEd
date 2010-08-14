@@ -260,6 +260,7 @@ int __regargs Sprintf(char *buffer, char *format, ...)
 {
   va_list args;
   va_start(args, format);
+  /* FIXME: INLINE asm as hex? WTF?!? 0x4e75 is RTS, but what is 0x16c0? Need to look it up */
   RawDoFmt(format, args, (void (*))"\x16\xc0\x4e\x75", buffer);
   va_end(args);
   return (int)strlen(buffer);
