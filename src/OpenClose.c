@@ -785,7 +785,7 @@ void CloseFrexxEd(char *string)
     DeleteMsgPort(WindowPort);
   if (Default.KeyMapseg)
     UnLoadSeg(Default.KeyMapseg);
-  if (Default.olddirectory>=0)
+  if (Default.olddirectory!= -1)
     UnLock(CurrentDir(Default.olddirectory));
 
 #ifndef POOL_DEALLOC
