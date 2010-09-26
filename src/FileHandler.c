@@ -49,10 +49,10 @@ long FileHandler(void)
    struct MsgPort *replyport;
    struct Message *msg;
    struct DosPacket *pkt;
-   long out=0;
+   BPTR out=0;
    long res1, res2;
    int count;
-   
+
    DEB(out = Open("CON:510/0/520/80/Filehandler/CLOSE", MODE_OLDFILE));
 
    if(filehandlerport = CreatePort(0L, 0L))

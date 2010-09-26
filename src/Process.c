@@ -47,15 +47,20 @@ struct ProcMsg *start_process(long (* fp)(void), long priority, long stacksize, 
    struct Process *proc;
 
    struct TagItem tags[] = {
-     NP_Entry, process_starter,
-     NP_Name, procname,
-     NP_StackSize, stacksize,
-     TAG_END,0
+     {NP_Entry, process_starter},
+     {NP_Name, procname},
+     {NP_StackSize, stacksize},
+     {TAG_END,0}
    };
-
    start_msg = (struct ProcMsg *)AllocMem(sizeof(struct ProcMsg),MEMF_PUBLIC|MEMF_CLEAR);
-   if (start_msg == NULL) return NULL;
-   if((proc = CreateNewProcTagList( tags)) == NULL) return NULL;
+   if (start_msg == NULL) {
+     FPrintf(Output(),"ERROR: Out of memory. Unable to start process '%s'\n",procname);
+     return NULL;
+   }
+   if((proc = CreateNewProcTagList( tags)) == NULL) {
+     FPrintf(Output(),"ERROR: Unable to start process '%s'\n",procname);
+     return NULL;
+   }
    child_port = &proc->pr_MsgPort;
 
    /* Create the startup message */
@@ -66,6 +71,8 @@ struct ProcMsg *start_process(long (* fp)(void), long priority, long stacksize, 
 #ifdef REG_A4
    /* save global data reg (A4) */
    start_msg->global_data = (void *)getreg(REG_A4);
+#else
+   start_msg->global_data = 0;
 #endif
 
    start_msg->seg = 0;
