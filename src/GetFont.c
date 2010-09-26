@@ -115,7 +115,7 @@ int __regargs GetFont(BufStruct *Storage, char *fullfontname, int flag)
     return(FUNCTION_CANCEL);
 
   {
-    register count=strlen(fullfontname)-1;
+    int count=strlen(fullfontname)-1;
     while (fullfontname[count]==' ')
       count--;
     while (fullfontname[count]!=' ')

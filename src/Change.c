@@ -70,7 +70,7 @@ extern BlockStruct *BlockBuffer;
 extern DefaultStruct Default;
 extern FACT *DefaultFact;
 extern struct Setting **sets;
-extern antalsets;
+extern int antalsets;
 extern int Visible;
 extern char buffer[];
 extern struct rtFileRequester *FileReq; /* Buffrad Filerequester. Bra o ha! */

@@ -58,7 +58,7 @@ enum {
 };
 
 #ifndef LIB
-void ParseArg(char *string, LONG *opts);
-int secondmain(long *opts, char **fromwb);
+void ParseArg(char *string, IPTR *opts);
+int secondmain(IPTR *opts, char **fromwb);
 char *InitFrexxEd(void);
 #endif

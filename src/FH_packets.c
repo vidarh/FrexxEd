@@ -299,7 +299,7 @@ static __regargs __inline struct FileLock *LockBuffer(BPTR DirLock, BSTR Name, L
 }
 
 
-static __regargs __inline struct FrexxHandle *AllocFrexxHandle(BPTR DirLock, BSTR Name, BOOL update)
+static struct FrexxHandle *AllocFrexxHandle(BPTR DirLock, BSTR Name, BOOL update)
 {
    char *p;
    LONG len;
@@ -357,11 +357,11 @@ static __regargs struct SharedStruct *FindBufferBSTR(long lock, long bstrname)
   return len?Findfile(p, len):NULL;
 }
 
-__regargs long ReplyToPacket(struct DosPacket *Packet,
-                             struct DeviceList *dl,
-                             long *res1,
-                             long *res2,
-                             long out)
+long ReplyToPacket(struct DosPacket *Packet,
+		   struct DeviceList *dl,
+		   IPTR * res1,
+		   IPTR * res2,
+		   long out)
 {
   int msgargs[2];
   struct FileLock *lock;
@@ -390,7 +390,7 @@ __regargs long ReplyToPacket(struct DosPacket *Packet,
     DEB(FPrintf(out, " Mode: %ld %s\n", Packet->dp_Arg3, (Packet->dp_Arg3 == -1) ? "SHARED_LOCK/ACCESS_READ" : "EXCLUSIVE_LOCK/ACCESS_WRITE"));
 
     lock = filehandlerstop? NULL:
-      LockBuffer(Packet->dp_Arg1,
+      LockBuffer((BPTR)Packet->dp_Arg1,
                  (BSTR)Packet->dp_Arg2,
                  Packet->dp_Arg3);
     if(lock) {

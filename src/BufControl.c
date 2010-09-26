@@ -1282,7 +1282,7 @@ BufStruct * __regargs CheckBufID(BufStruct *BufferID)
     }
     if (!Storage) {
       register SharedStruct *shared=&Default.SharedDefault;
-      while (shared=shared->Next) {
+      while ((shared=shared->Next)) {
         if (shared==(SharedStruct *)BufferID) {
           Storage=shared->Entry;
           break;

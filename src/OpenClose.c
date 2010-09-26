@@ -1116,7 +1116,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
       newwindow.LeftEdge=win->real_window_xpos;
   
       if (win->window_position==WINDOW_VISIBLE) {
-        newwindow.TopEdge-=win->pubscreen->ViewPort.DyOffset; /* offset is negative */
+        newwindow.TopEdge-= win->pubscreen->ViewPort.DyOffset; /* offset is negative */
         newwindow.LeftEdge-=win->pubscreen->ViewPort.DxOffset;/* offset is negative */
       }
     } else {
@@ -1138,7 +1138,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   /* open screen */
   if (!cl_iconify && !win->iconify) {
     if (win->window==FX_SCREEN || win->window==FX_WINSCREEN) {
-      if (win->window==FX_WINSCREEN && screenwindow) {
+     if (win->window==FX_WINSCREEN && screenwindow) {
         win->screen_pointer=screenwindow;
         Dealloc(win->FrexxScreenName);
         win->FrexxScreenName=Strdup(screenwindow_name);
@@ -1220,7 +1220,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
     BarHeight=0;
     if (win->window!=FX_BACKDROP)
       BarHeight=win->screen_pointer->BarHeight;
-  
+
     SetupMinWindow(win);
     if (win->window!=FX_SCREEN) {
       if (win->real_window_width<win->window_minwidth)
@@ -1276,6 +1276,9 @@ char __regargs *OpenMyScreen(WindowStruct *win)
         str=title;
         str_s=title;
       }
+      // FIXME: AROS workaround
+      // newwindow.TopEdge += 20;
+      //newwindow.Height -= 20;
       if (!(win->window_pointer=(struct Window *)
                                     OpenWindowTags(&newwindow,
                                                    WA_AutoAdjust, TRUE,
@@ -1299,7 +1302,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
     win->real_window_height=win->window_pointer->Height;
   
     if (win->window==FX_BACKDROP)
-      WindowToFront(win->window_pointer);
+	  WindowToFront(win->window_pointer);
     zoomstate=win->window_pointer->Flags&WFLG_ZOOMED;
     activewindow=win->window_pointer;
     win->window_pointer->UserData="FrexxEd";
@@ -1414,7 +1417,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
              SIGBREAKF_CTRL_E |	// CTRL-E is sent as deiconify.
              (1 << TimerMP->mp_SigBit) |
              (1 << WindowPort->mp_SigBit);
-
 
   return(NULL);
 }

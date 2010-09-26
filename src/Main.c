@@ -93,7 +93,7 @@ struct Library __regargs *openlib(char *name, int version)
 *****/
 int main(int argc, char **argv)
 {
-  LONG opts[opt_COUNT];
+  IPTR opts[opt_COUNT];
   char **FromWb=NULL;
   char *tempbuffer;
   struct WBStartup *wbargmsg;
@@ -125,15 +125,15 @@ int main(int argc, char **argv)
         memset(opts, 0, opt_COUNT*sizeof(long));
         tempbuffer=AllocMem(MAX_LINE, MEMF_PUBLIC);
         if (tempbuffer) {
-          i = GetVar(FREXXED_ENVVAR, tempbuffer, MAX_LINE-2,
+          i = GetVar((CONST_STRPTR)FREXXED_ENVVAR, (STRPTR)tempbuffer, MAX_LINE-2,
                      GVF_GLOBAL_ONLY|GVF_LOCAL_ONLY);
           if(i>0) {
             tempbuffer[i]='\n'; /* make it end with newline!!! */
             tempbuffer[i+1]=0; /* ...but still zero terminated! */
-            ParseArg(tempbuffer, (LONG *)&opts);
+            ParseArg(tempbuffer, opts);
           }
           if(!argc) {
-            IconBase = OpenLibrary("icon.library", 36);
+            IconBase = OpenLibrary((STRPTR)"icon.library", 36);
             if (IconBase) {
             
               FromWb = argv; /* started from workbench */
@@ -148,18 +148,18 @@ int main(int argc, char **argv)
                     i<buffers;
                     i++, wbarg++) {
                   if(wbarg->wa_Lock) {
-                    if(!NameFromLock(wbarg->wa_Lock, tempbuffer,
-                                     MAX_LINE-strlen(wbarg->wa_Name)))
+                    if(!NameFromLock(wbarg->wa_Lock, (STRPTR)tempbuffer,
+                                     MAX_LINE-strlen((const char *)wbarg->wa_Name)))
                       continue;
           
                     ret = strlen(tempbuffer);
                     if(tempbuffer[ret-1] != '/' && tempbuffer[ret-1] != ':')
                       strcat(tempbuffer, "/"); /* append slash! */
           
-                    strcat(tempbuffer, wbarg->wa_Name); /* add filename to path */
+                    strcat(tempbuffer, (const char *)wbarg->wa_Name); /* add filename to path */
         
                     if(i) {
-                      register malloc_struct *mem;
+                      malloc_struct *mem;
                       /* do not include 'FrexxEd' ! */
                       ret = strlen(tempbuffer) +1;
                       mem=(malloc_struct *)AllocMem(ret+sizeof(malloc_struct), MEMF_PUBLIC);
@@ -171,13 +171,13 @@ int main(int argc, char **argv)
                         break; /* getting low on memory! */
                     }
         
-                    dobj = GetDiskObject(tempbuffer);
+                    dobj = GetDiskObject((CONST_STRPTR)tempbuffer);
                     if(dobj) {
                       lines=dobj->do_ToolTypes;
                       while(lines && *lines) {
                         strcpy(tempbuffer, *lines);
                         strcat(tempbuffer, "\n");
-                        ParseArg(tempbuffer, (LONG *)&opts);
+                        ParseArg(tempbuffer, opts);
                         lines++;
                       }
                       FreeDiskObject(dobj);
@@ -190,21 +190,21 @@ int main(int argc, char **argv)
             }
             CloseLibrary(IconBase);
           } else {
-            argsptr = ReadArgs(TEMPLATE, opts, NULL);
+            argsptr = ReadArgs((CONST_STRPTR)TEMPLATE, opts, NULL);
             if(!argsptr) {
               PrintFault(IoErr(), NULL); /* prints the appropriate err message */
               return(NULL);
             }
       
             if (opts[opt_ASK])
-              FPrintf(Output(), "%s\n", TEMPLATE+4);
+              FPrintf(Output(), (CONST_STRPTR)"%s\n", TEMPLATE+4);
             else
-              ParseArg(NULL, (LONG *)&opts);
+              ParseArg(NULL, opts);
           }
           FreeMem(tempbuffer, MAX_LINE);
         }
         if (!opts[opt_ASK]) {
-          secondmain((long int *)&opts, FromWb);
+          secondmain(opts, FromWb);
           if(FromWb) {
             for(i=0; i<noof_files; i++) {
               if(files[i]) {

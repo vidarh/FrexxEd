@@ -69,7 +69,6 @@ extern int bufferlen;
 extern DefaultStruct Default;
 extern char LoChar, HiChar;
 extern WORD charbredd, charhojd, baseline;
-extern char *statusbuffer;
 extern WORD sliderhighlite, statuscolor, statustextcolor;
 extern BOOL OwnWindow;
 extern struct TextFont *SystemFont;
@@ -326,7 +325,7 @@ int __regargs Col2Byte(BufStruct *Storage, int var, char *text, int length)
 *
 *****/
 
-int __regargs Byte2Col(BufStruct *Storage, int var, char *text)
+int __regargs Byte2Col(BufStruct *Storage, int var, unsigned char *text)
 {
   int blaj, len=0;
   for (blaj=0; blaj<var; blaj++) {
@@ -660,10 +659,10 @@ void __regargs Showname(BufStruct *Storage)
   if (BUF(window) && BUF(window)->Visible==VISIBLE_ON) {
     if (Visible==VISIBLE_ON) {
       if (SHS(name_number))
-        len+=Sprintf(buffer+len, "(%ld) ", SHS(name_number))-1;
+        len+=sprintf(buffer+len, "(%ld) ", SHS(name_number))-1;
     
       if (SHS(shared)>1)
-        len+=Sprintf(buffer+len, " #%ld ", BUF(view_number))-1;
+        len+=sprintf(buffer+len, " #%ld ", BUF(view_number))-1;
     
       buffer[len++]=' ';
       if (!SHS(filnamn[0])) {
@@ -680,8 +679,8 @@ void __regargs Showname(BufStruct *Storage)
             strcpy(buffer+bredd+3, buffer+len-bredd+3);
           }
         } else {
-          Sprintf(array, "%%-%02ds ", 30 - len);
-          Sprintf(&buffer[len], array, SHS(filnamn));
+          sprintf(array, "%%-%02ds ", 30 - len);
+          sprintf(&buffer[len], array, SHS(filnamn));
         }
       }
       Status(Storage, buffer, 1);
@@ -740,18 +739,18 @@ void __regargs Showplace(BufStruct *Storage)
             repeat=TRUE;
             break;
           case 'l':	// radnummer
-            len=Sprintf(&buffer[pointer], randomlength[hex], currentline);
+            len=sprintf(&buffer[pointer], randomlength[hex], currentline);
             pointer+=len;
             pad=5-len;
             break;
           case 'L':	// radnummer-sträng
-            pointer+=Sprintf(&buffer[pointer], RetString(STR_LINE));
+            pointer+=sprintf(&buffer[pointer], RetString(STR_LINE));
             break;
           case 'C':	// kolumn-sträng
-            pointer+=Sprintf(&buffer[pointer], RetString(STR_COL));
+            pointer+=sprintf(&buffer[pointer], RetString(STR_COL));
             break;
           case 'c':	// kolumn
-            len=Sprintf(&buffer[pointer], randomlength[hex], BUF(cursor_x)+BUF(screen_x));
+            len=sprintf(&buffer[pointer], randomlength[hex], BUF(cursor_x)+BUF(screen_x));
             pointer+=len;
             pad=4-len;
             break;
@@ -769,32 +768,32 @@ void __regargs Showplace(BufStruct *Storage)
               register char tkn=0;
               if (LEN(currentline)>BUF(string_pos))
                 tkn=*(RAD(currentline)+BUF(string_pos));
-              Sprintf(&buffer[pointer], set_length[hex], tkn);
+              sprintf(&buffer[pointer], set_length[hex], tkn);
             }
             pointer+=(hex?2:3);
             break;
           case 'P':	// Page
-            len=Sprintf(&buffer[pointer], randomlength[hex], (currentline-1)/Default.page_length+1);
+            len=sprintf(&buffer[pointer], randomlength[hex], (currentline-1)/Default.page_length+1);
             pointer+=len;
             pad=4-len;
             break;
           case 'p':	// Pagerad
-            Sprintf(&buffer[pointer], set_length[hex], (currentline-1)%Default.page_length+1);
+            sprintf(&buffer[pointer], set_length[hex], (currentline-1)%Default.page_length+1);
             pointer+=2;
             break;
   
           case 's':	// Size
-            len=Sprintf(&buffer[pointer], randomlength[hex], SHS(size));
+            len=sprintf(&buffer[pointer], randomlength[hex], SHS(size));
             pointer+=len;
             pad=5-len;
             break;
           case 'r':	// antal rader
-            len=Sprintf(&buffer[pointer], randomlength[hex], SHS(line));
+            len=sprintf(&buffer[pointer], randomlength[hex], SHS(line));
             pointer+=len;
             pad=5-len;
             break;
           case 'n':	// Ändringar
-            len=Sprintf(&buffer[pointer], randomlength[hex], SHS(changes));
+            len=sprintf(&buffer[pointer], randomlength[hex], SHS(changes));
             pointer+=len;
             pad=3-len;
             break;
@@ -822,11 +821,11 @@ void __regargs Showplace(BufStruct *Storage)
                 if (len>=0) {
                   register int value=ChangeAsk(Storage, len, NULL);
                   if (boolean) {
-                    pointer+=Sprintf(&buffer[pointer], "%lc", (((sets[len]->type&15)!=ST_STRING)?value:*(char *)value)?true_char:false_char);
+                    pointer+=sprintf(&buffer[pointer], "%lc", (((sets[len]->type&15)!=ST_STRING)?value:*(char *)value)?true_char:false_char);
                   } else {
-                    pointer+=Sprintf(&buffer[pointer],
+                    pointer+=sprintf(&buffer[pointer],
                                      ((sets[len]->type&15)==ST_STRING)?"%s":randomlength[hex],
-                                     value);
+                                     (char *)value);
                   }
                 }
               }
@@ -834,7 +833,7 @@ void __regargs Showplace(BufStruct *Storage)
             break;
 #ifdef DEBUGTEST
           case 'd':	//Debug
-            pointer+=Sprintf(&buffer[pointer], "%ld", BUF(cursor_y)+BUF(curr_topline)-1); // DEBUG
+            pointer+=sprintf(&buffer[pointer], "%ld", BUF(cursor_y)+BUF(curr_topline)-1); // DEBUG
             break;
 #endif
           default:
@@ -857,10 +856,8 @@ void __regargs Showplace(BufStruct *Storage)
     }
     buffer[pointer]=0;
   
-  
-  
 #ifdef STATUSTEST
-    Sprintf(&buffer[strlen(buffer)], " %ld", lapcount++);
+    sprintf(&buffer[strlen(buffer)], " %ld", lapcount++);
 #endif
   
     Status(Storage, buffer, 2);

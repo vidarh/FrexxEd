@@ -10,7 +10,7 @@
  *
  *********/
 
-int secondmain(long *, char **);
+int secondmain(IPTR *, char **);
 char *InitFrexxEd(void);
 void CloseFrexxEd(char *);
-void ParseArg(char *, LONG *);
+void ParseArg(char *, IPTR *);

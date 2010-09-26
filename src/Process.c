@@ -40,10 +40,7 @@ void process_starter(void)
    ReplyMsg((struct Message *)mess);
 }
 
-struct ProcMsg *start_process(fp, priority, stacksize, procname)
-long (*fp)(void);
-long priority,stacksize;
-char *procname;
+struct ProcMsg *start_process(long (* fp)(void), long priority, long stacksize, char * procname)
 {
    struct MsgPort *child_port;
    struct ProcMsg *start_msg;

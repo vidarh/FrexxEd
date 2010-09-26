@@ -12,10 +12,10 @@
  *
  *********/
 
-#define DEBUG_PACKETS 0 /* 1 == enable and display packet debugging */
+#define DEBUG_PACKETS 1 /* 1 == enable and display packet debugging */
 
-__regargs long ReplyToPacket(struct DosPacket *,
-                             struct DeviceList *, long *, long *, long);
+long ReplyToPacket(struct DosPacket *,
+		   struct DeviceList *, IPTR *, IPTR *, long);
 
 struct FrexxLock
 {

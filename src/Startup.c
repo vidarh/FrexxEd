@@ -57,7 +57,7 @@
 #include "UpdtScreen.h"
 
 #include "FileHandler.h"
-#include "process.h"
+#include "Process.h"
 
 extern void *Anchor;
 extern int editmax;     /* how many buffers we have */
@@ -87,14 +87,14 @@ extern BOOL open_copywb;
 extern char **FromWorkbench;
 extern jmp_buf return_stackpoint;
 
-static BufStruct __regargs *real_main(LONG *opts);
+static BufStruct *real_main(IPTR *opts);
 static void __regargs ReadInitFPL(BufStruct *Storage);
 
 /* filehandlerstuff: */
 extern struct ProcMsg *filehandlerproc;
 extern struct Task *FrexxEdTask;
 
-int secondmain(long *opts, char **fromwb)
+int secondmain(IPTR *opts, char **fromwb)
 {
   BufStruct *Storage;
   if (!setjmp(return_stackpoint)) {
@@ -115,7 +115,7 @@ int secondmain(long *opts, char **fromwb)
 
 char *InitFrexxEd()
 {
-  Default.olddirectory=-1;	// Pre-init.  Annars kan det krascha.
+  Default.olddirectory=(void *)-1;	// Pre-init.  Annars kan det krascha.
 #ifdef AMIGA
   {
     FrexxEdTask=FindTask(NULL);
@@ -146,7 +146,7 @@ char *InitFrexxEd()
 }
 
 
-static BufStruct __regargs *real_main(LONG *opts)
+static BufStruct *real_main(IPTR *opts)
 {
   BufStruct *Storage;
   BufStruct *activeStorage;
@@ -257,7 +257,7 @@ static BufStruct __regargs *real_main(LONG *opts)
   return(Storage);
 }
 
-void ParseArg(char *string, LONG *opts)
+void ParseArg(char *string, IPTR *opts)
 {
   struct RDArgs rdargs;
   struct RDArgs *result;
@@ -269,7 +269,7 @@ void ParseArg(char *string, LONG *opts)
 
     rdargs.RDA_Source.CS_Buffer = string;
     rdargs.RDA_Source.CS_Length = strlen(string);
-    result = ReadArgs(TEMPLATE, opts, &rdargs);
+    result = ReadArgs((UBYTE *)TEMPLATE, opts, &rdargs);
   }
   if(!string || result) {
     if(opts[opt_BACKDROP]) {
@@ -378,7 +378,7 @@ static void __regargs ReadInitFPL(BufStruct *Storage)
   struct Files *list=NULL;
   char *remember=NULL;
 //  BPTR lock;
-  ReturnCode result;
+  int result;
 
   if (Default.StartupFile[0]) {
     antalfiles=GetFileList(Storage, Default.StartupFile, &list, &remember, FALSE);
