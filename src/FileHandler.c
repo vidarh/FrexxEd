@@ -53,7 +53,7 @@ long FileHandler(void)
    long res1, res2;
    int count;
 
-   DEB(out = Open("CON:510/0/520/80/Filehandler/CLOSE", MODE_OLDFILE));
+   DEB(out = Open("CON:510/0/520/150/Filehandler/CLOSE", MODE_OLDFILE));
 
    if(filehandlerport = CreatePort(0L, 0L))
    {
@@ -84,10 +84,13 @@ long FileHandler(void)
              continue;
           }
           device_want_control = 1; /* please, gimme my semaphore! */
+	  DEB(FPrintf(out,"About to obtain semaphore\n"));
           ObtainSemaphore(&LockSemaphore);
+	  DEB(FPrintf(out,"Got it!\n"));
           device_want_control = 0; /* thanks, you can have it back now! */
           while(msg = GetMsg(filehandlerport))
           {
+	    DEB(FPrintf(out,"Got message\n"));
              pkt = (struct DosPacket *)msg->mn_Node.ln_Name;
              DEB(ReportPacket(pkt, out));
 
