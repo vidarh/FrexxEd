@@ -256,7 +256,7 @@ char __regargs *RetString(String_Num string)
   return(retstring);
 }
 
-#ifdef AROS
+#ifdef AROS_IS_THIS_NEEDED
 AROS_UFC2(void, PutChProc,
 	  AROS_UFCA(UBYTE, ch,      D0),
 	  AROS_UFCA(APTR , PutChData, A3))
