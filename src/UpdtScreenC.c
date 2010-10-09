@@ -29,7 +29,7 @@ static void __regargs FixLinesCount(BufStruct *Storage, long line)
   long rest;
   ((long *)nummer)[0]=32*(1+256+65536+16777216);
   ((long *)nummer)[1]=32*(1+256+65536+16777216);
-  *str++=':';
+  *str++=' ';
   do {
     rest=line%10;
     line=line/10;
