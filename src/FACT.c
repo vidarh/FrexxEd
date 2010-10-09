@@ -92,11 +92,11 @@ FACT __regargs *InitFACT(void)
   }
 
   fact->flags['\n']=fact_NEWLINE | fact_STRING;
-  fact->strings['\n']="\x00 \x00\x01";
-  fact->length['\n']=1;
+  fact->strings['\n']="";
+  fact->length['\n']=0;
 
   fact->flags['\t']=fact_TAB | fact_STRING;
-  fact->strings['\t']="\x00 \x00\x01";
+  fact->strings['\t']="\x01 \0x01";
   fact->length['\t']=1;
 
   fact->xflags['<']=fact->xflags['(']=fact->xflags['[']=fact->xflags['{']=factx_CLASS_OPEN|factx_CLASS_SYMBOL|factx_DEFAULT;
