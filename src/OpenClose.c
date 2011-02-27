@@ -580,14 +580,14 @@ char __regargs *OpenLibraries()
 #if 1
   FastGraphicsBase=OpenLibrary(FastGfxName, 1);
   if (!FastGraphicsBase)
-    FastGraphicsBase=OpenLibrary("FrexxEd:libs/"FastGfxName, 1);
+    FastGraphicsBase=OpenLibrary("ProgDir:libs/"FastGfxName, 1);
 #endif
 #ifdef DEBUGTEST
   if(DebugOpt) {
     if (FastGraphicsBase)
       FPrintf(Output(), "Found FastGraphics\n");
     else
-      FPrintf(Output(), "Didn't found FastGraphics\n");
+      FPrintf(Output(), "Didn't find FastGraphics\n");
   }
 #endif
 #endif

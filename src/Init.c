@@ -172,7 +172,7 @@ void InitDefaultBuf()
 /*  Default.screen_height=256;  Defined in FirstInit
     Default.screen_width=640;
 */
-  Default.defaultfile=Strdup("FrexxEd:FPL/FrexxEd.default");
+  Default.defaultfile=Strdup("ProgDir:FPL/FrexxEd.default");
   Default.StartupFile=Strdup("FrexxEd.FPL");
 
   Default.BufStructDefault.reg.r.reg2|=0x0211;	// Krypteringsövning
@@ -230,7 +230,7 @@ void InitDefaultBuf()
 
   Default.page_length=66;
 
-  Default.FPLdirectory=Strdup("|FrexxEd:FPL/");
+  Default.FPLdirectory=Strdup("|ProgDir:FPL/");
 
   Default.BufStructDefault.reg.r.reg2|=0x1024;	// Krypteringsövning
 

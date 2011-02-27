@@ -27,7 +27,7 @@ RetCode SetToolTypes(char *file, char **newtools);
 RetCode GetToolTypes(char *file, struct ToolInfo *tool);
 char CheckIcon(char *name);
 
-#define FREXXED_ICONDIR "FrexxEd:icons/"
+#define FREXXED_ICONDIR "ProgDir:icons/"
 #define FREXXED_NONE    ".none"
 #define FREXXED_DEFAULT ".default"
 #define FREXXED_APPICON ".appicon"

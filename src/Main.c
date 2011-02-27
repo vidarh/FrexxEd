@@ -68,7 +68,7 @@ struct Library __regargs *openlib(char *name, int version)
   char tempbuffer[80];
   struct Library *ret;
 
-  strcpy(tempbuffer, "FrexxEd:Libs/");
+  strcpy(tempbuffer, "ProgDir:Libs/");
   strcat(tempbuffer, name);
   if( ret = OpenLibrary( tempbuffer, version ) )
     return ret;
@@ -76,7 +76,7 @@ struct Library __regargs *openlib(char *name, int version)
   if( ret = OpenLibrary( name, version ) )
     return ret;
 
-  strcpy(tempbuffer, "FrexxEd:");
+  strcpy(tempbuffer, "ProgDir:");
   strcat(tempbuffer, name);
   ret = OpenLibrary( tempbuffer, version );
 

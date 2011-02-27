@@ -1061,7 +1061,7 @@ int __regargs LoadSetting(BufStruct *Storage, char *filename, int load)
       register struct FileLock *lock;
       LockBuf_release_semaphore(BUF(shared));
       if (!(lock=(struct FileLock *)Lock(file, ACCESS_READ))) {
-        strmfp(buffer, "FrexxEd:FPL", file);
+        strmfp(buffer, "ProgDir:FPL", file);
         strcpy(file, buffer);
         if (!(lock=(struct FileLock *)Lock(file, ACCESS_READ))) {
           ret=CANT_FIND_FILE;
