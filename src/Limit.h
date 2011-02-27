@@ -14,7 +14,6 @@
 
 #define ALLOC_OVERHEAD 50		/* Overhead of line allocation */
 #define ALLOC_STEP 3			/* Number of lines to alloc at buffer creation */
-#define KEYFILE "FrexxEd:FrexxEd.key"	/* Key file name */
 #define DEFAULTNAME "*noname*"		/* Default startup buffer name */
 #define LIB_REV 37			/* Lowest kickstart version supported */
 #define MAX_CHAR_LINE 2048		/* Buffer size */
