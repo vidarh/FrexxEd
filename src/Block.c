@@ -1408,7 +1408,7 @@ int __regargs BlockMovement(BufStruct *Storage)
       }
     }
     if (!stop) {
-      Sprintf(buffer, "%s (%ld)", string, move);
+      sprintf(buffer, "%s (%ld)", string, move);
       Status(Storage, buffer, 0x81);
       if (beginrad>0) {
         CursorXY(Storage, -1, -1);
