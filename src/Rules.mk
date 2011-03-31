@@ -1,5 +1,8 @@
 # This contains the generic (non-platform specific) rules for the FrexxEd makefile
 
+TARGET = Fred
+FREDLIB = # frexxed.library
+
 OBJS = \
  Alloc.o Block.o BufControl.o BuildMenu.o Button.o Change.o ClipBoard.o\
  Command.o Cursor.o Declare.o DoSearch.o Edit.o\

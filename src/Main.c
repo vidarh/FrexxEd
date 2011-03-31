@@ -19,6 +19,7 @@
  *  CloseFrexxEd(char *)        i OpenClose.c
  *
  *********/
+#ifdef AMIGA
 #include <dos/rdargs.h>
 #include <exec/execbase.h>
 #include <exec/memory.h>
@@ -27,10 +28,12 @@
 #include <proto/dos.h>
 #include <proto/exec.h>
 #include <proto/icon.h>
+#include <workbench/workbench.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <workbench/workbench.h>
 
 #include "compat.h"
 #include "Startup.h"

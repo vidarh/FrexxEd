@@ -6,11 +6,14 @@
  */
 /* Copyright (c) 1994 Doug Walker, Raleigh, NC */
 /* All Rights Reserved. */
+
+#ifdef AMIGA
 #include <dos/dos.h>
 #include <exec/memory.h>
 #include <exec/execbase.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#endif
 
 /* Dismount a volume */
 void DisMount(struct DeviceList *volume)

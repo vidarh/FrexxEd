@@ -17,6 +17,7 @@
 #include <graphics/gfxmacros.h>
 #undef GetOutlinePen
 #include <proto/graphics.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include "Buf.h"
@@ -28,7 +29,6 @@
 #include "UpdtScreen.h"
 #include "UpdtScreenC.h"
 #include "WindowOutput.h"
-#endif
 
 extern struct BitMap EmptyBitMap;
 extern struct TextFont *SystemFont;

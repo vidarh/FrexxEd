@@ -8,6 +8,7 @@
  * ARexx interface setup routines...
  */
 
+#ifdef AMIGA
 #include <exec/types.h>
 #include <exec/nodes.h>
 #include <exec/lists.h>
@@ -26,6 +27,7 @@
 #include <rexx/errors.h>
 #include <string.h>
 #include <clib/alib_protos.h>
+#endif
 
 extern char DebugOpt;
 

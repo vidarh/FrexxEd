@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <devices/console.h>
 #include <dos/dos.h>
 #include <exec/io.h>
@@ -32,6 +33,8 @@
 #include <proto/iffparse.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

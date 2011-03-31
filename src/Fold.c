@@ -112,7 +112,6 @@ int __regargs FoldShow(BufStruct *Storage, int line)
       line++;
     }
   }
-skip:
   TestCursorPos(Storage);
   UpdateDupScreen(Storage);
   return(OK);

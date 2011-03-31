@@ -10,10 +10,13 @@
  *
  ***********/
 
+#ifdef AMIGA
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

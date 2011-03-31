@@ -45,16 +45,29 @@ typedef unsigned long BPTR;
 
 // FIXME: These are AmigaOS structures that need proper definitions, or to be replaced.
 
+extern struct Library * IFFParseBase;
+
+struct FontPrefs {
+};
+struct ContextNode {
+    int cn_ID;
+};
 struct Gadget { 
     int GadgetID;
     void * UserData;
     void * SpecialInfo;
+    int Flags;
 };
 struct PropInfo { };
 struct Image { };
 struct Border { };
 struct DateStamp {};
-struct TextAttr {};
+struct TextAttr {
+    const char *ta_Name;
+    int ta_YSize;
+    int ta_Style;
+    int ta_Flags;
+};
 struct ExecBase {
     struct { 
         int lib_Version;
@@ -95,12 +108,20 @@ struct NewMenu {
     void * nm_UserData;
 };
 
+struct RastPort {
+};
 struct Window {
     struct Gadget * FirstGadget;
+    struct RastPort * RPort;
     int Width;
     int Height;
     int MinHeight;
     void * UserPort;
+};
+struct TextFont {
+    int tf_YSize;
+    int tf_XSize;
+    int tf_Flags;
 };
 
 // FIXME: Arbitrary value
@@ -153,6 +174,29 @@ struct Window {
 #define MODE_OLDFILE 0
 #define ACCESS_READ 0
 #define SHARED_LOCK 0
+#define STRINGA_Justification 0
+#define GA_TabCycle 0
+#define GTCY_Labels 0
+#define GT_Underscore 0
+#define GA_Disabled 0
+#define GTIN_Number 0
+#define GTCB_Checked 0
+
+#define FSF_UNDERLINED 0
+#define FPF_PROPORTIONAL 0
+#define FSF_BOLD 0
+#define FSF_ITALIC 0
+#define FPF_DESIGNED 0
+
+#define ID_PREF 0
+#define ID_PRHD 0
+#define ID_FONT 0
+#define ID_FORM 0
+#define IFFF_READ 0
+#define IFFPARSE_STEP 0
+#define IFFERR_EOC 0
+
+#define COMPLEMENT 0
 #else
 
 /* Amiga / AROS */

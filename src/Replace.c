@@ -10,9 +10,11 @@
 *
 ********/
 
+#ifdef AMIGA
 #include <exec/types.h>
-#include <limits.h>
 #include <proto/FPL.h>
+#endif
+#include <limits.h>
 #include <string.h>
 
 #include "Buf.h"

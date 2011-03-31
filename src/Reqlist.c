@@ -12,6 +12,7 @@
  *
  ******/
 
+#ifdef AMIGA
 #include <devices/console.h>
 #include <devices/inputevent.h>
 #include <exec/execbase.h>
@@ -31,9 +32,11 @@
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>
+#include <utility/hooks.h>
+#endif
+
 #include <stdarg.h>
 #include <string.h>
-#include <utility/hooks.h>
 
 #include "Buf.h"
 #include "Alloc.h"

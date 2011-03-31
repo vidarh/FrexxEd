@@ -12,7 +12,10 @@
 *
 ********/
 
+#ifdef AMIGA
 #include <exec/types.h>
+#endif
+
 #include <stdio.h>
 #include "Buf.h"
 #include "UpdtScreen.h"

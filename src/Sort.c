@@ -5,7 +5,10 @@
  * for the licensing conditions and responsibilities.
  */
 
+#ifdef AMIGA
 #include <proto/utility.h>
+#endif
+
 #include <string.h>
 #include <math.h>
 

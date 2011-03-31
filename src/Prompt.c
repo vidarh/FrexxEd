@@ -14,6 +14,7 @@
 
 #include "Buf.h"
 
+#ifdef AMIGA
 #include <libraries/dos.h>
 #include <clib/exec_protos.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@
 #include <libraries/FPL.h>
 #include <proto/reqtools.h>
 #include <proto/FPL.h>
+#endif
 
 #include "Alloc.h"
 #include "Reqlist.h"

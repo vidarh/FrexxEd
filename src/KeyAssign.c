@@ -10,6 +10,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <exec/io.h>
 #include <exec/types.h>
 #include <exec/execbase.h>
@@ -20,6 +21,8 @@
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
