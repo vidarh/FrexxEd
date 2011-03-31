@@ -105,7 +105,6 @@ struct Window {
 
 // FIXME: Arbitrary value
 #define MEMF_ANY 0
-#define S_IWRITE 0
 
 #define FALSE 0
 #define TRUE 1
@@ -150,6 +149,10 @@ struct Window {
 #define WFLG_DEPTHGADGET 0
 #define WFLG_ACTIVATE 0
 #define INTEGER_KIND 0
+#define MODE_NEWFILE 0
+#define MODE_OLDFILE 0
+#define ACCESS_READ 0
+#define SHARED_LOCK 0
 #else
 
 /* Amiga / AROS */

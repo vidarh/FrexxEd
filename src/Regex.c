@@ -32,7 +32,7 @@
 #include "FACT.h"
 #include "Fold.h"
 #include "Search.h"
-#include "regex.h"
+#include "Regex.h"
 
 extern FACT *UsingFact;
 extern void *Anchor;
@@ -837,7 +837,6 @@ re_compile_pattern (signed char *pattern,
     case '+':
     case '?':
       /* fall through */
-    handle_plus:
     case '*':
       /* If there is no previous pattern, char not special. */
       if (!laststart)
@@ -1098,7 +1097,6 @@ re_compile_pattern (signed char *pattern,
         /* fall through! */
         
       default:
-      normal_backsl:
         /* You might think it would be useful for \ to mean
            not to translate; but if we don't translate it
            it will never match anything.  */

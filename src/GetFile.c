@@ -10,6 +10,12 @@
  *
  *********/
 
+#ifndef AMIGA
+#define NO_XPK
+#define NO_PPACKER
+#endif
+
+#ifdef AMIGA
 #include <clib/exec_protos.h>
 #include <clib/intuition_protos.h>
 #include <dos/dos.h>
@@ -45,6 +51,8 @@
 
 #include <proto/reqtools.h>
 #include <proto/utility.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,7 +70,9 @@
 #include "GetFile.h"
 #include "Hook.h"
 #include "IDCMP.h"
+#ifdef AMIGA
 #include "Icon.h"
+#endif
 #include "Init.h"
 #include "Limit.h"
 #include "Request.h"
@@ -416,11 +426,11 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
   return(ret);
 }
 
-int __regargs Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
+int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
 {
   struct FileHandle *filewrite;
   String fileblock={NULL, 0};
-  __aligned struct FileInfoBlock fileinfo;
+  struct FileInfoBlock fileinfo;
   BPTR lock;
   int counter, ret=OK;
   int slask;
@@ -663,8 +673,10 @@ int __regargs Save(BufStruct *Storage, int flag, char *string, char *file, char 
             UnLock(lock);
           }
         }
+#ifdef AMIGA
         if(parent)
           MakeIcon(text);
+#endif
       }
     } else
       DeleteFile(falsefilename);
@@ -1101,8 +1113,8 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
             if (fileret==-1) {
               ret=OPEN_ERROR;
             } else {
-              char *prog;
 #ifndef NO_PPACKER
+              char *prog;
               if (Default.unpack && PPBase) {
                 if (size>=4 && (*(int *)program)==(*(int *)"PP20")) {
                   int newsize=(*(int *)((int)program+size-4)) >> 8;
@@ -1165,7 +1177,7 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
 
   return(ret);
 }
-void __regargs GiveProtection(int fileprotection, char *output)
+void GiveProtection(int fileprotection, char *output)
 {
   if (fileprotection & S_IARCHIVE)
     *output++='a';
@@ -1196,13 +1208,13 @@ void __regargs GiveProtection(int fileprotection, char *output)
  * argument as this function's fourth argument.
  *
  ********/
-int __regargs GetFileList(BufStruct *Storage,
-			  UBYTE *wildcard,    /* pattern pointer! */
-			  struct Files **list, /* list to read names from! */
-			  char **remember, /* allocremember pointer pointer */
-			  int checkname)
+int GetFileList(BufStruct *Storage,
+                UBYTE *wildcard,    /* pattern pointer! */
+                struct Files **list, /* list to read names from! */
+                char **remember, /* allocremember pointer pointer */
+                int checkname)
 {
-  __aligned char plats[sizeof(struct AnchorPath)+FILESIZE];
+    char plats[sizeof(struct AnchorPath)+FILESIZE];
   struct AnchorPath *file=(struct AnchorPath *)&plats;
   int ret=OK;
   int number=0;
@@ -1266,10 +1278,10 @@ int __regargs GetFileList(BufStruct *Storage,
 *  namebuffer är en pekare var det riktiga namnet ska lagras (inkl path).
 *
 ************/
-int __asm CheckAndPrompt(register __a5 BufStruct *Storage,
-                         register __a0 char *name,
-                         register __d0 int checkname,
-                         register __a1 char *namebuffer)
+int CheckAndPrompt(register __a5 BufStruct *Storage,
+                   register __a0 char *name,
+                   register __d0 int checkname,
+                   register __a1 char *namebuffer)
 {
   int ret=OK;
 
@@ -1313,43 +1325,7 @@ int __asm CheckAndPrompt(register __a5 BufStruct *Storage,
   return(ret);
 }
 
-int __regargs Stcgfn(char *name, char *filename)
-{
-  register int len=0;
-
-  if (filename) {
-    while (*filename && len<FILESIZE) {/* Vänta till namnet är slut */
-      name[len]=*filename;	/* Kopiera namnet */
-      len++;			/* Öka längden av resultatet */
-      if (*filename==':' || *filename=='/') /* Kolla efter ':' eller '/' */
-        len=0;			/* Börja om kopieringen från början */
-      filename++;			/* Öka på räknaren av namnet */
-    }
-  }
-  name[len]=0;			/* Nollbyte på slutet */
-  return(len);			/* Returnera längden av filnamnet */
-}
-
-int __regargs Stcgfp(char *path, char *filename)
-{
-  register int len=0;
-  register int lastend=0;
-
-  if (filename) {
-    while (*filename && len<FILESIZE) {/* Vänta till namnet är slut */
-      path[len]=*filename;	/* Kopiera namnet */
-      len++;			/* Öka längden av resultatet */
-      if (*filename==':' || *filename=='/') /* Kolla efter ':' eller '/' */
-        lastend=len;		/* Spara positionen för slut av möjlig path */
-      filename++;			/* Öka på räknaren av namnet */
-    }
-  }
-  path[lastend]=0;		/* Nollbyte på slutet */
-  return(lastend);		/* Returnera längden av pathen */
-}
-
-
-int __regargs RenameBuf(BufStruct *Storage, char *name)
+int RenameBuf(BufStruct *Storage, char *name)
 {
   if (Split(BUF(shared), name))
     CheckName(Storage, FALSE, TRUE, NULL);	// New name given.
@@ -1359,24 +1335,8 @@ int __regargs RenameBuf(BufStruct *Storage, char *name)
   return(OK);
 }
 
-/* Returns number of chars to skip (includes the '|' and '&', so to say) */
-int __regargs GetWildWord(char *from, char *store)
-{
-  register int len=0;
-  
-  while (*from) {
-    len++;
-    if (*from=='|' || *from=='&')
-      break;
-    *store++=*from++;
-  }
-  *store=0;
-  return(len);
-}
-
-
 /*  Change the current directory */
-void __regargs ChangeDirectory(char *dir)
+void ChangeDirectory(char *dir)
 {
   register BPTR newlock;
   register BOOL store=TRUE;
