@@ -291,8 +291,10 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
 
   }
   if (win->window_pointer) {
+#ifndef AROS /* All AROS versions have GadTools w/LayoutMenus */
     if (SysBase->LibNode.lib_Version < 39)
       FrexxLayoutMenues(win->menus, TRUE);
+#endif
  
     if(!(LayoutMenus(win->menus, win->visualinfo,
                      GTMN_TextAttr, &Default.RequestFontAttr,
@@ -661,7 +663,7 @@ int __regargs MenuAdd(int argc, char **strings)
   return(ret);
 }
 
-
+#ifndef AROS
 void __regargs FrexxLayoutMenues(struct Menu *menucount, int add)
 {
   struct MenuItem *itemcount;
@@ -698,7 +700,7 @@ void __regargs FixIntuiText(struct MenuItem *item, int add)
       own->itextpatch->NextText=NULL;
   }
 }
-
+#endif
 
 
 /* Skicka in första itemet */
