@@ -8,7 +8,7 @@ OBJS = \
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
  Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o WinSign.o WindowOutput.o
+ UpdtScreenC.o WinSign.o WindowOutput.o SearchUI.o SearchHistory.o
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o

@@ -15,6 +15,7 @@
 				     a memory pool! */
 
 #include "compat.h"
+#include "Buf.h"
 
 /************************************************
 *
@@ -25,21 +26,21 @@
 **********/
 #ifndef alloctest
 char __regargs *Myalloc(int size);
-void __regargs *Mymalloc(int size);
-void __regargs Mydealloc(void *mem);
-void __regargs *Mystrdup(char *str);
-void __regargs *MyMemdup(char *str, int len);
+void  *Mymalloc(int size);
+void  Mydealloc(void *mem);
+void  *Mystrdup(char *str);
+void  *MyMemdup(char *str, int len);
 #define Alloc(x) Myalloc(x)
 #define Malloc(x) Mymalloc(x)
 #define Dealloc(x) Mydealloc(x)
 #define Strdup(x) Mystrdup(x)
 #define Memdup(x, y) MyMemdup(x, y)
 #else
-char __regargs *Myalloc(int size, int line, char *file);
-void __regargs *Mymalloc(int size, int line, char *file);
-void __regargs Mydealloc(void *mem, int line, char *file);
-void __regargs *Mystrdup(char *str, int line, char *file);
-void __regargs *MyMemdup(char *str, int len, int line, char *file);
+char  *Myalloc(int size, int line, char *file);
+void  *Mymalloc(int size, int line, char *file);
+void  Mydealloc(void *mem, int line, char *file);
+void  *Mystrdup(char *str, int line, char *file);
+void  *MyMemdup(char *str, int len, int line, char *file);
 #define Alloc(x) Myalloc(x, __LINE__, __FILE__)
 #define Malloc(x) Mymalloc(x, __LINE__, __FILE__)
 #define Dealloc(x) Mydealloc(x, __LINE__, __FILE__)
@@ -79,8 +80,8 @@ void __asm FPLfree(register __a1 void *mem,
 void * __asm FPLmalloc(register __d0 int size,
                        register __a0 struct UserData *);
 
-char __regargs *OwnAllocRemember(char **remember, int size);
-void __regargs OwnFreeRemember(char **remember);
+char  *OwnAllocRemember(char **remember, int size);
+void  OwnFreeRemember(char **remember);
 
 /************************************************
 *
@@ -97,7 +98,7 @@ void __regargs OwnFreeRemember(char **remember);
 *  Performs a free.
 *
 **********/
-void __regargs DeallocLine(BufStruct *Storage, int rad);
+void  DeallocLine(BufStruct *Storage, int rad);
 
 /************************************************
 *
@@ -106,8 +107,8 @@ void __regargs DeallocLine(BufStruct *Storage, int rad);
 *  Performs a realloc.
 *
 **********/
-char __regargs *Realloc(char *mem, int size);
-char __regargs *Remalloc(char *mem, int size);
+char  *Realloc(char *mem, int size);
+char  *Remalloc(char *mem, int size);
 
 /************************************************
 *
@@ -116,7 +117,7 @@ char __regargs *Remalloc(char *mem, int size);
 *  Performs a realloc.
 *
 **********/
-char __regargs *ReallocLine(SharedStruct *shared, int rad, int size);
+char  *ReallocLine(SharedStruct *shared, int rad, int size);
 
 /***************************************************
 *
@@ -125,7 +126,7 @@ char __regargs *ReallocLine(SharedStruct *shared, int rad, int size);
 *  Fyll igen alla hål i fileblocket.
 *  Returnerar ett 'ret'värde.
 *******/
-int __regargs CleanUp(BufStruct *Storage);
+int  CleanUp(BufStruct *Storage);
 
 /***************************************************
 *
@@ -136,7 +137,7 @@ int __regargs CleanUp(BufStruct *Storage);
 *  Returnerar ett ret-värde.
 *
 *******/
-int __regargs CompactBuf(SharedStruct *shared, String *retstring);
+int  CompactBuf(SharedStruct *shared, String *retstring);
 
 typedef struct {
   int size;
@@ -160,7 +161,7 @@ typedef struct {
 #define MUNGWALL_PREVALUE  0x65872abc
 #define MUNGWALL_POSTVALUE 0x72fab1de
 
-void __regargs CheckAllocs(char *firstalloc);
+void  CheckAllocs(char *firstalloc);
 #endif
 
 
@@ -172,7 +173,7 @@ struct AllocCache {
 };
 
 
-void __regargs FreeCache(void);
+void  FreeCache(void);
 
-char __regargs *FreeXMem(int size, char *order);
+char  *FreeXMem(int size, char *order);
 
