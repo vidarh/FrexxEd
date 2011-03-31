@@ -12,6 +12,7 @@
 *
 *****/
 
+#ifdef AMIGA
 #include <graphics/rastport.h>
 #include <graphics/gfxmacros.h>
 #undef GetOutlinePen
@@ -19,6 +20,8 @@
 #include <intuition/intuitionbase.h>
 #include <intuition/screens.h>
 #include <proto/graphics.h>
+#endif
+
 #include <string.h>
 
 #include "Buf.h"
@@ -31,7 +34,6 @@
 #include "UpdtScreen.h"
 #include "WindowOutput.h"
 
-extern struct GfxBase *GfxBase;
 extern char buffer[];
 extern DefaultStruct Default;
 extern char CursorOnOff;

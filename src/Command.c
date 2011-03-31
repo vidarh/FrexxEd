@@ -12,6 +12,7 @@
 *
 *******/
 
+#ifdef AMIGA
 #include <dos/datetime.h>
 #include <dos/dos.h>
 #include <exec/memory.h>
@@ -27,13 +28,15 @@
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <proto/graphics.h>
 #undef GetOutlinePen
 #include <graphics/gfxmacros.h>
 #include <graphics/rastport.h>
+
+#endif
+
+#include <stdio.h>
+#include <string.h>
 
 #include "IncludeAll.h"
 

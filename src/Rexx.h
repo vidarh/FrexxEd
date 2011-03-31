@@ -13,6 +13,7 @@
 #ifndef	SIMPLE_REXX_H
 #define	SIMPLE_REXX_H
 
+#ifdef AMIGA
 #include	<exec/types.h>
 #include	<exec/nodes.h>
 #include	<exec/lists.h>
@@ -20,6 +21,7 @@
 
 #include	<rexx/storage.h>
 #include	<rexx/rxslib.h>
+#endif
 
 /*
  * This is the handle that SimpleRexx will give you

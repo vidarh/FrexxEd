@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <clib/gadtools_protos.h>
 #include <devices/console.h>
 #include <exec/execbase.h>
@@ -24,17 +25,19 @@
 #include <libraries/dos.h>
 #include <libraries/FPL.h>
 #include <libraries/gadtools.h>
-#include <math.h>
 #include <proto/exec.h>
 #include <proto/FPL.h>
 #include <proto/gadtools.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
+#include <utility/tagitem.h>
+#endif
+
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <utility/tagitem.h>
 
 #include "Buf.h"
 #include "Alloc.h"

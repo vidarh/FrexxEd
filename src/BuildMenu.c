@@ -293,7 +293,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
   if (win->window_pointer) {
     if (SysBase->LibNode.lib_Version < 39)
       FrexxLayoutMenues(win->menus, TRUE);
-  
+ 
     if(!(LayoutMenus(win->menus, win->visualinfo,
                      GTMN_TextAttr, &Default.RequestFontAttr,
                      GTMN_NewLookMenus, TRUE,
