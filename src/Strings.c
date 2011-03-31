@@ -13,10 +13,13 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <exec/libraries.h>
 #include <proto/exec.h>
 #include <libraries/locale.h>
 #include <proto/locale.h>
+#endif
+
 #include <stdarg.h>
 #include <string.h>
 

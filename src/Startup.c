@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <dos/rdargs.h>
 #include <exec/execbase.h>
 #include <exec/ports.h>
@@ -32,12 +33,14 @@
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/icon.h>
+
+#include <dos/dostags.h> /* for the CreateNewProc() tags! */
+#endif
+
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <dos/dostags.h> /* for the CreateNewProc() tags! */
 
 #include "Buf.h"
 #include "Alloc.h"

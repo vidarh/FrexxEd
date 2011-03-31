@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef AMIGA
 #include <exec/memory.h>
 #include <libraries/dosextens.h>
 #include <exec/execbase.h>
@@ -16,6 +18,7 @@
 #include <proto/dos.h>
 
 extern struct ExecBase *SysBase;
+#endif
 
 struct FAKE_SegList {
    long space;

@@ -10,6 +10,7 @@
 *
 **********/
 
+#ifdef AMIGA
 #include <devices/keymap.h>
 #include <dos/dos.h>
 #include <dos/dosextens.h>
@@ -30,6 +31,8 @@
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/wb.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

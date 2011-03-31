@@ -10,14 +10,17 @@
 *
 ********/
 
+#ifdef AMIGA
 #include <clib/exec_protos.h>
 #include <exec/tasks.h>
 #include <exec/types.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
+#include <proto/FPL.h>
+#endif
+
 #include <limits.h>
 #include <math.h> 
-#include <proto/FPL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

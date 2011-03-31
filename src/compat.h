@@ -96,9 +96,10 @@ struct NewMenu {
 };
 
 struct Window {
-  int Width;
-  int Height;
-  int MinHeight;
+    struct Gadget * FirstGadget;
+    int Width;
+    int Height;
+    int MinHeight;
     void * UserPort;
 };
 

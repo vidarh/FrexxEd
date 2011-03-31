@@ -12,7 +12,7 @@
  *
  ******/
 
-
+#ifdef AMIGA
 #include <exec/types.h>
 #include <graphics/gfxmacros.h>
 #undef GetOutlinePen
@@ -28,6 +28,7 @@
 #include "UpdtScreen.h"
 #include "UpdtScreenC.h"
 #include "WindowOutput.h"
+#endif
 
 extern struct BitMap EmptyBitMap;
 extern struct TextFont *SystemFont;

@@ -28,9 +28,6 @@ antal antal-byte, antal byte, strängen
 
 
 #include <string.h>
-#include <proto/exec.h>
-#include <exec/types.h>
-#include <exec/memory.h>
 #include <stdio.h>
 
 #include "Buf.h"

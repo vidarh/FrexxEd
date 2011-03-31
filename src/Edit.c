@@ -34,9 +34,11 @@
 #include "UpdtScreenC.h"
 #include "WindowOutput.h"
 
+#ifdef AMIGA
 #include <intuition/preferences.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+#endif
 
 extern char CursorOnOff;
 extern struct IOStdReq *WriteReq;
