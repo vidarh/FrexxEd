@@ -3,6 +3,9 @@
 #
 
 UNAME := $(shell uname)
+ifndef OS
+OS    := $UNAME
+endif
 
 # Default compiler settings
 CC = gcc
@@ -15,9 +18,14 @@ ifeq ($(UNAME), Linux)
 # FIXME: Handle optional AROS cross-compilation under Linux (env-variable?)
 CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -Dtest
 ASMFLAGS = -c
+
+ifeq ($(OS),AROS)
+CC = i386-aros-gcc
+AS = i386-aros-gcc -c
+endif
 endif
 
-ifeq ($(UNAME), AROS)
+ifeq ($(OS), AROS)
 CFLAGS = -g -Wall -c -unsigned-char -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
 LDFLAGS= -lamiga
 endif
