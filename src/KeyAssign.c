@@ -794,12 +794,14 @@ void __regargs DeleteKmap(struct Kmap *Kmap)
       menu_detach(&menu, wincount);
       wincount=wincount->next;
     }
+#ifndef __AROS__
     wincount=FRONTWINDOW;
     while (wincount) {
       if (SysBase->LibNode.lib_Version < 39)
         FrexxLayoutMenues(wincount->menus, FALSE);
       wincount=wincount->next;
     }
+#endif
     Kmap->menu->keypress=NULL;
     wincount=FRONTWINDOW;
     while (wincount) {

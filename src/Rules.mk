@@ -11,19 +11,19 @@ OBJS = \
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
  Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o WinSign.o WindowOutput.o SearchUI.o SearchHistory.o
+ UpdtScreenC.o Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o
 
 all:	$(TARGET) $(FREDLIB)
 
-FrexxEd_rev.o: FrexxEd_rev.c Makefile
+FrexxEd_rev.o: FrexxEd_rev.c makefile Rules.mk
 #	AutoRev FrexxEd_rev.c Verbose
 	$(CC) $(CFLAGS) -o FrexxEd_rev.o FrexxEd_rev.c
 
 $(TARGET): $(OBJS) $(NONLIBOBJS)
-	$(CC) -o $(TARGET) $(LDFLAGS) $+ libfpl.a
+	$(CC) -o $(TARGET) $+ libfpl.a $(LDFLAGS)
 
 
 Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
@@ -41,7 +41,7 @@ Edit.o:		Edit.c Buf.h Function.h UpdtScreenC.h Edit.h
 Execute.o:		Execute.c Buf.h Function.h
 Face.o:		Face.c Face.h Buf.h Function.h
 FACT.o:		FACT.c FACT.h Buf.h Function.h
-FileHandler.o:	FileHandler.c FileHandler.h Buf.h fh_packets.h
+FileHandler.o:	FileHandler.c FileHandler.h Buf.h FH_packets.h
 FH_packets.o:		FH_packets.c FH_packets.h
 Fold.o:		Fold.c Buf.h Function.h
 GetFile.o:		GetFile.c Buf.h Function.h
@@ -73,14 +73,12 @@ Undo.o:		Undo.c Buf.h Function.h
 UpdtBlock.o:		UpdtBlock.c Buf.h Function.h
 UpdtScreen.o:		UpdtScreen.c Buf.h Function.h
 UpdtScreenC.o:	UpdtScreenC.c Buf.h Function.h UpdtScreenC.h
-WinSign.o:		WinSign.c Buf.h Function.h
+WinSign.o:		Winsign.c Buf.h Function.h
 WindowOutput.o:	WindowOutput.c Buf.h Function.h UpdtScreenC.h
 
 
 Main.o:		Main.c
 	$(CC) $(CFLAGS) -DFREXXED -o Main.o $<
 
-MultML.o:		MultML.s
-	$(CC) $(ASMFLAGS) -o MultML.o $<
-NewTaskML.o:		NewTaskML.s
-	$(CC) $(ASMFLAGS) -o NewTaskML.o $<
+MultML.o: MultML.c
+NewTaskML.o: NewTaskML.c

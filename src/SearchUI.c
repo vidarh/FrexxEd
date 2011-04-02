@@ -1,3 +1,33 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include "Search.h"
+#include "Button.h"
+#include "DoSearch.h"
+#include "Alloc.h"
+#include "Reqlist.h"
+
+#define ANTALSEARCH 8
+
+#define posWILD 0
+#define posCASE 1
+#define posWORD 2
+#define posFORW 3
+#define posBLOK 4
+#define posPRRE 5
+#define posLIWI 6
+#define posINFO 7
+
+#define EXTRA_ALLOC 256
+
+
+extern srch Search;          /* search structure */
+extern HistoryStruct SearchHistory;
+extern struct TextFont *RequestFont;	/* RequestFont */
+extern void *Anchor;
+extern BOOL searchcompiled;
+extern DefaultStruct Default;
+
 int __regargs SearchAsk(BufStruct *Storage, int replace)
 {
   int width;

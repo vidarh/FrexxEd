@@ -30,6 +30,8 @@ typedef enum {
 
   CHAR_ILLEGAL_TYPE
 } re_CharCode;
+
+#include "Buf.h"
 #endif
 
 

@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "Buf.h"
-//#include "Alloc.h"
+#include "Alloc.h"
 #include "Block.h"
 #include "BufControl.h"
 #include "Button.h"

@@ -39,21 +39,9 @@
 //#include "Search.h"
 //#include "UpdtScreen.h"
 
-#define posWILD 0
-#define posCASE 1
-#define posWORD 2
-#define posFORW 3
-#define posBLOK 4
-#define posPRRE 5
-#define posLIWI 6
-#define posINFO 7
-
-#define EXTRA_ALLOC 256
-
 //extern struct IntuitionBase *IntuitionBase;
 extern srch Search;          /* search structure */
 extern void *Anchor;
-//extern struct TextFont *RequestFont;	/* RequestFont */
 extern DefaultStruct Default;
 extern BOOL searchcompiled;
 extern int searchcompile_flags;
@@ -63,8 +51,6 @@ extern char GlobalEmptyString[];
 
 extern int retval_antal;
 extern int retval_params[];
-
-#define ANTALSEARCH 8
 
 /*  Start Searching  */
 int SearchFor(BufStruct *Storage, int argc, char **argv)

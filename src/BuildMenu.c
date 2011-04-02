@@ -14,6 +14,10 @@ MenuAdd(type, string, FPL);
 #include <exec/execbase.h>
 #include <intuition/intuition.h>
 #include <libraries/gadtools.h>
+#ifdef __AROS__
+#include <clib/gadtools_protos.h>
+#include <clib/intuition_protos.h>
+#endif
 #include <proto/gadtools.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>

@@ -26,8 +26,8 @@ endif
 endif
 
 ifeq ($(OS), AROS)
-CFLAGS = -g -Wall -c -unsigned-char -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
-LDFLAGS= -lamiga
+CFLAGS += -DAMIGA -c -unsigned-char -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
+LDFLAGS+= -lamiga -larosc -ldos -lexec -lintuition #-lreqtools
 endif
 
 # FIXME: Detect gcc or v(bc)c
@@ -35,7 +35,7 @@ ifeq ($(UNAME), Amiga)
 CC = vc
 AS = vc -c
 CFLAGS = -c -c99 -unsigned-char -DAMIGA -Dtest
-LDFLAGS= -lamiga -lvc -lauto -lreqtools
+LDFLAGS+= -lamiga -lvc -lauto -lreqtools
 endif
 
 include Rules.mk
