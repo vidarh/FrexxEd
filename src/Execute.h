@@ -54,10 +54,7 @@ struct SprintfData {
 struct fplArgument;
 
 long __asm StopCheck(register __a0 BufStruct *);
-long __asm __stackext run_functions(register __a0 struct fplArgument *arg);
 int __regargs RequestWindow(BufStruct *Storage, struct fplArgument *arg);
-int __regargs ScSort(struct fplArgument *arg);
-int __regargs BSearch(struct fplArgument *arg);
 
 #ifdef LOG_FILE_EXECUTION
 int __regargs LogFileExecution(char *file);

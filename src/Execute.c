@@ -44,7 +44,6 @@
 
 #include "IncludeAll.h"
 
-extern char DebugOpt; /* Debug option on/off */
 extern BlockStruct *BlockBuffer;
 extern FACT *UsingFact;
 extern FACT *DefaultFact;
@@ -82,7 +81,7 @@ extern char **setting_string_pointer;
 extern int *setting_int_pointer;
 extern char cursorhidden;
 
-long __asm fpl_functions(register __a0 struct fplArgument *);
+static long __asm fpl_functions(register __a0 struct fplArgument *);
 extern struct Library *FPLBase;
 
 extern AREXXCONTEXT RexxHandle;
@@ -116,6 +115,10 @@ static int __regargs ScMenuRead(struct fplArgument *arg);
 static int __regargs ScMenuDelete(struct fplArgument *arg);
 static int __regargs ScGetList(BufStruct *Storage, struct fplArgument *arg);
 static int __regargs ScFaceRead(struct fplArgument *arg);
+static int __regargs BSearch(struct fplArgument *arg);
+static int __regargs ScSort(struct fplArgument *arg);
+static long __asm __stackext run_functions(register __a0 struct fplArgument *arg);
+
 
 /**********************************************************************
  *
@@ -375,7 +378,7 @@ long __asm StopCheck(register __a0 BufStruct *Storage)
   return(ret);
 }
 
-long __asm fpl_functions(register __a0 struct fplArgument *arg)
+static long __asm fpl_functions(register __a0 struct fplArgument *arg)
 {
   int ret;
 //printf("Stack: %x %x %x =%x\n", Default.task->tc_SPLower, Default.task->tc_SPUpper, getreg(REG_A7), ((int)getreg(REG_A7))-(int)Default.task->tc_SPLower);
@@ -384,14 +387,8 @@ long __asm fpl_functions(register __a0 struct fplArgument *arg)
     ret=run_functions(arg);
   return(ret);
 }
-void _CXOVF(void)
-{
-//  Ok_Cancel(NULL, "FrexxEd is out of stack!", "Ooops", NULL);
-  longjmp(oldfplstackpoint, FPLERR_OUT_OF_MEMORY);
-}
 
-
-long __asm __stackext run_functions(register __a0 struct fplArgument *arg)
+static long __asm __stackext run_functions(register __a0 struct fplArgument *arg)
 {
   int line;
   int col;
@@ -2133,7 +2130,7 @@ int __regargs RequestWindow(BufStruct *Storage, struct fplArgument *arg)
   return(tempint);
 }
 
-int __regargs ScSort(struct fplArgument *arg)
+static int __regargs ScSort(struct fplArgument *arg)
 {
   int ret=OUT_OF_MEM;
   int col;
@@ -2207,7 +2204,7 @@ static int __asm bsearch_cmp_array(register __a0 void *arg, register __d1 int co
   return(ret);
 }
 
-int __regargs BSearch(struct fplArgument *arg)
+static int __regargs BSearch(struct fplArgument *arg)
 {
   int ret=-1;
   struct fplRef ref;
@@ -2249,6 +2246,7 @@ int __regargs LogFileExecution(char *file)
   return(OK);
 }
 
+#ifdef LOG_FILE_EXECUTION
 int __regargs FindFileExecution(char *file)
 {
   int vald;
@@ -2289,6 +2287,7 @@ int __regargs FindFileExecution(char *file)
   }
   return(vald);
 }
+#endif
 
 #ifndef POOL_DEALLOC
 void __regargs DeleteFileExecutionList()
