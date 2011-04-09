@@ -262,8 +262,8 @@ void UpdateAll(void)
 *
 *  CenterScreen(BufStruct *)
 *
-*  Centrera önskad skärm.
-*  Skärmen uppdateras EJ!
+*  Center wanted screen
+*  The screen is NOT updated
 **********/
 void __regargs CenterScreen(BufStruct *Storage)
 {
@@ -276,7 +276,7 @@ void __regargs CenterScreen(BufStruct *Storage)
   if (BUF(curr_topline)<=0)
     BUF(curr_topline)=1;
   BUF(cursor_y)=FoldFindLine(Storage, BUF(curr_line));
-	/* curr_line ska inte ändras */
+  /* curr_line shouldn't be modified */
 
 #if before_fold
   if ((dif=BUF(curr_topline)+BUF(screen_lines)-SHS(line)-1)>=0) {
@@ -419,7 +419,7 @@ int __regargs CheckPos(BufStruct *Storage)
 }
 
 
-/* Testar alla synliga buffrar */
+/* Checks all visible buffers */
 int __regargs TestAllCursorPos()
 {
   WindowStruct *win=FRONTWINDOW;
