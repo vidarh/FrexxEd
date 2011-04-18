@@ -26,18 +26,9 @@
  *  Input the buffer pointer.
  *
  ***********/
-WindowStruct __regargs *NextWindow(WindowStruct *win);
-WindowStruct __regargs *PrevWindow(WindowStruct *win);
-BufStruct __regargs *NextView(BufStruct *Storage);
-BufStruct __regargs *PrevView(BufStruct *Storage);
-BufStruct __regargs *NextHiddenEntry(BufStruct *Storage);
-BufStruct __regargs *PrevHiddenEntry(BufStruct *Storage);
-BufStruct __regargs *NextEntry(BufStruct *Storage);
-BufStruct __regargs *PrevEntry(BufStruct *Storage);
-BufStruct __regargs *NextBuf(BufStruct *Storage);
-BufStruct __regargs *PrevBuf(BufStruct *Storage);
+BufStruct *PrevView(BufStruct *Storage);
 
-void __regargs BufLimits(BufStruct *Storage);
+void BufLimits(BufStruct *Storage);
 
 /***********************************************
  *
@@ -62,7 +53,6 @@ BufStruct __regargs *Activate(BufStruct *Storage, BufStruct *Storage3, int flag)
  ***********/
 BufStruct __regargs *Free(BufStruct *Storage, BOOL returnwanted, BOOL hook);
 
-void __regargs FreeLokalInfo(SharedStruct *shared);
 /***********************************************
  *
  *  MakeNewBuf(BufStruct *)
@@ -129,8 +119,6 @@ void __regargs HeadWindow(WindowStruct *win);
 int __regargs CountDownFileNumber(SharedStruct *Shared);
 
 BufStruct __regargs *GetNewBuf(BufStruct *Storage, BufStruct *Storage2, int argID, int type);
-
-BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted);
 
 int __regargs DeleteBuffer(SharedStruct *shared);
 

@@ -15,19 +15,19 @@
 #include "compat.h"
 
 #ifdef AMIGA
-#include <intuition/intuition.h>
-#include <intuition/intuitionbase.h>
-#include <exec/semaphores.h>
+//#include <intuition/intuition.h>
+//#include <intuition/intuitionbase.h>
+//#include <exec/semaphores.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/intuition.h>
+//#include <proto/intuition.h>
 #include <proto/utility.h>
-#include <libraries/dos.h>
+//#include <libraries/dos.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <libraries/reqtools.h>
-#include <proto/reqtools.h>
+//#include <libraries/reqtools.h>
+//#include <proto/reqtools.h>
 #endif
 
 #include <string.h>
@@ -88,6 +88,11 @@ extern struct SignalSemaphore LockSemaphore;
 
 extern int semaphore_count;
 
+
+static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted);
+static void FreeLokalInfo(SharedStruct *shared);
+
+
 /***********************************************
  *
  *  NextShowBuf( BufStruct *)
@@ -102,22 +107,7 @@ extern int semaphore_count;
  *  Input the buffer pointer.
  *
  ***********/
-WindowStruct __regargs *NextWindow(WindowStruct *win)
-{
-  if (win->next)
-    return win->next;
-  return FRONTWINDOW;
-}
-WindowStruct __regargs *PrevWindow(WindowStruct *win)
-{
-  if (win->prev)
-    return win->prev;
-  while (win->next)
-    win=win->next;
-  return win;
-}
-
-BufStruct __regargs *NextView(BufStruct *Storage)
+static BufStruct *NextView(BufStruct *Storage)
 {
   BufStruct *Storage2;
 
@@ -130,7 +120,8 @@ BufStruct __regargs *NextView(BufStruct *Storage)
   }
   return(Storage2);
 }
-BufStruct __regargs *PrevView(BufStruct *Storage)
+
+BufStruct *PrevView(BufStruct *Storage)
 {
   BufStruct *Storage2;
   Storage2=BUF(PrevShowBuf);
@@ -145,7 +136,7 @@ BufStruct __regargs *PrevView(BufStruct *Storage)
   return(Storage2);
 }
 
-BufStruct __regargs *NextHiddenEntry(BufStruct *Storage)
+static BufStruct *NextHiddenEntry(BufStruct *Storage)
 {
   BufStruct *Storage2;
   Storage2=Storage;
@@ -157,7 +148,7 @@ BufStruct __regargs *NextHiddenEntry(BufStruct *Storage)
   } while (Storage2!=Storage && (Storage2->window));
   return(Storage2);
 }
-BufStruct __regargs *PrevHiddenEntry(BufStruct *Storage)
+static BufStruct *PrevHiddenEntry(BufStruct *Storage)
 {
   BufStruct *Storage2;
   Storage2=Storage;
@@ -171,7 +162,7 @@ BufStruct __regargs *PrevHiddenEntry(BufStruct *Storage)
   return(Storage2);
 }
 
-BufStruct __regargs *NextEntry(BufStruct *Storage)
+static BufStruct *NextEntry(BufStruct *Storage)
 {
   BufStruct *Storage2;
   Storage2=BUF(NextBuf);
@@ -179,7 +170,8 @@ BufStruct __regargs *NextEntry(BufStruct *Storage)
     Storage2=Default.BufStructDefault.NextBuf;
   return(Storage2);
 }
-BufStruct __regargs *PrevEntry(BufStruct *Storage)
+
+static BufStruct *PrevEntry(BufStruct *Storage)
 {
   BufStruct *Storage2;
   Storage2=Storage;
@@ -190,7 +182,8 @@ BufStruct __regargs *PrevEntry(BufStruct *Storage)
       Storage2=Storage2->NextBuf;
   return(Storage2);
 }
-BufStruct __regargs *NextBuf(BufStruct *Storage)
+
+static BufStruct *NextBuf(BufStruct *Storage)
 {
   SharedStruct *Shared2=BUF(shared);
   if (Shared2)
@@ -199,7 +192,8 @@ BufStruct __regargs *NextBuf(BufStruct *Storage)
     Shared2=Default.SharedDefault.Next;
   return(Shared2->Entry);
 }
-BufStruct __regargs *PrevBuf(BufStruct *Storage)
+
+static BufStruct *PrevBuf(BufStruct *Storage)
 {
   SharedStruct *Shared2=BUF(shared);
   if (Shared2)
@@ -210,34 +204,10 @@ BufStruct __regargs *PrevBuf(BufStruct *Storage)
   return(Shared2->Entry);
 }
 
-void __regargs BufLimits(BufStruct *Storage)
+void BufLimits(BufStruct *Storage)
 {
-#if 0
-  int xoffset=0;
-  int xref=0;
-  if (BUF(window) && BUF(window)->window_pointer) {
-    if (BUF(window)->slider==sl_LEFT) {
-      if (!(BUF(window)->window&FX_WINDOWBIT)) {
-        xref=1;
-        xoffset=BUF(window)->window_pointer->BorderRight-8;
-      } else
-        xref=2;
-    }
-    xref*=(15+SystemFont->tf_XSize)/(SystemFont->tf_XSize);
-    if (BUF(window)->window&FX_WINDOWBIT)
-      xref=0;
-    BUF(screen_col) = BUF(window)->real_window_width;
-    BUF(left_offset)=xoffset+BUF(window)->window_pointer->BorderLeft+1;
-    BUF(screen_col) +=-BUF(left_offset)+1-BUF(window)->window_pointer->BorderRight-
-                      SystemFont->tf_XSize/2;
-    BUF(screen_col) = BUF(screen_col)/SystemFont->tf_XSize-xref;
-    if (BUF(screen_col)>MAX_CHAR_LINE)
-      BUF(screen_col)=MAX_CHAR_LINE;
-  }
-#else
   BUF(screen_col)=BUF(window)->window_col;
   BUF(left_offset)=BUF(window)->window_left_offset;
-#endif
 }
 
 /***********************************************
@@ -449,7 +419,7 @@ int __regargs DeleteBuffer(SharedStruct *shared)
   return 0;	// exit error
 }
 
-BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
+static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
 {
   int counter, shard=SHS(shared);
   SharedStruct *shared=BUF(shared);
@@ -460,17 +430,11 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
 
   if (returnwanted) {
     if (BUF(window)) {
-//      Storage3=PrevHiddenEntry(Storage);
       Storage3=NextHiddenEntry(Storage);
       if ((Storage3->shared->type&type_HIDDEN) && !(SHS(type)&type_HIDDEN)) {
         register BufStruct *first=Storage3;
-/*
-        do {
-          Storage3=PrevHiddenEntry(Storage3);
-        } while (Storage3!=first && (Storage3->shared->type&type_HIDDEN));
-*/
+
         while (Storage3->shared->type&type_HIDDEN) {
-//          Storage3=PrevHiddenEntry(Storage3);
           Storage3=NextHiddenEntry(Storage3);
           if (Storage3==first)
             break;
@@ -482,28 +446,8 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
             Storage3=MakeNewBuf(Storage);
             DeleteEntry(Storage, returnwanted);
             return(Storage3);
-
-/* 960828
-            Clear(Storage, FALSE);
-            Dealloc(SHS(filnamn));
-            Dealloc(SHS(path));
-            SHS(filnamn)=Strdup("");
-            SHS(path)=Strdup("");
-            Dealloc(BUF(fact_name));
-            Dealloc(SHS(face_name));
-            BUF(fact_name)=Strdup(Default.BufStructDefault.fact_name);
-            SHS(face_name)=Strdup(Default.SharedDefault.face_name);
-            BUF(using_fact)=Default.BufStructDefault.using_fact;
-            return(Storage);
-*/
           }
           Storage3=Storage;
-/* 951231
-          if (BUF(window))
-            Storage3=Storage;
-          else
-            Storage3=MakeNewBuf(NULL);
-*/
         }
       }
       if (Storage3==Storage)
@@ -597,18 +541,18 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
       if (!SHS(Entry))
         SHS(Entry)=BUF(PrevSplitBuf);
     }
-    if (Storage0=BUF(PrevSplitBuf))
+    if ((Storage0=BUF(PrevSplitBuf)))
       Storage0->NextSplitBuf=BUF(NextSplitBuf);
-    if (Storage0=BUF(NextSplitBuf))
+    if ((Storage0=BUF(NextSplitBuf)))
       Storage0->PrevSplitBuf=BUF(PrevSplitBuf);
     Storage0=Storage;
     shared->shared=shard-1;
-    while (Storage0=Storage0->NextSplitBuf) {
+    while ((Storage0=Storage0->NextSplitBuf)) {
       Storage0->view_number--;
     }
     Storage0=BUF(PrevBuf);
     Storage0->NextBuf=BUF(NextBuf);
-    if (Storage0=BUF(NextBuf))
+    if ((Storage0=BUF(NextBuf)))
       Storage0->PrevBuf=BUF(PrevBuf);
 #ifdef POOL_DEALLOC
     if (!quitting)
@@ -624,9 +568,9 @@ BufStruct __regargs *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
   return(Storage3);
 }
 
-void __regargs FreeLokalInfo(SharedStruct *shared)
+static void FreeLokalInfo(SharedStruct *shared)
 {				// Delete the LokalInfo.
-  register int counter;
+  int counter;
   for (counter=0; counter<antalsets; counter++) {
     if ((sets[counter]->type & (15|ST_SHARED|ST_USERDEFINED))==(ST_STRING|ST_SHARED|ST_USERDEFINED))
       Dealloc((char *)shared->LokalInfo[sets[counter]->offset]);
@@ -653,8 +597,7 @@ BufStruct __regargs *MakeNewBuf(BufStruct *Storage3)
     if (Init(Storage3, Storage)) { /* init all values to default */
     
       BUF(NextBuf)=Default.BufStructDefault.NextBuf;
-      if (Storage2=BUF(NextBuf))
-        Storage2->PrevBuf=Storage;
+      if ((Storage2=BUF(NextBuf))) Storage2->PrevBuf=Storage;
       BUF(PrevBuf)=&Default.BufStructDefault;
       Default.BufStructDefault.NextBuf=Storage;
       SHS(UndoBuf)=(UndoStruct **)Malloc(SHS(Undomax) * sizeof(UndoStruct));
@@ -924,7 +867,6 @@ BufStruct __regargs *ReSizeBuf(BufStruct *CurrentStorage, BufStruct *Storage, Bu
   int linedif;
 
   CursorXY(NULL, -1, -1);
-//  Visible=VISIBLE_OFF;	// Gör allt osynligt, så slipper vi se skiten.
   if (BUF(window) && (BUF(NextBuf) || BUF(screen_lines)!=BUF(window)->window_lines ||
       BUF(PrevBuf)!=&Default.BufStructDefault)) {
     if ((BUF(top_offset)+lines) >= BUF(window)->window_lines)
@@ -954,8 +896,8 @@ BufStruct __regargs *ReSizeBuf(BufStruct *CurrentStorage, BufStruct *Storage, Bu
         Storage2->screen_lines-=linedif;
         while (Storage2) {
           Storage=Storage2->NextShowBuf;
-          if (linedif=Storage2->top_offset-
-                      BUF(top_offset)-BUF(screen_lines)-1) {
+          if ((linedif=Storage2->top_offset-
+			   BUF(top_offset)-BUF(screen_lines)-1)) {
             Storage2->screen_lines+=linedif;
             Storage2->top_offset-=linedif;
           }
@@ -1023,11 +965,6 @@ BufStruct __regargs *RemoveBuf(BufStruct *Storage)
   BufStruct *Storage2, *Storage3=Storage;
 
   if (BUF(window)) {
-#if 0 //951231
-    if (!BUF(NextBuf) && BUF(PrevBuf)==&Default.BufStructDefault)
-      return(NULL);
-    else
-#endif
     {
       if (BUF(window)->window_pointer)
         RemoveBufGadget(Storage);
@@ -1063,7 +1000,7 @@ BufStruct __regargs *RemoveBuf(BufStruct *Storage)
         } else {
           BUF(window)->NextShowBuf=BUF(NextShowBuf);
         }
-        if (Storage2=BUF(NextShowBuf))
+        if ((Storage2=BUF(NextShowBuf)))
           Storage2->PrevShowBuf=BUF(PrevShowBuf);
       }
     }
@@ -1166,7 +1103,7 @@ BufStruct __regargs *DuplicateBuf(BufStruct *Storage2)
   BUF(slider_on)=FALSE;
 
   BUF(NextBuf)=Default.BufStructDefault.NextBuf;
-  if (Storage3=BUF(NextBuf))
+  if ((Storage3=BUF(NextBuf)))
     Storage3->PrevBuf=Storage;
   BUF(PrevBuf)=&Default.BufStructDefault;
   Default.BufStructDefault.NextBuf=Storage;
@@ -1214,7 +1151,7 @@ BufStruct __regargs *FindBuffer(int Argc, char **Argv)
         else
           buf=Storage2->shared->filnamn;
         if (format&1)
-          result=Stricmp(buf, Argv[0]);
+          result=stricmp(buf, Argv[0]);
         else
           result=strcmp(buf, Argv[0]);
         if (!result) {
