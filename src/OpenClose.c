@@ -240,6 +240,9 @@ static char *screenwindow_name=NULL;
 extern int total_fpl_alloc;
 #endif
 
+static void TestScreenMode(WindowStruct *win);
+static void AdjustBufsInWindow(WindowStruct *win);
+static char *OpenMyScreen(WindowStruct *win);
 
 /*
   Om FrexxEd inte kan stänga en screen, så läggs pekaren till den upp i en
@@ -318,111 +321,64 @@ void FirstOpen()
 
   appiconname=Strdup("FrexxEd");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Init ARexx\n");
-#endif
   RexxHandle=InitARexx(cl_portname);
-
   Default.ARexxPort=RexxHandle?RexxHandle->PortName:""; /* Get ARexx port name */
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "InitFPL\n");
-#endif
-  if (InitFPL(1))
-    CloseAll(RetString(STR_INIT_FPL));
-// CloseAll("test");
+  if (InitFPL(1)) CloseAll(RetString(STR_INIT_FPL));
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "FPL done\n");
-#endif
   /* Create the message port to which Workbench can send messages */
-  if(!(WBMsgPort = CreateMsgPort()) )
-    CloseAll(RetString(STR_CREATE_MESSAGE_PORT));
+  if(!(WBMsgPort = CreateMsgPort()) ) CloseAll(RetString(STR_CREATE_MESSAGE_PORT));
 
   /* create reply port and io block for reading from console */
-  if (!(ReadPort=CreateMsgPort()))
-     CloseAll(RetString(STR_CREATE_READ_PORT));
+  if (!(ReadPort=CreateMsgPort())) CloseAll(RetString(STR_CREATE_READ_PORT));
 
   /* create reply port and io block for reading from console */
-  if (!(WindowPort=CreateMsgPort()))
-    CloseAll(RetString(STR_CREATE_READ_PORT));
+  if (!(WindowPort=CreateMsgPort())) CloseAll(RetString(STR_CREATE_READ_PORT));
 
   /* create reply port and io block for writing to console */
-  if (!(WritePort=CreateMsgPort()))
-    CloseAll(RetString(STR_CREATE_WRITE_PORT));
+  if (!(WritePort=CreateMsgPort())) CloseAll(RetString(STR_CREATE_WRITE_PORT));
   WriteReq=(struct IOStdReq *)CreateIORequest(WritePort, (LONG)sizeof(struct IOStdReq));
-  if(!WriteReq)
-    CloseAll(RetString(STR_CREATE_WRITE_REQUEST)); 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open console device\n");
-#endif
+  if(!WriteReq) CloseAll(RetString(STR_CREATE_WRITE_REQUEST)); 
+
   if (OpenDevice("console.device", -1, (struct IORequest *)WriteReq, 1))
     CloseAll(RetString(STR_OPEN_CONSOLE_DEVICE));
   ConsoleDevice=(struct Library *)WriteReq->io_Device;
-// CloseAll("test");
 
   InitKeys();
 
-// CloseAll("test");
-
-  if (!(DefaultFact=InitFACT()))
-    CloseAll(RetString(STR_GET_MEMORY));
+  if (!(DefaultFact=InitFACT())) CloseAll(RetString(STR_GET_MEMORY));
 
   Default.BufStructDefault.using_fact=UsingFact=DefaultFact;
 
   LoadKeyMap();
 
   BlockBuffer=AllocBlock("DefaultBlock");
-  if (!BlockBuffer)
-    CloseAll(RetString(STR_GET_MEMORY));
+  if (!BlockBuffer) CloseAll(RetString(STR_GET_MEMORY));
   BlockBuffer->freeable=FALSE;
   BlockBuffer->type|=type_HIDDEN;
   Default.FirstBlock=BlockBuffer;
 
   YankBuffer=AllocBlock("YankBuffer");
-  if (!YankBuffer)
-    CloseAll(RetString(STR_GET_MEMORY));
+  if (!YankBuffer) CloseAll(RetString(STR_GET_MEMORY));
   YankBuffer->freeable=FALSE;
   YankBuffer->type|=type_HIDDEN;
 
-
-//  Search.buffer=NULL;
-//  Search.realbuffer=NULL;
-//  Search.repbuffer=NULL;
-//  Search.realrepbuffer=NULL;
-//  Search.buflen=0;
-//  Search.repbuflen=0;
   Search.buf.fastmap = fastmap1;
   Search.second_buf.fastmap = fastmap2;
   Search.flags=FORWARD|PROMPT_REPLACE|LIMIT_WILDCARD;
   Default.search_flags=Search.flags;
   Search.lastsearchstring=GlobalEmptyString;
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Done\n");
-#endif
-
   title=Malloc(140);
-  if (!title)
-    CloseAll(RetString(STR_GET_MEMORY));
+  if (!title) CloseAll(RetString(STR_GET_MEMORY));
   title[0]=0;
   externappicon = GetDiskObject(FREXXED_ICONDIR FREXXED_APPICON);
-
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Create console port!\n");
-#endif
 
   InitSemaphore(&LockSemaphore);
   ObtainSemaphore(&LockSemaphore);
 }
 
-void __regargs TestScreenMode(WindowStruct *win)
+static void TestScreenMode(WindowStruct *win)
 {
   ULONG mode;
   if (win->screen_pointer) {
@@ -449,22 +405,11 @@ void LastOpen()
   if (ret=OpenMyScreen(win))
     CloseAll(ret);
   if (cl_iconify || win->iconify) {
-//961231    cl_iconify=FALSE;
-    if (Iconify(NULL)!=OK)
-      CloseAll(RetString(STR_OPEN_SCREEN));
+    if (Iconify(NULL)!=OK) CloseAll(RetString(STR_OPEN_SCREEN));
   }
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Init2FPL\n");
-#endif
-  if (InitFPL(0))
-    CloseAll(RetString(STR_INIT_FPL));
+  if (InitFPL(0)) CloseAll(RetString(STR_INIT_FPL));
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "LastInit\n");
-#endif
   if (Default.windows_opened && !ScreenBuffer.beginning)
     CloseAll(RetString(STR_GET_MEMORY));
 
@@ -475,124 +420,57 @@ void LastOpen()
 
 char __regargs *OpenLibraries()
 {
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open intuition\n");
-#endif
-  if (!(IntuitionBase = (struct IntuitionBase *)
-	OpenLibrary("intuition.library", LIB_REV)))
-    return("open intuition.library");
+  if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", LIB_REV)))
+	return("open intuition.library");
   
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open GFX\n");
-#endif
   if (!(GfxBase= (struct GfxBase *)OpenLibrary("graphics.library", LIB_REV)))
     return("open graphics.library");
   
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open Gadtools\n");
-#endif
   if (!(GadToolsBase = OpenLibrary("gadtools.library", 36L)))
     return("open gadtools.library");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open diskfont\n");
-#endif
   if (!(DiskfontBase = OpenLibrary("diskfont.library", 36L)))
     CloseAll("open diskfont.library");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open reqtools\n");
-#endif
   if (!(ReqToolsBase= (struct ReqToolsBase *)
         OpenLibrary(REQTOOLSNAME, REQTOOLSVERSION)))
     return("open reqtools.library V38+");
 
   if (!(FileReq = (struct rtFileRequester *)rtAllocRequestA(RT_FILEREQ, NULL)))
     return(RetString(STR_GET_MEMORY));
-
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open PowerPacker\n");
-#endif
+  
 #ifndef NO_PPACKER
   PPBase = (struct PPBase *)OpenLibrary ("powerpacker.library", 20);
-#endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open xpk.library\n");
 #endif
 #ifndef NO_XPK
   XpkBase = (struct Library *)OpenLibrary (XPKNAME, 0);
 #endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open worbench\n");
-#endif
+
   if (!(WorkbenchBase = OpenLibrary("workbench.library", 36)))
     CloseAll("open workbench.library");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open utility\n");
-#endif
   if (!(UtilityBase = OpenLibrary("utility.library", 36)))
     CloseAll("open utility.library");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open locale\n");
-#endif
   LocaleBase = OpenLibrary("locale.library", 38);
   if(LocaleBase) {
-#ifdef DEBUGTEST
-    if(DebugOpt)
-      FPrintf(Output(), "Open catalog\n");
-#endif
     catalog = OpenCatalogA(NULL, "FrexxEd.catalog", NULL);
   }
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open icon\n");
-#endif
   if (!(IconBase = OpenLibrary("icon.library", 36)))
     CloseAll("open icon.library");
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open FPL\n");
-#endif
 #ifdef NO_STATIC_FPL
   FPLBase=OpenLibrary("fpl.library", 13); /* open fpl.library version 13 */
   if (!FPLBase || (FPLBase->lib_Version==13 && FPLBase->lib_Revision<0))
     return("open fpl.library v13");
 #endif
 #ifdef USE_FASTSCROLL
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open FastGraphics\n");
-#endif
-#if 1
   FastGraphicsBase=OpenLibrary(FastGfxName, 1);
   if (!FastGraphicsBase)
     FastGraphicsBase=OpenLibrary("ProgDir:libs/"FastGfxName, 1);
 #endif
-#ifdef DEBUGTEST
-  if(DebugOpt) {
-    if (FastGraphicsBase)
-      FPrintf(Output(), "Found FastGraphics\n");
-    else
-      FPrintf(Output(), "Didn't find FastGraphics\n");
-  }
-#endif
-#endif
-  if (InitTimer()<OK)
-    CloseAll("open timer.device");
+  if (InitTimer()<OK) CloseAll("open timer.device");
 
   return(NULL);
 }
@@ -605,11 +483,6 @@ char __regargs *OpenLibraries()
  ********/
 void __regargs CloseLibraries(char *string)
 {
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Close libraries\n");
-#endif
-
   if (string && IntuitionBase) {
     register char *sstring;
     sstring=(char *)Malloc(strlen(string)+40);
@@ -637,49 +510,23 @@ void __regargs CloseLibraries(char *string)
 #endif
   if (ReqToolsBase)
     CloseLibrary((struct Library *)ReqToolsBase);
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Close libraries 2\n");
-#endif
-  if(IconBase)
-    CloseLibrary(IconBase);
-  if(catalog)
-    CloseCatalog(catalog);
-  if(LocaleBase)
-    CloseLibrary(LocaleBase);
-  if(UtilityBase)
-    CloseLibrary((struct Library *)UtilityBase);
-  if(WorkbenchBase)
-    CloseLibrary((struct Library *)WorkbenchBase);
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Close libraries 3\n");
-#endif
+
+  if(IconBase)      CloseLibrary(IconBase);
+  if(catalog)       CloseCatalog(catalog);
+  if(LocaleBase)    CloseLibrary(LocaleBase);
+  if(UtilityBase)   CloseLibrary((struct Library *)UtilityBase);
+  if(WorkbenchBase) CloseLibrary((struct Library *)WorkbenchBase);
 #ifdef NO_STATIC_FPL
   if (FPLBase) {
     CloseLibrary(FPLBase);
   }
 #endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Close libraries 4\n");
-#endif
-  if (DiskfontBase)
-    CloseLibrary((struct Library *)DiskfontBase);
-  if (GadToolsBase)
-    CloseLibrary((struct Library *)GadToolsBase);
-  if (PPBase)
-    CloseLibrary ((struct Library *)PPBase);
-  if (XpkBase)
-    CloseLibrary ((struct Library *)XpkBase);
-  if (GfxBase)
-    CloseLibrary((struct Library *)GfxBase);
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Close libraries 5\n");
-#endif
-  if (IntuitionBase)
-    CloseLibrary((struct Library *)IntuitionBase);
+  if (DiskfontBase)  CloseLibrary((struct Library *)DiskfontBase);
+  if (GadToolsBase)  CloseLibrary((struct Library *)GadToolsBase);
+  if (PPBase)        CloseLibrary ((struct Library *)PPBase);
+  if (XpkBase)       CloseLibrary ((struct Library *)XpkBase);
+  if (GfxBase)       CloseLibrary((struct Library *)GfxBase);
+  if (IntuitionBase) CloseLibrary((struct Library *)IntuitionBase);
 }
 
 
@@ -705,59 +552,32 @@ void CloseFrexxEd(char *string)
   if (editprocess) /* restore old system request windowpointer */
     editprocess->pr_WindowPtr = oldwindowptr;
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 1\n");
-#endif
-  if (ReadPort)
-    DeleteMsgPort(ReadPort);
+  if (ReadPort) DeleteMsgPort(ReadPort);
   if (WriteReq) {
     if (WriteReq->io_Device)
       CloseDevice((struct IORequest *)WriteReq);
     DeleteIORequest(WriteReq);
   }
-  if (WritePort)
-    DeleteMsgPort(WritePort);
+  if (WritePort) DeleteMsgPort(WritePort);
 
   /* free the entire linked lists of menu information! */
   menu_delete(&menu, menu.ownmenu);
 
   CleanupAllFaces(); /* Delete all faces */
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 2\n");
-#endif
-  if (InfoWindow) {
-    CloseWindow(InfoWindow);
-  }
-  if(appicon)
-    RemoveAppIcon(appicon);
-  if(externappicon)
-    FreeDiskObject(externappicon);
+  if (InfoWindow) CloseWindow(InfoWindow);
+  if(appicon) RemoveAppIcon(appicon);
+  if(externappicon) FreeDiskObject(externappicon);
 
   if(WBMsgPort) {
-    register struct Message *msg;
+    struct Message *msg;
     while (msg=GetMsg(WBMsgPort))
       ReplyMsg(msg);
     DeleteMsgPort(WBMsgPort);
   }
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 3\n");
-#endif
-
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 4\n");
-#endif
   {
     while (FRONTWINDOW) {
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseWindow\n");
-#endif
       if(FRONTWINDOW->appicon) {
         RemoveAppIcon(FRONTWINDOW->appicon);
         FRONTWINDOW->appicon=NULL;
@@ -774,29 +594,16 @@ void CloseFrexxEd(char *string)
     while (Default.processes>1);
 #endif
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 5\n");
-#endif
-  if (DefaultFont)
-    CloseFont(DefaultFont);
-
-  if (WindowPort)
-    DeleteMsgPort(WindowPort);
-  if (Default.KeyMapseg)
-    UnLoadSeg(Default.KeyMapseg);
-  if (Default.olddirectory!= -1)
-    UnLock(CurrentDir(Default.olddirectory));
+  if (DefaultFont) CloseFont(DefaultFont);
+  if (WindowPort)  DeleteMsgPort(WindowPort);
+  if (Default.KeyMapseg) UnLoadSeg(Default.KeyMapseg);
+  if (Default.olddirectory!= -1) UnLock(CurrentDir(Default.olddirectory));
 
 #ifndef POOL_DEALLOC
 
   /*
    * Free all hooks !
    */
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 6\n");
-#endif
   if (Default.hook) {
     register int a;
     register struct FrexxHook *hook, *hookn;
@@ -836,20 +643,12 @@ void CloseFrexxEd(char *string)
 #ifdef LOG_FILE_EXECUTION
   DeleteFileExecutionList();
 #endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 7\n");
-#endif
 
   /* Deleata SearchHistoryn */
   while(SearchHistory.strings)
     Dealloc(SearchHistory.text[--SearchHistory.strings]);
   Dealloc((char *)SearchHistory.text);
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 8\n");
-#endif
   Dealloc(Search.buf.buffer);
   Dealloc(Search.second_buf.buffer);
   Dealloc(Search.buffer);
@@ -873,10 +672,6 @@ void CloseFrexxEd(char *string)
 
   while (GetReturnMsg(0));	/* Töm ReturnMsg-porten */
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 9\n");
-#endif
   if (DefaultFact) {
     register FACT *factcount=DefaultFact;
     do {
@@ -884,10 +679,6 @@ void CloseFrexxEd(char *string)
     } while (factcount);
   }
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 10\n");
-#endif
   Dealloc(appiconname);
 
 //  if (Default)
@@ -923,18 +714,12 @@ void CloseFrexxEd(char *string)
     menu.ownmenu=NULL;
     while (Default.key.mul)
       DeleteKmap(Default.key.mul);
-//    Dealloc(Default);
   }
   DeleteLogSetting();
 
-//  Dealloc(buffer);
   FreeCache();
 
 		// End if to POOLS
-#endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 11\n");
 #endif
   if (Anchor)
     fplFree(Anchor);
@@ -1005,12 +790,6 @@ void CloseFrexxEd(char *string)
   }
 
   KillAlloc(); /* removes all memory pools! */
-
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 13\n");
-#endif
-
 }
 
 void PrintScreenInit(void)
@@ -1020,7 +799,7 @@ void PrintScreenInit(void)
   baseline=SystemFont->tf_Baseline;
 }
 
-char __regargs *OpenMyScreen(WindowStruct *win)
+static char *OpenMyScreen(WindowStruct *win)
 {
   struct NewWindow newwindow = {
     0, 0,                        /* left and top edge */
@@ -1059,17 +838,7 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   if (!win->ownscreen && win->screen_pointer)
     UnlockPubScreen(NULL, win->screen_pointer);
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Copy WB\n");
-#endif
-
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Open fonts\n");
-#endif
-  if (open_copywb)
-    CloneWB(win);
+  if (open_copywb) CloneWB(win);
 
   if ((!open_copywb || !SystemFont) && firstopen) {
 
@@ -1105,10 +874,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   if (!cl_iconify && !win->iconify) {
     int reg=Default.BufStructDefault.reg.reg;
 
-#ifdef DEBUGTEST
-    if(DebugOpt)
-      FPrintf(Output(), "AllocFont\n");
-#endif
     if (win->window!=FX_SCREEN) {
       newwindow.Height=win->real_window_height;
       newwindow.Width=win->real_window_width;
@@ -1131,10 +896,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
     Sprintf(title, screen_title, FrexxName);
   }
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "OpenScreen\n");
-#endif
   /* open screen */
   if (!cl_iconify && !win->iconify) {
     if (win->window==FX_SCREEN || win->window==FX_WINSCREEN) {
@@ -1228,17 +989,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
       if (win->real_window_height<win->window_minheight) {
         newwindow.Height=win->real_window_height=win->window_minheight;
       }
-  /* Fungerar inte enligt praktiskt metod, trots att det står så i RKRML.
-     Av någon anledning borde det stå '+=14' istället för '+=18'.
-      BorderWidth=win->screen_pointer->WBorLeft+win->screen_pointer->WBorRight;
-      BorderHeight=win->screen_pointer->WBorTop+
-                   win->screen_pointer->Font->ta_YSize+1+
-                   win->screen_pointer->WBorBottom;
-      if (win->screen_pointer->Flags & SCREENHIRES) {
-        BorderWidth+=18;
-      } else
-        BorderWidth+=13;
-  */
       if ((win->window&FX_WINDOWBIT) && win->autoresize &&
           BorderWidth>=0 && BorderHeight>=0) {
         register int dx;
@@ -1276,9 +1026,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
         str=title;
         str_s=title;
       }
-      // FIXME: AROS workaround
-      // newwindow.TopEdge += 20;
-      //newwindow.Height -= 20;
       if (!(win->window_pointer=(struct Window *)
                                     OpenWindowTags(&newwindow,
                                                    WA_AutoAdjust, TRUE,
@@ -1309,8 +1056,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   
     SetupMinWindow(win);
   } else {
-//bort 970306    Iconify(win);
-//dit 970306
     win->iconify=TRUE;
     win->Visible=VISIBLE_ICONIFIED;
   }
@@ -1342,10 +1087,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   }  
   OpenAppIcon();
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "SizeWindow\n");
-#endif
   win->redrawneeded=NULL;
   if (!cl_iconify && !win->iconify) {
     CopyWindowPos(win);
@@ -1381,10 +1122,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
   }
 
   /* attach the menus to the window */
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Attach menus\n");
-#endif
   if(menu_attach(win))  // 960605
     return(RetString(STR_CREATE_MENUS));
 
@@ -1392,9 +1129,6 @@ char __regargs *OpenMyScreen(WindowStruct *win)
 
     SetFont(win->window_pointer->RPort, SystemFont);
 
-//    if(menu_attach(win))
-//      return(RetString(STR_CREATE_MENUS));
-  
     if (editprocess)
       editprocess->pr_WindowPtr = (APTR)win->window_pointer;
 
@@ -1549,14 +1283,13 @@ int OpenUpScreen(WindowStruct *win)
   return(TRUE);
 }
 
-void __regargs AdjustBufsInWindow(WindowStruct *win)
+static void AdjustBufsInWindow(WindowStruct *win)
 {
   if (win && win->window_pointer &&
       win->window_pointer->Height>win->window_minheight &&
       win->window_pointer->Height>=win->window_pointer->MinHeight) {
     BufStruct *Storage=win->NextShowBuf;
     while (Storage) {
-//      ReSizeBuf(Storage, Storage, NULL, BUF(NextShowBuf)?BUF(screen_lines):win->window_lines);
       ReSizeBuf(Storage, Storage, NULL, BUF(screen_lines)?BUF(screen_lines):win->window_lines);
       FixMarg(Storage);
       if (BUF(slider_on)) {
@@ -1627,30 +1360,6 @@ void __regargs GetDimension(ULONG mode)
   visible_height=dim->TxtOScan.MaxY+1;
   visible_width=dim->TxtOScan.MaxX+1;
 }
-
-#if 0 //960127
-void __regargs CalcPlanes(WindowStruct *win)
-{
-  register int pens, newplanes=0;
-  if (win) {
-    pens=statuscolor|statustextcolor;
-    if (win->colour_status_info>=0)
-      pens|=win->colour_status_info;
-    do {
-      newplanes++;
-      pens>>=1;
-    } while (pens);
-    if (newplanes<2)
-      newplanes=2;
-    if (win->window_pointer && win->bitplanes!=newplanes) {
-      win->bitplanes=newplanes;
-      if (FrexxEdStarted)
-        ClearWindow(win);
-    }
-    win->bitplanes=newplanes;
-  }
-}
-#endif
 
 int __regargs Iconify(WindowStruct *specific_window)
 {
@@ -1723,10 +1432,6 @@ int __regargs Deiconify(WindowStruct *specific_window)
 void __regargs OpenAppIcon(void)
 {
   if(!appicon && (Default.appicon || Default.WindowDefault.iconify)) {
-#ifdef DEBUGTEST
-    if(DebugOpt)
-      FPrintf(Output(), "AppIcon\n");
-#endif
     appicon = AddAppIcon(NULL, NULL, appiconname, WBMsgPort, NULL,
     			 externappicon?externappicon:&AppIconDObj, NULL);
   }  
