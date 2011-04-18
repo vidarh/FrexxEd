@@ -163,7 +163,6 @@ extern int UpDtNeeded;
 extern char *FrexxName;
 extern char *screen_title;
 
-extern int clipri;
 extern struct MsgPort *msgport;			/* msgport for STICK */
 extern struct MsgPort *msgreply;
 extern struct Message msgsend;
@@ -174,7 +173,6 @@ extern struct GfxBase *GfxBase;
 extern struct ReqToolsBase *ReqToolsBase;
 extern BlockStruct *BlockBuffer;
 
-extern APTR oldwindowptr;
 extern struct screen_buffer ScreenBuffer;
 extern struct Window *iconw;
 
@@ -189,7 +187,6 @@ extern struct ExtNewWindow newwindow;
 
 extern struct TextAttr topazfont;
 extern int requestfontwidth;		// Kalkulerad bredd på requestfonten.
-extern UWORD DRI[];
 extern char *statusbuffer;
 
 extern char DebugOpt; /* debug on/off */
@@ -240,9 +237,17 @@ static char *screenwindow_name=NULL;
 extern int total_fpl_alloc;
 #endif
 
+/*** PRIVATE ***/
+
+static int clipri=-200;
+static APTR oldwindowptr = NULL;
+static UWORD DRI[]={ 65535 };
+
 static void TestScreenMode(WindowStruct *win);
 static void AdjustBufsInWindow(WindowStruct *win);
 static char *OpenMyScreen(WindowStruct *win);
+
+/*************/
 
 /*
   Om FrexxEd inte kan stänga en screen, så läggs pekaren till den upp i en
@@ -872,8 +877,6 @@ static char *OpenMyScreen(WindowStruct *win)
   win->real_window_ypos=win->window_ypos;
 
   if (!cl_iconify && !win->iconify) {
-    int reg=Default.BufStructDefault.reg.reg;
-
     if (win->window!=FX_SCREEN) {
       newwindow.Height=win->real_window_height;
       newwindow.Width=win->real_window_width;
@@ -1022,10 +1025,13 @@ static char *OpenMyScreen(WindowStruct *win)
         str_s=title;
       if (!*str)
         str=str_s;
+#if 0 /* FIXME: Unsure if this is meant to run if the registration key has been found or if it hasn't. Test */
+#warning Remnants of keyfile stuff
       if (Default.BufStructDefault.reg.reg) {
         str=title;
         str_s=title;
       }
+#endif
       if (!(win->window_pointer=(struct Window *)
                                     OpenWindowTags(&newwindow,
                                                    WA_AutoAdjust, TRUE,

@@ -53,7 +53,6 @@ extern BufStruct *NewStorageWanted;
 extern int Visible;
 extern int UpDtNeeded;
 extern DefaultStruct Default;
-extern int editmax;
 extern struct rtFileRequester *FileReq;
 extern char buffer[];
 extern BOOL fplabort;	/* Allow to abort FPL scripts.  Startup script shouldn't be breakable */
@@ -88,13 +87,10 @@ extern AREXXCONTEXT RexxHandle;
 
 extern char *fpl_executer;	/* Namn på den funktion som exekverar FPL */
 extern ReturnCode fpl_error;
-extern jmp_buf oldfplstackpoint;
 extern BPTR wb_path;
 extern char **FromWorkbench;
 
 extern char **filelog_list;
-extern int filelog_maxalloc;
-extern int filelog_antal;
 extern struct MenuInfo menu;
 extern BOOL clear_all_currents;
 extern BOOL device_want_control;
@@ -106,6 +102,11 @@ extern short important_message_available;
 extern int retval_antal;
 extern int retval_params[];
 extern struct screen_buffer ScreenBuffer;
+
+/*** PRIVATE ***/
+static jmp_buf oldfplstackpoint;
+static int filelog_maxalloc = 0;
+static int filelog_antal=0;
 
 static void __regargs ScInverseLine(BufStruct *Storage, struct fplArgument *arg);
 static void __regargs ScPrintLine(BufStruct *Storage, struct fplArgument *arg);

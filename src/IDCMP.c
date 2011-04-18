@@ -77,7 +77,6 @@ extern int systemfont_leftmarg;
 extern int systemfont_rightmarg;
 extern char *cl_portname, *cl_startupfile;
 extern UWORD zoom[];
-extern ReturnMsgStruct *firstreturnmsg;
 extern BOOL fplabort;	/* Allow to abort FPL scripts.  Startup script shouldn't be breakable */
 extern struct Setting **sets;
 extern int mouse_x;
@@ -87,8 +86,6 @@ extern struct SignalSemaphore LockSemaphore;
 extern int semaphore_count;
 
 extern BufStruct *NewStorageWanted;
-extern struct IntuiMessage *IDCMPmsg;
-extern UWORD lastmsgCode;
 extern struct KeyMap *internalkeymap;
 extern struct MsgPort *WindowPort;
 
@@ -121,8 +118,6 @@ extern struct OwnMenu *menu_settingchain;
                IDCMP_MENUVERIFY|IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|IDCMP_NEWSIZE
 
 extern struct InputEvent ievent;        /* used for RawKeyConvert() */
-extern BOOL frexxedrunning;
-extern int devicelock;
 extern int zoomstate;
 extern char ignoreresize;
 extern struct MsgPort *TimerMP;
@@ -137,7 +132,12 @@ extern struct Task *FrexxEdTask;
 
 extern short important_message_available;
 
+/*** PRIVATE ***/
 
+static struct IntuiMessage *IDCMPmsg=NULL;
+static BOOL frexxedrunning=TRUE;
+static UWORD lastmsgCode=NULL;
+static ReturnMsgStruct *firstreturnmsg=NULL;
 static int mousex, mousey=0, oldmousex=-1, oldmousey=-1;
 static char *Argv[3];
 static int Argc;
@@ -215,14 +215,6 @@ void __regargs IDCMP(BufStruct *Storage)
 
   semaphore_count=1;
 
-/* 951223 dit och bort
-  activewindow=BUF(window->window_pointer);
-  if (activewindow)
-    CursorXY(NULL, -3, 0);
-  else
-    CursorXY(NULL, -2, 0);
-*/
-//if (!Default.BufStructDefault.reg.r.reg2) // DEBUG
   while (1) {		// Kan bara breakas med ret==QUIT_COMMAND
     command=DO_NOTHING;
     commandflag=NULL;

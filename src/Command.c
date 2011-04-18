@@ -53,15 +53,9 @@ extern srch Search;          /* search structure */
 extern DefaultStruct Default;
 
 extern int last_command;
-extern BOOL yankcontinue;     /* Shall the yank buffer expand */
 extern BlockStruct *YankBuffer;
 extern BlockStruct MacroBuffer;
-extern int lastoutput;
 extern int undoantal;
-extern int undoOPbsantal;
-extern int undoOPantal;
-extern int undoBSantal;
-extern int undoDLantal;
 extern int totalalloc;
 extern int MacroOn;		/* Macro på (1) eller av (0) */
 extern struct FrexxEdFunction fred[];
@@ -84,6 +78,18 @@ extern char *fpl_executer;
 extern FACT *DefaultFact;
 extern BOOL clear_all_currents;
 extern int ErrNo;		// Global Error value storage.
+
+/*** PRIVATE ***/
+
+static BOOL yankcontinue=FALSE;			/* Shall the yank buffer expand */
+static int lastoutput=0;
+static int undoOPbsantal=0;
+static int undoOPantal=0;
+static int undoBSantal=0;
+static int undoDLantal=0;
+
+/***************/
+
 
 int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
 {
@@ -869,10 +875,13 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
               char *str_s=Default.WindowDefault.window_title;
               if (!*str)
                 str=str_s;
+#if 0
+#warning Remnants of registration keyfile stuff - unsure if it should stay or go
               if (BUF(reg.reg)) {
                 str=title;
                 str_s=title;
               }
+#endif
               SetWindowTitles(win->window_pointer, str, str_s);
             }
             win=win->next;

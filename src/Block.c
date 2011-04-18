@@ -1196,7 +1196,7 @@ int __regargs FreeBlock(BlockStruct *block, char *name)
   if (block)
     name=block->filnamn;
 
-  while (*blockcount && Stricmp((*blockcount)->filnamn, name))
+  while (*blockcount && stricmp((*blockcount)->filnamn, name))
     blockcount=&(*blockcount)->Next;
 
   if (!(*blockcount))

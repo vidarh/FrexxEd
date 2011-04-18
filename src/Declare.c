@@ -71,8 +71,6 @@ BOOL freelockedalloc=FALSE;
 
 /****************************** BufControl.c ****************************/
 int bufferlen=0;
-int editmax=0;	/* how many buffers we have */
-int buffer_number=0;
 
 /****************************** Buildmenu.c *****************************/
 
@@ -97,15 +95,9 @@ int ReturnValue=0;	// Global return value storage.
 int ErrNo=0;		// Global Error value storage.
 char outputundo[OUTPUT_UNDO_MAX];
 int last_command=DO_NOTHING;
-BOOL yankcontinue=FALSE;			/* Shall the yank buffer expand */
 BlockStruct *YankBuffer;
 BlockStruct MacroBuffer={ NULL, NULL, 0, 0, 0, NULL };
-int lastoutput=0;
 int undoantal=0;
-int undoOPbsantal=0;
-int undoOPantal=0;
-int undoBSantal=0;
-int undoDLantal=0;
 int MacroOn=0;		/* Macro på (1) eller av (0) */
 int recursive=0;
 struct Window *InfoWindow=NULL;
@@ -115,7 +107,6 @@ struct Window *InfoWindow=NULL;
 /***************************** Editor.c ********************************/
 long __stack=8000;
 long __STKNEED=3500;
-jmp_buf oldfplstackpoint;
 jmp_buf return_stackpoint;
 
 char *cl_frexxecute=NULL, *cl_run=NULL, *cl_portname=NULL, *cl_init=NULL, *cl_pubscreen=NULL, *cl_startupfile=NULL, *cl_execute;
@@ -123,12 +114,6 @@ char *cl_diskname=NULL;
 int cl_column=0, cl_line=0, cl_copywb=FALSE, cl_double=FALSE;
 int cl_omit=FALSE, cl_screen=FALSE, cl_window=FALSE, cl_backdrop=FALSE, cl_debug, cl_iconify=FALSE;
 struct RDArgs *argsptr;
-/*
-LocalStruct Local={
-  NULL,
-  0
-};
-*/
 
 char FrexxEdStarted=0;	/* Är FrexxEd uppstartad */
 char **FromWorkbench=NULL;       /* started from workbench? argv is placed here */
@@ -140,16 +125,12 @@ int retval_antal=0;
 int retval_params[2];
 
 char **filelog_list=NULL;
-int filelog_maxalloc=0;
-int filelog_antal=0;
 
 int fpl_error=0;
 ReturnCode fpl_executer=NULL;	/* Namn på den funktion som exekverar FPL */
 struct UserData userdata;
 
 BOOL hook_enabled=TRUE;
-
-struct Library *FPLBase = NULL;
 
 void *Anchor=NULL;
 
@@ -182,14 +163,9 @@ BOOL device_want_control=FALSE;
 BOOL device_has_killed_a_buffer=FALSE;
 BOOL clear_all_currents=FALSE;
 int zoomstate=0;
-int devicelock=0;
-BOOL frexxedrunning=TRUE;
 int signalbits=0; /* Which signal bits to Wait() for! */
 BOOL fplabort=FALSE;		/* Allow to abort FPL scripts.  Startup script shouldn't be breakable */
-ReturnMsgStruct *firstreturnmsg=NULL;
 BufStruct *NewStorageWanted=NULL;
-struct IntuiMessage *IDCMPmsg=NULL;
-UWORD lastmsgCode=NULL;
 struct InputEvent ievent = {	/* used for RawKeyConvert() */
   NULL,
   IECLASS_RAWKEY,
@@ -249,71 +225,6 @@ FrexxBorder borderdef = {
   },
 };
 
-/***************************** KeyAssign.c *****************************/
-
-const char hextab[]={ '0','1','2','3','4','5','6','7',
-                      '8','9','a','b','c','d','e','f'};
-
-
-const char *converttable[][2]={
-  {"F1",	"\xfb\x9b""0~"},
-  {"F2",	"\xfb\x9b""1~"},
-  {"F3",	"\xfb\x9b""2~"},
-  {"F4",	"\xfb\x9b""3~"},
-  {"F5",	"\xfb\x9b""4~"},
-  {"F6",	"\xfb\x9b""5~"},
-  {"F7",	"\xfb\x9b""6~"},
-  {"F8",	"\xfb\x9b""7~"},
-  {"F9",	"\xfb\x9b""8~"},
-  {"F10",	"\xfb\x9b""9~"},
-  {"F11",	"\xfb\x9b""10~"},
-  {"F12",	"\xfb\x9b""11~"},
-  {"F13",	"\xfb\x9b""12~"},
-  {"F14",	"\xfb\x9b""13~"},
-  {"F15",	"\xfb\x9b""14~"},
-  {"F16",	"\xfb\x9b""15~"},
-  {"F17",	"\xfb\x9b""16~"},
-  {"F18",	"\xfb\x9b""17~"},
-  {"F19",	"\xfb\x9b""18~"},
-  {"F20",	"\xfb\x9b""19~"},
-  {"Del",	"\xfb\x7f"},
-  {"Delete",	"\xfb\x7f"},
-  {"Help",	"\xfb\x9b?~"},
-  {"Up",	"\xfb\x9b""A"},
-  {"Down",	"\xfb\x9b""B"},
-  {"Right",	"\xfb\x9b""C"},
-  {"Left",	"\xfb\x9b""D"},
-  {"Esc",	"\xfb\x1b"},
-  {"Escape",	"\xfb\x1b"},
-  {"Enter",	"\x43"},
-  {"Return",	"\x44"},
-  {"Tab",	"\xfb\t"},
-  {"Bspc",	"\xfb\b"},
-  {"Backspace",	"\xfb\b"},
-  {"Spc",	"\xfb "},
-  {"Space",	"\xfb "},
-  {" ",		"\xfb "},
-  {"num0",	"\x0f"},
-  {"num1",	"\x1d"},
-  {"num2",	"\x1e"},
-  {"num3",	"\x1f"},
-  {"num4",	"\x2d"},
-  {"num5",	"\x2e"},
-  {"num6",	"\x2f"},
-  {"num7",	"\x3d"},
-  {"num8",	"\x3e"},
-  {"num9",	"\x3f"},
-  {"num[",	"\x5a"},
-  {"num]",	"\x5b"},
-  {"num/",	"\x5c"},
-  {"num*",	"\x5d"},
-  {"num-",	"\x4a"},
-  {"num+",	"\x5e"},
-  {"num.",	"\x3c"}
-};
-
-const int converttablelength=sizeof(converttable)/((sizeof(char *)*2));
-
 /***************************** OpenClose.c *****************************/
 
 int semaphore_count=0;
@@ -328,202 +239,7 @@ int visible_width=0;
 
 char *appiconname=NULL;
 
-static UWORD Image1Data[] = {
-  0x00FF, 0xFFFF, 0xFFC0, 
-  0x0080, 0x0FFC, 0x0000, 
-  0x01C0, 0x07F8, 0x0000, 
-  0x0360, 0x03F0, 0x0000, 
-  0x06F0, 0x01E0, 0x0000, 
-  0x07F0, 0x00C0, 0x0000, 
-  0x07F0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x01C0, 0x00C0, 0x0000, 
-  0x01C0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x0DF8, 0x00C0, 0x0000, 
-  0x13FC, 0x00C0, 0x0000, 
-  0x2FFE, 0x00C0, 0x0000, 
-  0x2C1E, 0x00C1, 0xF000, 
-  0x780F, 0x00C1, 0x0000, 
-  0x7007, 0x00C1, 0x0000, 
-  0x6003, 0x00C1, 0xE000, 
-  0x6003, 0x00C1, 0x0000, 
-  0x6003, 0x00C1, 0x1040, 
-  0x2002, 0x00C1, 0x0880, 
-  0x2002, 0x00C1, 0x0500, 
-  0x1004, 0x00C0, 0x0200, 
-  0x09C8, 0x00C0, 0x0500, 
-  0x07F0, 0x00C0, 0x0880, 
-  0x0470, 0x00C0, 0x1040, 
-  0x0DF8, 0x00C0, 0x0000, 
-  0x0FF8, 0x00C0, 0x0000, 
-  0x0FF8, 0x00C0, 0x0000, 
-  0x07F0, 0x80C0, 0x0000, 
-  0x07F0, 0x80C0, 0x2000, 
-  0x01C0, 0x40C7, 0xE000, 
-  0x0000, 0x40C1, 0xE000, 
-  0x0000, 0x3001, 0xE000, 
-  0x0000, 0x0C06, 0x2000, 
-  0x0000, 0x03F8, 0x0000, 
-
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0080, 0x0000, 0x0000, 
-  0x0100, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0200, 0x0007, 0xFFF0, 
-  0x0C00, 0x0007, 0xFFF0, 
-  0x1000, 0x0007, 0xFFF0, 
-  0x1000, 0x0006, 0x0FF0, 
-  0x0000, 0x0006, 0xFFF0, 
-  0x0000, 0x0006, 0xFFF0, 
-  0x0000, 0x0006, 0x1FF0, 
-  0x0000, 0x0006, 0xFFF0, 
-  0x0000, 0x0006, 0xEFB0, 
-  0x0000, 0x0006, 0xF770, 
-  0x0000, 0x0006, 0xFAF0, 
-  0x0000, 0x0007, 0xFDF0, 
-  0x0000, 0x0007, 0xFAF0, 
-  0x0000, 0x0007, 0xF770, 
-  0x0380, 0x0007, 0xEFB0, 
-  0x0200, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-};
-
-struct Image AppIcon1 = {
-  0, 0, 44, 38, 2, &Image1Data[0], 3, 0, NULL
-};
-
-static UWORD Image2Data[] = {
-  0x00FF, 0xFFFF, 0xFFC0, 
-  0x0080, 0x0FFC, 0x0000, 
-  0x01C0, 0x07F8, 0x0000, 
-  0x0360, 0x03F0, 0x0000, 
-  0x06F0, 0x01E0, 0x0000, 
-  0x07F0, 0x00C0, 0x0000, 
-  0x07F0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x01C0, 0x00C0, 0x0000, 
-  0x01C0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x03E0, 0x00C0, 0x0000, 
-  0x07F0, 0x00C0, 0x0000, 
-  0x1BFC, 0x00C0, 0x0000, 
-  0x27FE, 0x00C0, 0x0000, 
-  0x5FFF, 0x00C1, 0xDBC0, 
-  0x580F, 0x00C0, 0x0000, 
-  0xF007, 0x80C1, 0xD980, 
-  0xE003, 0x80C0, 0x0000, 
-  0xC001, 0x80C1, 0xBD00, 
-  0xC001, 0x80C0, 0x0000, 
-  0xC001, 0x80C1, 0xDE80, 
-  0x4001, 0x00C0, 0x0000, 
-  0x4001, 0x00C1, 0xBAC0, 
-  0x2002, 0x00C0, 0x0000, 
-  0x1004, 0x00C1, 0xB000, 
-  0x0000, 0x00C0, 0x0000, 
-  0x0000, 0x00C0, 0x0000, 
-  0x00E0, 0x00C0, 0x03C0, 
-  0x03F8, 0x00C0, 0x0000, 
-  0x0238, 0x00C0, 0x0000, 
-  0x06FC, 0x00C0, 0x0000, 
-  0x07FC, 0x00C0, 0x0000, 
-  0x07FC, 0x00C0, 0x0000, 
-  0x03F8, 0x00C0, 0x0000, 
-  0x03F8, 0x0000, 0x0000, 
-  0x00E0, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0080, 0x0000, 0x0000, 
-  0x0100, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0400, 0x0007, 0xFFF0, 
-  0x1800, 0x0007, 0xFFF0, 
-  0x2000, 0x0007, 0xFFF0, 
-  0x2000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x0000, 0x0007, 0xFFF0, 
-  0x01C0, 0x0000, 0x0000, 
-  0x0100, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 
-};
-
-struct Image AppIcon2 = {
-  0, 0, 44, 38, 2, &Image2Data[0], 3, 0, NULL
-};
-
-struct DiskObject AppIconDObj =
-{
-    NULL,                                        /* Magic Number */
-    NULL,                                        /* Version */
-    {                                            /* Embedded Gadget Structure */
-        NULL,                                    /* Next Gadget Pointer */
-        0, 0, 44, 39,                            /* Left,Top,Width,Height */
-        GFLG_GADGHIMAGE,                              /* Flags */
-        NULL,                                    /* Activation Flags */
-        NULL,                                    /* Gadget Type */
-        (APTR) & AppIcon1,                       /* Render Image */
-        (APTR) & AppIcon2,                       /* Select Image */
-        NULL,                                    /* Gadget Text */
-        NULL,                                    /* Mutual Exclude */
-        NULL,                                    /* Special Info */
-        0,                                       /* Gadget ID */
-        NULL,                                    /* User Data */
-    },
-    WBAPPICON,                                   /* Icon Type */
-    NULL,                                        /* Default Tool */
-    NULL,                                        /* Tool Type Array */
-    NO_ICON_POSITION,                            /* Current X */
-    NO_ICON_POSITION,                            /* Current Y */
-    NULL,                                        /* Drawer Structure */
-    NULL,                                        /* Tool Window */
-    NULL                                         /* Stack Size */
-};
-
+extern struct DiskObject AppIconDObj; /* Moved to AppIcon.c */
 struct DiskObject *externappicon;
 
 BOOL OwnWindow=FALSE;	/* This task is the owner of a FrexxEd window */
@@ -535,9 +251,9 @@ struct Menu *Menus = NULL;
 FACT *UsingFact=NULL;		/* Current using FACT.  A free pointer, changed without notice */
 
 srch Search;          /* search structure */
-struct Library *FastGraphicsBase=NULL;
-struct Library *DiskfontBase=NULL;
-struct Library *GadToolsBase = NULL;
+//struct Library *FastGraphicsBase=NULL;
+//struct Library *DiskfontBase=NULL;
+//struct Library *GadToolsBase = NULL;
 struct rtFileRequester *FileReq=NULL; /* Buffrad Filerequester. Bra o ha! */
 struct IOStdReq *WriteReq=NULL;
 struct MsgPort *WritePort=NULL, *ReadPort=NULL;
@@ -547,20 +263,19 @@ struct Process *editprocess = NULL;
 struct Library *ConsoleDevice=NULL; /* Changed definition in 6.0! */
 struct PPBase *PPBase = NULL;
 struct Library *XpkBase = NULL;
-struct ExecBase *execbase;
-struct IntuitionBase *IntuitionBase=NULL;
-struct GfxBase *GfxBase=NULL;
+//struct ExecBase *execbase;
+//struct IntuitionBase *IntuitionBase=NULL;
+//struct GfxBase *GfxBase=NULL;
 struct ReqToolsBase *ReqToolsBase=NULL;
 struct AppIcon *appicon=NULL;
-struct Library *LocaleBase=NULL;
+//struct Library *LocaleBase=NULL;
 struct Catalog *catalog=NULL;
-struct Library *IconBase=NULL;
+//struct Library *IconBase=NULL;
 
 int Visible=VISIBLE_OFF;
 char CursorOnOff=FALSE;	/* Tells the state of the cursor */
 char cursorhidden=FALSE;
 
-int clipri=-200;
 struct MsgPort *msgport;			/* msgport för STICK */
 struct MsgPort *msgreply;
 struct Message msgsend = {
@@ -573,27 +288,15 @@ struct Message msgsend = {
   sizeof(struct MsgPort)
 };
 
-//struct Screen *screen=NULL;
-//struct WindowStruct *window=NULL;
 BlockStruct *BlockBuffer;
 
-APTR oldwindowptr = NULL;
 struct screen_buffer ScreenBuffer;
-long screen_buffer_size=0;
 struct Window *iconw=NULL;
 
 int BarHeight=0;
 int BorderWidth=-1, BorderHeight=-1;
 struct TextFont *font=NULL;
 WORD charbredd, charhojd, baseline;
-/*
-UWORD DRI[]={
- 3,1, 1,2,
- 1,3, 1,0,
- 2,8, 65535
-};
-*/
-UWORD DRI[]={ 65535 };
 
 UWORD zoom[]={
   50, 0,

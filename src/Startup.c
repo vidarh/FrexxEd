@@ -63,7 +63,6 @@
 #include "Process.h"
 
 extern void *Anchor;
-extern int editmax;     /* how many buffers we have */
 extern DefaultStruct Default; /* the default values of a BufStruct */
 extern struct NewScreen newscreen;
 extern char buffer[];

@@ -280,13 +280,6 @@ struct BufStruct
   int face_bottom_updated_line; /* Nedersta säkra uppdaterade face-raden */
 
   int move_screen;	/* copy of the default move_screen */
-  union {
-    int reg;
-    struct {
-      WORD reg1;
-      WORD reg2;
-    } r;
-  } reg;		/* Registered version */
   struct BufStruct *NextShowBuf;	/* next BufStruct on screen*/
   struct BufStruct *PrevShowBuf; 	/* previous BufStruct on screen*/
 

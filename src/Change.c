@@ -635,13 +635,13 @@ int __regargs Change(BufStruct *Storage, int type, int vald, int newvalue)
                   }
                 }
                 break;
-    #if 0
-              case SEUP_PENS_CHANGED:
-                CalcPlanes(FRONTWINDOW);
-                break;
-    #endif
               case SEUP_TITLE_CHANGE:
+#if 0
+#warning Remnants of registration keyfile stuff - unsure if it should stay or go
                 if (BUF(reg.reg)) {
+#else
+				if (0) {
+#endif
                   Dealloc(BUF(window->window_title));
                   BUF(window->window_title)=GlobalEmptyString;
                 } else {

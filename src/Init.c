@@ -74,7 +74,6 @@ extern char *cl_pubscreen, *cl_startupfile;
 extern char *cl_diskname;
 extern struct TextAttr topazfont;
 extern struct screen_buffer ScreenBuffer;
-extern long screen_buffer_size;
 extern FrexxBorder borderdef;
 extern struct Catalog *catalog;
 
@@ -103,6 +102,10 @@ extern char DebugOpt; /* Debug option on/off */
 #define RSA_FULL 0x55aa1235
 #define RSA_SUB  0xe29affed
 
+/*** PRIVATE ***/
+
+static long screen_buffer_size=0;
+
 /***********************************************
  *
  *  InitDefaultBuf()
@@ -122,7 +125,6 @@ void InitDefaultBuf()
   Default.BufStructDefault.lowermarg=4;
   Default.BufStructDefault.block_exists=be_NONE;
   Default.BufStructDefault.shared=&Default.SharedDefault;
-  Default.BufStructDefault.reg.reg=RSA_FULL-RSA_SUB;	// Justeras även senare
   Default.l_c_len_store=5;
   Default.SharedDefault.Undotop=-1;
   Default.SharedDefault.date.ds_Days=-1;
@@ -151,7 +153,6 @@ void InitDefaultBuf()
   memcpy(&Default.BufStructDefault.slide.SliderImage,&SliderImage,sizeof(SliderImage));
   memcpy(&Default.BufStructDefault.slide.Border,&borderdef,sizeof(FrexxBorder));
 
-  Default.BufStructDefault.reg.reg+=RSA_SUB;	// Justeras även senare
   Default.WindowDefault.slider=sl_RIGHT;
 
   Default.WindowDefault.DisplayID=HIRES_KEY;
@@ -175,7 +176,6 @@ void InitDefaultBuf()
   Default.defaultfile=Strdup("ProgDir:FPL/FrexxEd.default");
   Default.StartupFile=Strdup("FrexxEd.FPL");
 
-  Default.BufStructDefault.reg.r.reg2|=0x0211;	// Krypteringsövning
   Default.autosaveintervall=100;
 
   Default.BufStructDefault.curr_topline=1;
@@ -231,8 +231,6 @@ void InitDefaultBuf()
   Default.page_length=66;
 
   Default.FPLdirectory=Strdup("|ProgDir:FPL/");
-
-  Default.BufStructDefault.reg.r.reg2|=0x1024;	// Krypteringsövning
 
   Default.SystemFont=GlobalEmptyString;
   Default.RequestFont=GlobalEmptyString;

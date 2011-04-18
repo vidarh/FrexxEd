@@ -11,7 +11,7 @@ OBJS = \
  Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
  Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
  Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o
+ UpdtScreenC.o Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o AppIcon.o
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o
@@ -44,6 +44,7 @@ bindist: Fred
 
 
 Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
+AppIcon.c:	    AppIcon.c
 Block.o:		Block.c Buf.h Function.h
 BufControl.o:		BufControl.c Buf.h Function.h
 BuildMenu.o:		BuildMenu.c BuildMenu.h Buf.h Function.h

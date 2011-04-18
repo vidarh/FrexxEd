@@ -17,7 +17,7 @@
 #include <libraries/FPL.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-#include <proto/FPL.h>
+//#include <proto/FPL.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
@@ -50,17 +50,81 @@
 
 extern char buffer[];
 extern DefaultStruct Default;
-extern const char hextab[];
-extern const int converttablelength;
-extern const char *converttable[][2];
-extern struct Library *FPLBase;
+//extern const int converttablelength;
+//extern const char *converttable[][2];
+//extern struct Library *FPLBase;
 extern const int nofuncs;
 extern struct FrexxEdFunction fred[];
 extern void *Anchor;
 extern int ReturnValue;		// Global return value storage.
 extern char GlobalEmptyString[];
-extern char DebugOpt; /* debug on/off */
-extern struct ExecBase *SysBase;
+//extern char DebugOpt; /* debug on/off */
+//extern struct ExecBase *SysBase;
+
+/*** Private ***/
+
+static const char *converttable[][2]={
+  {"F1",	"\xfb\x9b""0~"},
+  {"F2",	"\xfb\x9b""1~"},
+  {"F3",	"\xfb\x9b""2~"},
+  {"F4",	"\xfb\x9b""3~"},
+  {"F5",	"\xfb\x9b""4~"},
+  {"F6",	"\xfb\x9b""5~"},
+  {"F7",	"\xfb\x9b""6~"},
+  {"F8",	"\xfb\x9b""7~"},
+  {"F9",	"\xfb\x9b""8~"},
+  {"F10",	"\xfb\x9b""9~"},
+  {"F11",	"\xfb\x9b""10~"},
+  {"F12",	"\xfb\x9b""11~"},
+  {"F13",	"\xfb\x9b""12~"},
+  {"F14",	"\xfb\x9b""13~"},
+  {"F15",	"\xfb\x9b""14~"},
+  {"F16",	"\xfb\x9b""15~"},
+  {"F17",	"\xfb\x9b""16~"},
+  {"F18",	"\xfb\x9b""17~"},
+  {"F19",	"\xfb\x9b""18~"},
+  {"F20",	"\xfb\x9b""19~"},
+  {"Del",	"\xfb\x7f"},
+  {"Delete",	"\xfb\x7f"},
+  {"Help",	"\xfb\x9b?~"},
+  {"Up",	"\xfb\x9b""A"},
+  {"Down",	"\xfb\x9b""B"},
+  {"Right",	"\xfb\x9b""C"},
+  {"Left",	"\xfb\x9b""D"},
+  {"Esc",	"\xfb\x1b"},
+  {"Escape",	"\xfb\x1b"},
+  {"Enter",	"\x43"},
+  {"Return",	"\x44"},
+  {"Tab",	"\xfb\t"},
+  {"Bspc",	"\xfb\b"},
+  {"Backspace",	"\xfb\b"},
+  {"Spc",	"\xfb "},
+  {"Space",	"\xfb "},
+  {" ",		"\xfb "},
+  {"num0",	"\x0f"},
+  {"num1",	"\x1d"},
+  {"num2",	"\x1e"},
+  {"num3",	"\x1f"},
+  {"num4",	"\x2d"},
+  {"num5",	"\x2e"},
+  {"num6",	"\x2f"},
+  {"num7",	"\x3d"},
+  {"num8",	"\x3e"},
+  {"num9",	"\x3f"},
+  {"num[",	"\x5a"},
+  {"num]",	"\x5b"},
+  {"num/",	"\x5c"},
+  {"num*",	"\x5d"},
+  {"num-",	"\x4a"},
+  {"num+",	"\x5e"},
+  {"num.",	"\x3c"}
+};
+
+const int converttablelength=sizeof(converttable)/((sizeof(char *)*2));
+
+static const char hextab[]={ '0','1','2','3','4','5','6','7',
+                      '8','9','a','b','c','d','e','f'};
+
 
 static int __asm bsearch_cmp_ka(register __a0 void *name, register __d1 int count)
 {

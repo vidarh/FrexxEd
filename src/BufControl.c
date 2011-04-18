@@ -77,8 +77,6 @@ extern long statusbuffer_len;
 
 extern char buffer[];	/* temp buffer */
 extern int bufferlen;
-extern int editmax;	/* how many buffers we have */
-extern int buffer_number;
 extern DefaultStruct Default; /* the default values of a BufStruct */
 extern FACT *DefaultFact;
 
@@ -88,6 +86,10 @@ extern struct SignalSemaphore LockSemaphore;
 
 extern int semaphore_count;
 
+/*** PRIVATE ***/
+
+static int buffer_number=0;
+static int editmax = 0;	/* how many buffers we have */
 
 static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted);
 static void FreeLokalInfo(SharedStruct *shared);
