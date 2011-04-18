@@ -14,15 +14,22 @@ CFLAGS= -g -Wall -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION
 LDFLAGS=
 ASMFLAGS = -c
 
+CP=cp
+MKDIR=mkdir
+BASEDIR=..
+WILD=*
+CP_R=cp -Rap
+
+
 ifeq ($(UNAME), Linux)
 # FIXME: Handle optional AROS cross-compilation under Linux (env-variable?)
 CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -Dtest
 ASMFLAGS = -c
 
-ifeq ($(OS),AROS)
-CC = i386-aros-gcc
-AS = i386-aros-gcc -c
-endif
+	ifeq ($(OS),AROS)
+	CC = i386-aros-gcc
+	AS = i386-aros-gcc -c
+	endif
 endif
 
 ifeq ($(OS), AROS)

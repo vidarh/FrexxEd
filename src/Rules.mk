@@ -25,6 +25,23 @@ FrexxEd_rev.o: FrexxEd_rev.c makefile Rules.mk
 $(TARGET): $(OBJS) $(NONLIBOBJS)
 	$(CC) -o $(TARGET) $+ libfpl.a $(LDFLAGS)
 
+.PHONY: clean
+clean:
+	rm -f *.o *~
+
+
+# Build a binary distribution
+bindist: Fred
+	$(MKDIR) FrexxEd
+	$(MKDIR) FrexxEd/Docs
+	$(CP) Fred FrexxEd
+	$(CP_R) $(BASEDIR)/docs/$(WILD) FrexxEd/Docs
+	$(MKDIR) FrexxEd/FPL
+	$(CP_R) $(BASEDIR)/FPL/$(WILD) FrexxEd/FPL
+	$(MKDIR) FrexxEd/icons
+	$(CP_R) $(BASEDIR)/icons/* FrexxEd/icons
+	lha a FrexxEd.lha FrexxEd
+
 
 Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
 Block.o:		Block.c Buf.h Function.h
