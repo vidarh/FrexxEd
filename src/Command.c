@@ -496,6 +496,12 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
         CopyColors(BUF(window)->screen_pointer, BUF(window));
         localReturnValue=ret;
         break;
+
+	  case DO_COLOR_SAVE:
+		if (BUF(window)) {
+		  /* FIXME: Call function here to iterate over all the colors of the current
+			 screen palette and save them */
+		}
       case DO_CURSOR_LEFT:
         antalcounter=-antalcounter;
       case DO_CURSOR_RIGHT:
@@ -875,9 +881,9 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
               char *str_s=Default.WindowDefault.window_title;
               if (!*str)
                 str=str_s;
-#if 0
+#if 1
 #warning Remnants of registration keyfile stuff - unsure if it should stay or go
-              if (BUF(reg.reg)) {
+              if (1) { //BUF(reg.reg)) {
                 str=title;
                 str_s=title;
               }

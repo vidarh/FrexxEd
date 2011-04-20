@@ -386,6 +386,7 @@ struct FrexxEdFunction fred[]={
   {"CloneWB",		DO_CLONEWB,		'I', "i", 0},	// (winid)	Kopiera Default-pubscreenen till settingarna.	(0=current, -1=default)  Om inget input så tas current. Retvalue.
   {"ColorAdjust",	DO_COLOR_ADJUST,	'I', "iiii", 0},	// (colno, red, gree, blue)
   {"ColorReset",	DO_COLOR_RESET,		'I', "i", 1},	// ()  Resetta färgerna enligt wb. Argumentet är bitvis, dvs 1=färg1, 2=färg2, -1=alla färger. Default=-1.
+  {"ColorSave",	DO_COLOR_SAVE,		'I', "S", 0},	// Save the current palette as an FPL file to the specified location.
   {"ConstructInfo",	SC_CONSTRUCT_INFO,	'I', "SSSSSIIo", 1},// (name, FPLstring, FPLaddition, type, cyclestring, min, max, default)  Skapa en ny Info-variabel. Ret-value.
   {"CopyInfo",		SC_SETCOPY,		'I', "IIOOs>", 0},// (BufferID, CopyToBufferID, mask, nonmask, settings...) Kopierar de önskade maskningen eller settingarna till en annan buffer.  Samma system som PromptInfo  
   {"CurrentBuffer",	SC_CURRENT_BUF,		'I', "I", 0},	// (BufferID)	Byt current buf.  Om den är den currenta vid returnet så blir den synlig.  Ret gamla current buffer eller NULL.

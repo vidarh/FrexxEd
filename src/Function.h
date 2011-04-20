@@ -48,8 +48,9 @@ typedef enum {	/* Commands without any lock */
   DO_BLOCK_TO_UPPER,	/* Ändra alla tecken i blocket till upper case */
   DO_BLOCK_TO_UPPLOW,	/* Ändra alla tecken i blocket */
   DO_CLONEWB,
-  DO_COLOR_ADJUST,	/* Förändra färgerna på screenen */
-  DO_COLOR_RESET,	/* Kopiera färgerna från workbenchen */
+  DO_COLOR_ADJUST,	/* Change specific colors of the palette or bring up a palette requester */
+  DO_COLOR_RESET,	/* Copy the workbench palette */
+  DO_COLOR_SAVE,    /* Save the palette to disk */
   DO_DEICONIFY,		/* Deiconify FrexxEd */
   DO_DELETE_KEY,	/* Delete en tangentfunktion */
   DO_EXECUTE_STRING,	/* Exekvera en FPL-sträng */
