@@ -29,6 +29,9 @@ $(TARGET): $(OBJS) $(NONLIBOBJS)
 clean:
 	rm -f *.o *~
 
+.PHONY: strip
+strip:
+	$(STRIP) $(TARGET)
 
 # Build a binary distribution
 bindist: Fred
@@ -44,7 +47,7 @@ bindist: Fred
 
 
 Alloc.o:		Alloc.c Alloc.h Buf.h Function.h
-AppIcon.c:	    AppIcon.c
+AppIcon.o:	    AppIcon.c
 Block.o:		Block.c Buf.h Function.h
 BufControl.o:		BufControl.c Buf.h Function.h
 BuildMenu.o:		BuildMenu.c BuildMenu.h Buf.h Function.h

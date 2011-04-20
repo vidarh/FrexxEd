@@ -295,7 +295,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
 
   }
   if (win->window_pointer) {
-#ifndef AROS /* All AROS versions have GadTools w/LayoutMenus */
+#ifndef V39PLUS 
     if (SysBase->LibNode.lib_Version < 39)
       FrexxLayoutMenues(win->menus, TRUE);
 #endif
@@ -306,6 +306,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
                      TAG_END))) /* create a nice layout! */
       return(FAIL);
   }
+#ifndef V39PLUS
   if (SysBase->LibNode.lib_Version < 39) {
     register struct Menu *menucount=win->menus;
     register int bredd=visible_width;
@@ -324,6 +325,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
       menucount=menucount->NextMenu;
     }
   }
+#endif
 
   build_default_menues=0;
   if(oldmenu && menu->ownmenu) { /* there was a previous one! */
@@ -667,7 +669,7 @@ int __regargs MenuAdd(int argc, char **strings)
   return(ret);
 }
 
-#ifndef AROS
+#ifndef V39PLUS
 void __regargs FrexxLayoutMenues(struct Menu *menucount, int add)
 {
   struct MenuItem *itemcount;
@@ -704,7 +706,6 @@ void __regargs FixIntuiText(struct MenuItem *item, int add)
       own->itextpatch->NextText=NULL;
   }
 }
-#endif
 
 
 /* Skicka in första itemet */
@@ -760,6 +761,7 @@ int __regargs EnlargeMenu(struct MenuItem *firstitem, int moveitem)
   }
   return(size);
 }
+#endif
 
 
 BOOL __regargs SetItem(BufStruct *Storage, struct MenuItem *item)
