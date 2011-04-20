@@ -21,7 +21,7 @@ export void SaveProject(void)
 
 	dir = ReadInfo("Project_dir");
 	if (!strlen(dir))
-		dir = "FrexxEd:projects/";
+		dir = "ProgDir:projects/";
 	else
 		if (dir[strlen(dir) - 1] != '/')
 			dir = dir + "/";
@@ -94,7 +94,7 @@ export void LoadProject(void)
 
 	dir = ReadInfo("Project_dir");
 	if (!strlen(dir))
-		dir = "FrexxEd:projects/";
+		dir = "ProgDir:projects/";
 	else
 		if (dir[strlen(dir) - 1] != '/')
 			dir = dir + "/";

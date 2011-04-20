@@ -1,4 +1,4 @@
-string xfplf_filename="FrexxEd:FPL/";
+string xfplf_filename="ProgDir:FPL/";
 export int ExecuteFPLFile(string title)
 {
   string newfile;

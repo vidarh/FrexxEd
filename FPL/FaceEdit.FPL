@@ -1,5 +1,5 @@
 
-string FaceFile = "FrexxEd:Startup/MyFace.FPL";
+string FaceFile = "ProgDir:Startup/MyFace.FPL";
 void export FaceEdit()
 {
  string array[1];
@@ -74,7 +74,7 @@ void export FaceEdit()
        ret=Request("You will now be asked to enter a\n"
                    "file name to use to store your styles.\n"
                    "By default, and suggested, is a file that\n"
-                   "will be put in your FrexxEd:Startup/ drawer\n"
+                   "will be put in your ProgDir:Startup/ drawer\n"
                    "since that will be 'executed' each time you\n"
                    "will start FrexxEd in the future!\n"
                    "Continue?");

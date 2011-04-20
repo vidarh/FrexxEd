@@ -2,9 +2,9 @@
 File:		Startup.FPL
 Author:		Daniel Stenberg
 Email:		Daniel.Stenberg@sth.frontec.se
-Short:		Loads all macros and FPL programs in FrexxEd:Startup/
-Version:	1.3
-Date:		15.10.95
+Short:		Loads all macros and FPL programs in ProgDir:Startup/
+Version:	1.4
+Date:		20.04.11
 Local settings:
 Global settings:
 Keysequence:
@@ -15,14 +15,18 @@ Copyright:
 
 FUNCTION
   It loads all macros with .macro extensions and executes all FPL files with
-.FPL extensions that are in the FrexxEd:Startup/ directory
+.FPL extensions that are in the ProgDir:Startup/ directory
 
 HISTORY
-  1.0 - Original
-  1.1 - Now reads and executes all FPL-programs in an alphabetical order.
-  1.2 - Oops! Never sorted the programs, *now* it should be alphabetical! ;)
-  1.3 - Now the files are executed in alpha-order, the previous one did it in
-        a reversed order!
+  1.0 - Daniel Stenberg - Original
+  1.1 - Daniel Stenberg - Now reads and executes all FPL-programs in an
+                          alphabetical order.
+  1.2 - Daniel Stenberg - Oops! Never sorted the programs, *now* it should
+                          be alphabetical! ;)
+  1.3 - Daniel Stenberg - Now the files are executed in alpha-order, the
+                          previous one did it in a reversed order!
+  1.4 - Vidar Hokstad   - Loads all macros and FPL programs in ProgDir:Startup/
+                          rather than requiring FrexxEd: assign.
 
 BUGS
   None known

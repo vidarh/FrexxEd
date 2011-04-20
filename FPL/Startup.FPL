@@ -2,12 +2,12 @@
   string files[2];
   int numfiles;
   
-  numfiles = GetFileList("FrexxEd:Startup/#?.macro", &files);
+  numfiles = GetFileList("ProgDir:Startup/#?.macro", &files);
   while(numfiles--) {
     LoadMacro(files[numfiles]);
   }
 
-  numfiles = GetFileList("FrexxEd:Startup/#?.FPL", &files);
+  numfiles = GetFileList("ProgDir:Startup/#?.FPL", &files);
   Sort(&files, numfiles, 3);
   while(numfiles--) {
     ExecuteFile(files[numfiles]);

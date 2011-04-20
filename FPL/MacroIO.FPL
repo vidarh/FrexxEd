@@ -7,9 +7,9 @@ export void SaveMacro ()
 
   id = PromptBuffer("Macro to save:", 10);
   if (id) {
-    promptname="FrexxEd:Macros/"+ReadInfo("full_file_name", id);;
+    promptname="ProgDir:Macros/"+ReadInfo("full_file_name", id);;
     if (!strlen(ReadInfo("file_path")))
-      promptname=joinstr("FrexxEd:Macros/", ReadInfo("file_name", id));
+      promptname=joinstr("ProgDir:Macros/", ReadInfo("file_name", id));
     name=PromptFile(promptname, "Save macro:", "#?.macro");
     if (strlen(name)) {
       int oldid=GetEntryID();
@@ -44,7 +44,7 @@ export void LoadMacro(string macrofile)
   if(strlen(macrofile))
     macroname = macrofile;
   else
-    macroname=PromptFile("FrexxEd:Macros/", "Load macro:", "#?.macro");
+    macroname=PromptFile("ProgDir:Macros/", "Load macro:", "#?.macro");
   if (strlen(macroname)) {
     int id;
     int oldid=GetEntryID();

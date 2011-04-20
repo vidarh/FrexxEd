@@ -13,7 +13,7 @@ export int MakeYourOwnMenuHook(int title_no, int item_no, int sub_no)
 export int MakeYourOwnShutOff(int what)
 {
   if(strlen(frexxtools)) {
-    string filename = PromptFile("FrexxEd:FrexxTool.setup");
+    string filename = PromptFile("ProgDir:FrexxTool.setup");
   
     if(strlen(filename)) {
       string command = sprintf("run FrexxEd:bin/FrexxTool SETUP \"%s\"", filename);

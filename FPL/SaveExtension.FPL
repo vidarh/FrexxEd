@@ -6,7 +6,7 @@ export int LoadExtSettings(string path, string name)
 
   column=strstr(name, ".");
   if (column>=0) {
-    filename=sprintf("FrexxEd:FPL/%s.SETTING.FPL", substr(name, column, -1));
+    filename=sprintf("ProgDir:FPL/%s.SETTING.FPL", substr(name, column, -1));
     ExecuteFile(filename);
   }
 }
@@ -28,7 +28,7 @@ export int SaveExtSettings()
   filename=ReadInfo("file_name");
   column=strstr(filename, ".");
   if (column>=0) {
-    filename=sprintf("FrexxEd:FPL/%s.SETTING.FPL", substr(filename, column, -1));
+    filename=sprintf("ProgDir:FPL/%s.SETTING.FPL", substr(filename, column, -1));
     tempid=New();
     if (tempid) {
       CurrentBuffer(tempid);
