@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -217,7 +218,7 @@ int __regargs KeyAssign(BufStruct *Storage, char *string, char *function, char *
   }
 
   if (string && ret>=OK) {
-    ret=TemplateString(string, &firstkey);
+	ret=TemplateString(string, &firstkey);
   }
 
   if (ret>=OK) {
@@ -288,8 +289,7 @@ int __regargs KeyAssign(BufStruct *Storage, char *string, char *function, char *
                 }
               }
             }
-            if (!val)
-              ret=OUT_OF_MEM;
+            if (!val) ret=OUT_OF_MEM;
             funcset=TRUE;
           } else
             val=AddKey(akCMD, currkey->Qual,
@@ -300,9 +300,12 @@ int __regargs KeyAssign(BufStruct *Storage, char *string, char *function, char *
         currkey=currkey->next;  
       }
       ReturnValue=(int)val;
-      ret=(int)RetString(STR_FUNCTION_ASSIGNED_TO_KEY);
-    } else
+	  // FIXME: This seems to be a bug, so taken it out, but don't understand
+	  // the original rationale. VH
+	  //      ret=(int)RetString(STR_FUNCTION_ASSIGNED_TO_KEY);
+    } else {
       ret=FUNCTION_CANCEL;
+	}
   }
   if (firstkey.next) {
     currkey=(KeyStruct *)firstkey.next;
@@ -353,16 +356,18 @@ struct Kmap __regargs *GetKeyMap(struct Kmap *firstkmap, UWORD Qualifier, int st
 /* flaggor enligt 'ks_'-modellen */
 int PrintQualifiers(char *place, int Qual, int flag)
 {
-  int pos=0;
-  if (Qual & RAW_AMIGA)
-    strcpy(place, flag==ksKEYSEQ?(pos=6,"AMIGA "):(pos=1,"A-"));
-  if (Qual & RAW_ALT)
-    strcpy(place+pos, flag==ksKEYSEQ?(pos+=4,"ALT "):(pos+=4,"Alt-"));
-  if (Qual & RAW_CTRL)
-    strcpy(place+pos, flag==ksKEYSEQ?(pos+=5,"CTRL "):(pos++,"C-"));
-  if (Qual & RAW_SHIFT)
-    strcpy(place+pos, flag==ksKEYSEQ?(pos+=6,"SHIFT "):(pos++,"S-"));
-  return(pos);
+  if (flag == ksKEYSEQ) {
+	if (Qual & RAW_AMIGA) strcpy(place, "AMIGA ");
+	if (Qual & RAW_ALT) strcat(place, "ALT ");	
+	if (Qual & RAW_CTRL) strcat(place,"CTRL ");
+	if (Qual & RAW_SHIFT) strcat(place,"SHIFT ");
+  } else {
+	if (Qual & RAW_AMIGA) strcpy(place,"A-");
+	if (Qual & RAW_ALT) strcat(place, "Alt-");	
+	if (Qual & RAW_CTRL) strcat(place,"C-");
+	if (Qual & RAW_SHIFT) strcat(place,"S-");
+  }
+  return strlen(place);
 }
 
 /*****************************************************************
@@ -604,11 +609,9 @@ int __regargs TemplateString(char *string, KeyStruct *firstkey)
 
     while (ret>=OK && string[0]) {
       val=-1;
-      while (string[0]==' ')
-        string++;
+      while (isspace(string[0])) ++string;
       {
-        register char *p;
-        p=strchr(string, ' ');
+		char *p=strchr(string, ' ');
         while (p && (*(p-1)=='\\'))
           p=strchr(p+1, ' ');
         if (p)
@@ -616,13 +619,13 @@ int __regargs TemplateString(char *string, KeyStruct *firstkey)
         else
           len=strlen(string);
       }
-      if (len==5 && !Strnicmp(string, "AMIGA ", 5))
+      if (len==5 && !strnicmp(string, "AMIGA", 5)) {
         newkey.Qual|=RAW_AMIGA;
-      else if (len==5 && !Strnicmp(string, "SHIFT ", 5))
+	  } else if (len==5 && !Strnicmp(string, "SHIFT", 5))
         newkey.Qual|=RAW_SHIFT;
-      else if ((len==4 && !Strnicmp(string, "CTRL ", 4)) || (len==7 && !Strnicmp(string, "CONTROL ", 7)))
+      else if ((len==4 && !Strnicmp(string, "CTRL", 4)) || (len==7 && !Strnicmp(string, "CONTROL", 7)))
         newkey.Qual|=RAW_CTRL;
-      else if (len==3 && !Strnicmp(string, "ALT ", 3))
+      else if (len==3 && !Strnicmp(string, "ALT", 3))
         newkey.Qual|=RAW_ALT;
       else {
         int truelen=0;
