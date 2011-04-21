@@ -26,6 +26,8 @@ FrexxEd_rev.o: FrexxEd_rev.c makefile Rules.mk
 $(TARGET): $(OBJS) $(NONLIBOBJS)
 	$(CC) -o $(TARGET) $+ libfpl.a $(LDFLAGS)
 
+dumpcommands: dumpcommands.o Declare.o
+
 .PHONY: clean
 clean:
 	rm -f *.o *~
