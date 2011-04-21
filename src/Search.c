@@ -27,19 +27,11 @@
 
 #include "Buf.h"
 #include "Alloc.h"
-//#include "Button.h"
-//#include "Command.h"
 #include "DoSearch.h"
 #include "Edit.h"
-//#include "Execute.h"
 #include "Fold.h"
-//#include "Regex.h"
-//#include "Reqlist.h"
-//#include "Request.h"
-//#include "Search.h"
-//#include "UpdtScreen.h"
+#include "UpdtScreen.h"
 
-//extern struct IntuitionBase *IntuitionBase;
 extern srch Search;          /* search structure */
 extern void *Anchor;
 extern DefaultStruct Default;
@@ -51,6 +43,9 @@ extern char GlobalEmptyString[];
 
 extern int retval_antal;
 extern int retval_params[];
+
+/* Defined in SearchHistory.c */
+extern void ClearHistory();
 
 /*  Start Searching  */
 int SearchFor(BufStruct *Storage, int argc, char **argv)
