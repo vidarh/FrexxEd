@@ -125,6 +125,7 @@
   string Customizing =     "Prefs";
   string Customizing_Colors = "Colours";
   string Customizing_ColorsAdjust = "Adjust...";
+  string Customizing_ColorsSave = "Save";
   string Customizing_ColorsReset = "Reset";
   string Customizing_Locals = "Locals...";
   string Customizing_Default = "Default...";
@@ -1180,6 +1181,7 @@
    ++item;
    MenuAdd("i", Customizing_Colors);
       MenuAdd("s", Customizing_ColorsAdjust, "ColorAdjust();");
+      MenuAdd("s", Customizing_ColorsSave, "ColorSave(\"ProgDir:Startup/Colors.FPL\");");
       MenuAdd("s", Customizing_ColorsReset, "ColorReset();");
    ++item;
    MenuAdd("i", "---");

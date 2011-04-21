@@ -499,9 +499,9 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
 
 	  case DO_COLOR_SAVE:
 		if (BUF(window)) {
-		  /* FIXME: Call function here to iterate over all the colors of the current
-			 screen palette and save them */
+		  SaveColors(BUF(window)->screen_pointer, Argv[0]);
 		}
+		break;
       case DO_CURSOR_LEFT:
         antalcounter=-antalcounter;
       case DO_CURSOR_RIGHT:

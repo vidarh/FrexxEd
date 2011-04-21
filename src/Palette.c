@@ -4,6 +4,8 @@
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 
+#include <stdio.h>
+
 extern struct ExecBase *SysBase;
 
 long FixRGB32(ULONG *cols)
@@ -35,6 +37,30 @@ void __regargs CopyColors(struct Screen *sc, WindowStruct *win)
     }
   }
 }
+
+void SaveColors(struct Screen *sc, const char * fname)
+{
+  int i;
+  FILE * f = fopen(fname,"w");
+  if (!f) return;
+  
+  if (SysBase->LibNode.lib_Version < 39) {
+#if 0
+	for(i=0; i<256; ++i) {
+	  ULONG col = GetRGB4(sc->ViewPort.ColorMap, i);
+	}
+#endif
+  } else {
+	ULONG colors[768];
+	GetRGB32(sc->ViewPort.ColorMap,0,256,colors);
+	for(i=0; i<256; ++i) {
+	  /* FIXME: This needs to do the reverse transformation of SetColors */
+	  fprintf(f,"ColorAdjust(%d,%u,%u,%u);\n",i,colors[i*3]>>24,colors[i*3+i]>>24,colors[i*3+2]>>24);
+	}
+  }
+  fclose(f);
+}
+
 
 void SetColors(struct Screen *sc, int col, int red, int green, int blue)
 {
