@@ -1,10 +1,196 @@
-// $Id: FPLmode.FPL 1.2 1995/07/21 10:34:13 jskov Exp $
-// $VER: FPLMode.FPL 1.0 (15.06.95) © Jesper Skov
+/*
+ * Fpl mode cleanup by Thorham in 2009.
+ *
+ */
+export void FplModeInit() {
+	SetInfo(-1,"comment_start_skip",ReadInfo("Fpl_comment_start_skip"));
+	SetInfo(-1,"comment_start",ReadInfo("Fpl_comment_start"));
+	SetInfo(-1,"comment_end",ReadInfo("Fpl_comment_end"));
+	SetInfo(-1,"line_comment_start",ReadInfo("Fpl_line_comment_start"));
+	SetInfo(-1,"line_comment_body",ReadInfo("Fpl_line_comment_body"));
+	SetInfo(-1,"line_comment_end",ReadInfo("Fpl_line_comment_end"));
+	SetInfo(-1,"comment_column",ReadInfo("Fpl_comment_column"));
+	SetInfo(-1,"comment_mode",1);
+	SetInfo(-1,"comment_begin",";");
 
-//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» FPLMode settings ««
-ConstructInfo("fpl_mode", "","", "LBH","", 0,0,0);
-ConstructInfo("fpl_mode_ext", "","", "GSHW","", 0,0,"*fpl*");
-ConstructInfo("fpl_mode_exe", "","", "GSHW","", 0,0,"CppModeInit();");
+	if(ReadInfo("Fpl_face_mode")) SetInfo(-1, "face", "Fpl");
+	else SetInfo(-1, "face", "");
+  
+	SetInfo(-1,"tab_size",ReadInfo("Fpl_tab_size"));
+	SetInfo(-1,"Fpl_mode",1);
+}
 
-AddMode(1, "fpl_mode", "fpl_mode_ext", "fpl_mode_exe");
+void export FplModePrefs()
+{
+	string comment_start_skip = ReadInfo("Fpl_comment_start_skip");
+	string comment_start = ReadInfo("Fpl_comment_start");
+	string comment_end = ReadInfo("Fpl_comment_end");
+	string line_comment_start = ReadInfo("Fpl_line_comment_start");
+	string line_comment_body = ReadInfo("Fpl_line_comment_body");
+	string line_comment_end = ReadInfo("Fpl_line_comment_end");
+  
+	int tab_size = ReadInfo("Fpl_tab_size");
+	int comment_column = ReadInfo("Fpl_comment_column");
+	int auto_indent =  ReadInfo("Fpl_auto_indent");
+	int face_mode =  ReadInfo("Fpl_face_mode");
+  
+	RequestWindow("FplMode Preferences",20,
+		"comment_start_skip", "s", &comment_start_skip,
+		"comment_start", "s", &comment_start,
+		"comment_end", "s", &comment_end,
+		"line_comment_start", "s", &line_comment_start,
+		"line_comment_body", "s", &line_comment_body,
+		"line_comment_end", "s", &line_comment_end,
+		"tab_size", "i", &tab_size,
+		"comment_column", "i", &comment_column,
+		"auto_indent", "b", &auto_indent,
+		"face_mode", "b", &face_mode
+		);
+  
+	SetInfo(0,"Fpl_comment_start_skip", comment_start_skip);
+	SetInfo(0,"Fpl_comment_start",comment_start);
+	SetInfo(0,"Fpl_comment_end",comment_end);
+	SetInfo(0,"Fpl_line_comment_start",line_comment_start);
+	SetInfo(0,"Fpl_line_comment_body",line_comment_body);
+	SetInfo(0,"Fpl_line_comment_end",line_comment_end);
+	SetInfo(0,"Fpl_tab_size",tab_size);
+	SetInfo(0,"Fpl_comment_column",comment_column);
+	SetInfo(0,"Fpl_auto_indent",auto_indent);
+	SetInfo(0,"Fpl_face_mode",face_mode);
+}
 
+//»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» fpl_mode_auto_indent() ««
+void export fpl_mode_auto_indent()
+{
+  if (ReadInfo("byte_position")){
+	string s = GetLine();
+	int i;
+
+	for(i=0;(!Isnewline(s[i])&&(Isspace(s[i])));i++);
+
+	if (Isnewline(s[i])){						// Empty line?
+	  // Empty line
+	  GotoLine(ReadInfo("line"));
+	  DeleteEol();
+	  Output("\n");
+	} else
+      // non-empty line
+	  Output("\n"+substr(s,0,i));
+  } else
+    Output("\n");
+}
+
+/*--------------------------------------------------------------------------------------
+export void FplMode_Indent()
+{
+	int t,l;
+	string s = GetLine();
+
+	l=strlen(s);
+
+	if(l==0 || s[0]<33) {
+		Output("\n");
+		exit(0);
+	}
+
+	for(t=0;t<l;t++) {
+		if(s[t]!=32 && s[t]!=9) {
+			Output("\n"+substr(s,0,t));
+			exit(0);
+		}
+	}
+	Output("\n");
+}
+-------------------------------------------------------------------------------------*/
+void FplMode_Face(void) {
+	int face=FaceGet("Fpl", 1);
+	int style;
+
+	if(face==0) exit(0);
+
+	style = FaceStyle("Fpl-frexxed_functions", "bold", 1, 0);
+	FaceAdd(face,style,
+		"About|Activate|ARexxRead|ARexxResult|ARexxSend|ARexxSet|AssignKey|Backspace|"
+		"BackspaceWord|BlockChange|BlockCopy|BlockCopyAppend|BlockCreate|BlockCut|BlockCutAppend|BlockDelete|"
+		"BlockMark|BlockMarkLine|BlockMarkRect|BlockMove|BlockPaste|BlockPasteRect|BlockSort|BSearch|"
+		"CConvertString|CenterView|Check|Clean|Clear|ClipToString|CloneWB|ColorAdjust|"
+		"ColorReset|ConstructInfo|CopyInfo|CurrentBuffer|CursorActive|CursorDown|CursorLeft|CursorLeftWord|"
+		"CursorRight|CursorRightWord|CursorStack|CursorUp|Deiconify|Delay|Delete|DeleteEol|"
+		"DeleteInfo|DeleteKey|DeleteLine|DeleteWord|DisplayBeep|DownCase|DuplicateEntry|ExecuteBuffer|"
+		"ExecuteFile|ExecuteLater|ExecuteString|FaceAdd|FaceGet|FaceRead|FaceStyle|FACT|"
+		"FACTClear|FACTConvertString|FACTCreate|FACTDelete|FACTString|FindPort|Fold|FoldDelete|"
+		"FoldHide|FoldShow|GetBlock|GetBufferID|GetByte|GetChar|GetCursor|GetDate|"
+		"GetEntryID|GetEnv|GetErrNo|GetFileList|GetKey|GetLine|GetList|GetReturnMsg|"
+		"GetWindowID|GetWord|GotoChange|GotoLine|Hook|HookClear|HookPast|Iconify|"
+		"InsertFile|InverseLine|Isclose|Isfold|Islower|Isnewline|Isopen|Isspace|"
+		"Issymbol|Istab|Isupper|Isword|KeyPress|Kill|Load|LoadString|"
+		"LogSetting|MacroRecord|MatchParen|MaximizeView|MenuAdd|MenuBuild|MenuClear|MenuDelete|"
+		"MenuRead|New|NextBuffer|NextEntry|NextHidden|NextView|NextWindow|Output|"
+		"PageDown|PageUp|PlaceCursor|PrevBuffer|PrevEntry|PrevHidden|PrevView|PrevWindow|"
+		"PrintLine|Prompt|PromptBuffer|PromptEntry|PromptFile|PromptFont|PromptInfo|PromptInt|"
+		"PromptString|QuitAll|Random|ReadInfo|RedrawScreen|RemoveView|Rename|Replace|"
+		"ReplaceMatch|ReplaceSet|Request|RequestWindow|ResizeView|ReturnStatus|Save|SaveString|"
+		"Screenmode|ScrollDown|ScrollUp|Search|SearchSet|SetEnv|SetInfo|SetSave|"
+		"Sort|Status|Stcgfn|Stcgfp|Stricmp|StringChangeCase|StringToBlock|StringToBlockAppend|"
+		"StringToClip|StringToLower|StringToUpper|Strmfp|SwapCase|System|TimerAdd|TimerDelete|"
+		"Undo|UndoRestart|UpCase|Visible|WindowAlloc|WindowClose|WindowFree|WindowOpen|"
+		"WindowToFront|Yank",
+		"word");
+
+	style = FaceStyle("Fpl-internal_functions", "bold", 1, 0);
+	FaceAdd(face,style,
+		"abs|atoi|eval|exists|interpret|itoa|itoc|joinstr|"
+		"ltostr|rename|sscanf|sprintf|strcmp|stricmp|strlen|strncmp|"
+		"strnicmp|strstr|stristr|strtol|substr",
+		"word");
+
+	style = FaceStyle("Fpl-numbers", "bold", 1, 0);
+	FaceAdd(face, style, "0|1|2|3|4|5|6|7|8|9", "word");
+
+	style = FaceStyle("Fpl-strings", "bold", 1, 0);
+	FaceAdd(face, style, "\"","backslash","\"");
+			
+	style = FaceStyle("Fpl-keywords", "bold", 1, 0);
+	FaceAdd(face, style,
+		"for|do|while|else|if|int|long|string|short|char|extern|"
+		"static|auto|unsigned|signed|return|continue|break|void|"
+		"case|switch|WORD|LONG|struct|register|__regargs|enum|"
+		"float|double|goto|sizeof|union|default|typedef",
+		"word");
+
+	style = FaceStyle("Fpl-comments", "", 2, 0);
+	FaceAdd(face, style, "//", "anywhere", "\n");
+	FaceAdd(face, style, "/*", "anywhere|strong", "*/");
+}
+
+{
+	ConstructInfo("Fpl_mode", "","", "LBH","", 0,0,0);
+	ConstructInfo("Fpl_mode_ext", "","", "GSHW","", 0,0,"*s*Fpl*i*");
+	ConstructInfo("Fpl_mode_exe", "","", "GSHW","", 0,0,"FplModeInit();");
+
+	ConstructInfo("Fpl_comment_start_skip","","","WHGS","",0,0,"; *");
+	ConstructInfo("Fpl_comment_start","","","WHGS","",0,0,"; ");
+	ConstructInfo("Fpl_comment_end","","","WHGS","",0,0,"");
+	ConstructInfo("Fpl_line_comment_body","","","WHGS","",0,0,"»");
+	ConstructInfo("Fpl_line_comment_end","","","WHGS","",0,0,"««");
+	ConstructInfo("Fpl_line_comment_start","","","WHGS","",0,0,"*");
+
+	ConstructInfo("Fpl_comment_column","","","WHGI","",0,9999,49);
+	ConstructInfo("Fpl_tab_size","","","WHGI","",0,9999,8);
+	ConstructInfo("Fpl_auto_indent","","","WBGH","",0,1,1);
+	ConstructInfo("Fpl_face_mode","","","WBGH","",0,1,1);
+	ConstructInfo("Fpl_mode","","","LBH","",0,1,0);
+
+	AddMode(1, "Fpl_mode", "Fpl_mode_ext", "Fpl_mode_exe");
+	AddMode(0,"Fpl_mode", "", "");				// Add as minor mode
+
+	MenuAdd("s", "Fpl mode...", "FplModePrefs();", "", ReadInfo("menu_program_title"),ReadInfo("menu_program_item"),-1);
+	MenuBuild();
+
+	FplMode_Face();
+	FplModeInit();
+
+AssignKey("fpl_mode_auto_indent();","'return'","Fpl_mode&Fpl_auto_indent");
+
+/*	AssignKey("FplMode_Indent();","'return'",""); */
+}

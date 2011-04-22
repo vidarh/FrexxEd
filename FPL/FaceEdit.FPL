@@ -1,80 +1,97 @@
+/*
+ * FaceEdit changes made by Thorham.
+ *
+ * The default syntax highlighting editing was quite anoying, so I changed it.
+ *
+ */
 
 string FaceFile = "ProgDir:Startup/MyFace.FPL";
-void export FaceEdit()
-{
- string array[1];
- string name;
- int number;
 
- number=GetList("facestyle", &array);
- if(number) {
-   string style;
-   int fg, bg;
-   int ret;
-   string n_style;
-   int n_fg, n_bg;
-   string s_temp;
-   int i_temp;
-   
-//   Request(sprintf("%d faces", number));
-   while(RequestWindow("Defined face styles:",
+void export FaceEdit() {
+	string array[1];
+	string name;
+	int number;
+
+	string style;
+	int fg, bg;
+	int ret;
+	string n_style;
+	int n_fg, n_bg;
+	string s_temp;
+	int i_temp;
+
+	int sb, si, su, sr;
+	int f,t;
+	int s_flag[4];
+	string s_list[4];
+
+	s_list[0]="bold";
+	s_list[1]="italic";
+	s_list[2]="underline";
+	s_list[3]="reverse";
+
+	number=GetList("facestyle", &array);
+	if(number) {
+		while(RequestWindow("Syntax highlighting:",
                     "Style:", "a", &array, &name, number)) {
      
-     if(0>FaceRead(name, &style, &fg, &bg)) {
-       Request("Unknown style: " + name, "beep", "ok");
-       continue;
-     }
-     n_style = style;
-     n_fg = fg;
-     n_bg = bg;
-     
-     do {
-       ret = Request(sprintf("%s = '%s' fg: %d bg: %d", name, n_style, n_fg, n_bg),
-                     "Edit style", "Ok|style|fg|bg|Cancel");
-       switch(ret) {
-         case 0: /* leave original */
-           n_style = style;
-           n_fg = fg;
-           n_bg = bg;
-           break;
-           
-         case 1: /* use this */
-           break;
+	if(0>FaceRead(name, &style, &fg, &bg)) {
+    	Request("Unknown style: " + name, "beep", "ok");
+    	continue;
+    }
 
-         case 2: /* style */
-           s_temp = PromptString(n_style, "Style",
-                                 "Enter style as in\n"
-                                 "Bold|Normal|Italic|Underline|Reverse\n"
-                                 "with the parts you prefer");
-           if(strlen(s_temp) || !GetErrNo())
-             n_style = s_temp;
-           break;
-         case 3: /* fg */
-           i_temp = PromptInt("Forground pen", n_fg,
-                              "Enter pen number to use\n"
-                              "for forground");
-           if(i_temp || !GetErrNo())
-             n_fg = i_temp;
-           break;
-         case 4: /* bg */
-           i_temp = PromptInt("Background pen", n_bg,
-                              "Enter pen number to use\n"
-                              "for background");
-           if(i_temp || !GetErrNo())
-             n_bg = i_temp;
-           break;
-       }
-       FaceStyle(name, n_style, n_fg, n_bg, 1);
-       RedrawScreen();
-     } while(ret>1);
-   }
+	n_style = style;
+	n_fg = fg;
+	n_bg = bg;
+
+	f=0;
+	for(t=0; t<4; t++) {
+		s_flag[t]=0;
+		if (stristr(n_style, s_list[t], 0)>-1) {
+			s_flag[t]=1;
+			f=1;
+		}
+	}
+
+	sb=s_flag[0]; si=s_flag[1];	su=s_flag[2]; sr=s_flag[3]; // RequestWindow() doesn't like &s_flag[x] :(
+	RequestWindow(name, 10,
+		"Foreground color", "i", &n_fg,
+		"Background color", "i", &n_bg,
+		"Bold", "b", &sb,
+		"Italic", "b", &si,
+		"Underline", "b", &su,
+		"Reverse", "b", &sr
+		);
+	s_flag[0]=sb; s_flag[1]=si;	s_flag[2]=su; s_flag[3]=sr; // RequestWindow() doesn't like &s_flag[x] :(
+
+	n_style="";
+
+	if (f==0) n_style="normal";
+
+	f=0;
+
+	for (t=0; t<4; t++) {
+		if (s_flag[t]==1) {
+			if (f==1) n_style=n_style+"|";
+			n_style=n_style+s_list[t];
+			f=1;
+		}
+	}
+
+	FaceStyle(name, n_style, n_fg, n_bg, 1);
+	RedrawScreen();
+	}
+
+
+
+
    if(ret=Request("Would you like to save this now?", "Save Styles", "yes|help|no")) {
      string store;
      if(2 == ret) {
        ret=Request("You will now be asked to enter a\n"
                    "file name to use to store your styles.\n"
                    "By default, and suggested, is a file that\n"
-                   "will be put in your ProgDir:Startup/ drawer\n"
+                   "will be put in your Startup/ drawer\n"
                    "since that will be 'executed' each time you\n"
                    "will start FrexxEd in the future!\n"
                    "Continue?");
@@ -106,16 +123,4 @@ void export FaceEdit()
  else
    Request("none");
 
-}
-ReadInfo("_faceedit");
-if(GetErrNo()) { /* just a way to make the menu only once, even if this file
-                    is executed repeatedly! */
-  /*
-   * Create our menu setup:
-   */
-  MenuAdd("s", "Face Styles...", "FaceEdit();", "",
-          ReadInfo("menu_program_title"),
-          ReadInfo("menu_program_item"),-1); // Add to PackageSettings
-  MenuBuild();
-  ConstructInfo("_faceedit", "", "", "BGH", "", 0, 1, 1);
 }

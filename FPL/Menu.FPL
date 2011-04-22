@@ -1209,6 +1209,13 @@
       MenuAdd("s", Customizing_GlobalsDisplay, joinstr("PromptInfo(0, \"", Customizing_GlobalsDisplay, "\", \"(global)(display)(system)\", \"(!global)(!display)(!system)(!user)\");"));
       MenuAdd("s", "---");
       MenuAdd("s", Customizing_GlobalsAll, joinstr("PromptInfo(0, \"", Customizing_GlobalsAll, "\", \"(global)\", \"(read)(hidden)\");"), "Amiga I g");
+
+   ++item;
+   MenuAdd("i", "Syntax highlighting");
+      MenuAdd("s", "Edit...", "FaceEdit();");
+      MenuAdd("s", "Save", "Settings_Global_IO();");
+      MenuAdd("s", "Save as...", "Settings_Global_IO();");
+
    ++item;
    ConstructInfo("menu_program_title", "", "", "GH", "", 0, 10, title);
    ConstructInfo("menu_program_item",  "", "", "GH", "", 0, 10, item);
