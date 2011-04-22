@@ -1056,7 +1056,7 @@
    MenuAdd("i", "---");
    MenuAdd("i", Project_SaveProject, "ExecuteFile(\"LoadSaveProject.FPL\"); SaveProject();", "Amiga P s");
    MenuAdd("i", Project_LoadProject, "ExecuteFile(\"LoadSaveProject.FPL\"); LoadProject();", "Amiga P l");
-	ConstructInfo("Project_dir", "", "", "WGS", "", 0, 0, "FrexxEd:projects");
+	ConstructInfo("Project_dir", "", "", "WGS", "", 0, 0, "ProgDir:projects");
    MenuAdd("i", "---");
    MenuAdd("i", Project_Print, " Print();");
    MenuAdd("i", Project_Iconify, "ReturnStatus(GetReturnMsg(Iconify()));");
