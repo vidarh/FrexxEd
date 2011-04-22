@@ -2074,7 +2074,7 @@ int __regargs RequestWindow(BufStruct *Storage, struct fplArgument *arg)
       antal++;
     }
     tempint=0;
-    if (ret>=OK) {
+    if (ret==OK) {
       Buttons.antal=antal;
       if (antal && listarrayantal<0) {
         if (ButtonPress(Storage, &Buttons)==0)

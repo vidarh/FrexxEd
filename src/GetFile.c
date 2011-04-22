@@ -207,7 +207,6 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
   BufStruct *firststorage=Storage;
   char *Argv[2];		// För GetFile-exception
 
-
   FreezeEditor(0);
   filename[0]=0;
   strcpy(buffer, SHS(path));
@@ -351,7 +350,7 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
         Storage2=Storage;
       }
 
-      if (ret>=OK) {
+      if (ret==OK) {
         if ((flag & loadNEWBUFFER)) {
           register int hookret;
           Argv[0]=buffer;
@@ -367,7 +366,7 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
           }
         }
 
-        if (ret>=OK) {
+        if (ret==OK) {
           if (!buffers)
             Clear(Storage2, FALSE);
           if (!(flag & loadNOINFO)) {
@@ -381,7 +380,6 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
             ret=GetFile(Storage2, pathnamn, filnamn);
             if (flag & loadINCLUDE) {
               if (ret>=OK) {
-                ret=OK;
                 ret=BlockPaste(Storage, undoNORMAL, Storage2->shared, bp_NORMAL);
                 Free(Storage2, TRUE, FALSE);
               }
@@ -419,10 +417,6 @@ int __regargs Load(BufStruct *Storage, char *string, int flag, char *file)
   ActivateEditor();
   rtFreeFileList(filelist);
   OwnFreeRemember(&remember);
-  if (ret==OK) {
-    Sprintf(ReturnBuffer, RetString(STR_LOADING_READY), SHS(filnamn), SHS(size));
-    ret=(int)ReturnBuffer;
-  }
   return(ret);
 }
 
@@ -696,8 +690,10 @@ int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
       SHS(changes)=0;
       if (SHS(shared)!=1)
         UpdtDupStat(Storage);
-      Sprintf(ReturnBuffer, RetString(STR_WROTE), text);
-      ret=(int)ReturnBuffer;
+	  /* FIXME: Not sure if this is actually used, but
+		 it's risky and not portable, so removing it for now
+		 Sprintf(ReturnBuffer, RetString(STR_WROTE), text); */
+      ret=OK;
     }
   }
   UnLockBuf_obtain_semaphore(BUF(shared));
@@ -1151,6 +1147,7 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
     }
   } else
     ret=CANT_FIND_FILE;
+
   if(ret<OK) {
     Dealloc(program);
     program=NULL;
@@ -1162,7 +1159,8 @@ int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS)
     if (Storage) {
       Sprintf(ReturnBuffer, RetString(STR_LOADING_READY), buffer, size);
       Status(Storage, ReturnBuffer, 0);
-      ret=(int)ReturnBuffer;
+	  /* FIXME: This is broken: It assumes that (int)ReturnBuffer will always result in a positive integer */
+      //ret=(int)ReturnBuffer;
     }
   }
   if (RFS->buffer) {

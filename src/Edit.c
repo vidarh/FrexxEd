@@ -306,8 +306,7 @@ int __regargs BackspaceUntil(BufStruct *Storage, int xstop, int ystop, char **re
 
   if (retstring3) {
     ret=BackspaceNr(Storage, retstring3, antal);
-    if (ret>=OK)
-      *retlength=antal;
+    if (ret==OK) *retlength=antal;
     else {
       Dealloc(retstring3);
       retstring3=NULL;

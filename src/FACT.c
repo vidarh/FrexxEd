@@ -517,7 +517,7 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
         break;
       }
     }
-    if (ret>=OK) {
+    if (ret==OK) {
       if (tecken<0) {
         if (stringlen>=0) {
           if (!string)
