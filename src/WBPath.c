@@ -3,9 +3,11 @@
 // According to the license information elsewhere in that project,
 // the code is under GPL v2
 
+#ifdef AMIGA
 #include <workbench/startup.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#endif
 
 struct PathNode {
    BPTR next;

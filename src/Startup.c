@@ -12,6 +12,8 @@
  *
  *********/
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <dos/rdargs.h>
 #include <exec/execbase.h>

@@ -12,6 +12,8 @@
 *
 *******/
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <dos/datetime.h>
 #include <dos/dos.h>

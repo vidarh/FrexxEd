@@ -12,6 +12,9 @@
  *
  ***********/
 
+#include "compat.h"
+
+#ifdef AMIGA
 #include <devices/console.h>
 #include <dos/dos.h>
 #include <exec/execbase.h>
@@ -23,11 +26,13 @@
 #include <libraries/dos.h>
 #include <libraries/reqtools.h>
 #include <libraries/locale.h>
-#include <math.h>
 #include <proto/exec.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
+#endif
+
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +59,10 @@ extern char GlobalEmptyString[];
 
 
 extern errno;
+
+#ifdef AMIGA
 extern char *sys_errlist[];
+#endif
 
 extern struct Gadget VertSlider;
 extern struct PropInfo VertSliderSInfo;

@@ -10,7 +10,12 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "compat.h"
+
+#ifdef AMIGA
 #include <proto/utility.h>
+#endif
 
 #include "Buf.h"
 #include "Alloc.h"

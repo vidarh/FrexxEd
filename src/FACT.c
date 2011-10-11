@@ -10,10 +10,14 @@
  *
  *********/
 
+#include "compat.h"
+
+#ifdef AMIGA
 #include <exec/types.h>
 #include <string.h>
 #include <libraries/FPL.h>
 #include <proto/utility.h>
+#endif
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -251,9 +255,9 @@ FACT __regargs *ClearFACT(FACT *fact)
  *
  * SetFACT(FACT *fact, int Argc, char **Argv)
  *
- * Sätter om vald FACT med innehållet från tagsen.
+ * Replaces selected FACT with the content from the tags.
  *
- * Först i tagsen ligger vilket tecken som avses
+ * First in the tags is the character that is affected
  * (-1==eofstring, -2==neolstring, -3-5=FOLDS).
  * Tags:
  * 'E' + flagga	= Erase flag.  flag=='-' => erase all.
@@ -268,10 +272,11 @@ FACT __regargs *ClearFACT(FACT *fact)
  * 'L' + opposit= LowerCase + opposite.
  * 'S' + string = string to be inputted.
  *
- * Alla tag-tecken är case insensitive.
+ * All tag-characters are case insensitive.
  *
- * Importante:  Det går inte att ta bort/lägge till ett tecken som skapar
- *              en newline om någon buffert eller blockbuffert tar minne.
+ *  Important: It is not possible to remove/add characters that
+ *  creates a newline if any buffer or block buffer is using
+ *  memory
  *
  * Return: A ret value.  (ie.  OK/SYNTAX_ERROR)
  *******/
@@ -285,7 +290,7 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
   int stringlen=-1;
   char delimit;
   char cases;
-  int tecken=(int)Argv[0];/* Vilket tecken det gäller ligger först i tagsen */
+  int tecken=(int)Argv[0]; /* The character we'll work on is first in the tags */
 
   if (format[0]==FPL_INTARG) {
     flag=fact->flags[tecken];
@@ -387,31 +392,6 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
           ret=SYNTAX_ERROR;
         cases=(char)Argv[counter];
         break;
-#if 0  // fungerar inte eftersom normala tecken inte har någon sträng. 960713
-      case 'C':		/* Colour change */
-        counter++;
-        if (format[counter]!=FPL_INTARG)
-          ret=SYNTAX_ERROR;
-        {
-          char *string;
-          int len;
-          short color=(short)Argv[counter];
-          if (tecken<0) {
-            string=fact->extra[-tecken-1].string;
-            len=fact->extra[-tecken-1].length;
-          } else {
-            string=fact->strings[tecken];
-            len=fact->length[tecken];
-          }
-          while (len) {
-            string+=2;
-            *(string)=color;
-            string+=2;
-            len--;
-          }
-        }
-        break;
-#endif
       case 'S':		/* String */
         counter++;
         if (format[counter]!=FPL_STRARG || strlen(Argv[counter])>MAX_CHAR_LINE)
@@ -437,7 +417,7 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
                 charac='#';
                 break;
               case '?':
-                charac=' ';  //Om det är en specialsträng.
+                charac=' ';  //If it is a special string
                 if (tecken>=0)
                   charac=tecken;  // annars ett tecken.
                 break;
@@ -584,11 +564,11 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
  *
  *  FACTConvertString(char *string, int len, String *result)
  *
- * Konvertera en sträng enligt FACT'en.
+ * Convert a string according to the FACT
  *
- * Ge strängen + dess längd.
+ * Give the string + its length
  * Resultatet ges i den String-struktur som ges.
- * flag=TRUE ger en sträng som ska printas på skärmen.
+ * flag=TRUE gives a string to print on screen
  * Return a ret-value.
  *******/
 int __regargs FACTConvertString(BufStruct *Storage, char *string, int len, String *result, int flag)

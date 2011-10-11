@@ -12,11 +12,17 @@
 *
 *******/
 
+#include "compat.h"
+
+#ifndef AMIGA
 #include <proto/exec.h>
 #include <proto/iffparse.h>
 #include <libraries/iffparse.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#endif
+
 #include <string.h>
 
 #include "Buf.h"

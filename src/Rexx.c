@@ -8,6 +8,8 @@
  * ARexx interface setup routines...
  */
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <exec/types.h>
 #include <exec/nodes.h>

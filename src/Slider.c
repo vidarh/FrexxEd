@@ -10,6 +10,8 @@
  *
  ***********/
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>

@@ -2,6 +2,9 @@
 #define __FREXXED_COMPAT_H
 
 
+#include <stddef.h>
+
+
 #ifndef AMIGA
 #define __regargs
 #define __a0
@@ -73,6 +76,10 @@ struct ExecBase {
         int lib_Version;
     } LibNode; 
 };
+
+struct DosLibrary {
+};
+
 struct IntuiText {
     struct IntuiText * NextText;
     const char * IText;
@@ -110,19 +117,30 @@ struct NewMenu {
 
 struct RastPort {
 };
+
+struct MsgPort {
+    long mp_SigBit;
+};
+
 struct Window {
+    struct Screen * WScreen;
     struct Gadget * FirstGadget;
     struct RastPort * RPort;
+    struct MsgPort * UserPort;
     int Width;
     int Height;
     int MinHeight;
-    void * UserPort;
 };
 struct TextFont {
     int tf_YSize;
     int tf_XSize;
     int tf_Flags;
 };
+
+void Wait(int);
+void * GetMsg(void *);
+void * OpenLibrary(char *, long);
+void Delay(long);
 
 // FIXME: Arbitrary value
 #define MEMF_ANY 0
@@ -181,6 +199,11 @@ struct TextFont {
 #define GA_Disabled 0
 #define GTIN_Number 0
 #define GTCB_Checked 0
+
+#define MEMF_CLEAR 0
+#define MEMF_PUBLIC 0
+#define MEMF_CHIP 0
+#define MEMF_FAST 0
 
 #define FSF_UNDERLINED 0
 #define FPF_PROPORTIONAL 0

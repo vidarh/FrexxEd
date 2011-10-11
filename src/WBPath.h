@@ -19,6 +19,9 @@
 
 /*** included files ***/
 
+#include "compat.h"
+
+#ifdef AMIGA
 #ifndef EXEC_EXECBASE_H
 #include <exec/execbase.h>
 #endif
@@ -33,6 +36,7 @@
 
 #ifndef WORKBENCH_STARTUP_H
 #include <workbench/startup.h>
+#endif
 #endif
 
 /*

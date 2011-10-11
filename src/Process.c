@@ -7,9 +7,15 @@
 /* Copyright (c) 1993 SAS Institute, Inc, Cary, NC, USA */
 /* All Rights Reserved */
 
+#include "compat.h"
+
 #include "Process.h"
+
+#ifdef AMIGA
 #include <clib/alib_protos.h>
 #include <exec/memory.h>
+#endif
+
 
 void process_starter(void)
 {

@@ -10,6 +10,8 @@
 *
 **********/
 
+#include "compat.h"
+
 #ifdef AMIGA
 #include <devices/keymap.h>
 #include <dos/dos.h>

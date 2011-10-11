@@ -1,8 +1,10 @@
 #include "Palette.h"
 
+#ifdef AMIGA
 #include <exec/execbase.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+#endif
 
 #include <stdio.h>
 

@@ -10,6 +10,9 @@
  *
  *********/
 
+#include "compat.h"
+
+#ifdef AMIGA
 #include <graphics/gfxmacros.h>
 #undef GetOutlinePen
 #include <graphics/rastport.h>
@@ -19,6 +22,8 @@
 #include <proto/exec.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -12,6 +12,9 @@
  *
  *********/
 
+#include "compat.h"
+
+#ifdef AMIGA
 #include <devices/console.h>
 #include <devices/inputevent.h>
 #include <exec/io.h>
@@ -35,6 +38,7 @@
 #include <string.h>
 #include <workbench/startup.h>
 #include <workbench/workbench.h>
+#endif
 
 #include "Buf.h"
 #include "Alloc.h"
