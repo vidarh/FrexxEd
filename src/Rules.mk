@@ -3,16 +3,22 @@
 TARGET = Fred
 FREDLIB = # frexxed.library
 
+# Largely OS independent files
+GENERIC = generic/Alloc.o generic/Block.o generic/BufControl.o generic/Cursor.o generic/Face.o \
+	generic/Match.o generic/Search.o generic/Fold.o  generic/Sort.o generic/Regex.o \
+	generic/DoSearch.o generic/MultML.o generic/UpdtScreenC.o generic/UpdtScreen.o generic/Edit.o \
+	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o 
+
 OBJS = \
- Alloc.o Block.o BufControl.o BuildMenu.o Button.o Change.o ClipBoard.o\
- Command.o Cursor.o Declare.o DoSearch.o Edit.o\
- Execute.o Face.o FACT.o FH_packets.o FileHandler.o Fold.o GetFile.o\
+ $(GENERIC) BuildMenu.o Button.o Change.o ClipBoard.o\
+ Command.o Declare.o \
+ Execute.o FACT.o FH_packets.o FileHandler.o GetFile.o\
  GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
- Match.o Mount.o MultML.o OpenClose.o Process.o Prompt.o Regex.o\
- Replace.o Reqlist.o Request.o Rexx.o Search.o Setting.o Sort.o\
- Slider.o Startup.o Strings.o Timer.o Undo.o UpdtBlock.o UpdtScreen.o\
- UpdtScreenC.o Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o AppIcon.o \
- Palette.o
+ Mount.o OpenClose.o Process.o Prompt.o \
+ Reqlist.o Request.o Rexx.o \
+ Slider.o Startup.o Strings.o Timer.o UpdtBlock.o \
+ Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o AppIcon.o \
+ Palette.o 
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o

@@ -13,6 +13,7 @@
  *
  *******/
 
+#ifdef AMIGA
 #include <devices/console.h>
 #include <devices/inputevent.h>
 #include <dos/dostags.h>
@@ -36,11 +37,13 @@
 #include <proto/intuition.h>
 #include <proto/reqtools.h>
 #include <proto/utility.h>
+#include <rexx/errors.h>
+#endif
+
 #include <setjmp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <rexx/errors.h>
 
 #include "IncludeAll.h"
 

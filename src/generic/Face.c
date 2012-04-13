@@ -135,7 +135,7 @@ struct FaceControl * __regargs InitFace(char *name)
     {
       SharedStruct *shared=Default.SharedDefault.Next;
       while (shared) {
-        if (!Stricmp(name, shared->face_name)) {
+        if (!strcasecmp(name, shared->face_name)) {
           shared->face=facecontrol;
           shared->face_updated_line=0;
           {
@@ -281,7 +281,7 @@ struct Face * MatchWord(struct Face *face,
   return NULL;
 }
 
-struct Face * __inline
+struct Face *
 MatchAnyWhere(struct Face *face,
               long col,
               long flags)
@@ -458,7 +458,7 @@ struct FaceControl *FaceGet(char *facename, long mode)
   struct FaceControl *new;
   if(fc) {
     do {
-      if(!Stricmp(facename, fc->name)) {
+      if(!strcasecmp(facename, fc->name)) {
         return fc;
       }
       old = fc;
@@ -529,7 +529,7 @@ char *GetFaceStyle(char *style, int *fg, int *bg)
   int i=0;
 
   do {
-    if(!Stricmp(style, facetype[i].name)) {
+    if(!strcasecmp(style, facetype[i].name)) {
       char *pnt=buffer;
       int num=0;
      
@@ -587,7 +587,7 @@ int __regargs FaceStyle(char *name, char *flags, int fg, int bg, int opts)
   short pens;
   char found=FALSE;
   do {
-    if(!Stricmp(name, facetype[i].name)) {
+    if(!strcasecmp(name, facetype[i].name)) {
       if(opts & FACE_REWRITE) {
         found = TRUE;
         break;
@@ -628,19 +628,19 @@ static long __inline FaceStyleString(char *flags)
   long result=0;
   char *pnt=flags;
   do {
-    if(!Strnicmp("Bold", pnt, 4)) {
+    if(!strncasecmp("Bold", pnt, 4)) {
       result |= cb_BOLD;
       pnt+=4;
-    } else if(!Strnicmp("Normal", pnt, 6)) {
+    } else if(!strncasecmp("Normal", pnt, 6)) {
       result |= cb_NORMAL;
       pnt+=6;
-    } else if(!Strnicmp("Italic", pnt, 6)) {
+    } else if(!strncasecmp("Italic", pnt, 6)) {
       result |= cb_ITALIC;
       pnt+=6;
-    } else if(!Strnicmp("Underline", pnt, 9)) {
+    } else if(!strncasecmp("Underline", pnt, 9)) {
       result |= cb_UNDERLINE;
       pnt+=9;
-    } else if(!Strnicmp("Reverse", pnt, 7)) {
+    } else if(!strncasecmp("Reverse", pnt, 7)) {
       result |= cb_REVERSE;
       pnt+=7;
     } else
@@ -731,25 +731,25 @@ static __inline long Faceaddflags(char *flagstr, char *usepipe)
   long result=0;
   char *pnt=flagstr;
   do {
-    if(!Strnicmp("usepipe", pnt, 7)) {
+    if(!strncasecmp("usepipe", pnt, 7)) {
       *usepipe=TRUE;
       pnt+=7;
-    } else if(!Strnicmp("word", pnt, 4)) {
+    } else if(!strncasecmp("word", pnt, 4)) {
       result |= ADD_WORDONLY;
       pnt+=4;
-    } else if(!Strnicmp("anywhere", pnt, 8)) {
+    } else if(!strncasecmp("anywhere", pnt, 8)) {
       result &= ~ADD_WORDONLY;
       pnt+=8;
-    } else if(!Strnicmp("strong", pnt, 6)) {
+    } else if(!strncasecmp("strong", pnt, 6)) {
       result |= ADD_IMPORTANT;
       pnt+=6;
-    } else if(!Strnicmp("weak", pnt, 4)) {
+    } else if(!strncasecmp("weak", pnt, 4)) {
       result |= ADD_OBEYIMPO;
       pnt+=4;
-    } else if(!Strnicmp("1nonspace", pnt, 9)) {
+    } else if(!strncasecmp("1nonspace", pnt, 9)) {
       result |= ADD_1STNONSPC;
       pnt+=9;
-    } else if(!Strnicmp("backslash", pnt, 9)) {
+    } else if(!strncasecmp("backslash", pnt, 9)) {
       result |= ADD_BACKSLASH;
       pnt+=9;
     } else

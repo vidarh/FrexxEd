@@ -4,8 +4,10 @@
  * This file is open-source software. Please refer to the file LEGAL
  * for the licensing conditions and responsibilities.
  */
-#include <devices/timer.h>
 
+#ifdef AMIGA
+#include <devices/timer.h>
+#endif
 
 struct FrexxTimerRequest {
   struct timerequest tr;

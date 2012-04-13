@@ -26,7 +26,9 @@
 
 
 #ifdef FREXXED
+#ifdef AMIGA
 #include <proto/FPL.h>
+#endif
 #include "Buf.h"
 #include "Alloc.h"
 #include "FACT.h"

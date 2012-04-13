@@ -5,6 +5,7 @@
  * for the licensing conditions and responsibilities.
  */
 
+#ifdef AMIGA
 #include <devices/console.h>
 #include <devices/keymap.h>
 #include <dos/rdargs.h>
@@ -20,12 +21,14 @@
 #include <libraries/locale.h>
 #include <libraries/FPL.h>
 #include <workbench/workbench.h>
+#include <utility/tagitem.h>
+#include <exec/types.h>
+#endif
+
 #include <setjmp.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <utility/tagitem.h>
-#include <exec/types.h>
 #include <string.h>
 
 #include "Buf.h"

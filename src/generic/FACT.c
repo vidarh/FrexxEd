@@ -19,6 +19,8 @@
 #include <proto/utility.h>
 #endif
 
+#include <string.h>
+
 #include "Buf.h"
 #include "Alloc.h"
 #include "Change.h"
@@ -297,16 +299,6 @@ int __regargs SetFACT(FACT *fact, int Argc, char **Argv, char *format)
     xflags=fact->xflags[tecken]&(~factx_DEFAULT);
     delimit=fact->delimit[tecken];
     cases=fact->cases[tecken];
-/*
-    stringlen=fact->length[tecken]<<1;
-    if (tecken>=0 && fact->strings[tecken]) {
-      strcpy(buffer, fact->strings[tecken]);
-      string=buffer;
-    } else if (tecken==-1) {
-      strcpy(buffer, fact->eofstring);
-      string=buffer;
-    }
-*/
     for (counter=1; counter<Argc; counter++) {
       if (format[counter]!=FPL_INTARG) {
         ret=SYNTAX_ERROR;

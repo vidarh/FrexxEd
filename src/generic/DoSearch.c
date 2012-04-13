@@ -13,7 +13,6 @@
 * Den letar alltid från översta positionen till men inte med sista.
 ********/
 
-#include <exec/types.h>
 #include <string.h>
 #include <stdio.h>
 #include "Buf.h"

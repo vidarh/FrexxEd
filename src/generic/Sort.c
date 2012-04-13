@@ -12,41 +12,40 @@
 #include <string.h>
 #include <math.h>
 
-#include "Buf.h"
-#include "Edit.h"
 #include "Sort.h"
+#include "Swap.h"
 
 /************************************************
 *
-*  ShellSort(char ***, int antal_fält, int antal_sort_falt, int antal_poster, char flags)
+*  ShellSort(char ***, int no_falt, int sort_no_falt, int no_post, char flags)
 *
-*  Sorterar enligt Shell-Metznermetoden.
+*  Sorts according to the  Shell-Metzner method
 *  Input:  Arraypekare till en stringarray,
-*          totala antalet fält (multipliceras med två av sorten),
-*          antalet fält som ska ingå i sorteringen (multipliceras med två av sorten),
+*          total number of fields to be included in the sort (multiplied by two by the sort),
+*          number of fields to be included in the sort (multiplied by two by the sort),
 *          antalet poster.
 *          SORT_CASE | SORT_BACK
 *  Returnerar ingenting.
 *
-*  Varannan array i stringarrayen skall peka på längderna för motsvarande
-*  sträng.  Om strängen är nollavslutad, sätt pekaren till NULL.
+*  Every second array in the string array should point at the lengths for the equivalent string.
+*  If the string is zero terminated, set the pointer to zero
 *********/
 void ShellSort(char ***StringArrayArray, int no_falt, int sort_no_falt, int no_post, char flags)
 {
   int countM=no_post;
   int countI, countJ, countK, countL;
-  int stop=FALSE;
+  int stop=0;
   int countA;
   int result;
-  BOOL kejs=flags&SORT_INCASE;
-  BOOL reverse=flags&SORT_BACK;
+  int kejs=flags&SORT_INCASE;
+  int reverse=flags&SORT_BACK;
 
   no_falt*=2;
   sort_no_falt*=2;
   do {
     countM=countM/2;
     if (!countM)
-      stop=TRUE;
+      stop=1;
     else {
       countJ=0;
       countK=no_post-countM-1;
@@ -63,13 +62,13 @@ void ShellSort(char ***StringArrayArray, int no_falt, int sort_no_falt, int no_p
                 if (!kejs)
                   result=strcmp(stringA, stringB);
                 else
-                  result=Stricmp(stringA, stringB);
+                  result=strcasecmp(stringA, stringB);
               } else {
                 register int len=min((int)StringArrayArray[countA+1][countI],(int)StringArrayArray[countA+1][countL]);
                 if (!kejs)
                   result=strncmp(stringA, stringB, len);
                 else
-                  result=Strnicmp(stringA, stringB, len);
+                  result=strncasecmp(stringA, stringB, len);
                 if (!result) {
                   if (StringArrayArray[countA+1][countI]!=StringArrayArray[countA+1][countL]) {
                     if (StringArrayArray[countA+1][countI]<StringArrayArray[countA+1][countL])

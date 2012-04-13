@@ -1,0 +1,24 @@
+
+This directory is only for UI *and* OS independent code. 
+
+It can only rely on ANSI C and FrexxEd/FPL API's apart from the 
+exceptions listed below. It should not contain code that assumes a GUI
+
+Small shims/wrappers are provided for the exceptions listed
+below, in order to ease portability.
+
+The following AmigaOS API calls are OK to use:
+
+    AllocMem()
+    FreeMem()
+
+The following AmigaOS types are OK to use, but avoid when possible:
+
+    BOOL
+
+The following POSIX functions are OK to use
+
+    POSIX           AmigaOS Equivalent
+    strcasecmp      Stricmp
+    strncasecmp     Strnicmp
+

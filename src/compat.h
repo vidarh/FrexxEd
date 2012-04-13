@@ -60,6 +60,10 @@ struct Gadget {
     void * UserData;
     void * SpecialInfo;
     int Flags;
+    int LeftEdge;
+    int TopEdge;
+    int Height;
+    int Width;
 };
 struct PropInfo { };
 struct Image { };
@@ -130,6 +134,9 @@ struct Window {
     int Width;
     int Height;
     int MinHeight;
+    int BorderRight;
+    int BorderLeft;
+    int BorderBottom;
 };
 struct TextFont {
     int tf_YSize;

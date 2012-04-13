@@ -10,7 +10,7 @@ endif
 # Default compiler settings
 CC = gcc
 AS = gcc -c
-CFLAGS= -g -Wall -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION
+CFLAGS= -I. -Igeneric -g -Wall -DFREXXED -DUSE_C_SCREEN_SETUP -DDEBUG -DLOG_FILE_EXECUTION
 LDFLAGS=
 ASMFLAGS = -c
 STRIP= strip

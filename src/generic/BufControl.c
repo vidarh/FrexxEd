@@ -12,25 +12,15 @@
  *
  *********/
 
-#include "compat.h"
-
 #ifdef AMIGA
-//#include <intuition/intuition.h>
-//#include <intuition/intuitionbase.h>
-//#include <exec/semaphores.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
-//#include <proto/intuition.h>
 #include <proto/utility.h>
-//#include <libraries/dos.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-//#include <libraries/reqtools.h>
-//#include <proto/reqtools.h>
-#endif
-
-#include <string.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -57,7 +47,10 @@
 /********** Globals **********/
 
 extern int errno;
+
+#ifdef AMIGA
 extern char *sys_errlist[];
+#endif
 
 extern char GlobalEmptyString[];
 extern FACT *UsingFact;
