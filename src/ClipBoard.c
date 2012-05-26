@@ -14,7 +14,7 @@
 
 #include "compat.h"
 
-#ifndef AMIGA
+#ifdef AMIGA
 #include <proto/exec.h>
 #include <proto/iffparse.h>
 #include <libraries/iffparse.h>
@@ -42,7 +42,7 @@ extern char buffer[];
 *  Copy the given ClipBoard and place the result in retstring.
 *  Return a ret value.
 ************/
-int __regargs Clip2String(BufStruct *Storage, char **retstring, int *retlen, int clipno)
+int Clip2String(BufStruct *Storage, char **retstring, int *retlen, int clipno)
 {
   struct IFFHandle *iff;
   long error;

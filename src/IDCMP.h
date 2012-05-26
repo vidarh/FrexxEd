@@ -67,6 +67,7 @@ typedef struct ReturnMsgStruct ReturnMsgStruct;
 
 
 BOOL __regargs SendReturnMsg(int command, int retvalue, char *string, char *caller, int *args);
+BOOL SendReturnValue(int ret);
 ReturnMsgStruct __regargs *GetReturnMsg(int command);
 
 void CopyWindowPos(struct WindowStruct *win);

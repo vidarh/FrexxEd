@@ -23,7 +23,6 @@
 #include <intuition/gadgetclass.h>
 #include <intuition/intuition.h>
 #include <libraries/dos.h>
-#include <libraries/FPL.h>
 #include <libraries/gadtools.h>
 #include <proto/exec.h>
 #include <proto/FPL.h>
@@ -33,6 +32,8 @@
 #include <proto/reqtools.h>
 #include <utility/tagitem.h>
 #endif
+
+#include <libraries/FPL.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -53,11 +54,10 @@
 #include "Setting.h"
 
 extern struct ExecBase *SysBase;
-extern struct GfxBase *GfxBase;
-extern struct IntuitionBase *IntuitionBase;
-extern struct ConsoleDevice *ConsoleDevice;
-extern struct Library *GadToolsBase;
-extern struct MsgPort *ReadPort;
+//extern struct GfxBase *GfxBase;
+//extern struct IntuitionBase *IntuitionBase;
+//extern struct ConsoleDevice *ConsoleDevice;
+//extern struct Library *GadToolsBase;
 extern DefaultStruct Default;
 extern int BarHeight;
 extern struct TextFont *RequestFont;
@@ -68,10 +68,10 @@ extern int visible_height;
 extern int visible_width;
 extern void *Anchor;
 extern struct UserData userdata;
-extern struct Library *FPLBase;
+//extern struct Library *FPLBase;
 extern char **setting_string_pointer;
 extern int *setting_int_pointer;
-extern struct ReqToolsBase *ReqToolsBase;
+//extern struct ReqToolsBase *ReqToolsBase;
 
 /****************
 *

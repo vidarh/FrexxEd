@@ -9,6 +9,10 @@
 #include <devices/timer.h>
 #endif
 
+struct timerequest
+{
+};
+
 struct FrexxTimerRequest {
   struct timerequest tr;
   struct FrexxTimerRequest *next;

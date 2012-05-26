@@ -5,16 +5,16 @@ FREDLIB = # frexxed.library
 
 # Largely OS independent files
 GENERIC = generic/Alloc.o generic/Block.o generic/BufControl.o generic/Cursor.o generic/Face.o \
-	generic/Match.o generic/Search.o generic/Fold.o  generic/Sort.o generic/Regex.o \
+	generic/Match.o generic/Search.o generic/Fold.o  generic/Sort.o generic/Regex.o generic/Execute.o\
 	generic/DoSearch.o generic/MultML.o generic/UpdtScreenC.o generic/UpdtScreen.o generic/Edit.o \
-	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o 
+	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o generic/Prompt.o generic/Change.o
 
 OBJS = \
  $(GENERIC) BuildMenu.o Button.o Change.o ClipBoard.o\
  Command.o Declare.o \
- Execute.o FACT.o FH_packets.o FileHandler.o GetFile.o\
+ ExecuteA.o FACT.o FH_packets.o FileHandler.o GetFile.o\
  GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
- Mount.o OpenClose.o Process.o Prompt.o \
+ Mount.o OpenClose.o Process.o \
  Reqlist.o Request.o Rexx.o \
  Slider.o Startup.o Strings.o Timer.o UpdtBlock.o \
  Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o AppIcon.o \

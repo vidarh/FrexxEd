@@ -20,10 +20,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libraries/reqtools.h>
-#include <libraries/FPL.h>
 #include <proto/reqtools.h>
 #include <proto/FPL.h>
 #endif
+
+#include <libraries/FPL.h>
 
 #include "Alloc.h"
 #include "Reqlist.h"

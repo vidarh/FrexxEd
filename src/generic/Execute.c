@@ -12,38 +12,13 @@
  * and environment variable subroutines.
  *
  *******/
-
-#ifdef AMIGA
-#include <devices/console.h>
-#include <devices/inputevent.h>
-#include <dos/dostags.h>
-#include <dos/var.h>
-#include <exec/types.h>
-#include <exec/tasks.h>
-#include <fpl/reference.h>
-#include <graphics/gfxmacros.h>
-#undef GetOutlinePen
-#include <graphics/rastport.h>
-#include <intuition/intuition.h>
-#include <libraries/FPL.h>
-#include <libraries/dos.h>
-#include <libraries/gadtools.h>
-#include <libraries/reqtools.h>
-#include <proto/FPL.h>
-#include <proto/console.h>
-#include <proto/dos.h>
-#include <proto/exec.h>
-#include <proto/graphics.h>
-#include <proto/intuition.h>
-#include <proto/reqtools.h>
-#include <proto/utility.h>
-#include <rexx/errors.h>
-#endif
-
 #include <setjmp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <fpl/reference.h>
+#include <libraries/FPL.h>
 
 #include "IncludeAll.h"
 
@@ -111,17 +86,26 @@ static jmp_buf oldfplstackpoint;
 static int filelog_maxalloc = 0;
 static int filelog_antal=0;
 
-static void __regargs ScInverseLine(BufStruct *Storage, struct fplArgument *arg);
-static void __regargs ScPrintLine(BufStruct *Storage, struct fplArgument *arg);
-static int __regargs ScPromptInfo(BufStruct *Storage, int argID, struct fplArgument *arg);
-static int __regargs ScGetFileList(BufStruct *Storage, struct fplArgument *arg);
-static int __regargs ScMenuRead(struct fplArgument *arg);
-static int __regargs ScMenuDelete(struct fplArgument *arg);
-static int __regargs ScGetList(BufStruct *Storage, struct fplArgument *arg);
-static int __regargs ScFaceRead(struct fplArgument *arg);
-static int __regargs BSearch(struct fplArgument *arg);
-static int __regargs ScSort(struct fplArgument *arg);
+static void ScInverseLine(BufStruct *Storage, struct fplArgument *arg);
+static void ScPrintLine(BufStruct *Storage, struct fplArgument *arg);
+static int ScPromptInfo(BufStruct *Storage, int argID, struct fplArgument *arg);
+static int ScGetFileList(BufStruct *Storage, struct fplArgument *arg);
+static int ScMenuRead(struct fplArgument *arg);
+static int ScMenuDelete(struct fplArgument *arg);
+static int ScGetList(BufStruct *Storage, struct fplArgument *arg);
+static int ScFaceRead(struct fplArgument *arg);
+static int BSearch(struct fplArgument *arg);
+static int ScSort(struct fplArgument *arg);
 static long __asm __stackext run_functions(register __a0 struct fplArgument *arg);
+
+#ifndef FREQF_NOFILES
+#define FREQF_NOFILES 1
+#define FREQF_SAVE 2
+#define FREQF_MULTISELECT 4
+
+struct rtFileList {
+};
+#endif
 
 
 /**********************************************************************
@@ -131,7 +115,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
  * Initializes fpl.library handling. Returns non-zero if anything failed!
  *
  *****/
-int __regargs InitFPL(char type)
+int InitFPL(char type)
 {
   int i=0;
   int ret=0;
@@ -329,58 +313,6 @@ ExecuteFPL(BufStruct *Storage,
   return(NewStorageWanted?NEW_STORAGE:OK);
 }
 
-/**********************************************************************
- *
- * StopCheck();
- *
- * This is the inverval function that checks if the FPL interpretation
- * should be abandoned. Whenever escape is pressed, the FPL will stop!
- *
- *****/
-
-long __asm StopCheck(register __a0 BufStruct *Storage)
-{
-  register long ret=FALSE;
-{//}  if (fplabort) {
-    int val;
-/*
-    {
-      static BOOL stop_is_going_round=FALSE;
-      while (!stop_is_going_round && important_message_available) {
-        register ReturnMsgStruct *retmsg;
-        stop_is_going_round=TRUE;
-        retmsg=GetReturnMsg(cmd_DEVICE);
-        if (retmsg) {
-          SHS(current)++;
-          BUF(locked)++;
-          RunHook(Storage, DO_FILEHANDLER_EXCEPTION, 2, (char **)&retmsg->args, NULL);
-          BUF(locked)--;
-          SHS(current)--;
-          NewStorageWanted=NULL;
-        }
-        important_message_available--;
-        stop_is_going_round=FALSE;
-      }
-    }
-*/
-    if (device_want_control) {
-      LockBuf_release_semaphore(((BufStruct *)Storage)->shared);
-      UnLockBuf_obtain_semaphore(((BufStruct *)Storage)->shared);
-    }
-//    val=GetKey(Storage, gkNOTEQ|gkNOCHACHED);
-    val=GetKey(NULL, gkNOTEQ|gkNOCHACHED); /* 960111 */
-    if (val>=0) {
-      if (val==RAW_ESC &&
-          ((((struct IntuiMessage *)(buffer+100))->Qualifier)&RAW_QUAL)==RAW_CTRL) {
-        ret=TRUE;
-        while (GetReturnMsg(cmd_KEY))
-          ;
-      } else
-        SendReturnMsg(cmd_KEY, 0, buffer+100, NULL, NULL);
-    }
-  }
-  return(ret);
-}
 
 static long __asm fpl_functions(register __a0 struct fplArgument *arg)
 {
@@ -754,59 +686,30 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       ReturnInt=&ret;
       break;
     case SC_GETVAR:
-      tempint=GetVar((char *)arg->argv[0], buffer, MAX_CHAR_LINE, GVF_GLOBAL_ONLY|GVF_LOCAL_ONLY|GVF_BINARY_VAR);
-      if (tempint>=0) {
-        fplSendTags(arg->key, FPLSEND_STRING, buffer,
-                      FPLSEND_STRLEN, tempint, FPLSEND_DONE);
-      } else
-        ret=CANT_FIND_SETTING;
-      break;
+        tempint = ScGetVar((const char *)arg->argv[0], buffer);
+        if (tempint>=0) {
+            fplSendTags(arg->key, FPLSEND_STRING, buffer,
+                        FPLSEND_STRLEN, tempint, FPLSEND_DONE);
+        } else
+            ret=CANT_FIND_SETTING;
+        break;
     case SC_SETVAR:
-      tempint=SetVar((char *)arg->argv[0], (char *)arg->argv[1], FPL_STRING_LENGTH(arg, 1), GVF_GLOBAL_ONLY);
-      ReturnInt=&tempint;
-      break;
+        tempint=ScSetVar((char *)arg->argv[0], (char *)arg->argv[1], FPL_STRING_LENGTH(arg, 1));
+        ReturnInt=&tempint;
+        break;
 
     case SC_RANDOM:	// 'Random()'
-      {
-        static long lastrandom=0;
-        DateStamp((struct DateStamp *)buffer);
-        lastrandom=(lastrandom+1)*0xff5d;
-        tempint=lastrandom* (((struct DateStamp *)buffer)->ds_Days+1) *
-                (((struct DateStamp *)buffer)->ds_Minute+1) +
-                (((struct DateStamp *)buffer)->ds_Tick+1);
+        tempint = ScRandom();
         ReturnInt=&tempint;
-      }
-      break;
+        break;
     case SC_GETDATE:	// 'GetDate(int BufferID)'
       {
         register BufStruct *Storage2=Storage;
         if (arg->argc && (int)arg->argv[0]>0)
           Storage2=CheckBufID((BufStruct *)arg->argv[0]);
         if (Storage2) {
-          struct DateTime datetime;
-          if (SHS(date.ds_Days)!=-1) {
-            register int format=0;
-            memcpy(&datetime, &Storage2->shared->date, sizeof(struct DateStamp));
-            if (arg->argc>1) {
-              format=(int)arg->argv[1];
-              if ((int)arg->argv[0]<0)
-                DateStamp((struct DateStamp *)&datetime);
-            }
-            datetime.dat_Format=(format>>4)&7;//FORMAT_DOS
-            datetime.dat_Flags=(format>>8)&7;//DTF_SUBST;
-            datetime.dat_StrDay=NULL;
-            datetime.dat_StrDate=buffer+100;
-            datetime.dat_StrTime=buffer+120;
-            DateToStr(&datetime);
-            buffer[0]=0;
-            if ((format&3)!=2)
-              strcpy(buffer, buffer+100);
-            if ((format&3)!=1) {
-              strcat(buffer, " ");
-              strcat(buffer, buffer+120);
-            }
-            fplSendTags(arg->key, FPLSEND_STRING, buffer, FPLSEND_DONE);
-          }
+            const char * retb = ScGetDate(arg->argc,arg->argv,buffer);
+            if (retb) fplSendTags(arg->key, FPLSEND_STRING, buffer, FPLSEND_DONE);
         } else
           ret=CANT_FIND_BUFFER;
       }
@@ -1063,16 +966,8 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
        * Display a requester to prompt for an integer number.	// OBS, ge möjlighet att ställa in defaultvärde och ändra titeln
        */
       if (arg->argc>1)
-        line=(int)arg->argv[1];
-      tempint=rtGetLong((ULONG *)&line,
-  	                arg->argc?(char *)arg->argv[0]:RetString(STR_ENTER_NUMBER),
-  	                NULL, RTGL_ShowDefault, (arg->argc>1)?TRUE:FALSE,
-                        ((FRONTWINDOW && FRONTWINDOW->screen_pointer)?RT_Screen:TAG_IGNORE), FRONTWINDOW?FRONTWINDOW->screen_pointer:NULL,
-                        RTGS_TextFmt, (arg->argc>2)?(char *)arg->argv[2]:NULL,
-                        RTGL_BackFill, !(arg->argc>2),
-                        RT_TextAttr, &Default.RequestFontAttr,
-  	                TAG_END);
-      
+          line=(int)arg->argv[1];
+      tempint = ScGetInt(arg->argc?(char *)arg->argv[0]:RetString(STR_ENTER_NUMBER), line, (arg->argc>1));
       if (tempint) {
         ReturnInt=&line;
         ret=OK;
@@ -1210,14 +1105,10 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       buffer[0]=0;
       if (arg->argc>0)
         strcpy(buffer, (char *)arg->argv[0]);
-      tempint=rtGetString(buffer, MAX_CHAR_LINE,
-                          (arg->argc>1)?(char *)arg->argv[1]:RetString(STR_ENTER_STRING), NULL,
-                          ((FRONTWINDOW && FRONTWINDOW->screen_pointer)?RT_Screen:TAG_IGNORE), FRONTWINDOW?FRONTWINDOW->screen_pointer:NULL,
-  	                  RTGS_TextFmt, (arg->argc>2)?(char *)arg->argv[2]:NULL,
-  	                  RTGS_AllowEmpty, TRUE,
-                          RTGL_BackFill, !(arg->argc>2),
-                          RT_TextAttr, &Default.RequestFontAttr,
-  	                  TAG_END);
+      tempint = ScGetString(buffer,
+                            (arg->argc>1)?(char *)arg->argv[1]:RetString(STR_ENTER_STRING),
+                            (arg->argc>2)?(char *)arg->argv[2]:NULL,
+                            !(arg->argc>2));
       if (tempint)
         fplSendTags(arg->key, FPLSEND_STRING, buffer, FPLSEND_DONE);
       else
@@ -1260,41 +1151,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
               count++;
             }
           }
-          if(PromptFile(Storage, fullname, arg->argc>1?(char *)arg->argv[1]:NULL, arg->argc>2?(char *)arg->argv[2]:NULL, flags, (APTR *)&filelist)) {
-            if (flags&FREQF_MULTISELECT) {
-              struct rtFileList *filetemp=filelist;
-              if (filetemp) {
-                struct fplRef ref;
-                tempint=0;
-                while (filetemp) {
-                  tempint++;
-                  filetemp=filetemp->Next;
-                }
-                ref.Dimensions=1;
-                ref.ArraySize=(long *)&tempint;
-                fplReferenceTags(Anchor, (void *)(arg->argv[4]),
-                                 FPLREF_ARRAY_RESIZE, &ref,
-                                 FPLREF_END);
-                filetemp=filelist;
-                tempint=0;
-                do {
-                  dims[0]=tempint;
-                  strmfp(buffer, fullname, filetemp->Name);
-                  fplReferenceTags(Anchor, (void *)(arg->argv[4]),
-                                   FPLREF_ARRAY_ITEM, &dims[0],
-                                   FPLREF_SET_MY_STRING, buffer,
-                                   FPLREF_END);
-                  tempint++;
-                  filetemp=filetemp->Next;
-                } while (filetemp);
-              }
-              ReturnInt=&tempint;	// Return number of entries.
-              rtFreeFileList(filelist);
-            } else
-              fplSendTags(arg->key, FPLSEND_STRING, fullname, FPLSEND_DONE);
-          } else
-            ret=FUNCTION_CANCEL;
-          Dealloc(fullname);
+          ScPrompFile(); // FIXME
         }
       }
       break;
@@ -1308,9 +1165,6 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       break;
     case SC_SETHOOK:
     case SC_SETHOOKPAST:
-      /*
-       * Add a hook to a FrexxEd function!
-       */
       /*
        * Add a hook to a FrexxEd function!
        */
@@ -1413,25 +1267,8 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       break;
 
     case SC_AREXXRESULT:
-      /*
-       * Result string to send to ARexx if we were invoke from there!
-       */
-      if(RexxHandle) {
-	RexxHandle->ResultCode = (int)arg->argv[0]?RC_ERROR:0;
-        if(arg->argc>1) {
-          if(RexxHandle->Result)
-            Dealloc(RexxHandle->Result);
-	  if(!RexxHandle->ResultCode)
-            /*
-	     * Only set the return string if no error is reported!
-	     */
-            RexxHandle->Result=Strdup(arg->argv[1]);
-	  else
-	    RexxHandle->Result=NULL;
-	}
-      }
-      break;
-
+        ScArexxResult(arg);
+        break;
     case SC_AREXXREAD:
       /*
        * Result string to send to ARexx if we were invoke from there!
@@ -1503,34 +1340,9 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       LogSetting((char *)arg->argv[0], (char *)arg->argv[1], (long)arg->argv[2], arg->format[2]);
       break;
     case SC_SYSTEM:
-      {
-        BPTR fhin=NULL;
-        BPTR fhut=NULL;
-        BPTR wb_path=NULL;
-        LockBuf_release_semaphore(BUF(shared));
-        if (arg->argc>1) {
-          if (((char *)arg->argv[1])[0]) 
-            fhin = Open(arg->argv[1], MODE_NEWFILE);
-          if (arg->argc>2 && ((char *)arg->argv[2])[0])
-            fhut = Open(arg->argv[2], MODE_NEWFILE);
-        }
-        if (FromWorkbench)
-          wb_path = CloneWorkbenchPath((struct WBStartup *)FromWorkbench);
-        tempint=SystemTags((char *)arg->argv[0],
-                           wb_path?NP_Path:TAG_IGNORE, wb_path,
-                           fhin?SYS_Input:TAG_IGNORE, fhin,
-                           fhut?SYS_Output:TAG_IGNORE, fhut,
-                           TAG_DONE);
-        if (tempint==-1 && wb_path)
-          FreeWorkbenchPath(wb_path);
-        if (fhin)
-          Close(fhin);
-        if (fhut)
-          Close(fhut);
-        UnLockBuf_obtain_semaphore(BUF(shared));
-      }
-      ReturnInt=&tempint;
-      break;
+        tempint = ScSystem(arg); // FIXME
+        ReturnInt=&tempint;
+        break;
 
     case SC_SET_SYSTEM_FONT:	// 'setfont(char *fontnamn)'
     case SC_SET_REQUEST_FONT:
@@ -1893,7 +1705,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
   return(fpl_error);
 }
 
-int __regargs RequestWindow(BufStruct *Storage, struct fplArgument *arg)
+int RequestWindow(BufStruct *Storage, struct fplArgument *arg)
 {
 #define MAX_STRING_LENGTH 1000
   int tempint;
@@ -2134,7 +1946,7 @@ int __regargs RequestWindow(BufStruct *Storage, struct fplArgument *arg)
   return(tempint);
 }
 
-static int __regargs ScSort(struct fplArgument *arg)
+static int ScSort(struct fplArgument *arg)
 {
   int ret=OUT_OF_MEM;
   int col;
@@ -2208,7 +2020,7 @@ static int __asm bsearch_cmp_array(register __a0 void *arg, register __d1 int co
   return(ret);
 }
 
-static int __regargs BSearch(struct fplArgument *arg)
+static int BSearch(struct fplArgument *arg)
 {
   int ret=-1;
   struct fplRef ref;
@@ -2225,7 +2037,7 @@ static int __regargs BSearch(struct fplArgument *arg)
   return(ret);
 }
 #ifdef LOG_FILE_EXECUTION
-int __regargs LogFileExecution(char *file)
+int LogFileExecution(char *file)
 {
   int count=-1;
   int pos;
@@ -2251,7 +2063,7 @@ int __regargs LogFileExecution(char *file)
 }
 
 #ifdef LOG_FILE_EXECUTION
-int __regargs FindFileExecution(char *file)
+int FindFileExecution(char *file)
 {
   int vald;
 
@@ -2294,7 +2106,7 @@ int __regargs FindFileExecution(char *file)
 #endif
 
 #ifndef POOL_DEALLOC
-void __regargs DeleteFileExecutionList()
+void DeleteFileExecutionList()
 {
   int counter;
   for (counter=0; counter<filelog_antal; counter++)
@@ -2304,7 +2116,7 @@ void __regargs DeleteFileExecutionList()
 #endif
 #endif //LOG_FILE_EXECUTION
 
-static void __regargs ScInverseLine(BufStruct *Storage, struct fplArgument *arg)
+static void ScInverseLine(BufStruct *Storage, struct fplArgument *arg)
 {
   if (Visible==VISIBLE_ON && BUF(window) && BUF(window)->Visible==VISIBLE_ON) {
     int rad, kolumn, lngd=0;
@@ -2343,7 +2155,7 @@ static void __regargs ScInverseLine(BufStruct *Storage, struct fplArgument *arg)
   }
 }
 
-static void __regargs ScPrintLine(BufStruct *Storage, struct fplArgument *arg)
+static void ScPrintLine(BufStruct *Storage, struct fplArgument *arg)
 {
   int len;
   BufStruct *Storage2=Storage;
@@ -2366,7 +2178,7 @@ static void __regargs ScPrintLine(BufStruct *Storage, struct fplArgument *arg)
   }
 }
 
-static int __regargs ScPromptInfo(BufStruct *Storage, int argID, 
+static int ScPromptInfo(BufStruct *Storage, int argID, 
                                   struct fplArgument *arg)
       /*
        * Prompt for settings of specified buffer or globals.
@@ -2443,7 +2255,7 @@ static int __regargs ScPromptInfo(BufStruct *Storage, int argID,
   return(ret);
 }
 
-static int __regargs ScGetFileList(BufStruct *Storage, struct fplArgument *arg)
+static int ScGetFileList(BufStruct *Storage, struct fplArgument *arg)
 {
   int antal, count;
   char *remember=NULL;
@@ -2474,7 +2286,7 @@ static int __regargs ScGetFileList(BufStruct *Storage, struct fplArgument *arg)
 }
 
 
-static int __regargs ScMenuRead(struct fplArgument *arg)
+static int ScMenuRead(struct fplArgument *arg)
 {
   struct menu_position mp={0, 0, 0};
   struct OwnMenu *item;
@@ -2535,7 +2347,7 @@ static int __regargs ScMenuRead(struct fplArgument *arg)
 }
 
 
-static int __regargs ScMenuDelete(struct fplArgument *arg)
+static int ScMenuDelete(struct fplArgument *arg)
 {
   struct menu_position mp={0, 0, 0};
   int ret=SYNTAX_ERROR;
@@ -2553,7 +2365,7 @@ static int __regargs ScMenuDelete(struct fplArgument *arg)
   return(ret);
 }
 
-static int __regargs ScFaceRead(struct fplArgument *arg)
+static int ScFaceRead(struct fplArgument *arg)
 {
    int fg;
    int bg;
@@ -2584,7 +2396,7 @@ static int __regargs ScFaceRead(struct fplArgument *arg)
 #define GETLIST_FACESTYLE "facestyle"
 #define GETLIST_FACEWORD  "faceword"
 
-static int __regargs ScGetList(BufStruct *Storage, struct fplArgument *arg)
+static int ScGetList(BufStruct *Storage, struct fplArgument *arg)
 {
   int antal=0, count;
   struct fplRef ref;

@@ -12,10 +12,11 @@
 
 #ifdef AMIGA
 #include <exec/types.h>
-#include <libraries/FPL.h>
 #include <proto/FPL.h>
 #include <proto/utility.h>
 #endif
+
+#include <libraries/FPL.h>
 
 #include <stdio.h>
 #include <stdlib.h>

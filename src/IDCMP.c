@@ -1327,6 +1327,11 @@ BOOL __regargs SendReturnMsg(int command, int retvalue, char *string, char *call
   return(TRUE);
 }
 
+
+BOOL SendReturnValue(int ret) {
+    return SendReturnMsg(cmd_RET, ret, NULL, NULL, NULL);
+}
+
 ReturnMsgStruct __regargs *GetReturnMsg(int command)
 {
   register ReturnMsgStruct *retmsg=firstreturnmsg;

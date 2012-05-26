@@ -29,6 +29,9 @@
 #define __stackext
 #define __saveds
 
+#define SIGBREAKF_CTRL_C 1
+#define RTFI_Dir 1
+
 // FIXME: This is blatantly a hack
 #define REG_A4 1
 
@@ -45,15 +48,27 @@ typedef unsigned char UBYTE;
 typedef unsigned char * STRPTR;
 typedef unsigned char BOOL;
 typedef unsigned long BPTR;
+typedef void * IPTR;
 
 // FIXME: These are AmigaOS structures that need proper definitions, or to be replaced.
 
 extern struct Library * IFFParseBase;
 
+struct Node {
+    int lib_Version;
+};
+
+struct Library {
+    struct Node LibNode;
+};
+
+extern struct Library * SysBase;
+
 struct FontPrefs {
 };
 struct ContextNode {
     int cn_ID;
+    int cn_Type;
 };
 struct Gadget { 
     int GadgetID;
@@ -64,6 +79,9 @@ struct Gadget {
     int TopEdge;
     int Height;
     int Width;
+};
+struct StringInfo {
+    void * Buffer;
 };
 struct PropInfo { };
 struct Image { };
@@ -119,6 +137,30 @@ struct NewMenu {
     void * nm_UserData;
 };
 
+struct NewWindow {
+    int Height;
+    int Width;
+    int Type;
+    void * Screen;
+    int LeftEdge;
+    int TopEdge;
+    char * Title;
+    struct Gadget * FirstGadget;
+};
+
+struct NewGadget {
+    int ng_Flags;
+    int ng_GadgetID;
+    int ng_GadgetText;
+    int ng_Height;
+    int ng_LeftEdge;
+    int ng_TextAttr;
+    int ng_TopEdge;
+    int ng_UserData;
+    int ng_VisualInfo;
+    int ng_Width;
+};
+
 struct RastPort {
 };
 
@@ -126,6 +168,28 @@ struct MsgPort {
     long mp_SigBit;
 };
 
+struct Font {
+    int ta_YSize;
+};
+
+struct ColorMap {
+};
+
+struct Message {
+};
+struct ViewPort {
+    struct ColorMap ColorMap;
+    int DxOffset;
+    int DyOffset;
+};
+
+struct Screen {
+    int BarHeight;
+    struct Font * Font;
+    int MouseX;
+    int MouseY;
+    struct ViewPort ViewPort;
+};
 struct Window {
     struct Screen * WScreen;
     struct Gadget * FirstGadget;
@@ -142,6 +206,11 @@ struct TextFont {
     int tf_YSize;
     int tf_XSize;
     int tf_Flags;
+    int tf_BoldSmear;
+};
+
+struct IFFHandle {
+    int iff_Stream;
 };
 
 void Wait(int);
@@ -155,13 +224,19 @@ void Delay(long);
 #define FALSE 0
 #define TRUE 1
 
+#define IFFPARSE_SCAN 1
+#define IFFERR_EOF 2
+#define IFFF_WRITE 3
+#define IFFSIZE_UNKNOWN 4
+#define IFFERR_WRITE 5
+
 #define CHECKED 0
 #define CHECKIT 0
 #define GTMENUITEM_USERDAT(arg) 0
 #define NM_BARLABEL 0
-#define NM_ITEM 0
+#define NM_ITEM 2
 #define NM_TITLE 0
-#define NM_SUB 0
+#define NM_SUB 1
 #define NM_COMMANDSTRING 0
 #define NM_END 0
 #define GTMN_NewLookMenus 0
@@ -172,12 +247,15 @@ void Delay(long);
 #define WBENCHSCREEN 0
 #define BUTTON_KIND 0
 #define PLACETEXT_RIGHT 0
-#define IDCMP_GADGETDOWN 0
+
+#define IDCMP_GADGETDOWN 1
+#define IDCMP_CLOSEWINDOW 2
+#define IDCMP_RAWKEY 0
+#define IDCMP_GADGETUP 3
+
 #define WFLG_SMART_REFRESH 0
-#define IDCMP_GADGETUP 0
 #define CUSTOMSCREEN 0
 #define PLACETEXT_IN 0
-#define IDCMP_CLOSEWINDOW 0
 #define WFLG_NOCAREREFRESH 0
 #define WA_AutoAdjust 0
 #define WFLG_CLOSEGADGET 0
@@ -185,7 +263,6 @@ void Delay(long);
 #define GFLG_SELECTED 0
 #define CHECKBOX_KIND 0
 #define GACT_STRINGRIGHT 0
-#define IDCMP_RAWKEY 0
 #define GTCY_Active 0
 #define STRING_KIND 0
 #define GTST_String 0

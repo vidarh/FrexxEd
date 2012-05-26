@@ -15,10 +15,10 @@
 #ifdef AMIGA
 #include <exec/types.h>
 #include <string.h>
-#include <libraries/FPL.h>
 #include <proto/utility.h>
 #endif
 
+#include <libraries/FPL.h>
 #include <string.h>
 
 #include "Buf.h"
