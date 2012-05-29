@@ -4,11 +4,11 @@
 #include <exec/execbase.h>
 #include <proto/graphics.h>
 #include <proto/intuition.h>
+extern struct ExecBase *SysBase;
+
 #endif
 
 #include <stdio.h>
-
-extern struct ExecBase *SysBase;
 
 long FixRGB32(ULONG *cols)
 {

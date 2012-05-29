@@ -1,5 +1,9 @@
+#ifdef AMIGA
 #include <libraries/gadtools.h>
 #include <workbench/workbench.h>
+#else
+#include "compat.h"
+#endif
 
 static UWORD Image1Data[] = {
   0x00FF, 0xFFFF, 0xFFC0, 

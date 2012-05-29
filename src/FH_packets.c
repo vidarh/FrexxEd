@@ -12,11 +12,14 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <dos/dosextens.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
 #include <proto/FPL.h>
 #include <exec/memory.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h> /* for the atoi() */
 

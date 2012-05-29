@@ -31,7 +31,6 @@ extern BufStruct *NewStorageWanted;
 extern int Visible;
 extern int UpDtNeeded;
 extern DefaultStruct Default;
-extern struct rtFileRequester *FileReq;
 extern char buffer[];
 extern BOOL fplabort;	/* Allow to abort FPL scripts.  Startup script shouldn't be breakable */
 extern struct Setting **sets;
@@ -66,7 +65,6 @@ extern AREXXCONTEXT RexxHandle;
 extern char *fpl_executer;	/* Namn på den funktion som exekverar FPL */
 extern ReturnCode fpl_error;
 extern BPTR wb_path;
-extern char **FromWorkbench;
 
 extern char **filelog_list;
 extern struct MenuInfo menu;
@@ -314,7 +312,7 @@ ExecuteFPL(BufStruct *Storage,
 }
 
 
-static long __asm fpl_functions(register __a0 struct fplArgument *arg)
+static longfpl_functions(struct fplArgument *arg)
 {
   int ret;
 //printf("Stack: %x %x %x =%x\n", Default.task->tc_SPLower, Default.task->tc_SPUpper, getreg(REG_A7), ((int)getreg(REG_A7))-(int)Default.task->tc_SPLower);
@@ -324,7 +322,7 @@ static long __asm fpl_functions(register __a0 struct fplArgument *arg)
   return(ret);
 }
 
-static long __asm __stackext run_functions(register __a0 struct fplArgument *arg)
+static long run_functions(struct fplArgument *arg)
 {
   int line;
   int col;
@@ -704,11 +702,10 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
         break;
     case SC_GETDATE:	// 'GetDate(int BufferID)'
       {
-        register BufStruct *Storage2=Storage;
         if (arg->argc && (int)arg->argv[0]>0)
           Storage2=CheckBufID((BufStruct *)arg->argv[0]);
         if (Storage2) {
-            const char * retb = ScGetDate(arg->argc,arg->argv,buffer);
+            const char * retb = ScGetDate(&Storage2,arg->argc,arg->argv,buffer);
             if (retb) fplSendTags(arg->key, FPLSEND_STRING, buffer, FPLSEND_DONE);
         } else
           ret=CANT_FIND_BUFFER;
@@ -879,12 +876,6 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       arg->argv[0]=(char *)-(int)arg->argv[0];
     case SC_SCROLL_UP:		// ScrollUp(int antal)
       tempint=(int)arg->argv[0];
-/*
-      if (tempint<-BUF(cursor_y)+1)
-        tempint=-BUF(cursor_y)+1;
-      if (tempint>BUF(screen_lines)-BUF(cursor_y))
-        tempint=BUF(screen_lines)-BUF(cursor_y);
-*/
       ScrollScreen(Storage, tempint, scroll_NORMAL);
       BUF(cursor_y)=FoldFindLine(Storage, BUF(curr_line));
       if (BUF(cursor_y)==0) {
@@ -967,7 +958,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
        */
       if (arg->argc>1)
           line=(int)arg->argv[1];
-      tempint = ScGetInt(arg->argc?(char *)arg->argv[0]:RetString(STR_ENTER_NUMBER), line, (arg->argc>1));
+      tempint = ScGetInt(arg->argc?(char *)arg->argv[0]:RetString(STR_ENTER_NUMBER), line, (arg->argc>1), (arg->argc>2)?(char *)arg->argv[2]:NULL,!(arg->argc>2));
       if (tempint) {
         ReturnInt=&line;
         ret=OK;
@@ -1151,7 +1142,27 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
               count++;
             }
           }
-          ScPrompFile(); // FIXME
+          if(PromptFile(Storage, fullname, arg->argc>1?(char *)arg->argv[1]:NULL, arg->argc>2?(char *)arg->argv[2]:NULL, flags, (APTR *)&filelist)) {
+            if (flags&FREQF_MULTISELECT) {
+              struct rtFileList *filetemp=filelist;
+              if (filetemp) {
+                struct fplRef ref;
+                tempint= fileReqCountFiles(filelist);
+                ref.Dimensions=1;
+                ref.ArraySize=(long *)&tempint;
+                fplReferenceTags(Anchor, (void *)(arg->argv[4]),
+                                 FPLREF_ARRAY_RESIZE, &ref,
+                                 FPLREF_END);
+                filetemp=filelist;
+                fileReqCopyToFpl(filetemp);
+              }
+              ReturnInt=&tempint;	// Return number of entries.
+              fileReqFreeList(filelist);
+            } else
+                fplSendTags(arg->key, FPLSEND_STRING, fullname, FPLSEND_DONE);
+          } else
+              ret=FUNCTION_CANCEL;
+          Dealloc(fullname);
         }
       }
       break;
@@ -1267,7 +1278,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       break;
 
     case SC_AREXXRESULT:
-        ScArexxResult(arg);
+        ScArexxResult(arg->argc, arg->argv);
         break;
     case SC_AREXXREAD:
       /*
@@ -1340,7 +1351,7 @@ static long __asm __stackext run_functions(register __a0 struct fplArgument *arg
       LogSetting((char *)arg->argv[0], (char *)arg->argv[1], (long)arg->argv[2], arg->format[2]);
       break;
     case SC_SYSTEM:
-        tempint = ScSystem(arg); // FIXME
+        tempint = ScSystem(Storage,arg);
         ReturnInt=&tempint;
         break;
 

@@ -12,31 +12,6 @@
 *
 *******/
 
-#include "compat.h"
-
-#ifdef AMIGA
-#include <dos/datetime.h>
-#include <dos/dos.h>
-#include <exec/memory.h>
-#include <exec/types.h>
-#include <intuition/screens.h>
-#include <libraries/dos.h>
-#include <libraries/reqtools.h>
-#include <limits.h>
-#include <proto/dos.h>
-#include <proto/exec.h>
-#include <proto/FPL.h>
-#include <proto/graphics.h>
-#include <proto/intuition.h>
-#include <proto/reqtools.h>
-#include <proto/utility.h>
-#include <proto/graphics.h>
-#undef GetOutlinePen
-#include <graphics/gfxmacros.h>
-#include <graphics/rastport.h>
-
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -45,12 +20,11 @@
 extern char outputundo[OUTPUT_UNDO_MAX];
 
 extern BlockStruct *BlockBuffer;
-extern BufStruct *NewStorageWanted;
 extern char CursorOnOff;
 extern int Visible;
 extern char buffer[];
 extern int bufferlen;
-extern struct rtFileRequester *FileReq;
+extern BufStruct *NewStorageWanted;
 extern srch Search;          /* search structure */
 extern DefaultStruct Default;
 
@@ -64,8 +38,6 @@ extern struct FrexxEdFunction fred[];
 extern const int nofuncs;
 extern int ReturnValue;		// Global return value storage.
 extern int UpDtNeeded;
-extern struct TextFont *RequestFont;	/* Font used by requsters */
-extern int requestfontwidth;		// Kalkulerad bredd på requestfonten.
 
 extern struct Setting **sets;
 extern antalsets;
@@ -728,18 +700,7 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
               localReturnValue=TRUE;		// Position was valid
           }
         } else {
-          buffer[0]=0;
-          if (rtGetString(buffer,MAX_CHAR_LINE, RetString(STR_GOTO_LINE), NULL, RTGL_Width, requestfontwidth*20, RT_TextAttr, &Default.RequestFontAttr, (BUF(window) && BUF(window)->screen_pointer?RT_Screen:TAG_IGNORE), BUF(window)?BUF(window)->screen_pointer:NULL, TAG_END)) {
-            char *pek=buffer;
-            slask=fplStrtol(pek, 0, &pek);
-            slaskis=fplStrtol(pek, 0, &pek);
-            if (slask>SHS(line))
-              slask=SHS(line);
-            else if (slask<=0)
-              slask=1;
-            SetScreen(Storage, slaskis, slask);
-          } else
-            ret=FUNCTION_CANCEL;
+            ret = RequestGotoLine(Storage);
         }
         break;
       case DO_INFORMATION:
@@ -1105,21 +1066,19 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
         if (Argc>1)
           Storage2=CheckBufID((BufStruct *)Argv[1]);
         if (Storage2 && Storage2->window) {
-          slask =(Argc?(int)Argv[0]:Storage2->screen_lines);
-          if (Argc || rtGetLong((ULONG *)&slask, RetString(STR_ENTER_DESIRED_VALUE),
-                      NULL, RTGL_Width, requestfontwidth*20, RTGL_Min, 0,
-                      RTGL_Max, Storage2->window->window_lines,
-                      RTGL_ShowDefault, FALSE, TAG_END)) {
-            NewStorageWanted=ReSizeBuf(Storage, Storage2, NULL, slask);
-            ret=NEW_STORAGE;
-            localReturnValue=Storage2->screen_lines;
-            if (!Storage2->window)
-              localReturnValue=0;
-            else
-              TestCursorPos(Storage2);
-            UpdateAll();
-          } else
-            ret=FUNCTION_CANCEL;
+            ret = RequestResizeBuf(Argc, Argc?(int)Argv[0]:Storage2->screen_lines);
+            if (ret == NEW_STORAGE) {
+                // FIXME: Is it ok to call ReSizeBuf with the same argument twice?
+                // This was originally Storage, Storage2, but both of them were pointng
+                // to the same place.
+                NewStorageWanted=ReSizeBuf(Storage2, Storage2, NULL, slask);
+                localReturnValue=Storage2->screen_lines;
+                if (!Storage2->window)
+                    localReturnValue=0;
+                else
+                    TestCursorPos(Storage2);
+                UpdateAll();
+            }
         }
         break;
       case DO_REPLACE:              // 'replace(int prompt, char *search, char *replace)'
@@ -1230,27 +1189,7 @@ int Command(BufStruct *Storage, int command, int Argc, char **Argv, int flags)
           if (Argc>1 && (long)Argv[1])
             win=CheckWinID((WindowStruct *)Argv[1]);
           if (win && win->window_pointer) {
-            if (command==DO_WINDOWFRONT && Argc && (((int)Argv[0])==-1)) {
-              if (!(win->window&FX_WINDOWBIT)) {
-                if (win->screen_pointer->NextScreen) {
-                  ScreenToFront(win->screen_pointer);
-                  if (win->screen_pointer->FirstWindow)
-                    ActivateWindow(win->screen_pointer->FirstWindow);
-                }
-              } else {
-                WindowToBack(win->window_pointer);
-                if (win->window_pointer->NextWindow)
-                  ActivateWindow(win->window_pointer->NextWindow);
-              }
-            } else {
-              if (command==DO_ICON_CLICK || !Argc || !(((int)Argv[0])&2)) {
-                ScreenToFront(win->screen_pointer);
-                if (win->window!=FX_SCREEN)
-                  WindowToFront(win->window_pointer);
-              }
-              if (command==DO_ICON_CLICK || !Argc || !(((int)Argv[0])&1))
-                ActivateWindow(win->window_pointer);
-            }
+              DoWindowFront(command, Argc, Argv, win);
           }
         }
         break;

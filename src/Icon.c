@@ -12,11 +12,14 @@
 
 #include "compat.h"
 
+#ifdef AMIGA
 #include <exec/types.h>
 #include <proto/icon.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
 #include <workbench/startup.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 

@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <exec/types.h>
 #include <exec/io.h>
 #include <intuition/intuition.h>
@@ -20,6 +21,9 @@
 #include <proto/exec.h>
 #include <proto/intuition.h>
 #include <clib/macros.h>
+#else
+#include "compat.h"
+#endif
 
 #include "Buf.h"
 #include "BufControl.h"

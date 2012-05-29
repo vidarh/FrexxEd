@@ -15,6 +15,8 @@
 #include <proto/dos.h>
 #endif
 
+#include "compat.h"
+
 /* Dismount a volume */
 void DisMount(struct DeviceList *volume)
 {

@@ -248,7 +248,7 @@ typedef enum {
 } String_Num;
 
 
-char __regargs *RetString(String_Num);
+char *RetString(String_Num);
 int __regargs Sprintf(char *, char *, ...);
 char __regargs *GetRetMsg(int num);
 

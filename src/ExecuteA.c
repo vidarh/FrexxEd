@@ -13,6 +13,13 @@
  *
  *******/
 
+#include "compat.h"
+
+#include <fpl/reference.h>
+#include <libraries/FPL.h>
+
+#include "IncludeAll.h"
+
 #ifdef AMIGA
 #include <devices/console.h>
 #include <devices/inputevent.h>
@@ -38,6 +45,14 @@
 #include <rexx/errors.h>
 #endif
 
+extern BOOL device_want_control;
+extern char buffer[];
+extern struct rtFileRequester *FileReq;
+
+extern DefaultStruct Default;
+extern AREXXCONTEXT RexxHandle;
+extern char **FromWorkbench;
+extern void * DOSBase;
 
 /**********************************************************************
  *
@@ -102,12 +117,12 @@ int ScSetVar(const char * argv, const char * buffer, int len)
     return SetVar((char *)argv, buffer, len, GVF_GLOBAL_ONLY);
 }
 
-int ScGetInt(const char * prompt, char * line, short show_default) {
+int ScGetInt(const char * prompt, char * line, short show_default, char * fmt, short backfill) {
     return rtGetLong((ULONG *)&line, prompt,
                      NULL, RTGL_ShowDefault, show_default ? TRUE:FALSE,
                      ((FRONTWINDOW && FRONTWINDOW->screen_pointer)?RT_Screen:TAG_IGNORE), FRONTWINDOW?FRONTWINDOW->screen_pointer:NULL,
-                     RTGS_TextFmt, (arg->argc>2)?(char *)arg->argv[2]:NULL,
-                     RTGL_BackFill, !(arg->argc>2),
+                     RTGS_TextFmt, fmt,
+                     RTGL_BackFill, backfill,
                      RT_TextAttr, &Default.RequestFontAttr,
                      TAG_END);
 }
@@ -122,13 +137,13 @@ long ScRandom() {
 }
 
 
-const char * ScGetDate(int argc, const char ** arg, char * buffer) {
+const char * ScGetDate(BufStruct * Storage,int argc, const char ** argv, char * buffer) {
     struct DateTime datetime;
     register int format=0;
 
     if (SHS(date.ds_Days)==-1) return 0;
 
-    memcpy(&datetime, &Storage2->shared->date, sizeof(struct DateStamp));
+    memcpy(&datetime, &Storage->shared->date, sizeof(struct DateStamp));
     if (argc>1) {
         format=(int)argv[1];
         if ((int)argv[0]<0)
@@ -162,71 +177,33 @@ int ScGetString(char * buffer, const char * msg, const char * textfmt, int backf
                           TAG_END);
 }
 
-int ScPrompFile() {
-          if(PromptFile(Storage, fullname, arg->argc>1?(char *)arg->argv[1]:NULL, arg->argc>2?(char *)arg->argv[2]:NULL, flags, (APTR *)&filelist)) {
-            if (flags&FREQF_MULTISELECT) {
-              struct rtFileList *filetemp=filelist;
-              if (filetemp) {
-                struct fplRef ref;
-                tempint=0;
-                while (filetemp) {
-                  tempint++;
-                  filetemp=filetemp->Next;
-                }
-                ref.Dimensions=1;
-                ref.ArraySize=(long *)&tempint;
-                fplReferenceTags(Anchor, (void *)(arg->argv[4]),
-                                 FPLREF_ARRAY_RESIZE, &ref,
-                                 FPLREF_END);
-                filetemp=filelist;
-                tempint=0;
-                do {
-                  dims[0]=tempint;
-                  strmfp(buffer, fullname, filetemp->Name);
-                  fplReferenceTags(Anchor, (void *)(arg->argv[4]),
-                                   FPLREF_ARRAY_ITEM, &dims[0],
-                                   FPLREF_SET_MY_STRING, buffer,
-                                   FPLREF_END);
-                  tempint++;
-                  filetemp=filetemp->Next;
-                } while (filetemp);
-              }
-              ReturnInt=&tempint;	// Return number of entries.
-              rtFreeFileList(filelist);
-            } else
-              fplSendTags(arg->key, FPLSEND_STRING, fullname, FPLSEND_DONE);
-          } else
-            ret=FUNCTION_CANCEL;
-          Dealloc(fullname);
-}
-
-
-int ScArexxResult()
+int ScArexxResult(int argc, const void ** argv)
 {
     /*
      * Result string to send to ARexx if we were invoke from there!
      */
     if(RexxHandle) {
-        RexxHandle->ResultCode = (int)arg->argv[0]?RC_ERROR:0;
-        if(arg->argc>1) {
+        RexxHandle->ResultCode = (int)argv[0]?RC_ERROR:0;
+        if(argc>1) {
             if(RexxHandle->Result)
                 Dealloc(RexxHandle->Result);
             if(!RexxHandle->ResultCode)
                 /*
                  * Only set the return string if no error is reported!
                  */
-                RexxHandle->Result=Strdup(arg->argv[1]);
+                RexxHandle->Result=Strdup(argv[1]);
             else
                 RexxHandle->Result=NULL;
         }
     }
 }
 
-int ScSystem()
+int ScSystem(BufStruct * Storage, struct fplArgument * arg)
 {
     BPTR fhin=NULL;
     BPTR fhut=NULL;
     BPTR wb_path=NULL;
+    int tempint;
     LockBuf_release_semaphore(BUF(shared));
     if (arg->argc>1) {
         if (((char *)arg->argv[1])[0]) 

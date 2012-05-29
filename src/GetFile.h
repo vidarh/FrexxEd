@@ -19,7 +19,7 @@ typedef struct Files {
   struct Files *next;
 } Files;
 
-int __regargs GetFile(BufStruct *Storage,  char *path, char *filename);
+//int __regargs GetFile(BufStruct *Storage,  char *path, char *filename);
 
 int __regargs Split(SharedStruct *shared, char *name);
 
@@ -83,7 +83,7 @@ typedef struct {
  *
  * Return: a ret-value.
  *******/
-int __regargs ReadFile(BufStruct *Storage, ReadFileStruct *RFS);
+int ReadFile(BufStruct *Storage, ReadFileStruct *RFS);
 
 void __regargs GiveProtection(int protectionbits, char *output);
 

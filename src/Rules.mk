@@ -7,18 +7,19 @@ FREDLIB = # frexxed.library
 GENERIC = generic/Alloc.o generic/Block.o generic/BufControl.o generic/Cursor.o generic/Face.o \
 	generic/Match.o generic/Search.o generic/Fold.o  generic/Sort.o generic/Regex.o generic/Execute.o\
 	generic/DoSearch.o generic/MultML.o generic/UpdtScreenC.o generic/UpdtScreen.o generic/Edit.o \
-	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o generic/Prompt.o generic/Change.o
+	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o generic/Prompt.o generic/Change.o \
+	generic/Command.o generic/GetFile.o generic/Declare.o generic/SearchHistory.o generic/UpdtBlock.o
 
 OBJS = \
  $(GENERIC) BuildMenu.o Button.o Change.o ClipBoard.o\
- Command.o Declare.o \
- ExecuteA.o FACT.o FH_packets.o FileHandler.o GetFile.o\
+ CommandA.o \
+ ExecuteA.o FH_packets.o FileHandler.o \
  GetFont.o Hook.o Icon.o IDCMP.o Init.o KeyAssign.o\
  Mount.o OpenClose.o Process.o \
  Reqlist.o Request.o Rexx.o \
- Slider.o Startup.o Strings.o Timer.o UpdtBlock.o \
- Winsign.o WindowOutput.o SearchUI.o SearchHistory.o util.o WBPath.o AppIcon.o \
- Palette.o 
+ Slider.o Startup.o Strings.o Timer.o \
+ Winsign.o WindowOutput.o SearchUI.o util.o WBPath.o AppIcon.o \
+ Palette.o GetFileA.o DelareA.o
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o
@@ -104,7 +105,7 @@ UpdtBlock.o:		UpdtBlock.c Buf.h Function.h
 UpdtScreen.o:		UpdtScreen.c Buf.h Function.h
 UpdtScreenC.o:	UpdtScreenC.c Buf.h Function.h UpdtScreenC.h
 WinSign.o:		Winsign.c Buf.h Function.h
-WindowOutput.o:	WindowOutput.c Buf.h Function.h UpdtScreenC.h
+WindowOutput.o:	WindowOutput.c Buf.h Function.h generic/UpdtScreenC.h
 
 
 Main.o:		Main.c

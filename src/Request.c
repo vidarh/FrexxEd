@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <clib/console_protos.h>
 #include <clib/gadtools_protos.h>
 #include <clib/reqtools_protos.h>
@@ -35,12 +36,14 @@
 #include <proto/graphics.h>
 #include <proto/intuition.h>
 #include <proto/diskfont.h>
+#include <libraries/reqtools.h>
+#else
+#include "compat.h"
+#endif
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <libraries/reqtools.h>
 
 #include "Buf.h"
 #include "RawKeys.h"
