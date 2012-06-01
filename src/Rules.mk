@@ -19,7 +19,7 @@ OBJS = \
  Reqlist.o Request.o Rexx.o \
  Slider.o Startup.o Strings.o Timer.o \
  Winsign.o WindowOutput.o SearchUI.o util.o WBPath.o AppIcon.o \
- Palette.o GetFileA.o DelareA.o
+ Palette.o GetFileA.o DeclareA.o compat.o
 
 
 NONLIBOBJS = Main.o FrexxEd_rev.o

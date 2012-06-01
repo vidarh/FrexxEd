@@ -33,7 +33,7 @@ CP_R=cp -Rap
 
 ifeq ($(UNAME), Linux)
 # FIXME: Handle optional AROS cross-compilation under Linux (env-variable?)
-CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -Dtest
+CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -Dtest -D__AMIGADATE__="\"`date`\""
 ASMFLAGS = -c
 
 	ifeq ($(OS),AROS)

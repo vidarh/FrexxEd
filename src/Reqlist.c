@@ -175,7 +175,7 @@ static int __asm
                       register __a1 ULONG *msg)
 {
   int retcode=NULL;
-  register ListStruct *list=(ListStruct *)hookptr->h_Data;
+  ListStruct *list=(ListStruct *)hookptr->h_Data;
   int newstring=-1;
   int *pos=NULL, oldtop=-1;
   char movecursor=TRUE;

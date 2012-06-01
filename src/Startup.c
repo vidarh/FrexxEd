@@ -26,7 +26,6 @@
 #include <intuition/intuitionbase.h>
 #include <workbench/startup.h>
 #include <libraries/dos.h>
-#include <libraries/FPL.h>
 #include <libraries/reqtools.h>
 #include <proto/dos.h>
 #include <proto/FPL.h>
@@ -38,6 +37,8 @@
 
 #include <dos/dostags.h> /* for the CreateNewProc() tags! */
 #endif
+
+#include <libraries/FPL.h>
 
 #include <setjmp.h>
 #include <stdio.h>
@@ -74,7 +75,7 @@ extern char *cl_diskname;
 extern int cl_column, cl_line, cl_copywb, cl_double;
 extern int cl_omit, cl_screen, cl_window, cl_backdrop, cl_iconify;
 extern struct RDArgs *argsptr;
-extern struct ExecBase *SysBase;
+//extern struct ExecBase *SysBase;
 //extern LocalStruct Local;
 extern char FrexxEdStarted;	/* Är FrexxEd uppstartad */
 extern char DebugOpt; /* Debug option on/off */

@@ -35,8 +35,21 @@
 
 #include <proto/reqtools.h>
 #include <proto/utility.h>
+#else
+#define NO_XPK
+#define NO_PPACKER
+#include "compat.h"
 #endif
 
+#include <libraries/FPL.h>
+#include "Buf.h"
+#include "GetFile.h"
+#include "Limit.h"
+
+extern char *ReturnBuffer;
+extern char buffer[];
+extern BOOL OwnWindow;
+extern DefaultStruct Default;
 extern struct rtFileRequester *FileReq; /* Buffrad Filerequester. Bra o ha! */
 
 void fileReqSetMatchPat(const char * str) {
@@ -56,7 +69,7 @@ void fileReqFreeFileList(void * filelist) {
     rtFreeFileList(filelist);
 }
 
-struct rtFileList * fileReqRequest(char *filename) {
+struct rtFileList * fileReqRequest(BufStruct * Storage,char *filename, char * string) {
     struct rtFileList * filelist = NULL;
     struct Screen *screen=NULL;
     if (!FRONTWINDOW || !FRONTWINDOW->window_pointer)
@@ -80,7 +93,7 @@ struct rtFileList * fileReqRequest(char *filename) {
     return filelist;
 }
 
-void fileReqGetPath(char * filename) {
+void fileReqGetPath(struct rtFileList * filelist,char * filename) {
     strmfp(filename, FileReq->Dir, filelist->Name);
 }
 
@@ -97,43 +110,13 @@ void fileReqFreeList(struct rtFileList * filelist) {
     rtFreeFileList(filelist);
 }
 
-void fileReqCopyToFPL(struct rtFileList * filetemp) {
-    int tempint = 0;
-    do {
-        dims[0]=tempint;
-        strmfp(buffer, fullname, filetemp->Name);
-        fplReferenceTags(Anchor, (void *)(arg->argv[4]),
-                         FPLREF_ARRAY_ITEM, &dims[0],
-                         FPLREF_SET_MY_STRING, buffer,
-                         FPLREF_END);
-        tempint++;
-        filetemp=filetemp->Next;
-    } while (filetemp);
+char * fileReqName(struct rtFileList * filetemp) {
+    return filetemp->Name;
 }
 
-
-int fileReqCheckAndPrompt() {
-    char *tempbuffer;
-    int antal  = fileReqCountFiles();
-
-    pointers=(char **)Malloc(sizeof(char *)*antal);
-    tempbuffer=Malloc(FILESIZE);
-    if (!pointers || !tempbuffer) return(OUT_OF_MEM);
-    antal=0;
-    filetemp=filelist;
-    while (filetemp) {
-        strmfp(tempbuffer, FileReq->Dir, filetemp->Name);
-        if (CheckAndPrompt(Storage, tempbuffer, !(flag&(loadNOQUESTION|loadINCLUDE)), filename)>=OK) {
-            pointers[antal]=Strdup(filename);
-            antal++;
-        }
-        filetemp=filetemp->Next;
-    }
-    Dealloc(tempbuffer);
-    if (!antal) antal--;
-    return antal;
+char * fileReqPath(char * tempbuffer, struct rtFileList * filetemp) {
+    strmfp(tempbuffer, FileReq->Dir, filetemp->Name);
 }
-
 
 void fileReqXpk() {
 #ifndef NO_XPK
@@ -202,21 +185,19 @@ void fileReqPPacker() {
 }
 
 void fileReqCompress() {
+#if !defined(NO_PPACKER) && !defined(NO_XPK)
     if (!strcasecmp("PP20", packmode)) {
         fileReqPPacker();
     }  else {
         fileReqXpk();
     }
+#endif
 }
 
-void fileReqMakeIcon() {
-    MakeIcon(text);
-}
-
-
-int fileReqCheckFileModifiedOnDisk() {
+int fileReqCheckFileModifiedOnDisk(char * file, BufStruct * Storage, char * text) {
     struct FileInfoBlock fileinfo;
     int ret = OK;
+    BPTR lock;
     if (!file && SHS(date.ds_Days)!=-1 &&
         (lock=Lock((UBYTE *)text, ACCESS_READ))) {
         int fi=FALSE;
@@ -249,30 +230,12 @@ int fileReqCheckFileModifiedOnDisk() {
     return ret;
 }
 
-
-int fileReqWriteFile(int ret,const char * falsefilename) {
-    filewrite=(struct FileHandle *)Open(falsefilename, MODE_NEWFILE);
-    if (filewrite) {
-        Sprintf(filename, RetString(STR_SAVING_TEXT), text);
-        Status(Storage, filename, 0);
-        if (!(flag & saveCLEANUP) || FoldCompactBuf(BUF(shared), &fileblock)!=OK) {
-            for (counter=1; counter<=SHS(line); counter++) {
-                if (Write((BPTR)filewrite, (APTR)RAD(counter), LEN(counter))<0) {
-                    ret=OPEN_ERROR;
-                    break;
-                }
-            }
-        } else {
-            if (Write((BPTR)filewrite, (APTR)fileblock.string, fileblock.length)<0)
-                ret=OPEN_ERROR;
-        }
-        Close((BPTR)filewrite);
-    } else
-        ret=OPEN_ERROR;
-    return ret;
-}
-
-int fileReqSetAttributes(char * falsefilename) {
+int fileReqSetAttributes(BufStruct * Storage,char * falsefilename, char * text, char * allocation) {
+    int slask;
+    BPTR lock;
+    LONG error = 0;
+    int ret = OK;
+    struct FileInfoBlock fileinfo;
     if (lock=Lock((UBYTE *)falsefilename, ACCESS_READ)) {
         SetProtection(falsefilename, SHS(fileprotection));
         SetComment(falsefilename, (char *)&SHS(filecomment));
@@ -467,39 +430,6 @@ int ReadFile(BufStruct *Storage, ReadFileStruct *RFS) {
 
   return(ret);
 }
-
-
-void fileReqMatchNames() {
-    char plats[sizeof(struct AnchorPath)+FILESIZE];
-    struct AnchorPath *file=(struct AnchorPath *)&plats;
-    memset(&plats, 0, sizeof(plats));
-    file->ap_BreakBits=0;
-    file->ap_Strlen=FILESIZE;     /* we want the entire path! */
-    
-    if(!MatchFirst(wildcard, file)) {	/* Start matching pattern */
-        struct Files *newfile;
-        do {
-            if (file->ap_Info.fib_DirEntryType<0) {
-                ret=CheckAndPrompt(Storage, file->ap_Buf,
-                                   checkname, namebuffer);
-                if (ret!=CANT_FIND_FILE) {
-                    number++;
-                    newfile=(struct Files *)OwnAllocRemember(remember, sizeof(struct Files));
-                    if (newfile) {
-                        newfile->name=OwnAllocRemember(remember, strlen(namebuffer)+1);
-                        if (newfile->name) {
-                            strcpy(newfile->name, namebuffer);
-                            newfile->next=*list;
-                            *list=newfile;
-                        }
-                    }
-                }
-            }
-        } while(!MatchNext(file));
-        MatchEnd(file);
-    }
-}
-
 
 /*******************************************************************
 *

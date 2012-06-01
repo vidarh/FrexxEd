@@ -23,13 +23,14 @@
 #ifndef __AROS__
 #include <inline/fpl_protos.h>
 #endif
-#include <libraries/FPL.h>
 #include <rexx/storage.h>
 #include <rexx/rxslib.h>
 #include <rexx/errors.h>
 #include <string.h>
 #include <clib/alib_protos.h>
 #endif
+
+#include <libraries/FPL.h>
 
 extern char DebugOpt;
 
@@ -38,6 +39,7 @@ extern char DebugOpt;
 #include "Execute.h"
 #include "Rexx.h"
 
+struct Library *RexxSysBase;
 extern char *appiconname;
 
 /*
@@ -436,7 +438,7 @@ AREXXCONTEXT __regargs InitARexx(char *AppName)
           }
           AppName=NULL;
         } else {
-          RexxContext->ARexxPort=(VOID *)1;
+          RexxContext->ARexxPort=(void *)1;
           for (count=1;RexxContext->ARexxPort;count++) {
             Sprintf(tmp, "%ld", count);		//941214- used to be 'stci_d(tmp,count)'
             RexxContext->ARexxPort=FindPort(RexxContext->PortName);

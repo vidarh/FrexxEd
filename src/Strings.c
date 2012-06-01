@@ -29,6 +29,7 @@
 
 extern struct Catalog *catalog;
 extern char GlobalEmptyString[];
+extern struct Library * LocaleBase;
 
 char __regargs *RetString(String_Num string)
 {

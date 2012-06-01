@@ -72,7 +72,7 @@ static UWORD chip clock[36] = {
 };
 #endif
 
-extern struct ExecBase *SysBase;
+//extern struct ExecBase *SysBase;
 extern UpdateStruct UpdtVars;
 extern struct IntuitionBase *IntuitionBase;
 extern struct ConsoleDevice *ConsoleDevice;

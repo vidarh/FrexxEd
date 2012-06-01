@@ -33,7 +33,7 @@
 #define RTFI_Dir 1
 
 // FIXME: This is blatantly a hack
-#define REG_A4 1
+//#define REG_A4 1
 
 // Amiga types. FIXME: Verify these
 
@@ -54,17 +54,38 @@ typedef void * IPTR;
 
 extern struct Library * IFFParseBase;
 
+struct Hook {
+    void * h_Data;
+    void * h_SubEntry;
+    void * h_Entry;
+};
 struct Node {
-    int lib_Version;
+    struct Node * ln_Pred;
+    struct Node * ln_Succ;
+    int ln_Pri;
     char * ln_Name;
+    int ln_Type;
+    int lib_Version; // FIXME: Probably means something points to a node when it should point to a library
 };
 struct InputEvent {
     int ie_Code;
     int ie_Qualifier;
     void * ie_EventAddress;
 };
+struct SGWork {
+    struct Gadget * Gadget;
+    int NumChars;
+    struct InputEvent * IEvent;
+    int Code;
+    int *WorkBuffer;
+    int EditOp;
+    int BufferPos;
+    int Actions;
+    struct StringInfo * StringInfo;
+};
 struct Library {
     struct Node LibNode;
+    int lib_Version;
 };
 
 extern struct Library * SysBase;
@@ -83,17 +104,38 @@ struct Preferences {
     int color3;    
 };
 struct Gadget { 
-    int GadgetID;
-    void * UserData;
-    void * SpecialInfo;
-    int Flags;
+    struct Gadget * NextGadget;
     int LeftEdge;
     int TopEdge;
     int Height;
     int Width;
+    int Flags;
+    int Activation;
+    int GadgetType;
+    void * GadgetRender;
+    void * GadgetSelect;
+    char * Text;
+    int MX;
+    void * SpecialInfo;
+    int GadgetID;
+    void * UserData;
+};
+struct Catalog {
+    char * cat_Language;
 };
 struct StringInfo {
     void * Buffer;
+    int MaxChars;
+};
+struct RexxMsg {
+    struct {
+        struct Node mn_Node;
+    } rm_Node;
+    char * rm_Args;
+    void * rm_Args1;
+    void * rm_Result1;
+    void * rm_Result2;
+    int rm_Action;
 };
 struct TextExtent {
     struct {
@@ -101,12 +143,29 @@ struct TextExtent {
         int MaxX;
     } te_Extent;
 };
-struct PropInfo { };
+struct PropInfo { 
+    int HorizPot;
+    int HorizBody;
+    int VertPot;
+    int VertBody;
+    int Flags;
+};
+
 struct Image { };
 struct Border { 
     int XY;
+    int FrontPen;
+    int Count;
 };
 struct AppMessage {
+    void * am_ArgList;
+    int am_NumArgs;
+    void * am_UserData;
+    int am_Type;
+};
+struct WBArg {
+    char * wa_Name;
+    int wa_Lock;
 };
 struct DateTime {
     int dat_Format;
@@ -135,7 +194,12 @@ struct ExecBase {
         int lib_Version;
     } LibNode; 
 };
-
+struct RDArgs {
+    struct {
+        char * CS_Buffer;
+        int CS_Length;
+    } RDA_Source;
+};
 struct DosPacket {
     int dp_Type;
     void * dp_Arg1;
@@ -152,10 +216,17 @@ struct DosLibrary {
 struct DeviceList {
     const char * dl_Name;
     struct DateStamp dl_VolumeDate;
+    int dl_Lock;
+    void * dl_Task;
+    int dl_DiskType;
 };
 struct FileHandle {
     int fh_Type;
     void * fh_Arg1;
+};
+struct BitMap {
+};
+struct SignalSemaphore {
 };
 struct DiskObject {
      UWORD              do_Magic;   /* magic number at start of file */
@@ -169,6 +240,9 @@ struct DiskObject {
      struct DrawerData *do_DrawerData;
      char              *do_ToolWindow;  /* only applies to tools */
      LONG               do_StackSize;   /* only applies to tools */
+};
+struct DrawInfo {
+    int dri_Pens[256];
 };
 struct InfoData {
     int id_NumSoftErrors;
@@ -186,6 +260,7 @@ struct FileLock {
     int fl_Access;
     void * fl_Task;
     void * fl_Volume;
+    void * fl_Link;
 };
 struct FileInfoBlock {
     char * fib_Comment;
@@ -198,11 +273,20 @@ struct FileInfoBlock {
     int fib_Protection;
     long fib_Size;
 };
+struct AnchorPath {
+    int ap_BreakBits;
+    int ap_Strlen;
+    char * ap_Buf;
+    struct FileInfoBlock ap_Info;
+};
 struct IntuiText {
     struct IntuiText * NextText;
     const char * IText;
     void * ITextFont;
     int LeftEdge;
+};
+struct IntuitionBase {
+    struct Screen * FirstScreen;
 };
 struct MenuItem {
     struct MenuItem * NextItem;
@@ -220,12 +304,24 @@ struct Menu {
     int Width;
     int LeftEdge;
 };
+struct Message {
+    struct MsgPort * mn_ReplyPort;
+    struct Node mn_Node;
+    int mn_Length;
+};
+struct WBStartup {
+    struct Message sm_Message;
+    int sm_NumArgs;
+    char ** sm_ArgList;
+};
+
 struct IntuiMessage {
+    struct Message ExecMessage;
     int Code;
     int Class;
     int Qualifier;
     void * IAddress;
-    void * IDCMPWindow;
+    struct Window * IDCMPWindow;
     int Seconds;
     int Micros;
     int MouseX;
@@ -243,6 +339,10 @@ struct NewMenu {
 struct NewWindow {
     int Height;
     int Width;
+    int MinWidth;
+    int MaxWidth;
+    int MinHeight;
+    int Flags;
     int Type;
     void * Screen;
     int LeftEdge;
@@ -264,11 +364,31 @@ struct NewGadget {
     int ng_Width;
 };
 
-struct RastPort {
+struct Bitmap {
+    int Depth;
 };
 
+struct RastPort {
+    struct Bitmap * BitMap;
+    int TxHeight;
+};
+
+struct MinList {
+    struct Node * mlh_Head;
+    struct Node * mlh_Tail;
+    struct Node * mlh_TailPred;
+};
+struct List {
+    struct Node * lh_Head;
+};
+struct KeyMapNode {
+    void * kn_KeyMap;
+};
 struct MsgPort {
+    struct List mp_MsgList;
     long mp_SigBit;
+    int mp_Flags;
+    int mp_SigTask;
 };
 
 struct Font {
@@ -277,10 +397,35 @@ struct Font {
 
 struct ColorMap {
 };
-
-struct Message {
-    struct Node mn_Node;
+struct TagItem {
 };
+struct DimensionInfo {
+    struct {
+        int MaxX;
+        int MaxY;
+    } TxtOScan;
+};
+struct DisplayInfo {
+    int PropertyFlags;
+};
+struct EasyStruct {
+    int es_GadgetFormat;
+    void * es_TextFormat;
+};
+struct IOStdReq {
+    struct Device * io_Device;
+    int io_Command;
+};
+struct timerequest
+{
+    struct IOStdReq tr_node;
+    struct {
+        int tv_secs;
+        int tv_micro;
+    } tr_time;
+};
+
+
 struct ViewPort {
     struct ColorMap ColorMap;
     int DxOffset;
@@ -292,9 +437,20 @@ struct Screen {
     struct Font * Font;
     int MouseX;
     int MouseY;
+    int Width;
+    int Height;
+    int Flags;
+    int WBorLeft;
+    int WBorTop;
     struct ViewPort ViewPort;
     struct Screen * NextScreen;
     struct Window * FirstWindow;
+    struct RastPort RastPort;
+};
+struct PubScreenNode {
+    struct Node psn_Node;
+    int psn_Flags;
+    struct Screen * psn_Screen;
 };
 struct Window {
     struct Screen * WScreen;
@@ -310,12 +466,15 @@ struct Window {
     int BorderRight;
     int BorderLeft;
     int BorderBottom;
+    int BorderTop;
     int Flags;
     int MinWidth;
+    void * UserData;
 };
 struct TextFont {
     int tf_YSize;
     int tf_XSize;
+    int tf_Baseline;
     int tf_Flags;
     int tf_BoldSmear;
 };
@@ -329,8 +488,38 @@ struct IFFHandle {
 #define FREQF_MULTISELECT 4
 
 struct rtFileList {
+    struct rtFileList * Next;
+    char * Name;
+};
+struct rtScreenModeRequester {
+    int DisplayID;
+    int OverscanType;
+    int DisplayWidth;
+    int DisplayHeight;
+    int DisplayDepth;
+    int AutoScroll;
+};
+struct rtFontRequester {
+    int Attr;
+};
+struct rtFileRequester {
+    char * Dir;
+    char * MatchPat;
 };
 
+struct Task {
+    struct Node tc_Node;
+};
+struct CommandLineInterface {
+    char * cli_CommandDir;
+};
+struct Process {
+    struct MsgPort * pr_MsgPort;
+    struct Window * pr_WindowPtr;
+    struct CommandLineInterface pr_CLI;
+    struct Task pr_Task;
+};
+struct Task * FindTask(void *);
 int Wait(int);
 void * GetMsg(void *);
 void * OpenLibrary(char *, long);
@@ -346,12 +535,24 @@ void Delay(long);
 #define WB_DISKVERSION 456
 
 #define NO_ICON_POSITION -1
+#define IECLASS_RAWKEY 4
+#define HIRES_KEY 1
+#define OSCAN_TEXT 2
 
 #define IFFPARSE_SCAN 1
 #define IFFERR_EOF 2
 #define IFFF_WRITE 3
 #define IFFSIZE_UNKNOWN 4
 #define IFFERR_WRITE 5
+#define TOPAZ_EIGHTY 0
+#define FPF_ROMFONT 0
+#define TR_ADDREQUEST 0
+#define UNIT_MICROHZ 1
+
+#define CONST_STRPTR const char *
+#define FS_NORMAL 1
+#define JAM1 2
+#define JAM2 3
 
 #define RTGL_Width 1
 #define RTGL_Min 2
@@ -364,6 +565,32 @@ void Delay(long);
 
 #define RT_TextAttr 5
 #define RT_Screen 6
+
+#define SGH_KEY 1
+#define BUTTONIDCMP 0
+#define EO_INSERTCHAR 1
+#define GA_Immediate 2
+#define GTLV_Labels 3
+#define GTLV_MakeVisible 4
+#define GTLV_Selected 5
+#define GTLV_ShowSelected 6
+#define GTLV_Top 7
+#define GTST_EditHook 8
+#define HOOKFUNC void (*)
+
+#define LISTVIEWIDCMP 10
+#define LISTVIEW_KIND 11
+#define PLACETEXT_ABOVE 12
+#define SGA_END 13
+#define SGA_NEXTACTIVE 14
+#define SGA_REDISPLAY 15
+#define SGA_REUSE 16
+#define SGA_USE 17
+#define STRINGIDCMP 18
+#define WA_CustomScreen 19
+#define WA_Flags 20
+#define WA_Gadgets 21
+#define WA_IDCMP 22
 
 #define CHECKED 0
 #define CHECKIT 0
@@ -389,6 +616,44 @@ void Delay(long);
 #define IDCMP_CLOSEWINDOW 2
 #define IDCMP_RAWKEY 0
 #define IDCMP_GADGETUP 3
+#define IDCMP_ACTIVEWINDOW 4
+#define IDCMP_CHANGEWINDOW 5
+#define IDCMP_INACTIVEWINDOW 6
+#define IDCMP_INTUITICKS 7
+#define IDCMP_MENUPICK 8
+#define IDCMP_MENUVERIFY 9
+#define IDCMP_MOUSEBUTTONS 10
+#define IDCMP_MOUSEMOVE 11
+#define IDCMP_NEWSIZE 12
+
+#define AFF_DISK 0
+#define FREQF_FIXEDWIDTH 1
+#define FREQF_PATGAD 2
+#define FREQF_SCALE 3
+#define GTYP_PROPGADGET 4
+#define RTFI_Flags 5
+#define RTFI_MatchPat 6
+#define RTFO_Flags 7
+#define RTFO_FontHeight 8
+#define RTFO_FontName 9
+#define RTFO_MaxHeight 10
+#define RT_FONTREQ 11
+#define RTSC_AutoScroll 12
+#define RTSC_DisplayDepth 13
+#define RTSC_DisplayHeight 14
+#define RTSC_DisplayID 15
+#define RTSC_DisplayWidth 16
+#define RTSC_Flags 17
+#define RTSC_MaxDepth 18
+#define RTSC_MinDepth 19
+#define RTSC_OverscanType 20
+#define RT_SCREENMODEREQ 21
+#define RT_WaitPointer 22
+#define RT_Window 23
+#define SCREQF_AUTOSCROLLGAD 24
+#define SCREQF_DEPTHGAD 25
+#define SCREQF_OVERSCANGAD 26
+#define SCREQF_SIZEGADS 27
 
 #define WFLG_SMART_REFRESH 0
 #define CUSTOMSCREEN 0
@@ -456,8 +721,37 @@ void Delay(long);
 #define RC_ERROR 0
 
 #define NP_Path 0
+#define NP_Entry 1
+#define NP_Name 2
+#define NP_StackSize 3
+
+#define NT_MESSAGE 4
+#define NT_PROCESS 0
+#define PA_SIGNAL 1
+#define PF_ACTION 2
+#define WBAPPICON 0
+
+#define NT_REPLYMSG 0
+#define RC_OK 1
+#define RXCOMM 2
+#define RXFB_RESULT 3
+#define RXFF_RESULT 4
+
+#define AUTOKNOB 0
+#define FREEVERT 1
+#define GACT_RIGHTBORDER 2
+#define GFLG_GADGHBOX 3
+#define GFLG_RELRIGHT 4
+#define MAXBODY 5
+#define PROPBORDERLESS 6
+#define PROPNEWLOOK 7
+
 #define SYS_Input 1
 #define SYS_Output 2
+
+#define LDF_VOLUMES 1
+#define LDF_WRITE 2
+#define DLT_VOLUME 3
 
 #define ERROR_ACTION_NOT_KNOWN 0
 #define ERROR_OBJECT_NOT_FOUND -1
@@ -479,6 +773,7 @@ void Delay(long);
 #define ST_FILE 2
 #define ID_VALIDATED 3
 #define ID_FFS_DISK 4
+#define ID_DOS_DISK 8
 #define DOSTRUE 1
 #define DOSFALSE 0
 
@@ -542,15 +837,6 @@ void Delay(long);
 
 #define AMTYPE_APPICON 0
 #define AMTYPE_APPWINDOW 1
-#define IDCMP_ACTIVEWINDOW 2
-#define IDCMP_CHANGEWINDOW 3
-#define IDCMP_INACTIVEWINDOW 4
-#define IDCMP_INTUITICKS 5
-#define IDCMP_MENUPICK 6
-#define IDCMP_MENUVERIFY 7
-#define IDCMP_MOUSEBUTTONS 8
-#define IDCMP_MOUSEMOVE 9
-#define IDCMP_NEWSIZE 10
 #define IEQUALIFIER_LEFTBUTTON 11
 #define IEQUALIFIER_MIDBUTTON 12
 #define IEQUALIFIER_RBUTTON 13
@@ -566,6 +852,53 @@ void Delay(long);
 #define SIGBREAKF_CTRL_E 23
 #define WFLG_WINDOWACTIVE 24
 #define WFLG_ZOOMED 25
+
+#define DIPF_IS_FOREIGN 0
+#define DTAG_DIMS 1
+#define DTAG_DISP 2
+#define FILLPEN 3
+#define FILLTEXTPEN 4
+#define PSNF_PRIVATE 6
+#define PUBLICSCREEN 7
+#define REQTOOLSNAME 8
+#define REQTOOLSVERSION 9
+#define RTEZ_ReqTitle 10
+#define RT_FILEREQ 11
+#define SA_AutoScroll 12
+#define SA_BlockPen 13
+#define SA_Depth 14
+#define SA_DetailPen 15
+#define SA_DisplayID 16
+#define SA_Font 17
+#define SA_Height 18
+#define SA_Interleaved 19
+#define SA_LikeWorkbench 20
+#define SA_Overscan 21
+#define SA_Pens 22
+#define SA_PubName 23
+#define SA_Type 24
+#define SA_Width 25
+#define SHINEPEN 26
+#define WA_BlockPen 28
+#define WA_DetailPen 29
+#define WA_Height 30
+#define WA_Left 31
+#define WA_NewLookMenus 32
+#define WA_NoCareRefresh 33
+#define WA_PubScreen 34
+#define WA_ScreenTitle 35
+#define WA_SizeBBottom 36
+#define WA_SizeBRight 37
+#define WA_SizeGadget 38
+#define WA_Title 39
+#define WA_Top 40
+#define WA_Width 41
+#define WA_Zoom 42
+#define WFLG_BACKDROP 43
+#define WFLG_BORDERLESS 44
+#define WFLG_NEWLOOKMENUS 45
+#define WFLG_REPORTMOUSE 46
+#define XPKNAME 48
 
 typedef char * BSTR;
 

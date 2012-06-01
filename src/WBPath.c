@@ -7,6 +7,8 @@
 #include <workbench/startup.h>
 #include <proto/exec.h>
 #include <proto/dos.h>
+#else
+#include "compat.h"
 #endif
 
 struct PathNode {

@@ -14,7 +14,6 @@
 #include <exec/io.h>
 #include <exec/types.h>
 #include <exec/execbase.h>
-#include <libraries/FPL.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
 //#include <proto/FPL.h>
@@ -22,6 +21,10 @@
 #include <proto/reqtools.h>
 #include <proto/utility.h>
 #endif
+
+#include <libraries/FPL.h>
+
+#include "compat.h"
 
 #include <stdarg.h>
 #include <stdio.h>

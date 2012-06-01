@@ -245,7 +245,9 @@ void __regargs SystemPrint(BufStruct *Storage, struct screen_buffer *buf,
             fgText(rp, pos, printlen, fast_gfx_table);
           else
 #endif
-            Text(rp, (CONST_STRPTR)pos, printlen);
+            Text(rp,
+                 (CONST_STRPTR)pos, 
+                 printlen);
         }
       }      
     }

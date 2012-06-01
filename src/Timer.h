@@ -7,11 +7,9 @@
 
 #ifdef AMIGA
 #include <devices/timer.h>
+#else 
+#include "compat.h"
 #endif
-
-struct timerequest
-{
-};
 
 struct FrexxTimerRequest {
   struct timerequest tr;

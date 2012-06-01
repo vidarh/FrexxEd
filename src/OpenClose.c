@@ -12,6 +12,7 @@
  *
  *********/
 
+#ifdef AMIGA
 #include <proto/dos.h>
 #include <proto/intuition.h>
 #include <proto/icon.h>
@@ -39,7 +40,6 @@
 #endif
 #include <libraries/reqtools.h>
 #include <libraries/locale.h>
-#include <libraries/FPL.h>
 #ifndef NO_XPK
 #include <xpk/xpk.h>
 #include <proto/xpkmaster.h>
@@ -54,12 +54,17 @@
 #include <proto/reqtools.h>
 #include <proto/utility.h>
 #include <pragmas/FPL_pragmas.h>
+#include <utility/tagitem.h>
+#include <workbench/workbench.h>
+#else
+#include "compat.h"
+#endif
+
 #include <setjmp.h>
+#include <libraries/FPL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <utility/tagitem.h>
-#include <workbench/workbench.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -110,7 +115,7 @@ extern BOOL hook_enabled;
 
 extern struct SignalSemaphore LockSemaphore;
 extern DefaultStruct Default;
-extern struct ExecBase *SysBase;
+//extern struct ExecBase *SysBase;
 extern char buffer[];
 extern int bufferlen;
 extern HistoryStruct SearchHistory;
@@ -144,6 +149,9 @@ extern srch Search;          /* search structure */
 extern struct Library *FastGraphicsBase;
 extern struct FastGraphicsTable *fast_gfx_table;
 
+extern struct Library * WorkbenchBase;
+extern struct Library * UtilityBase;
+extern struct Library * LocaleBase;
 extern struct Library *FPLBase;
 extern struct Library *DiskfontBase;
 extern struct Library *GadToolsBase;
@@ -1143,7 +1151,7 @@ static char *OpenMyScreen(WindowStruct *win)
 
     ModifyIDCMP(win->window_pointer, IDCMP_RAWKEY|IDCMP_MOUSEMOVE|IDCMP_MOUSEBUTTONS|IDCMP_INTUITICKS|IDCMP_NEWSIZE|
               IDCMP_CHANGEWINDOW|IDCMP_CLOSEWINDOW|IDCMP_MENUPICK|IDCMP_GADGETDOWN|IDCMP_GADGETUP|
-	      IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|(!firstopen?IDCMP_MENUVERIFY:NULL));
+                IDCMP_ACTIVEWINDOW|IDCMP_INACTIVEWINDOW|(!firstopen?IDCMP_MENUVERIFY:0));
 
     OwnWindow=TRUE;
   }

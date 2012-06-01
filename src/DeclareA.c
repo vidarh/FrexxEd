@@ -18,7 +18,11 @@
 #include <workbench/workbench.h>
 #include <utility/tagitem.h>
 #include <exec/types.h>
+#else
+#include "compat.h"
 #endif
+
+#include "Buf.h"
 
 /***************************** IDCMP.c ********************************/
 

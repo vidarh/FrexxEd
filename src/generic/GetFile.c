@@ -53,7 +53,6 @@ extern int _OSERR;
 extern int Visible;
 extern FACT *DefaultFact;
 extern char ReturnBuffer[RET_BUF_LEN];
-extern BOOL OwnWindow;
 extern struct Library *XpkBase;
 extern char DebugOpt;
 extern int constant;	// Konstant för maxfillängd utan registrering.
@@ -62,6 +61,7 @@ extern BufStruct *NewStorageWanted;
 
 static const char * GetFile(BufStruct *Storage,  char *path, char *filename) {
     ReadFileStruct RFS;
+
     const char * ret=OK;
     int retlength;
     TextStruct *rettext;
@@ -193,13 +193,29 @@ int Load(BufStruct *Storage, char *string, int flag, char *file) {
     fileReqSetDir(buffer);
 
     void *filelist=NULL;
-    if (!file) filelist = fileReqRequest(filename);
+    if (!file) filelist = fileReqRequest(Storage,filename,string);
         
     if (file || filelist) {
-        if (!file) fileReqGetPath(filename);
+        if (!file) fileReqGetPath(filelist,filename);
         else strcpy(filename, file);
         if (fileReqFilelistNotEmpty(filelist)) {
-            antal  = fileReqCheckAndPrompt(antal);
+            antal  = fileReqCountFiles(filelist);
+
+            pointers=(char **)Malloc(sizeof(char *)*antal);
+            char * tempbuffer=Malloc(FILESIZE);
+            if (!pointers || !tempbuffer) return(OUT_OF_MEM);
+            antal=0;
+            struct rtFileList * filetemp=filelist;
+            while (filetemp) {
+                fileReqPath(tempbuffer, filetemp);
+                if (CheckAndPrompt(Storage, tempbuffer, !(flag&(loadNOQUESTION|loadINCLUDE)), filename)>=OK) {
+                    pointers[antal]=Strdup(filename);
+                    antal++;
+                }
+                filetemp=filetemp->Next;
+            }
+            Dealloc(tempbuffer);
+            if (!antal) antal--;
         } else {
             antal=GetFileList(Storage, filename, &list, &remember, !(flag&(loadNOQUESTION|loadINCLUDE)));
             if (antal>0) {
@@ -328,7 +344,6 @@ int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
 {
   struct FileHandle *filewrite;
   String fileblock={NULL, 0};
-  BPTR lock;
   int counter, ret=OK;
   int slask;
   LONG error=0;
@@ -384,7 +399,7 @@ int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
 
   /* Compare date */
   LockBuf_release_semaphore(BUF(shared));
-  if (ret >= OK) ret = fileReqCheckFileModifiedOnDisk();
+  if (ret >= OK) ret = fileReqCheckFileModifiedOnDisk(file,Storage,text);
 
   if (ret>=OK) {
       BOOL resave=TRUE;		// Save the file normal
@@ -408,11 +423,28 @@ int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
       }
       
       if (ret>=OK && resave) {	// Save it normally (pack failed)
-          ret = fileReqWriteFile(ret,falsefilename);
+          struct FileHandle * filewrite=(struct FileHandle *)Open(falsefilename, MODE_NEWFILE);
+          if (filewrite) {
+              Sprintf(filename, RetString(STR_SAVING_TEXT), text);
+              Status(Storage, filename, 0);
+              if (!(flag & saveCLEANUP) || FoldCompactBuf(BUF(shared), &fileblock)!=OK) {
+                  for (counter=1; counter<=SHS(line); counter++) {
+                      if (Write((BPTR)filewrite, (APTR)RAD(counter), LEN(counter))<0) {
+                          ret=OPEN_ERROR;
+                          break;
+                      }
+                  }
+              } else {
+                  if (Write((BPTR)filewrite, (APTR)fileblock.string, fileblock.length)<0)
+                      ret=OPEN_ERROR;
+              }
+              Close((BPTR)filewrite);
+          } else
+              ret=OPEN_ERROR;
       }
       if (ret>=OK) {
           
-          ret = fileReqSetAttributes(falsefilename);
+          ret = fileReqSetAttributes(Storage,falsefilename,text, allocation);
 
           if(ret>=OK && SHS(SaveInfo)) {
               BPTR parent = TRUE;
@@ -441,7 +473,7 @@ int Save(BufStruct *Storage, int flag, char *string, char *file, char *packmode)
                   }
               }
 
-              if(parent) fileReqMakeIcon(text);
+              if(parent) MakeIcon(text);
           }
       } else
           DeleteFile(falsefilename);
@@ -751,18 +783,6 @@ int ExtractLines(char *text, int length, TextStruct **rettext, int *lines, BufSt
       slasktext[line].current_style=0;
       slasktext[line].old_style=0;
     }
-/*
-    if ((flags[slasktext[line].text[slasktext[line].length-1]] & fact_NEWLINE)) {
-      slasktext[++line].length=text+length-mem-1;
-      size+=slasktext[line].length;
-      if(slasktext[line].length)
-        slasktext[line].text = mem+1;
-      else
-        slasktext[line].text = NULL;
-      slasktext[line].fold_no=fold_no;
-      slasktext[line].flags=fold_flags;
-    }
-*/
   }
   if (can_be_folded)
     can_be_folded->shared->size=size;
@@ -831,7 +851,34 @@ int GetFileList(BufStruct *Storage,
                     }
                 }
             } else {
-                fileReqMatchNames();
+                char plats[sizeof(struct AnchorPath)+FILESIZE];
+                struct AnchorPath *file=(struct AnchorPath *)&plats;
+                memset(&plats, 0, sizeof(plats));
+                file->ap_BreakBits=0;
+                file->ap_Strlen=FILESIZE;     /* we want the entire path! */
+                
+                if(!MatchFirst(wildcard, file)) {	/* Start matching pattern */
+                    struct Files *newfile;
+                    do {
+                        if (file->ap_Info.fib_DirEntryType<0) {
+                            ret=CheckAndPrompt(Storage, file->ap_Buf,
+                                               checkname, namebuffer);
+                            if (ret!=CANT_FIND_FILE) {
+                                number++;
+                                newfile=(struct Files *)OwnAllocRemember(remember, sizeof(struct Files));
+                                if (newfile) {
+                                    newfile->name=OwnAllocRemember(remember, strlen(namebuffer)+1);
+                                    if (newfile->name) {
+                                        strcpy(newfile->name, namebuffer);
+                                        newfile->next=*list;
+                                        *list=newfile;
+                                    }
+                    }
+                            }
+                        }
+                    } while(!MatchNext(file));
+                    MatchEnd(file);
+                }
             }
         } else
             number--;		// returnera minus som cancel.

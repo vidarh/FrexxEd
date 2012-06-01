@@ -1154,7 +1154,18 @@ static long run_functions(struct fplArgument *arg)
                                  FPLREF_ARRAY_RESIZE, &ref,
                                  FPLREF_END);
                 filetemp=filelist;
-                fileReqCopyToFpl(filetemp);
+
+                int tempint = 0;
+                do {
+                    dims[0]=tempint;
+                    strmfp(buffer, fullname, filetemp->Name);
+                    fplReferenceTags(Anchor, (void *)(arg->argv[4]),
+                                     FPLREF_ARRAY_ITEM, &dims[0],
+                                     FPLREF_SET_MY_STRING, buffer,
+                                     FPLREF_END);
+                    tempint++;
+                    filetemp=filetemp->Next;
+                } while (filetemp);
               }
               ReturnInt=&tempint;	// Return number of entries.
               fileReqFreeList(filelist);
