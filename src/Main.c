@@ -74,7 +74,7 @@ extern struct Setting **sets;
 
 
 #ifdef LIB
-struct Library __regargs *openlib(char *name, int version)
+static struct Library *openlib(char *name, int version)
 {
   char tempbuffer[80];
   struct Library *ret;

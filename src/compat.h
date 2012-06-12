@@ -911,6 +911,7 @@ typedef char * BSTR;
 void * AllocMem(long size, int flags);
 void * OpenLibrary(const STRPTR, long);
 
+struct RDArgs * ReadArgs(const char * template, IPTR * opts, void * _);
 
 #else
 

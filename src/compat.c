@@ -4,6 +4,8 @@
 #include <strings.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 void * AllocMem(long size, int flags) {
     return malloc(size);
@@ -169,7 +171,7 @@ long Read() {
     fprintf(stderr,"Read\n"); 
     return 0;
 }
-void * ReadArgs(const char * template, IPTR * opts, void * _) {
+struct RDArgs * ReadArgs(const char * template, IPTR * opts, void * _) {
     struct RDArgs * r = (void *)malloc(sizeof(struct RDArgs));
     memset(r, 0, sizeof(struct RDArgs));
     fprintf(stderr,"ReadArgs: '%s'\n", template);
