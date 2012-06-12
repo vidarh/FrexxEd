@@ -16,6 +16,8 @@
 #include <proto/utility.h>
 #endif
 
+#include <assert.h>
+
 #include <libraries/FPL.h>
 
 #include <stdio.h>
@@ -43,10 +45,9 @@ extern char **setting_string_pointer;
 extern int *setting_int_pointer;
 extern struct SettingSaved *saved_default_setting;
 
-int __regargs InitDefaultSetting()
+int InitDefaultSetting()
 {
   int counter;
-
   sets=(struct Setting **)Malloc((antaldefaultsets+10)*sizeof(struct Settings *));
 
   if (!sets)
@@ -64,80 +65,74 @@ int __regargs InitDefaultSetting()
 /* Om name==NULL, så deleteas hela strukturen, annars tas bara den 
    settingen/variabeln bort.  Defaultvärdet rörs ej. */
 
-int __regargs DeleteSetting(char *name)
-{
-  int ret=OK;
-  register int counter;
-  if (name) {
-    if (!setting_string_pointer && !setting_int_pointer) {
-      register int vald=GetSettingName(name);
-      if (vald>=0) {
-        register int offset=sets[vald]->offset;
-        if (sets[vald]->type & ST_USERDEFINED) {
-          if (sets[vald]->type & ST_GLOBAL) {
-            if ((sets[vald]->type & 15)==ST_STRING)
-              Dealloc((char *)Default.GlobalInfo[offset]);
-            memcpy(&Default.GlobalInfo[offset],
-                   &Default.GlobalInfo[offset+1],
-                   (Default.globalinfoantal-offset)*sizeof(int));
-          } else {
-            register SharedStruct *shared=&Default.SharedDefault;
-            while (shared) {
-              if ((sets[vald]->type & 15)==ST_STRING) {
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Dealloc %s=%ld\n", sets[vald]->name, shared->LokalInfo[offset]);
-#endif
-                Dealloc((char *)shared->LokalInfo[offset]);
-              }
-              memcpy(&shared->LokalInfo[offset],
-                     &shared->LokalInfo[offset+1],
-                     (Default.lokalinfoantal-offset)*sizeof(int));
-              shared=shared->Next;
-            }
-          }
-          if (sets[vald]->type&ST_USERDEFINED)
-            Dealloc(sets[vald]->FPLsave_string);
-          {
-            register int bits=ST_SHARED|ST_USERDEFINED;
-            if (sets[vald]->type & ST_GLOBAL)
-              bits=ST_GLOBAL|ST_USERDEFINED;
-            for (counter=0; counter<antalsets; counter++) {
-              if ((sets[counter]->type & bits)==bits)
-                if (sets[counter]->offset>offset)
-                  sets[counter]->offset--;
-            }
-          }
-          Dealloc(sets[vald]);
+int DeleteSetting(char *name) {
+    int ret=OK;
+    int counter;
+    if (name) {
+        if (!setting_string_pointer && !setting_int_pointer) {
+            int vald=GetSettingName(name);
+            if (vald>=0) {
+                int offset=sets[vald]->offset;
+                if (sets[vald]->type & ST_USERDEFINED) {
+                    if (sets[vald]->type & ST_GLOBAL) {
+                        if ((sets[vald]->type & 15)==ST_STRING)
+                            Dealloc((char *)Default.GlobalInfo[offset]);
+                        memcpy(&Default.GlobalInfo[offset],
+                               &Default.GlobalInfo[offset+1],
+                               (Default.globalinfoantal-offset)*sizeof(int));
+                    } else {
+                        SharedStruct *shared=&Default.SharedDefault;
+                        while (shared) {
+                            if ((sets[vald]->type & 15)==ST_STRING) {
+                                Dealloc((char *)shared->LokalInfo[offset]);
+                            }
+                            memcpy(&shared->LokalInfo[offset],
+                                   &shared->LokalInfo[offset+1],
+                                   (Default.lokalinfoantal-offset)*sizeof(int));
+                            shared=shared->Next;
+                        }
+                    }
+                    if (sets[vald]->type&ST_USERDEFINED)
+                        Dealloc(sets[vald]->FPLsave_string);
+                    {
+                        register int bits=ST_SHARED|ST_USERDEFINED;
+                        if (sets[vald]->type & ST_GLOBAL)
+                            bits=ST_GLOBAL|ST_USERDEFINED;
+                        for (counter=0; counter<antalsets; counter++) {
+                            if ((sets[counter]->type & bits)==bits)
+                                if (sets[counter]->offset>offset)
+                                    sets[counter]->offset--;
+                        }
+                    }
+                    Dealloc(sets[vald]);
+                }
+                memcpy(&sets[vald], &sets[vald+1], (antalsets-vald)*sizeof(struct Setting *));
+                antalsets--;
+            } else
+                ret=CANT_FIND_SETTING;
         }
-        memcpy(&sets[vald], &sets[vald+1], (antalsets-vald)*sizeof(struct Setting *));
-        antalsets--;
-  
-      } else
-        ret=CANT_FIND_SETTING;
+    } else {
+        int counter;
+        for (counter=0; counter<antalsets; counter++) {
+            if (sets[counter]->type & ST_USERDEFINED) {
+                DeleteSetting(sets[counter]->name);
+                counter--;
+            }
+        }
+        {
+            SharedStruct *shared=&Default.SharedDefault;
+            while (shared) {
+                Dealloc(shared->LokalInfo);
+                shared->LokalInfo=NULL;
+                shared=shared->Next;
+            }
+        }
+        Dealloc(Default.GlobalInfo);
+        Default.GlobalInfo=NULL;
+        Dealloc(sets);
+        sets=NULL;
     }
-  } else {
-    register int counter;
-    for (counter=0; counter<antalsets; counter++) {
-      if (sets[counter]->type & ST_USERDEFINED) {
-        DeleteSetting(sets[counter]->name);
-        counter--;
-      }
-    }
-    {
-      register SharedStruct *shared=&Default.SharedDefault;
-      while (shared) {
-        Dealloc(shared->LokalInfo);
-        shared->LokalInfo=NULL;
-        shared=shared->Next;
-      }
-    }
-    Dealloc(Default.GlobalInfo);
-    Default.GlobalInfo=NULL;
-    Dealloc(sets);
-    sets=NULL;
-  }
-  return(ret);
+    return(ret);
 }
 
 

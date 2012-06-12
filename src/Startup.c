@@ -38,6 +38,8 @@
 #include <dos/dostags.h> /* for the CreateNewProc() tags! */
 #endif
 
+#include <assert.h>
+
 #include <libraries/FPL.h>
 
 #include <setjmp.h>
@@ -89,38 +91,34 @@ extern int UpDtNeeded;
 extern BOOL cache_allocs;
 extern struct AllocCache alloc_cache[];
 extern BOOL open_copywb;
-extern char **FromWorkbench;
 extern jmp_buf return_stackpoint;
 
 static BufStruct *real_main(IPTR *opts);
-static void __regargs ReadInitFPL(BufStruct *Storage);
+static void ReadInitFPL(BufStruct *Storage);
 
 /* filehandlerstuff: */
 extern struct ProcMsg *filehandlerproc;
 extern struct Task *FrexxEdTask;
 
-int secondmain(IPTR *opts, char **fromwb)
-{
-  BufStruct *Storage;
-  if (!setjmp(return_stackpoint)) {
-    FromWorkbench=fromwb;
-    Storage=real_main(opts);
-    if (Storage)
-      IDCMP(Storage);
-#ifdef DEBUGTEST
-    if(DebugOpt)
-      FPrintf(Output(), "CloseAll\n");
-#endif
-//    CloseAll(NULL);
-    CloseFrexxEd(NULL);
-  }
-  return 0;
+extern struct Setting **sets;
+
+
+int secondmain(IPTR *opts) {
+    BufStruct *Storage = 0;
+    if (!setjmp(return_stackpoint)) {
+        Storage=real_main(opts);
+
+        if (Storage) IDCMP(Storage);
+        CloseAll(NULL);
+    }
+    return 0;
 }
 
+extern struct Setting **sets;
 
 char *InitFrexxEd()
 {
-  Default.olddirectory=(void *)-1;	// Pre-init.  Annars kan det krascha.
+  Default.olddirectory=(void *)-1;	// Pre-init.  Otherwise it could crash
 #ifdef AMIGA
   {
     FrexxEdTask=FindTask(NULL);
@@ -134,64 +132,77 @@ char *InitFrexxEd()
 
   cache_allocs=TRUE;
 
-  {
-    register char *ret;  
-    ret=OpenLibraries();
+#ifdef AMIGA
+  ret=OpenLibraries();
+#endif
 
-    InitDefaultBuf();     /* init defaultBUF */
-    if (ret)
+  InitDefaultBuf();     /* init defaultBUF */
+
+#ifdef AMIGA
+  if (ret)
       return(ret);
-  }
+#endif
 
   if (InitDefaultSetting()<OK)
     return(RetString(STR_GET_MEMORY));
+
   Default.task=FindTask(NULL);
 //  Default.task->tc_UserData=&Local;
   return(NULL);
 }
 
 
-static BufStruct *real_main(IPTR *opts)
-{
-  BufStruct *Storage;
-  BufStruct *activeStorage;
-  int buffers;
-  char **files;
-  int ret;
+static BufStruct *real_main(IPTR *opts) {
+    BufStruct *Storage = 0;
+    BufStruct *activeStorage;
+    int buffers;
+    char **files;
+    int ret;
+    
+#ifdef AMIGA
   char nofilehandler=FALSE;
 
-  {
+  CacheClearU();
+#endif
 
-    CacheClearU();
+  FirstOpen();
 
-    FirstOpen();
-    if (!cl_init || cl_init[0])
+  if (!cl_init || cl_init[0])
       LoadSetting(NULL, cl_init?cl_init:(char *)-1, TRUE);
-    if (cl_copywb)
-      CloneWB(&Default.WindowDefault);  // Klona WB till default
 
-    if(cl_diskname && !strcmp(cl_diskname, "off")) {
+#ifdef AMIGA
+  if (cl_copywb)
+      CloneWB(&Default.WindowDefault);  // Clone Workbench and use it as the default window settings
+
+  // Determine whether to use the Amiga file handler
+
+  if(cl_diskname && !strcmp(cl_diskname, "off")) {
       nofilehandler=TRUE;
       Dealloc(cl_diskname); /* free memory */
       cl_diskname=NULL; /* clear */
     }
-    SecondInit();
+#endif
 
-    LastOpen();
+  SecondInit();
+  LastOpen();
+
+  {
+
     Storage=MakeNewBuf(NULL);
+#ifdef FIXME
+
+
     if (!Storage)
       CloseAll(RetString(STR_GET_MEMORY));
     if (FRONTWINDOW)
       AttachBufToWindow(FRONTWINDOW, Storage);
-
+#endif
     FrexxEdStarted=1;	// FrexxEd is now considered started.
 
     if (!cl_omit) {
-#ifdef DEBUGTEST
-      if(DebugOpt)
-        FPrintf(Output(), "Execute FPL\n");
+#ifdef FIXME
+        ReadInitFPL(Storage);
 #endif
-      ReadInitFPL(Storage);
     }
   
     FrexxEdStarted=2;	// FrexxEd have read the init files
@@ -202,6 +213,7 @@ static BufStruct *real_main(IPTR *opts)
 #endif
       /* are there files as arguments?? */
     files=(char **)opts[opt_FILE];
+
     {
       char **sptr=files;
       activeStorage=Storage;
@@ -240,24 +252,24 @@ static BufStruct *real_main(IPTR *opts)
     ExecuteFPL(Storage, cl_execute, TRUE, NULL, NULL);
     Dealloc(cl_execute);
 
+#ifdef FIXME
     if (BUF(window)->window_pointer)
       RefreshWindowFrame(BUF(window)->window_pointer);
+#endif
     FrexxEdStarted=3;	// FrexxEd has executed the startup file.
     ClearVisible();
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "Start IDCMP\n");
-#endif
     cache_allocs=FALSE;
   }
 
+#ifdef AMIGA
   if(!nofilehandler && Default.filehandler ) {
     filehandlerproc = start_process(FileHandler, Default.taskpri,
                                     4000, FILE_HANDLER_PROCESS);
     /* if we fail, simply no filehandler! */
   }
   else
+#endif
     Default.filehandler=FALSE; /* switch off for real! */
   return(Storage);
 }
@@ -272,6 +284,7 @@ void ParseArg(char *string, IPTR *opts)
     /* only do this if we have a string to parse! */
     memset(&rdargs, 0, sizeof(struct RDArgs));
 
+    fprintf(stderr,"ParseArg: '%s'\n",string);
     rdargs.RDA_Source.CS_Buffer = string;
     rdargs.RDA_Source.CS_Length = strlen(string);
     result = ReadArgs((UBYTE *)TEMPLATE, opts, &rdargs);
@@ -341,7 +354,7 @@ void ParseArg(char *string, IPTR *opts)
       FreeArgs(result);
   }
 }
-void __regargs ReadInitFPLInfoWindow(BufStruct *Storage, char *text, ReturnCode result)
+void ReadInitFPLInfoWindow(BufStruct *Storage, char *text, ReturnCode result)
 {
   if (result!=FPL_OK && result!=FPL_EXIT_OK) {
     {
@@ -360,16 +373,6 @@ void __regargs ReadInitFPLInfoWindow(BufStruct *Storage, char *text, ReturnCode 
     }
     Sprintf(buffer, RetString(STR_ERROR_WITH_FPL_FILE), text);
     Ok_Cancel(NULL, buffer, RetString(STR_OPEN_ERROR), RetString(STR_OK_GADGET));
-
-/*
-    char tempbuffer[200];
-    if (InfoWindow) {
-      CloseWindow(InfoWindow);
-      InfoWindow=NULL;
-    }
-    Sprintf(tempbuffer, RetString(STR_ERROR_WITH_FPL_FILE), text);
-    InfoWindow=FixWindow(Storage, tempbuffer);
-*/
   }
 }
 /***********************************************************

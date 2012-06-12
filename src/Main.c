@@ -11,11 +11,11 @@
  * Main-routine for the entire shit!
  *
  *
- * Anrop till FrexxEd.
+ * Calls to FrexxEd
  *
  *  InitFrexxEd(void)		i Editor.c
- *  ParseArg(char *, LONG *)	i Editor.c
- *  secondmain(LONG *, char **) i Editor.c
+ *  ParseArg(cSthar *, LONG *)	i Editor.c
+ *  secondmain(LONG *, char **) in Startup.c
  *  CloseFrexxEd(char *)        i OpenClose.c
  *
  *********/
@@ -31,6 +31,7 @@
 #include <workbench/workbench.h>
 #endif
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,7 +49,9 @@
 #ifdef LIB
 #include "frexxed_pragmas.h"
 
+#ifdef AMIGA
 long __stack = 8000; /* nice to start with! ;) */
+#endif
 
 struct Library *FrexxBase = NULL;
 #define FREXXED_LIBRARY "frexxed.library"
@@ -64,6 +67,11 @@ typedef struct {
   int size;
   char memory[1];
 } malloc_struct;
+
+extern char **FromWorkbench;
+
+extern struct Setting **sets;
+
 
 #ifdef LIB
 struct Library __regargs *openlib(char *name, int version)
@@ -87,152 +95,179 @@ struct Library __regargs *openlib(char *name, int version)
 }
 #endif
 
-/*****************************************
-*
-* int main (int, char **);
-*
-* It's here everything starts...!
-*
-*****/
-int main(int argc, char **argv)
-{
-  IPTR opts[opt_COUNT];
-  char **FromWb=NULL;
-  char *tempbuffer;
-  struct WBStartup *wbargmsg;
-  struct WBArg *wbarg;
-  struct DiskObject *dobj;
-  struct RDArgs *argsptr=NULL;
-  int buffers;
-  char **files;
-  char **lines;
-  int ret;
-  int noof_files=0;
-  int i;
-  struct Library *IconBase;
+void RunFrexxEd(IPTR * opts) {
+  if (!opts[opt_ASK]) {
+      secondmain(opts);
+  } else {
+      CloseFrexxEd(NULL);
+  }
+}
 
-  if (SysBase->LibNode.lib_Version > 36) {
-#ifdef LIB
-#ifndef FINAL_VERSION
-    *(short *)0xdff180=0xfff;
-    if(argc && strcmp(argv[0], FREXXED))
-      FrexxBase = openlib(FREXXEDDEBUG_LIBRARY, FREXXED_VERSION);
-    else
-#endif
-      FrexxBase = openlib(FREXXED_LIBRARY, FREXXED_VERSION);
-    if(FrexxBase)
-#endif
-    {
-      tempbuffer=InitFrexxEd();
-      if (!tempbuffer) {
-        memset(opts, 0, opt_COUNT*sizeof(long));
-        tempbuffer=AllocMem(MAX_LINE, MEMF_PUBLIC);
-        if (tempbuffer) {
-          i = GetVar((CONST_STRPTR)FREXXED_ENVVAR, (STRPTR)tempbuffer, MAX_LINE-2,
-                     GVF_GLOBAL_ONLY|GVF_LOCAL_ONLY);
-          if(i>0) {
-            tempbuffer[i]='\n'; /* make it end with newline!!! */
-            tempbuffer[i+1]=0; /* ...but still zero terminated! */
-            ParseArg(tempbuffer, opts);
-          }
-          if(!argc) {
-            IconBase = OpenLibrary((STRPTR)"icon.library", 36);
-            if (IconBase) {
-            
-              FromWb = argv; /* started from workbench */
-        
-              wbargmsg = (struct WBStartup *)argv;
-              buffers = wbargmsg->sm_NumArgs; /* number of arguments */
-        
-              files = (char **)AllocMem(buffers * sizeof(char *), MEMF_PUBLIC);
-              if(files) {
-                wbarg = wbargmsg->sm_ArgList;
-                for(i=0;
-                    i<buffers;
-                    i++, wbarg++) {
-                  if(wbarg->wa_Lock) {
-                    if(!NameFromLock(wbarg->wa_Lock, (STRPTR)tempbuffer,
-                                     MAX_LINE-strlen((const char *)wbarg->wa_Name)))
-                      continue;
-          
-                    ret = strlen(tempbuffer);
-                    if(tempbuffer[ret-1] != '/' && tempbuffer[ret-1] != ':')
-                      strcat(tempbuffer, "/"); /* append slash! */
-          
-                    strcat(tempbuffer, (const char *)wbarg->wa_Name); /* add filename to path */
-        
-                    if(i) {
-                      malloc_struct *mem;
-                      /* do not include 'FrexxEd' ! */
-                      ret = strlen(tempbuffer) +1;
-                      mem=(malloc_struct *)AllocMem(ret+sizeof(malloc_struct), MEMF_PUBLIC);
-                      if(mem) {
+#define true 1
+#define false 0
+
+void WbStartup(struct WBStartup * wbargmsg, char * tempbuffer, IPTR * opts) {
+    struct WBArg *wbarg;
+    int buffers;
+    char ** files;
+    int noof_files=0;
+    int i;
+    struct Library *IconBase = OpenLibrary((STRPTR)"icon.library", 36);
+
+    if (!IconBase) return;
+
+    buffers = wbargmsg->sm_NumArgs; /* number of arguments */
+    
+    files = (char **)AllocMem(buffers * sizeof(char *), MEMF_PUBLIC);
+    if(files) {
+        int i;
+        int ret;
+        struct DiskObject *dobj;
+        char **lines;
+
+        wbarg = wbargmsg->sm_ArgList;
+        for(i=0;
+            i<buffers;
+            i++, wbarg++) {
+            if(wbarg->wa_Lock) {
+                if(!NameFromLock(wbarg->wa_Lock, (STRPTR)tempbuffer,
+                                 MAX_LINE-strlen((const char *)wbarg->wa_Name)))
+                    continue;
+                
+                ret = strlen(tempbuffer);
+                if(tempbuffer[ret-1] != '/' && tempbuffer[ret-1] != ':')
+                    strcat(tempbuffer, "/"); /* append slash! */
+                
+                strcat(tempbuffer, (const char *)wbarg->wa_Name); /* add filename to path */
+                
+                if(i) {
+                    malloc_struct *mem;
+                    /* do not include 'FrexxEd' ! */
+                    ret = strlen(tempbuffer) +1;
+                    mem=(malloc_struct *)AllocMem(ret+sizeof(malloc_struct), MEMF_PUBLIC);
+                    if(mem) {
                         mem->size=ret+sizeof(malloc_struct);
                         files[noof_files]=(char *)&mem->memory;
                         strcpy(files[noof_files++], tempbuffer);
-                      } else
+                    } else
                         break; /* getting low on memory! */
-                    }
-        
-                    dobj = GetDiskObject((CONST_STRPTR)tempbuffer);
-                    if(dobj) {
-                      lines=dobj->do_ToolTypes;
-                      while(lines && *lines) {
+                }
+                
+                dobj = GetDiskObject((CONST_STRPTR)tempbuffer);
+                if(dobj) {
+                    lines=dobj->do_ToolTypes;
+                    while(lines && *lines) {
                         strcpy(tempbuffer, *lines);
                         strcat(tempbuffer, "\n");
                         ParseArg(tempbuffer, opts);
                         lines++;
-                      }
-                      FreeDiskObject(dobj);
-                    } /* else no icon found */
-                  }
-                }
-                files[noof_files]=NULL;
-                opts[opt_FILE]=(long)files;
-              }
+                    }
+                    FreeDiskObject(dobj);
+                } /* else no icon found */
             }
-            CloseLibrary(IconBase);
-          } else {
+        }
+        files[noof_files]=NULL;
+        opts[opt_FILE]=(long)files;
+    }
+
+    CloseLibrary(IconBase);
+
+    RunFrexxEd(opts);
+
+    for(i=0; i<noof_files; i++) {
+        if(files[i]) {
+            register malloc_struct *mem;
+            mem=(malloc_struct *)(files[i]-4);
+            FreeMem(mem, mem->size);
+        }
+    }
+
+    FreeMem(files, buffers * sizeof(char *));
+}
+
+/*****************************************
+ *
+ * int main (int, char **);
+ *
+ * It's here everything starts...!
+ *
+ *****/
+
+int ExecVersion;
+
+int main(int argc, char **argv) {
+    IPTR opts[opt_COUNT];
+    char *tempbuffer;
+    struct RDArgs *argsptr=NULL;
+
+#ifdef AMIGA
+    ExecVersion = SysBase->LibNode.lib_Version;
+#else
+    // For non-Amiga systems, we pretend to be version 39
+    // to minimize special treatment.
+    ExecVersion = 39;
+#endif
+
+    if (ExecVersion <= 36) {
+        Write(Output(), REQUIRE, sizeof(REQUIRE));
+        return 1;
+    }
+
+#ifdef AMIGA
+#ifdef LIB
+    FrexxBase = openlib(FREXXED_LIBRARY, FREXXED_VERSION);
+    if(!FrexxBase) {
+        Write(Output(), REQUIRE_FREXXED, sizeof(REQUIRE_FREXXED));
+        return 1;
+    }
+#endif
+#endif
+
+    tempbuffer=InitFrexxEd();
+
+    if (tempbuffer) {
+        // Exit due to init error.
+        CloseFrexxEd(tempbuffer);
+        goto exit;
+    }
+
+    memset(opts, 0, opt_COUNT*sizeof(long));
+    tempbuffer=AllocMem(MAX_LINE, MEMF_PUBLIC);
+    if (tempbuffer) {
+        int i = GetVar((CONST_STRPTR)FREXXED_ENVVAR, (STRPTR)tempbuffer, MAX_LINE-2,
+                       GVF_GLOBAL_ONLY|GVF_LOCAL_ONLY);
+        if(i>0) {
+            tempbuffer[i]='\n'; /* make it end with newline!!! */
+            tempbuffer[i+1]=0; /* ...but still zero terminated! */
+            ParseArg(tempbuffer, opts);
+        }
+        fprintf(stderr,"HER2E %d\n",argc);
+        
+        if (!argc) {
+            FromWorkbench=argv;
+            WbStartup((struct WBStartup *)argv,tempbuffer, opts);
+        } else {
             argsptr = ReadArgs((CONST_STRPTR)TEMPLATE, opts, NULL);
             if(!argsptr) {
-              PrintFault(IoErr(), NULL); /* prints the appropriate err message */
-              return(NULL);
+                PrintFault(IoErr(), NULL); /* prints the appropriate err message */
+                return(NULL);
             }
-      
+            
             if (opts[opt_ASK])
-              FPrintf(Output(), (CONST_STRPTR)"%s\n", TEMPLATE+4);
-            else
-              ParseArg(NULL, opts);
-          }
-          FreeMem(tempbuffer, MAX_LINE);
+                FPrintf(Output(), (CONST_STRPTR)"%s\n", TEMPLATE+4);
+            else ParseArg(NULL, opts);
+            
+            RunFrexxEd(opts);
         }
-        if (!opts[opt_ASK]) {
-          secondmain(opts, FromWb);
-          if(FromWb) {
-            for(i=0; i<noof_files; i++) {
-              if(files[i]) {
-                register malloc_struct *mem;
-                mem=(malloc_struct *)(files[i]-4);
-                FreeMem(mem, mem->size);
-              }
-            }
-            FreeMem(files, buffers * sizeof(char *));
-          }
-        } else
-          CloseFrexxEd(NULL);	// Exit due to "?"/Help argument.
-        if (argsptr)
-          FreeArgs(argsptr);  // Strängarna från ReadArgs kopieras i SecondInit()
-      } else
-        CloseFrexxEd(tempbuffer);	// Exit due to init error.
-#ifdef LIB
-      CloseLibrary(FrexxBase); /* Close frexxed.library */
-#endif
+        FreeMem(tempbuffer, MAX_LINE);
     }
+    
+    if (argsptr)
+        FreeArgs(argsptr);  /* The strings from ReadArgs are copied in SecondInit */
+    
+ exit:
 #ifdef LIB
-    else
-      Write(Output(), REQUIRE_FREXXED, sizeof(REQUIRE_FREXXED));
+    CloseLibrary(FrexxBase); /* Close frexxed.library */
 #endif
-  } else
-    Write(Output(), REQUIRE, sizeof(REQUIRE));
   return 0;
 }

@@ -423,26 +423,26 @@ void __regargs Mydealloc(void *mem)
 }
 
 
-void __regargs *Mymalloc(int size)
-{
-  register char *ret=NULL;
-  if (size>=0) {
-      size=(size+sizeof(AllocStruct)+8)&~7;	// OBS ska kunna vara +7
+void *Mymalloc(int size) {
+    if (size > 131072)    fprintf(stderr,"Mymalloc %ld\n", size);
+    char *ret=NULL;
+    if (size>=0) {
+        size=(size+sizeof(AllocStruct)+8)&~7;	// OBS ska kunna vara +7
 
-      if (size<ALLOC_CACHE_MAXSIZE && alloc_cache[size>>3].pekare) {
-          ret=(char *)alloc_cache[size>>3].pekare;
-          alloc_cache[size>>3].pekare=((struct AllocCache *)ret)->pekare;
-      } else {
-          ret=(char *)AllocMem(size, MEMF_ANY);
+        if (size<ALLOC_CACHE_MAXSIZE && alloc_cache[size>>3].pekare) {
+            ret=(char *)alloc_cache[size>>3].pekare;
+            alloc_cache[size>>3].pekare=((struct AllocCache *)ret)->pekare;
+        } else {
+            ret=(char *)AllocMem(size, MEMF_ANY);
       }
-      if (ret) {
-          totalalloc+=size;
-          ((AllocStruct *)ret)->size=size;
-          ((AllocStruct *)ret)->lock=0;
-          ret+=sizeof(AllocStruct);
-      }
-  }
-  return(ret);
+        if (ret) {
+            totalalloc+=size;
+            ((AllocStruct *)ret)->size=size;
+            ((AllocStruct *)ret)->lock=0;
+            ret+=sizeof(AllocStruct);
+        }
+    }
+    return(ret);
 }
 
 
@@ -474,17 +474,16 @@ void *Mystrdup(char *str)
   return(ret);
 }
 
-void FreeCache()
-{
-  int count;
-  for (count=0; count<ALLOC_CACHE_MAXSIZE/8; count++) {
-    struct AllocCache *next;
-    struct AllocCache *pek=alloc_cache[count].pekare;
-    while (pek) {
-      next=pek->pekare;
-      FreeMem((char *)pek, (count)<<3);
-      pek=next;
+void FreeCache() {
+    int count;
+    for (count=0; count<ALLOC_CACHE_MAXSIZE/8; count++) {
+        struct AllocCache *next;
+        struct AllocCache *pek=alloc_cache[count].pekare;
+        while (pek) {
+            next=pek->pekare;
+            FreeMem((char *)pek, (count)<<3);
+            pek=next;
+        }
     }
-  }
-  cache_allocs=FALSE;
+    cache_allocs=FALSE;
 }

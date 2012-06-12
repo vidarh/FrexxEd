@@ -35,7 +35,7 @@ MenuAdd(type, string, FPL);
 #include "IDCMP.h"
 #include "KeyAssign.h"
 
-extern struct ExecBase *SysBase;
+extern struct Library *SysBase;
 extern DefaultStruct Default;
 extern struct MenuInfo menu;
 extern struct RastPort ButtonRastPort;	//Rastport för att kunna testa med Requestfonten.
@@ -466,6 +466,8 @@ void __regargs menu_delete(struct MenuInfo *menu, struct OwnMenu *own)
  *
  *****/
 
+extern int ExecVersion;
+
 struct NewMenu * __regargs menu_getarray(struct MenuInfo *menu)
 {
   struct NewMenu *array;
@@ -485,7 +487,7 @@ struct NewMenu * __regargs menu_getarray(struct MenuInfo *menu)
       array[num].nm_CommKey=NULL; /* no menuitem command key equiv! */
       array[num].nm_MutualExclude=0; /* no exclude! */
       array[num].nm_UserData=pnt; /* struct OwnMenu pointer */
-      if (pnt->keypress && SysBase->LibNode.lib_Version >=39) {
+      if (pnt->keypress && ExecVersion >= 39) {
         array[num].nm_Flags|=NM_COMMANDSTRING;
         array[num].nm_CommKey=pnt->itext.IText;
       }

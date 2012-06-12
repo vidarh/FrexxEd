@@ -185,32 +185,35 @@ int __regargs GetFont(BufStruct *Storage, char *fullfontname, int flag)
       }
       ret=(int)RetString(STR_NEW_FONT_INSTALLED);
     }
-    if (flag & 1) {
-      if (!(newfont->tf_Flags & FPF_PROPORTIONAL)) {
-        if (DefaultFont)
-          CloseFont(DefaultFont);
-        DefaultFont=newfont;
-        Dealloc(Default.font.ta_Name);
-        memcpy(&Default.font, &font, sizeof(struct TextAttr));
-        Default.font.ta_Name= Strdup(font.ta_Name);
-        SystemFont=newfont;
-        if (fullfontname!=Default.SystemFont) {
-          Dealloc(Default.SystemFont);
-          Default.SystemFont=Strdup(fullfontname);
-        }
-        {
-          struct TextExtent textextent;
-          SetFont(&ButtonRastPort, SystemFont);
-          SetSoftStyle(&ButtonRastPort, FSF_UNDERLINED|FSF_BOLD|FSF_ITALIC, FSF_UNDERLINED|FSF_BOLD|FSF_ITALIC);
-          TextExtent(&ButtonRastPort, "A", 1, &textextent);
-          systemfont_leftmarg=-textextent.te_Extent.MinX;
-          systemfont_rightmarg=textextent.te_Extent.MaxX-SystemFont->tf_XSize+1;
-        }
-        win=FRONTWINDOW;
-        while (win) {
-          win->window_minheight=SystemFont->tf_YSize*3+BarHeight;
-          win->window_minwidth=SystemFont->tf_XSize*5;
-          ClearWindow(win);
+
+    if (flag & 1) { /* Set the system font */
+        
+        if (!(newfont->tf_Flags & FPF_PROPORTIONAL)) {
+            if (DefaultFont)
+                CloseFont(DefaultFont);
+
+            DefaultFont=newfont;
+            Dealloc(Default.font.ta_Name);
+            memcpy(&Default.font, &font, sizeof(struct TextAttr));
+            Default.font.ta_Name= Strdup(font.ta_Name);
+            SystemFont=newfont;
+            if (fullfontname!=Default.SystemFont) {
+                Dealloc(Default.SystemFont);
+                Default.SystemFont=Strdup(fullfontname);
+            }
+            {
+                struct TextExtent textextent;
+                SetFont(&ButtonRastPort, SystemFont);
+                SetSoftStyle(&ButtonRastPort, FSF_UNDERLINED|FSF_BOLD|FSF_ITALIC, FSF_UNDERLINED|FSF_BOLD|FSF_ITALIC);
+                TextExtent(&ButtonRastPort, "A", 1, &textextent);
+                systemfont_leftmarg=-textextent.te_Extent.MinX;
+                systemfont_rightmarg=textextent.te_Extent.MaxX-SystemFont->tf_XSize+1;
+            }
+            win=FRONTWINDOW;
+            while (win) {
+                win->window_minheight=SystemFont->tf_YSize*3+BarHeight;
+                win->window_minwidth=SystemFont->tf_XSize*5;
+                ClearWindow(win);
 #ifdef USE_FASTSCROLL
           if (FastGraphicsBase) {
             if (match_for_fastscroll) {
@@ -265,7 +268,7 @@ int __regargs GetFont(BufStruct *Storage, char *fullfontname, int flag)
   return(ret);
 }
 
-void __regargs SetSystemFont()
+void SetSystemFont()
 {
   struct IFFHandle *iffhandle;
   struct StoredProperty *sp;
@@ -273,41 +276,43 @@ void __regargs SetSystemFont()
   LONG ifferror;
   int foundcount=0;
 
-  if (IFFParseBase=OpenLibrary("iffparse.library", 0L)) {
-    if (iffhandle=AllocIFF()) {
+#ifdef AMIGA
+  if (!(IFFParseBase=OpenLibrary("iffparse.library", 0L))) return;
+#endif
+
+  if (iffhandle=AllocIFF()) {
       if (iffhandle->iff_Stream=(LONG)Open("env:sys/font.prefs", MODE_OLDFILE)) {
-        InitIFFasDOS(iffhandle);
-        PropChunk(iffhandle, ID_PREF, ID_FONT);
-        if (OpenIFF(iffhandle, IFFF_READ)==0) {
-          while (1) {
-            
-            ifferror=ParseIFF(iffhandle, IFFPARSE_STEP);
-            if (ifferror!=IFFERR_EOC) {
-              if (!ifferror) {
-                cn=CurrentChunk(iffhandle);
-                if (cn->cn_ID!=ID_PRHD && cn->cn_ID!=ID_FORM) {
-                  sp=FindProp(iffhandle, ID_PREF, ID_FONT);
-                  if (sp) {
-                    Sprintf(buffer, "%s %ld", ((struct FontPrefs *)sp->sp_Data)->fp_Name, ((struct FontPrefs *)sp->sp_Data)->fp_TextAttr.ta_YSize);
-                    if (foundcount>=1)
-                      GetFont(NULL, buffer, foundcount);
-                    foundcount++;
-                    if (foundcount==3)
-                      break;	// End loop
+          InitIFFasDOS(iffhandle);
+          PropChunk(iffhandle, ID_PREF, ID_FONT);
+          if (OpenIFF(iffhandle, IFFF_READ)==0) {
+              while (1) {
+                  
+                  ifferror=ParseIFF(iffhandle, IFFPARSE_STEP);
+                  if (ifferror!=IFFERR_EOC) {
+                      if (!ifferror) {
+                          cn=CurrentChunk(iffhandle);
+                          if (cn->cn_ID!=ID_PRHD && cn->cn_ID!=ID_FORM) {
+                              sp=FindProp(iffhandle, ID_PREF, ID_FONT);
+                              if (sp) {
+                                  Sprintf(buffer, "%s %ld", ((struct FontPrefs *)sp->sp_Data)->fp_Name, ((struct FontPrefs *)sp->sp_Data)->fp_TextAttr.ta_YSize);
+                                  if (foundcount>=1)
+                                      GetFont(NULL, buffer, foundcount);
+                                  foundcount++;
+                                  if (foundcount==3)
+                                      break;	// End loop
+                              }
+                          }
+                      } else
+                          break;	// End loop
                   }
-                }
-              } else
-                break;	// End loop
-            }
+              }
           }
-        }
         Close(iffhandle->iff_Stream);
       }
       FreeIFF(iffhandle);
-    }
-    CloseLibrary(IFFParseBase);
-    IFFParseBase=NULL;
   }
+  CloseLibrary(IFFParseBase);
+  IFFParseBase=NULL;
 }
 
 

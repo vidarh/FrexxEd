@@ -29,9 +29,12 @@
 
 extern struct Catalog *catalog;
 extern char GlobalEmptyString[];
-extern struct Library * LocaleBase;
 
-char __regargs *RetString(String_Num string)
+#ifdef AMIGA
+extern struct Library * LocaleBase;
+#endif
+
+char *RetString(String_Num string)
 {
   static char *AllStrings[]={
     "Unknown command!",
@@ -252,8 +255,10 @@ char __regargs *RetString(String_Num string)
     "" /* no real string */
 
   };
-  register char *retstring=AllStrings[string];
+  char *retstring=AllStrings[string];
+#ifdef AMIGA
   if(LocaleBase)
+#endif
      retstring=GetCatalogStr(catalog, string, AllStrings[string]);
 
   /* no locale.library: */
@@ -272,13 +277,19 @@ void PutChProc(register __d0 UBYTE ch, register __a3 APTR PutChData)
   ++(*(char **)PutChData);
 }
 
-int __regargs Sprintf(char *buffer, char *format, ...)
+int Sprintf(char *buffer, char *format, ...)
 {
   va_list args;
   va_start(args, format);
+  int ret = 0;
+#ifdef AMIGA
   RawDoFmt(format, args, (void (*))PutChProc, &(buffer));
+  ret = strlen(buffer);
+#else
+  ret = vsprintf(buffer, format, args);
+#endif
   va_end(args);
-  return (int)strlen(buffer);
+  return ret;
 }
 
 char __regargs *GetRetMsg(int num)

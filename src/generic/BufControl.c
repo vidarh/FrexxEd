@@ -44,6 +44,8 @@
 #include "UpdtScreenC.h"
 #include "WindowOutput.h"
 
+#include <assert.h>
+
 /********** Globals **********/
 
 extern int errno;
@@ -214,7 +216,7 @@ void BufLimits(BufStruct *Storage)
  * Return the active BufStruct pointer.
  *
  ***************/
-BufStruct __regargs *Activate(BufStruct *Storage, BufStruct *Storage3, int flag)
+BufStruct *Activate(BufStruct *Storage, BufStruct *Storage3, int flag)
 {
   BufStruct *Storage2, *Storage4;
   int tempvisible=Visible;
@@ -222,6 +224,9 @@ BufStruct __regargs *Activate(BufStruct *Storage, BufStruct *Storage3, int flag)
 
   if (!FRONTWINDOW) // No window available.  Return TRUE
     return Storage3;
+
+  assert(Storage3> 1024);
+  assert(Storage3->window > 1024);
 
   if (Storage3->window) {
     TestCursorPos(Storage3);
@@ -423,6 +428,7 @@ static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
   if (BUF(locked) || (shard==1 && SHS(locked)))
     return(Storage);
 
+      assert(sets != 0); // DEBUG
   if (returnwanted) {
     if (BUF(window)) {
       Storage3=NextHiddenEntry(Storage);
@@ -472,6 +478,7 @@ static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
     return(Storage3);
   }
   if (shard==1) {
+
     if (BUF(shared)==BlockBuffer)
       BlockBuffer=Default.FirstBlock;
     if (SHS(name_number)) {
@@ -566,9 +573,10 @@ static BufStruct *DeleteEntry(BufStruct *Storage, BOOL returnwanted)
 static void FreeLokalInfo(SharedStruct *shared)
 {				// Delete the LokalInfo.
   int counter;
+  assert(sets != 0);
   for (counter=0; counter<antalsets; counter++) {
-    if ((sets[counter]->type & (15|ST_SHARED|ST_USERDEFINED))==(ST_STRING|ST_SHARED|ST_USERDEFINED))
-      Dealloc((char *)shared->LokalInfo[sets[counter]->offset]);
+      if (sets[counter] && (sets[counter]->type & (15|ST_SHARED|ST_USERDEFINED))==(ST_STRING|ST_SHARED|ST_USERDEFINED))
+          Dealloc((char *)shared->LokalInfo[sets[counter]->offset]);
   }
   Dealloc(shared->LokalInfo);
   shared->LokalInfo=0;
@@ -583,7 +591,7 @@ static void FreeLokalInfo(SharedStruct *shared)
  *  Returns the BufStruct pointer.
  *
  ***********/
-BufStruct __regargs *MakeNewBuf(BufStruct *Storage3)
+BufStruct *MakeNewBuf(BufStruct *Storage3)
 {
   BufStruct *Storage, *Storage2;
   Storage=(BufStruct *)Malloc(sizeof(BufStruct));	
@@ -615,7 +623,7 @@ BufStruct __regargs *MakeNewBuf(BufStruct *Storage3)
  *  Inits the buffer you desire using 'from-buffer' as default.
  *  Return OK/FALSE.
  ***********/
-BOOL __regargs Init(BufStruct *Storage2, BufStruct *Storage)
+BOOL Init(BufStruct *Storage2, BufStruct *Storage)
 {
   BOOL ret=FALSE;
   memcpy(Storage,&Default.BufStructDefault,sizeof(BufStruct));	/* Copy default */
@@ -709,70 +717,73 @@ BOOL __regargs Init(BufStruct *Storage2, BufStruct *Storage)
  *  Clears the buffer you desire.
  *
  ***********/
-void __regargs Clear(BufStruct *Storage, BOOL do_undo)
+void Clear(BufStruct *Storage, BOOL do_undo)
 {
-  int counter;
-  BOOL update=BUF(block_exists);
+    int counter;
+    BOOL update=BUF(block_exists);
 
-  if (SHS(size)) {
-    if (do_undo && CompactBuf(BUF(shared), NULL)>=OK) {
-      UndoAdd(Storage, SHS(fileblock), undoNORMAL|undoNEWTEXT, SHS(size));
-    } else {
-      FreeUndoLines(BUF(shared), SHS(Undotop)+1);
-      SHS(changes)=0;
-      SHS(Undomem)=0;
-      SHS(buffer_number)=++buffer_number;
+    if (SHS(size)) {
+        if (do_undo && CompactBuf(BUF(shared), NULL)>=OK) {
+            UndoAdd(Storage, SHS(fileblock), undoNORMAL|undoNEWTEXT, SHS(size));
+        } else {
+            FreeUndoLines(BUF(shared), SHS(Undotop)+1);
+            SHS(changes)=0;
+            SHS(Undomem)=0;
+            SHS(buffer_number)=++buffer_number;
+        }
     }
-  }
-  strcpy(SHS(protection), Default.SharedDefault.protection);
-  SHS(fileprotection)=Default.SharedDefault.fileprotection;
-  SHS(fragment)=-SHS(line);
-  SHS(fragmentlen)=-SHS(size);
-  for (counter=1; counter<=SHS(line); counter++)
-    DeallocLine(Storage, counter);
-  Dealloc((char *)SHS(fileblock));
-  SHS(fragment)=0;
-  SHS(fragmentlen)=0;
-  SHS(fileblock)=NULL;
-  SHS(fileblocklen)=0;
-  SHS(taket)=ALLOC_STEP;
-  {
-    void *old_text=SHS(text);
-    SHS(text)=(TextStruct *)Malloc(sizeof(TextStruct)*ALLOC_STEP);
-    if (SHS(text))
-      Dealloc(old_text);
-    else
-      SHS(text)=old_text;
-  }
-  SHS(line)=1;
-  RAD(1)=NULL;
-  LEN(1)=0;
-  FOLD(1)=0;
-  LFLAGS(1)=0;
-  SHS(size)=0;
-  Storage->shared->text[0].current_style=0;
-  Storage->shared->text[0].old_style=0;
-  Storage->shared->face_updated_line=0;
-  {
-    BufStruct *count=SHS(Entry);
-    while (count) {
-      count->face_top_updated_line=0;
-      count->face_bottom_updated_line=0;
-      count->curr_topline=1;
-      count->cursor_x=1;
-      count->cursor_y=1;
-      count->curr_line=1;
-      count->screen_x=0;
-      count->string_pos=0;
-      count->wanted_x=0;
-      count->block_exists=be_NONE;
-      count->namedisplayed=FALSE;
-      count=count->NextSplitBuf;
+
+    strcpy(SHS(protection), Default.SharedDefault.protection);
+    SHS(fileprotection)=Default.SharedDefault.fileprotection;
+    SHS(fragment)=-SHS(line);
+    SHS(fragmentlen)=-SHS(size);
+    for (counter=1; counter<=SHS(line); counter++)
+        DeallocLine(Storage, counter);
+    Dealloc((char *)SHS(fileblock));
+    SHS(fragment)=0;
+    SHS(fragmentlen)=0;
+    SHS(fileblock)=NULL;
+    SHS(fileblocklen)=0;
+    SHS(taket)=ALLOC_STEP;
+    
+    {
+        void *old_text=SHS(text);
+        SHS(text)=(TextStruct *)Malloc(sizeof(TextStruct)*ALLOC_STEP);
+        if (SHS(text)) Dealloc(old_text);
+        else SHS(text)=old_text;
     }
-  }
-  if (update)
-    UpdateAll();
+
+    SHS(line)=1;
+    RAD(1)=NULL;
+    LEN(1)=0;
+    FOLD(1)=0;
+    LFLAGS(1)=0;
+    SHS(size)=0;
+    Storage->shared->text[0].current_style=0;
+    Storage->shared->text[0].old_style=0;
+    Storage->shared->face_updated_line=0;
+
+    {
+        BufStruct *count=SHS(Entry);
+        while (count) {
+            count->face_top_updated_line=0;
+            count->face_bottom_updated_line=0;
+            count->curr_topline=1;
+            count->cursor_x=1;
+            count->cursor_y=1;
+            count->curr_line=1;
+            count->screen_x=0;
+            count->string_pos=0;
+            count->wanted_x=0;
+            count->block_exists=be_NONE;
+            count->namedisplayed=FALSE;
+            count=count->NextSplitBuf;
+        }
+    }
+
+    if (update) UpdateAll();
 }
+
 
 BufStruct __regargs *ChooseBuf(BufStruct *Storage, char *title, int type, int entries)
 {
@@ -955,72 +966,79 @@ BufStruct __regargs *ReSizeBuf(BufStruct *CurrentStorage, BufStruct *Storage, Bu
 }
 
 
-BufStruct __regargs *RemoveBuf(BufStruct *Storage)
+BufStruct * RemoveBuf(BufStruct *Storage)
 {
-  BufStruct *Storage2, *Storage3=Storage;
+    BufStruct * Storage2;
+    BufStruct * Storage3 = Storage;
 
   if (BUF(window)) {
-    {
-      if (BUF(window)->window_pointer)
-        RemoveBufGadget(Storage);
+      if (BUF(window)->window_pointer) RemoveBufGadget(Storage);
+
       BUF(namedisplayed)=FALSE;
       Storage3=BUF(NextShowBuf);
+      
       if ((Storage3==NULL) && !BUF(PrevShowBuf)) {
-                                          /* Enda buffen */
-        Storage3=GetNewBuf(Storage, Storage, SC_PREV_HIDDEN_BUF, SHS(type));
-        if (Storage3) {
-          Storage3->screen_lines=BUF(screen_lines);
-          Storage3->screen_col=BUF(screen_col);
-          Storage3->top_offset=BUF(top_offset);
-          Storage3->left_offset=BUF(left_offset);
-          Storage3->window=BUF(window);
+          /* Enda buffen */
+          Storage3=GetNewBuf(Storage, Storage, SC_PREV_HIDDEN_BUF, SHS(type));
+          if (Storage3) {
+              Storage3->screen_lines=BUF(screen_lines);
+              Storage3->screen_col=BUF(screen_col);
+              Storage3->top_offset=BUF(top_offset);
+              Storage3->left_offset=BUF(left_offset);
+              Storage3->window=BUF(window);
+              Storage3->window->NextShowBuf=Storage3;
+              Storage3->PrevShowBuf=NULL;
+              Storage3->NextShowBuf=NULL;
+              AddBufGadget(Storage3);
+          }
           Storage3->window->NextShowBuf=Storage3;
-          Storage3->PrevShowBuf=NULL;
-          Storage3->NextShowBuf=NULL;
-          AddBufGadget(Storage3);
-        }
-        Storage3->window->NextShowBuf=Storage3;
       } else {
-        if (!Storage3) {
-          Storage3=BUF(PrevShowBuf);        /* Översta buffen */
-          Storage3->top_offset=Storage3->top_offset-BUF(screen_lines)-1;
-          Storage3->screen_lines=BUF(screen_lines)+Storage3->screen_lines+1;
-        }
-        else                                /* Ej översta buffen */
-          Storage3->screen_lines=BUF(screen_lines)+Storage3->screen_lines+1;
-        BUF(window)->Views--;	// Decrease number of views
-        if (BUF(PrevShowBuf)) {
-          Storage2=BUF(PrevShowBuf);
-          Storage2->NextShowBuf=BUF(NextShowBuf);
-        } else {
-          BUF(window)->NextShowBuf=BUF(NextShowBuf);
-        }
-        if ((Storage2=BUF(NextShowBuf)))
-          Storage2->PrevShowBuf=BUF(PrevShowBuf);
+          if (!Storage3) {
+              Storage3=BUF(PrevShowBuf);        /* Översta buffen */
+              Storage3->top_offset=Storage3->top_offset-BUF(screen_lines)-1;
+              Storage3->screen_lines=BUF(screen_lines)+Storage3->screen_lines+1;
+          }
+          else                                /* Ej översta buffen */
+              Storage3->screen_lines=BUF(screen_lines)+Storage3->screen_lines+1;
+          BUF(window)->Views--;	// Decrease number of views
+          if (BUF(PrevShowBuf)) {
+              Storage2=BUF(PrevShowBuf);
+              Storage2->NextShowBuf=BUF(NextShowBuf);
+          } else {
+              BUF(window)->NextShowBuf=BUF(NextShowBuf);
+          }
+          if ((Storage2=BUF(NextShowBuf)))
+              Storage2->PrevShowBuf=BUF(PrevShowBuf);
       }
-    }
-    if (Storage3) {
-      if (Storage3!=Storage /*&& BUF(PrevShowBuf)*/) {
-        if (Storage3->block_exists)
-          SetBlockMark(Storage3, FALSE);
-        if (BUF(window)->ActiveBuffer==Storage)
-          BUF(window)->ActiveBuffer=Storage3;
-        BUF(PrevShowBuf)=NULL;
-        BUF(NextShowBuf)=NULL;
-        BUF(window)=NULL;
-        TestCursorPos(Storage3);
+
+
+      if (Storage3) {
+          assert(Storage3 > 1024);
+
+          if (Storage3!=Storage /*&& BUF(PrevShowBuf)*/) {
+              
+              if (Storage3->block_exists)
+                  SetBlockMark(Storage3, FALSE);
+              
+              if (BUF(window)->ActiveBuffer==Storage) {
+                  BUF(window)->ActiveBuffer=Storage3;
+              }
+              
+              BUF(PrevShowBuf)=NULL;
+              BUF(NextShowBuf)=NULL;
+              BUF(window)=NULL;
+              TestCursorPos(Storage3);
+          }
       }
-    }
   }
   return(Storage3);
 }
 
-void __regargs FixMarg(BufStruct *Storage)
-{
-  BufStruct *Storage2;
-  int summa;
-  int col;
-  int rightmarg;
+void FixMarg(BufStruct *Storage) {
+    BufStruct *Storage2;
+    int summa;
+    int col;
+    int rightmarg;
 
   Storage2=&Default.BufStructDefault;
   BUF(move_screen)=BUF(window)?BUF(window)->move_screen:Default.WindowDefault.move_screen;
@@ -1341,23 +1359,25 @@ BufStruct __regargs *GetNewBuf(BufStruct *Storage, BufStruct *Storage2, int argI
 }
 
 
-void __regargs AttachBufToWindow(WindowStruct *win, BufStruct *Storage)
+void AttachBufToWindow(WindowStruct *win, BufStruct *Storage)
 {
-  win->NextShowBuf=Storage;
-  BUF(window)=win;
-  BUF(window->Views)++;
+    assert(Storage);
+    win->NextShowBuf=Storage;
+    BUF(window)=win;
+    BUF(window->Views)++;
 
-  BufLimits(Storage);
-  if (win->window_pointer && win->window_pointer->Height>win->window_minheight &&
-      win->window_pointer->Height>win->window_pointer->MinHeight) {
-    Status(Storage, RetString(STR_FREXXED_INIT), 0x80);
-  }
-  win->ActiveBuffer=Storage;
-  BUF(screen_lines)=win->window_lines;
-  BUF(screen_col)=win->window_col;
-  BUF(top_offset)=1;
-  FixMarg(Storage);
-  AddBufGadget(Storage);
-  TestCursorPos(Storage);
+    BufLimits(Storage);
+    if (win->window_pointer && win->window_pointer->Height>win->window_minheight &&
+        win->window_pointer->Height>win->window_pointer->MinHeight) {
+        Status(Storage, RetString(STR_FREXXED_INIT), 0x80);
+    }
+    assert(Storage > 1024);
+    win->ActiveBuffer=Storage;
+    BUF(screen_lines)=win->window_lines;
+    BUF(screen_col)=win->window_col;
+    BUF(top_offset)=1;
+    FixMarg(Storage);
+    AddBufGadget(Storage);
+    TestCursorPos(Storage);
 }
 

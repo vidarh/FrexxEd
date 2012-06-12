@@ -52,51 +52,54 @@ int Clip2String(BufStruct *Storage, char **retstring, int *retlen, int clipno)
   int rlen;
   struct ContextNode *cn;
 
-  if (IFFParseBase=OpenLibrary("iffparse.library", 0L)) {
-    if (iff=AllocIFF()) {
-      if (iff->iff_Stream=(ULONG)OpenClipboard(clipno)) {
-        InitIFFasClip(iff);
-        if (!(error=OpenIFF(iff, IFFF_READ))) {
-          if (!(error=StopChunk(iff, ID_FTXT, ID_CHRS))) {
-            while (1) {
-              error=ParseIFF(iff, IFFPARSE_SCAN);
-              if (error==IFFERR_EOC)
-                continue;
-              else if (error)
-                break;
+#ifdef AMIGA
+  IFFParseBase=OpenLibrary("iffparse.library", 0L);
+  if (!IFFParseLibrary) return ret;
+#endif
 
-              cn=CurrentChunk(iff);
-              
-              if((cn) && (cn->cn_Type==ID_FTXT) && (cn->cn_ID==ID_CHRS)) {
-                ret=OK;
-                while ((rlen=ReadChunkBytes(iff, buffer, MAX_CHAR_LINE))>0) {
-                  store=Realloc(store, storelen+rlen);
-                  if (!store) {
-                    ret=OUT_OF_MEM;
-                    break;
+  if (iff=AllocIFF()) {
+      if (iff->iff_Stream=(ULONG)OpenClipboard(clipno)) {
+          InitIFFasClip(iff);
+          if (!(error=OpenIFF(iff, IFFF_READ))) {
+              if (!(error=StopChunk(iff, ID_FTXT, ID_CHRS))) {
+                  while (1) {
+                      error=ParseIFF(iff, IFFPARSE_SCAN);
+                      if (error==IFFERR_EOC)
+                          continue;
+                      else if (error)
+                          break;
+                      
+                      cn=CurrentChunk(iff);
+                      
+                      if((cn) && (cn->cn_Type==ID_FTXT) && (cn->cn_ID==ID_CHRS)) {
+                          ret=OK;
+                          while ((rlen=ReadChunkBytes(iff, buffer, MAX_CHAR_LINE))>0) {
+                              store=Realloc(store, storelen+rlen);
+                              if (!store) {
+                                  ret=OUT_OF_MEM;
+                                  break;
+                              }
+                              memcpy(store+storelen, buffer, rlen);
+                              storelen+=rlen;
+                          }
+                          if (rlen<0) {
+                              Dealloc(store);
+                              storelen=0;
+                              store=NULL;
+                              error=rlen;
+                          }
+                      }
                   }
-                  memcpy(store+storelen, buffer, rlen);
-                  storelen+=rlen;
-                }
-                if (rlen<0) {
-                  Dealloc(store);
-                  storelen=0;
-                  store=NULL;
-                  error=rlen;
-                }
+                  if (error && error!=IFFERR_EOF)
+                      ret=IFF_ERROR;
               }
-            }
-            if (error && error!=IFFERR_EOF)
-              ret=IFF_ERROR;
+              CloseIFF(iff);
           }
-          CloseIFF(iff);
-        }
-        CloseClipboard((struct ClipboardHandle *)iff->iff_Stream);
+          CloseClipboard((struct ClipboardHandle *)iff->iff_Stream);
       }
       FreeIFF(iff);
-    }
-    CloseLibrary(IFFParseBase);
   }
+  CloseLibrary(IFFParseBase);
   
   *retstring=store;
   *retlen=storelen;

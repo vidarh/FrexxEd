@@ -53,7 +53,7 @@
 #include "Request.h"
 #include "Setting.h"
 
-extern struct ExecBase *SysBase;
+extern struct Library *SysBase;
 //extern struct GfxBase *GfxBase;
 //extern struct IntuitionBase *IntuitionBase;
 //extern struct ConsoleDevice *ConsoleDevice;

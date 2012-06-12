@@ -149,12 +149,15 @@ extern srch Search;          /* search structure */
 extern struct Library *FastGraphicsBase;
 extern struct FastGraphicsTable *fast_gfx_table;
 
+#ifdef AMIGA
 extern struct Library * WorkbenchBase;
 extern struct Library * UtilityBase;
 extern struct Library * LocaleBase;
 extern struct Library *FPLBase;
 extern struct Library *DiskfontBase;
 extern struct Library *GadToolsBase;
+#endif
+
 extern struct rtFileRequester *FileReq; /* Buffrad Filerequester. Bra o ha! */
 extern struct IOStdReq *WriteReq;
 extern struct MsgPort *WritePort, *ReadPort;
@@ -246,6 +249,12 @@ static char *screenwindow_name=NULL;
 extern int total_fpl_alloc;
 #endif
 
+#include <assert.h>
+
+extern struct Setting **sets;
+
+extern int ExecVersion;
+
 /*** PRIVATE ***/
 
 static int clipri=-200;
@@ -259,49 +268,49 @@ static char *OpenMyScreen(WindowStruct *win);
 /*************/
 
 /*
-  Om FrexxEd inte kan stänga en screen, så läggs pekaren till den upp i en
-  lista och föröks frias vid ett senare tillfälle.
+  If FrexxEd can't close a screen, the pointer is added to a list,
+  and it will be attempted freed later.
 */
-static BOOL __regargs CleanUpScreens(struct Screen *add)
+static BOOL CleanUpScreens(struct Screen *add)
 {
-  struct screen_list {
-    struct screen_list *next;
-    struct Screen *pointer;
-  };
-  static struct screen_list *list;
-  struct screen_list *temp;
-  if (add) {
-    temp=list;	// Hindra att samma pointer läggs upp två gånger
-    while (temp) {
-      if (temp->pointer==add)
-        return TRUE;
-    }
-    temp=Malloc(sizeof(struct screen_list));
-    if (temp) {
-      temp->pointer=add;
-      temp->next=list;
-      list=temp;
-    }
-  } else {
-    struct screen_list *prev=NULL;
-    temp=list;
-    while (temp) {
-      if (CloseScreen(temp->pointer)) {
-        if (prev)
-          prev->next=temp->next;
-        else
-          list=temp->next;
-        Dealloc(temp);
+    struct screen_list {
+        struct screen_list *next;
+        struct Screen *pointer;
+    };
+    static struct screen_list *list = 0;
+    struct screen_list *temp;
+    if (add) {
+        temp=list;	// Hindra att samma pointer läggs upp två gånger
+        while (temp) {
+            if (temp->pointer==add)
+                return TRUE;
+        }
+        temp=Malloc(sizeof(struct screen_list));
+        if (temp) {
+            temp->pointer=add;
+            temp->next=list;
+            list=temp;
+        }
+    } else {
+        struct screen_list *prev=NULL;
         temp=list;
-      }
-      prev=temp;
-      if (temp)
-        temp=temp->next;
+        while (temp) {
+            if (CloseScreen(temp->pointer)) {
+                if (prev)
+                    prev->next=temp->next;
+                else
+                    list=temp->next;
+                Dealloc(temp);
+                temp=list;
+            }
+            prev=temp;
+            if (temp)
+                temp=temp->next;
+        }
     }
-  }
 }
 
-static BOOL __regargs FrexxEdCloseScreen(struct Screen *screen)
+static BOOL FrexxEdCloseScreen(struct Screen *screen)
 {
   while (!CloseScreen(screen)) {
     if (0==rtEZRequest(RetString(STR_FREXXED_CAN_CONTINUE_BEFORE), RetString(STR_TRY_AGAIN), NULL, NULL,
@@ -326,8 +335,7 @@ static void __regargs CloseScreenWindow(void)
   }
 }
 
-void FirstOpen()
-{
+void FirstOpen() {
   editprocess = (struct Process *)FindTask(NULL);
   oldwindowptr = editprocess->pr_WindowPtr;
 
@@ -335,11 +343,16 @@ void FirstOpen()
 
   appiconname=Strdup("FrexxEd");
 
+#ifdef AREXX
   RexxHandle=InitARexx(cl_portname);
   Default.ARexxPort=RexxHandle?RexxHandle->PortName:""; /* Get ARexx port name */
+#endif
 
+#ifdef FIXME
   if (InitFPL(1)) CloseAll(RetString(STR_INIT_FPL));
+#endif
 
+#ifdef AMIGA
   /* Create the message port to which Workbench can send messages */
   if(!(WBMsgPort = CreateMsgPort()) ) CloseAll(RetString(STR_CREATE_MESSAGE_PORT));
 
@@ -357,10 +370,13 @@ void FirstOpen()
   if (OpenDevice("console.device", -1, (struct IORequest *)WriteReq, 1))
     CloseAll(RetString(STR_OPEN_CONSOLE_DEVICE));
   ConsoleDevice=(struct Library *)WriteReq->io_Device;
+#endif
 
   InitKeys();
 
+#ifdef FIXME
   if (!(DefaultFact=InitFACT())) CloseAll(RetString(STR_GET_MEMORY));
+#endif
 
   Default.BufStructDefault.using_fact=UsingFact=DefaultFact;
 
@@ -406,34 +422,42 @@ static void TestScreenMode(WindowStruct *win)
 }
 
 
-void LastOpen()
-{
-  char *ret;
-  WindowStruct *win;
-
-  if (FrexxPri>-128)
-    Default.taskpri=FrexxPri;
-  clipri=SetTaskPri((struct Task *)editprocess, Default.taskpri);
-
-  win=MakeNewWindow(&Default.WindowDefault);
-  if (ret=OpenMyScreen(win))
-    CloseAll(ret);
-  if (cl_iconify || win->iconify) {
-    if (Iconify(NULL)!=OK) CloseAll(RetString(STR_OPEN_SCREEN));
-  }
-
-  if (InitFPL(0)) CloseAll(RetString(STR_INIT_FPL));
-
-  if (Default.windows_opened && !ScreenBuffer.beginning)
-    CloseAll(RetString(STR_GET_MEMORY));
-
-  PrintScreenInit();
-  InitColors(win);
+void LastOpen() {
+    char *ret;
+    WindowStruct *win;
+    
+    if (FrexxPri>-128)
+        Default.taskpri=FrexxPri;
+    clipri=SetTaskPri((struct Task *)editprocess, Default.taskpri);
+    
+    win=MakeNewWindow(&Default.WindowDefault);
+    
+    if (ret=OpenMyScreen(win)) {
+        fprintf(stderr,"OpenMyScreen failed\n");
+        CloseAll(ret);
+    }
+        fprintf(stderr,"OpenMyScreen succeeded\n");    
+    if (cl_iconify || win->iconify) {
+        if (Iconify(NULL)!=OK) CloseAll(RetString(STR_OPEN_SCREEN));
+    }
+    
+    fprintf(stderr,"HERE 3\n");
+#ifdef FIXME
+    if (InitFPL(0)) CloseAll(RetString(STR_INIT_FPL));
+#endif
+    
+    if (Default.windows_opened && !ScreenBuffer.beginning)
+        CloseAll(RetString(STR_GET_MEMORY));
+        fprintf(stderr,"HERE 4\n");
+    PrintScreenInit();
+    InitColors(win);
+        fprintf(stderr,"HERE 5\n");
 }
 
 
-char __regargs *OpenLibraries()
+char *OpenLibraries()
 {
+#ifdef AMIGA
   if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", LIB_REV)))
 	return("open intuition.library");
   
@@ -485,7 +509,7 @@ char __regargs *OpenLibraries()
     FastGraphicsBase=OpenLibrary("ProgDir:libs/"FastGfxName, 1);
 #endif
   if (InitTimer()<OK) CloseAll("open timer.device");
-
+#endif
   return(NULL);
 }
 
@@ -495,29 +519,31 @@ char __regargs *OpenLibraries()
  * Close down all libraries for this task.  A special requester
  * can appear if a string is given.
  ********/
-void __regargs CloseLibraries(char *string)
+void CloseLibraries(char *string)
 {
   if (string && IntuitionBase) {
-    register char *sstring;
-    sstring=(char *)Malloc(strlen(string)+40);
-    if (sstring) {
-      struct EasyStruct req = {
-        sizeof(struct EasyStruct),0,
-        FREXXED_VER, NULL, NULL
-      };
-      req.es_TextFormat=sstring;
-      req.es_GadgetFormat=RetString(STR_OK_GADGET);
-
-      Sprintf(sstring, RetString(STR_FREXXED_COULDNT), string);
-      EasyRequestArgs(NULL, &req, NULL, NULL);
-
-      Dealloc(sstring);
-    }
+      char *sstring;
+      sstring=(char *)Malloc(strlen(string)+40);
+      if (sstring) {
+          struct EasyStruct req = {
+              sizeof(struct EasyStruct),0,
+              FREXXED_VER, NULL, NULL
+          };
+          req.es_TextFormat=sstring;
+          req.es_GadgetFormat=RetString(STR_OK_GADGET);
+          
+          Sprintf(sstring, RetString(STR_FREXXED_COULDNT), string);
+          EasyRequestArgs(NULL, &req, NULL, NULL);
+          
+          Dealloc(sstring);
+      }
   }
   FreeTimer();
 
   if (FileReq)
     rtFreeRequest((APTR)FileReq);
+
+#ifdef AMIGA
 #ifdef USE_FASTSCROLL
   if(FastGraphicsBase)
     CloseLibrary(FastGraphicsBase);
@@ -541,6 +567,7 @@ void __regargs CloseLibraries(char *string)
   if (XpkBase)       CloseLibrary ((struct Library *)XpkBase);
   if (GfxBase)       CloseLibrary((struct Library *)GfxBase);
   if (IntuitionBase) CloseLibrary((struct Library *)IntuitionBase);
+#endif
 }
 
 
@@ -555,40 +582,47 @@ void __regargs CloseLibraries(char *string)
 
 void CloseAll(char *string)
 {
-  CloseFrexxEd(string);
-  longjmp(return_stackpoint, 1);
+    CloseFrexxEd(string);
+    longjmp(return_stackpoint, 1);
 }
 
 void CloseFrexxEd(char *string)
 {
-  Visible=VISIBLE_OFF;
-  hook_enabled=FALSE;
-  if (editprocess) /* restore old system request windowpointer */
-    editprocess->pr_WindowPtr = oldwindowptr;
+    fprintf(stderr,"CloseFrexxEd '%s'\n",string);
+    Visible=VISIBLE_OFF;
+    hook_enabled=FALSE;
+    if (editprocess) /* restore old system request windowpointer */
+        editprocess->pr_WindowPtr = oldwindowptr;
 
-  if (ReadPort) DeleteMsgPort(ReadPort);
-  if (WriteReq) {
-    if (WriteReq->io_Device)
-      CloseDevice((struct IORequest *)WriteReq);
-    DeleteIORequest(WriteReq);
-  }
-  if (WritePort) DeleteMsgPort(WritePort);
+#ifdef AMIGA
+    if (ReadPort) DeleteMsgPort(ReadPort);
+    if (WriteReq) {
+        if (WriteReq->io_Device)
+            CloseDevice((struct IORequest *)WriteReq);
+        DeleteIORequest(WriteReq);
+    }
+    if (WritePort) DeleteMsgPort(WritePort);
+#endif
+        fprintf(stderr,"XXXXXXXXXXXXXXXXXX ==========\n");
+        assert(sets != 0);
 
-  /* free the entire linked lists of menu information! */
-  menu_delete(&menu, menu.ownmenu);
+    /* free the entire linked lists of menu information! */
+    menu_delete(&menu, menu.ownmenu);
 
-  CleanupAllFaces(); /* Delete all faces */
+    CleanupAllFaces(); /* Delete all faces */
 
-  if (InfoWindow) CloseWindow(InfoWindow);
-  if(appicon) RemoveAppIcon(appicon);
-  if(externappicon) FreeDiskObject(externappicon);
+    if (InfoWindow) CloseWindow(InfoWindow);
+    if(appicon) RemoveAppIcon(appicon);
+    if(externappicon) FreeDiskObject(externappicon);
 
-  if(WBMsgPort) {
-    struct Message *msg;
-    while (msg=GetMsg(WBMsgPort))
-      ReplyMsg(msg);
-    DeleteMsgPort(WBMsgPort);
-  }
+#ifdef AMIGA
+    if(WBMsgPort) {
+        struct Message *msg;
+        while (msg=GetMsg(WBMsgPort))
+            ReplyMsg(msg);
+        DeleteMsgPort(WBMsgPort);
+    }
+#endif
 
   {
     while (FRONTWINDOW) {
@@ -632,17 +666,17 @@ void CloseFrexxEd(char *string)
     }
   }
   if (Default.posthook) {
-    register struct FrexxHook *hook, *hookn;
-    register int a;
-    for(a=0; a<MAX_COMMANDS; a++) {
-      hook=Default.posthook[a];
-      while(hook) {
-        hookn=hook->next;
-        Dealloc(hook->name);
-        Dealloc(hook);
-        hook=hookn;
+      struct FrexxHook *hook, *hookn;
+      int a;
+      for(a=0; a<MAX_COMMANDS; a++) {
+          hook=Default.posthook[a];
+          while(hook) {
+              hookn=hook->next;
+              Dealloc(hook->name);
+              Dealloc(hook);
+              hook=hookn;
+          }
       }
-    }
   }
 
   if (Default.FirstBlock) {
@@ -765,16 +799,8 @@ void CloseFrexxEd(char *string)
     }
   }
 #endif
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "TOTAL_FPL_ALLOC %ld\n", total_fpl_alloc);
-#endif
 #endif
 
-#ifdef DEBUGTEST
-  if(DebugOpt)
-    FPrintf(Output(), "CloseAll 12\n");
-#endif
   if (clipri>-200)
     SetTaskPri((struct Task *)editprocess, clipri);
   FindTask(NULL)->tc_Node.ln_Name=mothername;
@@ -808,10 +834,23 @@ void CloseFrexxEd(char *string)
 
 void PrintScreenInit(void)
 {
-  charhojd=SystemFont->tf_YSize;
-  charbredd=SystemFont->tf_XSize;
-  baseline=SystemFont->tf_Baseline;
+    if (SystemFont) {
+        charhojd=SystemFont->tf_YSize;
+        charbredd=SystemFont->tf_XSize;
+        baseline=SystemFont->tf_Baseline;
+    } else fprintf(stderr,"FIXME: No SystemFont\n");
 }
+
+static void CreateScreenName(WindowStruct * win, char * buffer) {
+    struct List *list=LockPubScreenList();
+    int counter=0;
+    do {
+        counter++;
+        Sprintf(buffer, "FrexxEdScreen%ld", counter);
+    } while (list && FindName(list, buffer));
+    if (list) UnlockPubScreenList();
+}
+
 
 static char *OpenMyScreen(WindowStruct *win)
 {
@@ -912,23 +951,16 @@ static char *OpenMyScreen(WindowStruct *win)
   if (!cl_iconify && !win->iconify) {
     if (win->window==FX_SCREEN || win->window==FX_WINSCREEN) {
      if (win->window==FX_WINSCREEN && screenwindow) {
-        win->screen_pointer=screenwindow;
-        Dealloc(win->FrexxScreenName);
-        win->FrexxScreenName=Strdup(screenwindow_name);
-        win->ownscreen=FALSE;
+         win->screen_pointer=screenwindow;
+         Dealloc(win->FrexxScreenName);
+         win->FrexxScreenName=Strdup(screenwindow_name);
+         win->ownscreen=FALSE;
       } else {
-        struct List *list=LockPubScreenList();
-        int screen_depth=win->screen_depth;
-        {
-          register int counter=0;
-          do {
-            counter++;
-            Sprintf(buffer, "FrexxEdScreen%ld", counter);
-          } while (list && FindName(list, buffer));
-          if (list)
-            UnlockPubScreenList();
-        }
-        win->screen_pointer = OpenScreenTags(NULL,
+         int screen_depth=win->screen_depth;
+
+         CreateScreenName(win,buffer);
+
+         win->screen_pointer = OpenScreenTags(NULL,
     			    SA_DisplayID, win->DisplayID,
     			    SA_Height, win->real_screen_height,
     			    SA_Width, win->real_screen_width,
@@ -940,48 +972,58 @@ static char *OpenMyScreen(WindowStruct *win)
     			    SA_Interleaved, TRUE,
     			    SA_Depth, screen_depth,
     			    SA_LikeWorkbench, TRUE,
-        (SysBase->LibNode.lib_Version >= 39)?TAG_END:
+                  (ExecVersion >= 39) ? TAG_END :
     	    /* Below only for v37 and below */
     			    SA_DetailPen, 3,
     			    SA_BlockPen, 1,
     			    SA_Pens, (ULONG)&DRI,
     			    TAG_DONE);
-        if(!win->screen_pointer)
-          return(RetString(STR_OPEN_SCREEN));
-        if (win->window==FX_WINSCREEN) {
-          screenwindow=win->screen_pointer;
-          screenwindow_name=Strdup(buffer);
-        }
+
+         if(win->screen_pointer) {
+             /* FIXME: Warn using RetString(STR_OPEN_SCREEN) if !win->screen_pointer */
+
+             if (win->window==FX_WINSCREEN) {
+                 screenwindow=win->screen_pointer;
+                 screenwindow_name=Strdup(buffer);
+             }
     
-        Dealloc(win->FrexxScreenName);
-        win->FrexxScreenName=Strdup(buffer);
-        GetDimension(win->DisplayID);
-    
-        if (win->window==FX_WINSCREEN)
-          win->ownscreen=FALSE;
-        else
-          win->ownscreen=TRUE;
-        PubScreenStatus(win->screen_pointer, 0);
-        if (win->pubscreen) {
-          if (!win->ps_frontmost)
-            UnlockPubScreen(NULL, win->pubscreen);
-          win->pubscreen=NULL;
-        }
-      }
-      TestScreenMode(win);
-      win->real_screen_height=win->screen_pointer->Height;
-      win->real_window_height=win->screen_pointer->Height;
-      win->real_screen_width=win->screen_pointer->Width;
-      win->real_window_width=win->screen_pointer->Width;
-    } else {
-      win->real_screen_height=visible_height;
-      win->real_window_height=visible_height;
-      win->real_screen_width=visible_width;
-      win->real_window_width=visible_width;
-      win->screen_pointer=win->pubscreen;
-      Dealloc(win->FrexxScreenName);
-      win->FrexxScreenName=Strdup(pubscreenname);
+             Dealloc(win->FrexxScreenName);
+             win->FrexxScreenName=Strdup(buffer);
+             GetDimension(win->DisplayID);
+             
+             if (win->window==FX_WINSCREEN)
+                 win->ownscreen=FALSE;
+             else
+                 win->ownscreen=TRUE;
+             
+             PubScreenStatus(win->screen_pointer, 0);
+             if (win->pubscreen) {
+                 if (!win->ps_frontmost)
+                     UnlockPubScreen(NULL, win->pubscreen);
+                 win->pubscreen=NULL;
+             }
+
+             TestScreenMode(win);
+             assert(win->screen_pointer > 1000);
+             win->real_screen_height=win->screen_pointer->Height;
+             win->real_window_height=win->screen_pointer->Height;
+             win->real_screen_width=win->screen_pointer->Width;
+             win->real_window_width=win->screen_pointer->Width;
+         } else win->window = FX_WINDOW; /* Fallback */
+     
+     }
     }
+    if (win->window!=FX_SCREEN && win->window!=FX_WINSCREEN) {
+        /* Open on existing pubscreen */
+        win->real_screen_height=visible_height;
+        win->real_window_height=visible_height;
+        win->real_screen_width=visible_width;
+        win->real_window_width=visible_width;
+        win->screen_pointer=win->pubscreen;
+        Dealloc(win->FrexxScreenName);
+        win->FrexxScreenName=Strdup(pubscreenname);
+    }
+
     if (win->window==FX_SCREEN) {
       newwindow.Height=win->real_window_height;
       newwindow.Width=win->real_window_width;
@@ -1111,26 +1153,30 @@ static char *OpenMyScreen(WindowStruct *win)
       redrawneeded|=SE_REINIT;
       win->redrawneeded|=SE_REINIT;
     } else if ((win->window&FX_WINDOWBIT) && win->autoresize) {
-      register int dx;
-      register int dy;
-      BarHeight=win->window_pointer->BorderTop-1;
-      BorderWidth=win->window_pointer->BorderLeft + win->window_pointer->BorderRight;
-      BorderHeight=BarHeight+win->window_pointer->BorderBottom+1;
-      dx=(win->real_window_width - BorderWidth -
-          systemfont_leftmarg-systemfont_rightmarg)%SystemFont->tf_XSize;
-      dy=(win->real_window_height-BorderHeight)%SystemFont->tf_YSize;
-      win->real_window_height=win->window_pointer->Height-dy;
-      win->real_window_width=win->window_pointer->Width-dx;
-      if (dx || dy) {
-        SizeWindow(win->window_pointer, -dx, -dy);
-        ignoreresize=2;
-      }
+        int dx, dy;
+        BarHeight=win->window_pointer->BorderTop-1;
+        BorderWidth=win->window_pointer->BorderLeft + win->window_pointer->BorderRight;
+        BorderHeight=BarHeight+win->window_pointer->BorderBottom+1;
+        
+        assert(SystemFont->tf_XSize);
+        assert(SystemFont->tf_YSize);
+        
+        dx=(win->real_window_width - BorderWidth -
+            systemfont_leftmarg-systemfont_rightmarg)%SystemFont->tf_XSize;
+        dy=(win->real_window_height-BorderHeight)%SystemFont->tf_YSize;
+        win->real_window_height=win->window_pointer->Height-dy;
+        win->real_window_width=win->window_pointer->Width-dx;
+        if (dx || dy) {
+            SizeWindow(win->window_pointer, -dx, -dy);
+            ignoreresize=2;
+        }
     }
   }
 
   {
-    register struct DrawInfo *dri;
+    struct DrawInfo *dri;
     dri=GetScreenDrawInfo(win->screen_pointer);
+    assert(dri);
     sliderhighlite=dri->dri_Pens[SHINEPEN];
     statuscolor=dri->dri_Pens[FILLPEN];
     statustextcolor=dri->dri_Pens[FILLTEXTPEN];
@@ -1159,6 +1205,7 @@ static char *OpenMyScreen(WindowStruct *win)
   AdjustBufsInWindow(win);
   firstopen=FALSE;
 
+#ifdef AREXX
   signalbits=ARexxSignal(RexxHandle) |
              (1 << WBMsgPort->mp_SigBit) |
              SIGBREAKF_CTRL_C |
@@ -1166,6 +1213,7 @@ static char *OpenMyScreen(WindowStruct *win)
              SIGBREAKF_CTRL_E |	// CTRL-E is sent as deiconify.
              (1 << TimerMP->mp_SigBit) |
              (1 << WindowPort->mp_SigBit);
+#endif
 
   return(NULL);
 }
@@ -1205,6 +1253,8 @@ void CloseMyScreen(WindowStruct *win)
       menu_detach(&menu, win);
       FreeMenus(oldmenu);
     }
+
+#ifdef AMIGA
     {
       /* Remove outstanding IDCMP messages for this window */
       /* Amiga ROM KRML, side 255 */
@@ -1226,8 +1276,10 @@ void CloseMyScreen(WindowStruct *win)
       win->window_pointer=NULL;
       Default.windows_opened--;
     }
+#endif
     activewindow=NULL;
   }
+
   if (win->pubscreen && !win->ps_frontmost)
     UnlockPubScreen(NULL, win->pubscreen);
   if (win->screen_pointer) {
@@ -1355,28 +1407,31 @@ struct Window __regargs *FixWindow(BufStruct *Storage, char *string)
 }
 
 
-void SetupMinWindow(WindowStruct *win)
+void SetupMinWindow(WindowStruct *win) 
 {
-  win->window_minheight=BarHeight;
-  win->window_minwidth=SystemFont->tf_XSize*17;
-  if (win->window_pointer)
-    win->window_minheight+=win->window_pointer->BorderBottom+SystemFont->tf_YSize*2;
-  else
-    win->window_minheight+=12;
+    assert(win);
+    assert(SystemFont);
 
-  CheckWindowSize(win);
+    win->window_minheight=BarHeight;
+    win->window_minwidth=SystemFont->tf_XSize*17;
+    if (win->window_pointer)
+        win->window_minheight+=win->window_pointer->BorderBottom+SystemFont->tf_YSize*2;
+    else
+        win->window_minheight+=12;
+    
+    CheckWindowSize(win);
 }
 
-void __regargs GetDimension(ULONG mode)
+void GetDimension(ULONG mode)
 {
-  register struct DimensionInfo *dim=(struct DimensionInfo *)buffer;
+  struct DimensionInfo *dim=(struct DimensionInfo *)buffer;
   GetDisplayInfoData(0, (void *)dim, sizeof(struct DimensionInfo),
                      DTAG_DIMS, mode);
   visible_height=dim->TxtOScan.MaxY+1;
   visible_width=dim->TxtOScan.MaxX+1;
 }
 
-int __regargs Iconify(WindowStruct *specific_window)
+int Iconify(WindowStruct *specific_window)
 {
   int ret=OK;
   WindowStruct *win=specific_window;
@@ -1463,7 +1518,7 @@ void __regargs CloseAppIcon(void)
 }
 
 
-int __regargs CloneWB(WindowStruct *win)
+int CloneWB(WindowStruct *win)
 {
   struct Screen *temp_pubscreen=win->pubscreen;
   int ret=OUT_OF_MEM;
@@ -1473,15 +1528,22 @@ int __regargs CloneWB(WindowStruct *win)
       temp_pubscreen=LockPubScreen(NULL);
   }
   if (temp_pubscreen) {
-    register ULONG mode=GetVPModeID(&temp_pubscreen->ViewPort);
-    GetDimension(mode);
-    win->DisplayID=mode;
-    SetSystemFont();
-    win->screen_height=visible_height;
-    win->window_height=visible_height;
-    win->screen_width=visible_width;
-    win->window_width=visible_width;
-    win->screen_depth=temp_pubscreen->RastPort.BitMap->Depth;
+      ULONG mode=GetVPModeID(&temp_pubscreen->ViewPort);
+      GetDimension(mode);
+      win->DisplayID=mode;
+      SetSystemFont();
+      win->screen_height=visible_height;
+      win->window_height=visible_height;
+      win->screen_width=visible_width;
+      win->window_width=visible_width;
+
+    if (temp_pubscreen && temp_pubscreen->RastPort.BitMap) {
+        win->screen_depth=temp_pubscreen->RastPort.BitMap->Depth;
+    } else {
+        // Fallback mainly for non-Amiga version.
+        win->screen_depth = 4;
+    }
+    
     win->window_ypos=0;
     win->window_xpos=0;
     CopyColors(temp_pubscreen, win);
@@ -1564,19 +1626,21 @@ void __regargs FreeWindow(WindowStruct *win)
 
 WindowStruct *CreateNewWindow(WindowStruct *defwin, BufStruct *newstorage, BufStruct *Storage)
 {
-  WindowStruct *win=NULL;
-  if (!newstorage || newstorage->window) {
-    newstorage=GetNewBuf(Storage, Storage, SC_NEXT_HIDDEN_BUF, type_FILE);
-    if (!newstorage || newstorage->window)
-      newstorage=MakeNewBuf(Storage);
-  }
-  if (newstorage) {
-    win=MakeNewWindow(defwin);
-    if (win) {
-      AttachBufToWindow(win, newstorage);
+    WindowStruct *win=NULL;
+    if (!newstorage || newstorage->window) {
+        newstorage=GetNewBuf(Storage, Storage, SC_NEXT_HIDDEN_BUF, type_FILE);
+        if (!newstorage || newstorage->window)
+            newstorage=MakeNewBuf(Storage);
     }
-  }
-  return win;
+
+    if (newstorage) {
+        win=MakeNewWindow(defwin);
+        if (win) {
+            AttachBufToWindow(win, newstorage);
+        }
+    }
+    assert(win->ActiveBuffer > 1024);
+    return win;
 }
 
 

@@ -1163,8 +1163,7 @@ void __regargs ClearBlock(BlockStruct *block)
  *  Alloc a block and put it in the linked list.
  *  Return the block pointer, NULL==error.
  ******/
-BlockStruct __regargs *AllocBlock(char *name)
-{
+BlockStruct *AllocBlock(char *name) {
   BlockStruct *block;
   BlockStruct **blockcount=&Default.FirstBlock;
   BufStruct *Storage2;

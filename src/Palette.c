@@ -24,19 +24,22 @@ long FixRGB32(ULONG *cols)
 void __regargs CopyColors(struct Screen *sc, WindowStruct *win)
 {
   if (win) {
+#ifdef AMIGA
     if (SysBase->LibNode.lib_Version < 39) {
       win->color0=GetRGB4(sc->ViewPort.ColorMap, 0);
       win->color1=GetRGB4(sc->ViewPort.ColorMap, 1);
       win->color2=GetRGB4(sc->ViewPort.ColorMap, 2);
       win->color3=GetRGB4(sc->ViewPort.ColorMap, 3);
-    } else {
-      ULONG cols[3*12];
-      GetRGB32(sc->ViewPort.ColorMap, 0, 12, cols);
-      win->color0=FixRGB32(&cols[0]);
-      win->color1=FixRGB32(&cols[3]);
-      win->color2=FixRGB32(&cols[6]);
-      win->color3=FixRGB32(&cols[9]);
-    }
+    } else 
+#endif
+        {
+            ULONG cols[3*12];
+            GetRGB32(sc->ViewPort.ColorMap, 0, 12, cols);
+            win->color0=FixRGB32(&cols[0]);
+            win->color1=FixRGB32(&cols[3]);
+            win->color2=FixRGB32(&cols[6]);
+            win->color3=FixRGB32(&cols[9]);
+        }
   }
 }
 

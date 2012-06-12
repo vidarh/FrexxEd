@@ -32,6 +32,8 @@
 #include "UpdtScreen.h"
 #include "UpdtScreenC.h"
 
+#include <assert.h>
+
 extern FACT *DefaultFact;
 extern FACT *UsingFact;
 extern char buffer[];
@@ -49,17 +51,15 @@ static void __regargs sub_check_fact(FACT *fact);
  *
  *  Return: Your new FACT structure or NULL.
  ********/
-FACT __regargs *InitFACT(void)
-{
+FACT *InitFACT(void) {
   char *mem;
   int memlength;
   int count;
 
   FACT *fact;
 
-  if (!(mem=Malloc(memlength=sizeof(FACT)+256+256*sizeof(int)+256*sizeof(char *)+
-                            256+256+256)))
-    return(NULL);
+  memlength=sizeof(FACT)+256+256*sizeof(int)+256*sizeof(char *)+ 256+256+256;
+  if (!(mem=Malloc(memlength))) return 0;
 
   memset(mem, 0, memlength);
   fact=(FACT *)mem;
@@ -71,7 +71,7 @@ FACT __regargs *InitFACT(void)
   fact->strings=(char **)mem;
   mem+=256*sizeof(char *);
   fact->length=mem;
-  memset(mem, 1, 256);		/* Alla strängar är ett tecken */
+  memset(mem, 1, 256);		/* All strings are one character */
   mem+=256;
   fact->delimit=mem;
   mem+=256;

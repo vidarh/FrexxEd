@@ -138,7 +138,7 @@ void __regargs InitSlider(BufStruct *Storage)
 }
 
 /* Removes the slider for a buffer */
-void __regargs RemoveBufGadget(BufStruct *Storage)
+void RemoveBufGadget(BufStruct *Storage)
 {
   if (BUF(window)) {
     if (BUF(window)->window_pointer && BUF(slider_on)) {

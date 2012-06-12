@@ -122,6 +122,8 @@ int InitFPL(char type)
 #ifdef REG_A4
     userdata.a4 = getreg(REG_A4);
 #endif
+
+#ifdef FIXME
     Anchor=fplInitTags(fpl_functions,
                        FPLTAG_INTERVAL, (long)StopCheck,
                        FPLTAG_CACHEALLFILES, FPLCACHE_EXPORTS,
@@ -133,6 +135,7 @@ int InitFPL(char type)
                        FPLTAG_IDENTITY, Default.ARexxPort, /* identify us! */
                        FPLTAG_AUTORUN, TRUE,
                        FPLTAG_END);
+#endif
   }
   if (!Anchor)
     ret=OUT_OF_MEM;

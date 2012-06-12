@@ -32,8 +32,13 @@
 #define SIGBREAKF_CTRL_C 1
 #define RTFI_Dir 1
 
+#define FPrintf fprintf
+#define FPuts fputs
+
 // FIXME: This is blatantly a hack
 //#define REG_A4 1
+
+#define BADDR(addr) (&(addr))
 
 // Amiga types. FIXME: Verify these
 
@@ -312,7 +317,7 @@ struct Message {
 struct WBStartup {
     struct Message sm_Message;
     int sm_NumArgs;
-    char ** sm_ArgList;
+    struct WBArg * sm_ArgList;
 };
 
 struct IntuiMessage {
@@ -522,7 +527,6 @@ struct Process {
 struct Task * FindTask(void *);
 int Wait(int);
 void * GetMsg(void *);
-void * OpenLibrary(char *, long);
 void Delay(long);
 
 // FIXME: Arbitrary value
@@ -901,6 +905,12 @@ void Delay(long);
 #define XPKNAME 48
 
 typedef char * BSTR;
+
+
+// --------- Prototypes for compatibility layer functions
+void * AllocMem(long size, int flags);
+void * OpenLibrary(const STRPTR, long);
+
 
 #else
 

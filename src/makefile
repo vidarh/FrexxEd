@@ -43,7 +43,7 @@ ASMFLAGS = -c
 endif
 
 ifeq ($(OS), AROS)
-CFLAGS += -DAMIGA -DV39PLUS -c -unsigned-char -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\""
+CFLAGS += -DAMIGA -DV39PLUS -c -unsigned-char -DAMIGA -Dtest -I ../../FPL/include/ -DNO_PPACKER -DNO_XPK -funsigned-char -D__AMIGADATE__="\"`date`\"" -DAREXX
 LDFLAGS+= -lamiga -larosc -ldos -lexec -lintuition #-lreqtools
 STRIP= i386-aros-strip --strip-unneeded --remove-section .comment
 endif
@@ -52,7 +52,7 @@ endif
 ifeq ($(UNAME), Amiga)
 CC = vc
 AS = vc -c
-CFLAGS = -c -c99 -unsigned-char -DAMIGA -Dtest
+CFLAGS = -c -c99 -unsigned-char -DAMIGA -Dtest -DAREXX
 LDFLAGS+= -lamiga -lvc -lauto -lreqtools
 endif
 

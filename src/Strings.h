@@ -249,7 +249,9 @@ typedef enum {
 
 
 char *RetString(String_Num);
-int __regargs Sprintf(char *, char *, ...);
+#ifdef AMIGA
+int Sprintf(char *, char *, ...);
+#endif
 char __regargs *GetRetMsg(int num);
 
 #endif

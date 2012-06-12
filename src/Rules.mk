@@ -37,7 +37,7 @@ dumpcommands: dumpcommands.o Declare.o
 
 .PHONY: clean
 clean:
-	rm -f *.o *~
+	rm -f *.o *~ generic/*.o
 
 .PHONY: strip
 strip:
