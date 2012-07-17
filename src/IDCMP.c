@@ -626,6 +626,49 @@ void ProcessRetMsg(BufStruct * Storage, ReturnMsgStruct *retmsg, struct CmdState
     }
 }
 
+static void DeIconify(BufStruct * Storage) {
+        BUF(locked)++;
+        SHS(current)++;
+        Command(Storage, DO_DEICONIFY|NO_HOOK, 0, NULL, 0);
+        BUF(locked)--;
+        SHS(current)--;
+}
+
+static int Resize(BufStruct * Storage, struct Border * border, int lasty) {
+    WORD coords[10];
+    int newy;
+    newy=(IDCMPmsg->MouseY-BUF(window)->text_start);
+    newy=(newy-((newy<0)?SystemFont->tf_YSize:0))/SystemFont->tf_YSize;
+    if (newy != lasty && BUF(window)) {
+        if (lasty>=0 && lasty<=BUF(window)->window_lines) {
+            SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
+            DrawBorder(BUF(window)->window_pointer->RPort,
+                       border,
+                       0,
+                       SystemFont->tf_YSize * lasty+BUF(window)->text_start);
+        }
+        coords[0]=BUF(left_offset);
+        coords[6]=coords[0];
+        coords[8]=coords[0];
+        coords[2]=coords[0]+BUF(screen_col)*SystemFont->tf_XSize-1;
+        coords[4]=coords[2];
+        coords[1]=0;
+        coords[3]=0;
+        coords[5]=SystemFont->tf_YSize-1;
+        coords[7]=coords[5];
+        coords[9]=1;
+        border->XY=coords;
+        lasty=newy;
+                  if (lasty>=0 && lasty<=BUF(window)->window_lines) {
+                      SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
+                      DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
+                                 border,
+                                 0,
+                                 SystemFont->tf_YSize * lasty+BUF(window)->text_start);
+                  }
+              }
+    return lasty;
+}
 
 static void DeleteAllBufs(BufStruct * Storage) {
   Visible=VISIBLE_OFF;
@@ -654,6 +697,16 @@ static void DeleteAllBufs(BufStruct * Storage) {
   } while (loop);
 }
 
+static void ClearAllCurrents() {
+    if (clear_all_currents) {
+        SharedStruct *shared=&Default.SharedDefault;
+        while (shared) {
+            shared->current=0;
+            shared=shared->Next;
+        }
+        clear_all_currents=FALSE;
+    }
+}
 
 /***********************************************************************
  *
@@ -676,7 +729,6 @@ void IDCMP(BufStruct *Storage)
   ULONG signals;
 
   BufStruct *resizeStorage=NULL;
-  WORD coords[10];
   struct Border border={ 0, 0, 1, 0, COMPLEMENT, 5, NULL, NULL};
   WORD lasty=-2;
   struct AppMessage *appmsg;
@@ -736,14 +788,7 @@ void IDCMP(BufStruct *Storage)
       signals=0;
       
       if (!retmsg) {
-          if (clear_all_currents) {
-              SharedStruct *shared=&Default.SharedDefault;
-              while (shared) {
-                  shared->current=0;
-                  shared=shared->Next;
-              }
-              clear_all_currents=FALSE;
-          }
+          ClearAllCurrents();
 
           frexxedrunning=FALSE;
           fprintf(stderr, "GetMsg(WindowPort)\n");
@@ -771,11 +816,7 @@ void IDCMP(BufStruct *Storage)
                       state.command=DO_QUIT_ALL;
                   if (signals & SIGBREAKF_CTRL_E) {	// deiconify.
                       if (BUF(window) && BUF(window)->iconify) {
-                          BUF(locked)++;
-                          SHS(current)++;
-                          Command(Storage, DO_DEICONIFY|NO_HOOK, 0, NULL, 0);
-                          BUF(locked)--;
-                          SHS(current)--;
+                          DeIconify(Storage);
                           state.command=DO_NOTHING_RETMSG;
                       }
                   }
@@ -895,37 +936,7 @@ void IDCMP(BufStruct *Storage)
 
           
           if (state.resize && IDCMPmsg) {
-              int newy;
-              newy=(IDCMPmsg->MouseY-BUF(window)->text_start);
-              newy=(newy-((newy<0)?SystemFont->tf_YSize:0))/SystemFont->tf_YSize;
-              if (newy != lasty && BUF(window)) {
-                  if (lasty>=0 && lasty<=BUF(window)->window_lines) {
-                      SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                      DrawBorder(BUF(window)->window_pointer->RPort,
-                                 (struct Border *)&border,
-                                 0,
-                                 SystemFont->tf_YSize * lasty+BUF(window)->text_start);
-                  }
-                  coords[0]=BUF(left_offset);
-                  coords[6]=coords[0];
-                  coords[8]=coords[0];
-                  coords[2]=coords[0]+BUF(screen_col)*SystemFont->tf_XSize-1;
-                  coords[4]=coords[2];
-                  coords[1]=0;
-                  coords[3]=0;
-                  coords[5]=SystemFont->tf_YSize-1;
-                  coords[7]=coords[5];
-                  coords[9]=1;
-                  border.XY=coords;
-                  lasty=newy;
-                  if (lasty>=0 && lasty<=BUF(window)->window_lines) {
-                      SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                      DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
-                                 (struct Border *)&border,
-                                 0,
-                                 SystemFont->tf_YSize * lasty+BUF(window)->text_start);
-                  }
-              }
+              lasty = Resize(Storage, &border, lasty);
           }
 
           if (IDCMPmsg) {
