@@ -271,7 +271,7 @@ static char *OpenMyScreen(WindowStruct *win);
   If FrexxEd can't close a screen, the pointer is added to a list,
   and it will be attempted freed later.
 */
-static BOOL CleanUpScreens(struct Screen *add)
+static void CleanUpScreens(struct Screen *add)
 {
     struct screen_list {
         struct screen_list *next;
@@ -325,7 +325,7 @@ static BOOL FrexxEdCloseScreen(struct Screen *screen)
   return TRUE;
 }
 
-static void __regargs CloseScreenWindow(void)
+static void CloseScreenWindow(void)
 {
   if (screenwindow) {
     FrexxEdCloseScreen(screenwindow);
@@ -374,9 +374,7 @@ void FirstOpen() {
 
   InitKeys();
 
-#ifdef FIXME
   if (!(DefaultFact=InitFACT())) CloseAll(RetString(STR_GET_MEMORY));
-#endif
 
   Default.BufStructDefault.using_fact=UsingFact=DefaultFact;
 
@@ -431,7 +429,8 @@ void LastOpen() {
     clipri=SetTaskPri((struct Task *)editprocess, Default.taskpri);
     
     win=MakeNewWindow(&Default.WindowDefault);
-    
+    fprintf(stderr,"====Created window %p\n",win);
+    fprintf(stderr,"====ActiveBuffer %p\n",win->ActiveBuffer);
     if (ret=OpenMyScreen(win)) {
         fprintf(stderr,"OpenMyScreen failed\n");
         CloseAll(ret);
@@ -451,7 +450,7 @@ void LastOpen() {
         fprintf(stderr,"HERE 4\n");
     PrintScreenInit();
     InitColors(win);
-        fprintf(stderr,"HERE 5\n");
+    fprintf(stderr,"HERE 5\n");
 }
 
 
@@ -1554,7 +1553,7 @@ int CloneWB(WindowStruct *win)
   return(ret);
 }
 
-WindowStruct __regargs *MakeNewWindow(WindowStruct *def)
+WindowStruct *MakeNewWindow(WindowStruct *def)
 {
   WindowStruct *win;
 
@@ -1563,6 +1562,7 @@ WindowStruct __regargs *MakeNewWindow(WindowStruct *def)
 
   win=(WindowStruct *)Malloc(sizeof(WindowStruct));
   if (win) {
+      assert(win > 1024);
     *win=*def; /* Kopiera def */
     while (def->next) /* Lägg sist i listan */
       def=def->next;
@@ -1586,7 +1586,7 @@ WindowStruct __regargs *MakeNewWindow(WindowStruct *def)
     win->ownscreen=FALSE;
     win->window_resized=0;
     win->flags=0;
-    win->next=def->next;
+    win->next=NULL;
     win->prev=NULL;
     win->iconify=FALSE;
     if (def!=&Default.WindowDefault)
@@ -1614,9 +1614,11 @@ void __regargs FreeWindow(WindowStruct *win)
   Dealloc(win->window_title);
   Dealloc(win->FrexxScreenName);
   if (win->prev)
-    win->prev->next=win->next;
+      win->prev->next=win->next;
   else
     Default.WindowDefault.next=win->next;
+
+  assert(win->next == 0 || win->next > 1024);
   if (win->next)
     win->next->prev=win->prev;
 
@@ -1626,6 +1628,7 @@ void __regargs FreeWindow(WindowStruct *win)
 
 WindowStruct *CreateNewWindow(WindowStruct *defwin, BufStruct *newstorage, BufStruct *Storage)
 {
+    fprintf(stderr,"========== CreateNewWindow\n");
     WindowStruct *win=NULL;
     if (!newstorage || newstorage->window) {
         newstorage=GetNewBuf(Storage, Storage, SC_NEXT_HIDDEN_BUF, type_FILE);
@@ -1635,6 +1638,7 @@ WindowStruct *CreateNewWindow(WindowStruct *defwin, BufStruct *newstorage, BufSt
 
     if (newstorage) {
         win=MakeNewWindow(defwin);
+        fprintf(stderr,"******************\n");
         if (win) {
             AttachBufToWindow(win, newstorage);
         }
@@ -1645,7 +1649,7 @@ WindowStruct *CreateNewWindow(WindowStruct *defwin, BufStruct *newstorage, BufSt
 
 
 /* Checkar om fönstret är skrivbart i */
-void __regargs CheckWindowSize(WindowStruct *win)
+void CheckWindowSize(WindowStruct *win)
 {
   if (win->window_pointer &&
       ((win->real_window_height>win->window_minheight &&

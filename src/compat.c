@@ -19,6 +19,10 @@ int stricmp(const char * src, const char * dest) {
     return strcasecmp(src,dest);
 }
 
+int strnicmp(const char * src, const char * dest, size_t n) {
+    return strncasecmp(src,dest,n);
+}
+
 int Stricmp(const char * src, const char * dest) {
     return strcasecmp(src,dest);
 }
@@ -106,8 +110,17 @@ int MatchNext(void * file) {
 }
 
 
-void LayoutMenus() { }
-void CreateMenus() { }
+int LayoutMenus() { 
+    return 1;
+}
+
+struct Menu * CreateMenus(struct NewMenu * menulist) { 
+    fprintf(stderr,"CreateMenus\n");
+    static struct Menu menu;
+    memset(&menu, 0, sizeof(struct Menu));
+    return & menu;
+}
+
 void TextLength() { }
 void SetFont() { }
 void FreeMenus() { }
@@ -122,8 +135,10 @@ void * OpenLibrary(const STRPTR name, long version) {
 
 void Eat() { }
 void * GetMsg(void * port) { 
-    fprintf(stderr,"GetMsg\n");
-    return 0;}
+    fprintf(stderr,"GetMsg %p\n");
+    sleep(1);
+    return 0;
+}
 void GetEnd() { }
 void ModifyIDCMP() { }
 void Expression() { }
@@ -142,6 +157,7 @@ void FreeKind() { }
 struct Task * FindTask(void * name) { 
     static struct Process task;
     task.pr_WindowPtr = 0;
+    task.pr_MsgPort = 12345;
     return (struct Task *)&task;
 }
 int Wait(int foo) { 
@@ -229,9 +245,19 @@ void CreateArgstring() { fprintf(stderr,"CreateArgstring()\n"); }
 void CreateContext() { fprintf(stderr,"CreateContext()\n"); }
 void CreateExtIO() { fprintf(stderr,"CreateExtIO()\n"); }
 void CreateIORequest() { fprintf(stderr,"CreateIORequest()\n"); }
-void CreateMsgPort() { fprintf(stderr,"CreateMsgPort()\n"); }
+
+void CreateMsgPort() { 
+    fprintf(stderr,"CreateMsgPort()\n"); 
+    return 6;
+}
+
 void CreateNewProcTagList() { fprintf(stderr,"CreateNewProcTagList()\n"); }
-void CreatePort() { fprintf(stderr,"CreatePort()\n"); }
+
+struct MsgPort * CreatePort() { 
+    fprintf(stderr,"CreatePort()\n"); 
+    return 5;
+}
+
 void CreateRexxMsg() { fprintf(stderr,"CreateRexxMsg()\n"); }
 void CurrentChunk() { fprintf(stderr,"CurrentChunk()\n"); }
 void DateStamp() { fprintf(stderr,"DateStamp()\n"); }
@@ -282,7 +308,7 @@ void functions() { fprintf(stderr,"functions()\n"); }
 void GadToolsBase() { fprintf(stderr,"GadToolsBase()\n"); }
 void * GetCatalogStr(void * catalog, long offset, const char * str) { 
 #ifdef DEBUG
-    fprintf(stderr,"GetCatalogStr(%p,%d,%s)\n",catalog,offset,str);
+    //    fprintf(stderr,"GetCatalogStr(%p,%d,%s)\n",catalog,offset,str);
 #endif
     return str; 
 }
@@ -419,7 +445,9 @@ void SendIO() { fprintf(stderr,"SendIO()\n"); }
 void SetAfPt() { fprintf(stderr,"SetAfPt()\n"); }
 void SetComment() { fprintf(stderr,"SetComment()\n"); }
 void SetFileHandler() { fprintf(stderr,"SetFileHandler()\n"); }
-void SetMenuStrip() { fprintf(stderr,"SetMenuStrip()\n"); }
+int SetMenuStrip() { fprintf(stderr,"SetMenuStrip()\n"); 
+    return 1;
+}
 void SetRexxVar() { fprintf(stderr,"SetRexxVar()\n"); }
 void SetRGB32() { fprintf(stderr,"SetRGB32()\n"); }
 void SetRGB4() { fprintf(stderr,"SetRGB4()\n"); }
@@ -434,7 +462,7 @@ void Sscanf() { fprintf(stderr,"Sscanf()\n"); }
 void StopChunk() { fprintf(stderr,"StopChunk()\n"); }
 void Strcasecmp() { fprintf(stderr,"Strcasecmp()\n"); }
 void Strdup() { fprintf(stderr,"Strdup()\n"); }
-void strnicmp() { fprintf(stderr,"strnicmp()\n"); }
+
 void SUBNUM() { fprintf(stderr,"SUBNUM()\n"); }
 void SystemTags() { fprintf(stderr,"SystemTags()\n"); }
 void Text(struct RastPort * rp, const char * str, int len) { 

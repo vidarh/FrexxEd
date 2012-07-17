@@ -1043,7 +1043,16 @@ void FixMarg(BufStruct *Storage) {
   Storage2=&Default.BufStructDefault;
   BUF(move_screen)=BUF(window)?BUF(window)->move_screen:Default.WindowDefault.move_screen;
 
-  rightmarg=((Storage2->rightmarg<BUF(using_fact)->extra[FACT_NO_EOL].length)?BUF(using_fact)->extra[FACT_NO_EOL].length:Storage2->rightmarg);
+  assert(Storage2 > 1024);
+  assert(BUF(using_fact));
+  assert(BUF(using_fact) > 1024);
+  fprintf(stderr,"using_fact: %p\n",BUF(using_fact));
+  assert(BUF(using_fact)->extra > 1024);
+
+  rightmarg=((Storage2->rightmarg<BUF(using_fact)->extra[FACT_NO_EOL].length) ?
+             BUF(using_fact)->extra[FACT_NO_EOL].length
+             :Storage2->rightmarg);
+
   col=Storage->screen_col-BUF(using_fact)->extra[FACT_NO_EOL].length;
 
   summa=Storage2->uppermarg+Storage2->lowermarg;
@@ -1372,6 +1381,7 @@ void AttachBufToWindow(WindowStruct *win, BufStruct *Storage)
         Status(Storage, RetString(STR_FREXXED_INIT), 0x80);
     }
     assert(Storage > 1024);
+    fprintf(stderr,"AttachBufToWindow %p\n",Storage);
     win->ActiveBuffer=Storage;
     BUF(screen_lines)=win->window_lines;
     BUF(screen_col)=win->window_col;

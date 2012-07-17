@@ -10,6 +10,9 @@ MenuAdd(type, string, FPL);
 
 **********************************************************************/
 
+#include <stdio.h>
+#include <assert.h>
+
 #ifdef AMIGA
 #include <exec/execbase.h>
 #include <intuition/intuition.h>
@@ -62,9 +65,9 @@ static struct OwnMenu __regargs *menu_delete_item(struct MenuInfo *menu, struct 
  *
  ****/
 
-int __regargs menu_add(struct MenuInfo *menu,
-	               struct OwnMenu *fill,
-	               struct menu_position *mp)
+int menu_add(struct MenuInfo *menu,
+             struct OwnMenu *fill,
+             struct menu_position *mp)
 {
   struct OwnMenu *item, *add;
   int ret=OK;
@@ -101,7 +104,7 @@ int __regargs menu_add(struct MenuInfo *menu,
   return(ret);
 }
 
-struct OwnMenu __regargs *find_menu(struct OwnMenu *item, struct menu_position *mp)
+struct OwnMenu *find_menu(struct OwnMenu *item, struct menu_position *mp)
 {
   struct OwnMenu *remember;
   int titlenum, itemnum, subitemnum;
@@ -167,7 +170,7 @@ struct OwnMenu __regargs *find_menu(struct OwnMenu *item, struct menu_position *
  *
  ****/
 
-int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
+int fill_in(struct OwnMenu **add, struct OwnMenu *fill)
 {
   (*add)=(struct OwnMenu *)Malloc(sizeof(struct OwnMenu));
   if (*add) {
@@ -176,7 +179,7 @@ int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
     (*add)->keypress = fill->keypress;
 
     if(fill->keypress) {
-      register char *key;
+      char *key;
 
       fill->keypress->menu = *add;
 
@@ -184,6 +187,7 @@ int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
       (*add)->itext.IText=key;
       if (!key) {
         Dealloc(*add);
+        fprintf(stderr,"OUT_OF_MEM\n");
         return(OUT_OF_MEM);
       }
     }
@@ -212,8 +216,10 @@ int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
 
     (*add)->nm_Type=fill->nm_Type;
 
-  } else
-    return(OUT_OF_MEM);
+  } else {
+      fprintf(stderr,"OUT_OF_MEM2\n");
+      return(OUT_OF_MEM);
+  }
   return(OK);
 }
 
@@ -227,19 +233,19 @@ int __regargs fill_in(struct OwnMenu **add, struct OwnMenu *fill)
  ****/
 void menu_clear()
 {
-  build_default_menues=1;
-  SendReturnMsg(cmd_MENUCLEAR, OK, NULL, NULL, NULL);
-  menu_settingchain=NULL;
-  if(menu.ownmenu) {
-    if (menu.con==menu.ownmenu)
-      menu.con=NULL;
-    menu_delete(&menu, menu.ownmenu); /* delete the previous list */
-    menu.ownmenu=NULL;
-    menu.array_size=0;
-  }
-  if(menu.con) {
-    menu_delete(&menu, menu.con); /* delete the previous list */
-    menu.con=NULL;
+    build_default_menues=1;
+    SendReturnMsg(cmd_MENUCLEAR, OK, NULL, NULL, NULL);
+    menu_settingchain=NULL;
+    if(menu.ownmenu) {
+        if (menu.con==menu.ownmenu)
+            menu.con=NULL;
+        menu_delete(&menu, menu.ownmenu); /* delete the previous list */
+        menu.ownmenu=NULL;
+        menu.array_size=0;
+    }
+    if(menu.con) {
+        menu_delete(&menu, menu.con); /* delete the previous list */
+        menu.con=NULL;
   }
 }
 /**********************************************************************
@@ -251,7 +257,7 @@ void menu_clear()
  *
  *****/
 
-int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
+int menu_build(struct MenuInfo *menu, WindowStruct *win)
 {
   /*
    * First, create a nice array of NewMenu structures from our internal linked
@@ -261,11 +267,11 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
   struct NewMenu *menulist;
 
   struct Menu *oldmenu=win->menus;
-
+  fprintf(stderr,"++++++++ menu_build\n");
   if(menu->ownmenu) {
 
     if (menu->flags&OWNMENU_EXPUNGE) {
-      register struct OwnMenu *item=menu->ownmenu;
+      struct OwnMenu *item=menu->ownmenu;
       while (item) {
         if (item->flags&OWNMENU_EXPUNGE) {
           item=menu_delete_item(menu, item);
@@ -278,15 +284,14 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
       }
       menu->flags&=~OWNMENU_EXPUNGE;
     }
-
     if(!(menulist=menu_getarray(menu)))
       return(FAIL);
-  
+        fprintf(stderr,"HERE0 c\n");
     /* creates internal structs (the strings are *not* copied, but must remain
        readable while the menu exists!) */
     if(!(win->menus=CreateMenus(menulist, TAG_END)))
       return(FAIL);
-  
+        fprintf(stderr,"HERE0 d\n");
     /*
      * Forget that array again now since we've used it enough for this time!
      */
@@ -294,8 +299,9 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
     Dealloc(menulist);
 
   }
+  fprintf(stderr,"HERE1\n");
   if (win->window_pointer) {
-#ifndef V39PLUS 
+#if defined(AMIGA) && !defined(V39PLUS)
     if (SysBase->LibNode.lib_Version < 39)
       FrexxLayoutMenues(win->menus, TRUE);
 #endif
@@ -303,12 +309,15 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
     if(!(LayoutMenus(win->menus, win->visualinfo,
                      GTMN_TextAttr, &Default.RequestFontAttr,
                      GTMN_NewLookMenus, TRUE,
-                     TAG_END))) /* create a nice layout! */
-      return(FAIL);
+                     TAG_END))) /* create a nice layout! */ {
+        fprintf(stderr,"Unable to layout menus\n");
+        return(FAIL);
+    }
   }
-#ifndef V39PLUS
+  fprintf(stderr,"HERE2\n");
+#if defined(AMIGA) && !defined(V39PLUS)
   if (SysBase->LibNode.lib_Version < 39) {
-    register struct Menu *menucount=win->menus;
+    struct Menu *menucount=win->menus;
     register int bredd=visible_width;
     SetFont(&ButtonRastPort, RequestFont);
     while (menucount) {
@@ -326,7 +335,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
     }
   }
 #endif
-
+  fprintf(stderr,"Set 0\n");
   build_default_menues=0;
   if(oldmenu && menu->ownmenu) { /* there was a previous one! */
     FreeMenus(oldmenu);
@@ -342,7 +351,7 @@ int __regargs menu_build(struct MenuInfo *menu, WindowStruct *win)
  *
  ****/
 
-int __regargs menu_attach(WindowStruct *win)
+int menu_attach(WindowStruct *win)
 {
   if(win->window_pointer) {
     if(!win->menus) { /* && !menu.on || !menu.con || menu.ownmenu */
@@ -358,7 +367,6 @@ int __regargs menu_attach(WindowStruct *win)
       if (!(SetMenuStrip(win->window_pointer, win->menus)))
         return(FAIL);
   
-//    menu.on=TRUE;
       if(menu.ownmenu) {
       /* if we created a new menu */
   
@@ -380,7 +388,7 @@ int __regargs menu_attach(WindowStruct *win)
  * changing of it.
  *
  *****/
-void __regargs menu_detach(struct MenuInfo *menu, WindowStruct *win)
+void menu_detach(struct MenuInfo *menu, WindowStruct *win)
 {
   if(!win->menus)
     /* we're already detached! */
@@ -393,7 +401,7 @@ void __regargs menu_detach(struct MenuInfo *menu, WindowStruct *win)
   }
 }
 
-void __regargs MenuDelete(struct menu_position *mp)
+void MenuDelete(struct menu_position *mp)
 {
   int type;
   struct OwnMenu *item;
@@ -449,7 +457,7 @@ static struct OwnMenu __regargs *menu_delete_item(struct MenuInfo *menu, struct 
  *
  *****/
 
-void __regargs menu_delete(struct MenuInfo *menu, struct OwnMenu *own)
+void menu_delete(struct MenuInfo *menu, struct OwnMenu *own)
 {
   /* free the entire linked list of menu information! */
   while(own) {
@@ -468,7 +476,7 @@ void __regargs menu_delete(struct MenuInfo *menu, struct OwnMenu *own)
 
 extern int ExecVersion;
 
-struct NewMenu * __regargs menu_getarray(struct MenuInfo *menu)
+struct NewMenu * menu_getarray(struct MenuInfo *menu)
 {
   struct NewMenu *array;
   struct OwnMenu *pnt;
@@ -508,7 +516,7 @@ struct NewMenu * __regargs menu_getarray(struct MenuInfo *menu)
  *
  ******/
 
-int __regargs SetDefaultMenu(struct MenuInfo *menu)
+int SetDefaultMenu(struct MenuInfo *menu)
 {
   /********************************
    *                              *
@@ -558,11 +566,10 @@ int __regargs SetDefaultMenu(struct MenuInfo *menu)
   };
 
   int cnt;
-
   build_default_menues=0;
 
   menu_clear(); // clear old one (950703)
-
+  assert(build_default_menues ==1);
   for(cnt=0;cnt<sizeof(defmenu)/sizeof(struct StoreMenu);cnt++) {
     struct OwnMenu data;
     data.nm_Type=defmenu[cnt].nm_Type;
@@ -586,10 +593,12 @@ int __regargs SetDefaultMenu(struct MenuInfo *menu)
     if(menu_add(menu, &data, NULL))
       return(FAIL);
   }
+  //  assert(build_default_menues ==0);
+  assert(menu->array_size != 0);
   return(OK);
 }
 
-int __regargs MenuAdd(int argc, char **strings)
+int MenuAdd(int argc, char **strings)
 {
   int ret=OK;
   struct OwnMenu data;
@@ -672,7 +681,7 @@ int __regargs MenuAdd(int argc, char **strings)
 }
 
 #ifndef V39PLUS
-void __regargs FrexxLayoutMenues(struct Menu *menucount, int add)
+void FrexxLayoutMenues(struct Menu *menucount, int add)
 {
   struct MenuItem *itemcount;
   struct MenuItem *subitemcount;
@@ -695,7 +704,7 @@ void __regargs FrexxLayoutMenues(struct Menu *menucount, int add)
   }
 }
 
-void __regargs FixIntuiText(struct MenuItem *item, int add)
+void FixIntuiText(struct MenuItem *item, int add)
 {
   register struct OwnMenu *own;
   own=((struct OwnMenu *)GTMENUITEM_USERDATA(item));
@@ -711,7 +720,7 @@ void __regargs FixIntuiText(struct MenuItem *item, int add)
 
 
 /* Skicka in första itemet */
-int __regargs EnlargeMenu(struct MenuItem *firstitem, int moveitem)
+int EnlargeMenu(struct MenuItem *firstitem, int moveitem)
 {
   struct MenuItem *itemcount=firstitem;
   int size=0, orgsize=firstitem->Width;
@@ -766,7 +775,7 @@ int __regargs EnlargeMenu(struct MenuItem *firstitem, int moveitem)
 #endif
 
 
-BOOL __regargs SetItem(BufStruct *Storage, struct MenuItem *item)
+BOOL SetItem(BufStruct *Storage, struct MenuItem *item)
 {
   struct OwnMenu *count=menu_settingchain;
   int vald;
@@ -797,7 +806,7 @@ BOOL __regargs SetItem(BufStruct *Storage, struct MenuItem *item)
   return(changed);
 }
 
-BOOL __regargs InitializeMenu(BufStruct *Storage)
+BOOL InitializeMenu(BufStruct *Storage)
 {
   BOOL changed=FALSE;
   struct Menu *menucount=BUF(window)->menus;

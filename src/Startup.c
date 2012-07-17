@@ -187,16 +187,13 @@ static BufStruct *real_main(IPTR *opts) {
   LastOpen();
 
   {
-
     Storage=MakeNewBuf(NULL);
-#ifdef FIXME
-
 
     if (!Storage)
       CloseAll(RetString(STR_GET_MEMORY));
     if (FRONTWINDOW)
       AttachBufToWindow(FRONTWINDOW, Storage);
-#endif
+
     FrexxEdStarted=1;	// FrexxEd is now considered started.
 
     if (!cl_omit) {
