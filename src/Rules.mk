@@ -8,7 +8,7 @@ GENERIC = generic/Alloc.o generic/Block.o generic/BufControl.o generic/Cursor.o 
 	generic/Match.o generic/Search.o generic/Fold.o  generic/Sort.o generic/Regex.o generic/Execute.o\
 	generic/DoSearch.o generic/MultML.o generic/UpdtScreenC.o generic/UpdtScreen.o generic/Edit.o \
 	generic/Replace.o generic/Undo.o generic/Setting.o  generic/FACT.o generic/Prompt.o generic/Change.o \
-	generic/Command.o generic/GetFile.o generic/Declare.o generic/SearchHistory.o generic/UpdtBlock.o
+	generic/Command.o generic/GetFile.o generic/Declare.o generic/SearchHistory.o generic/UpdtBlock.o generic/Actions.o
 
 OBJS = \
  $(GENERIC) BuildMenu.o Button.o Change.o ClipBoard.o\

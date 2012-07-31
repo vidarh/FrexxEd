@@ -5,6 +5,8 @@
 #include "compat.h"
 #endif
 
+#include "Buf.h"
+
 static UWORD Image1Data[] = {
   0x00FF, 0xFFFF, 0xFFC0, 
   0x0080, 0x0FFC, 0x0000, 
@@ -200,3 +202,19 @@ struct DiskObject AppIconDObj =
     NULL,                                        /* Tool Window */
     NULL                                         /* Stack Size */
 };
+
+
+extern DefaultStruct Default;
+extern struct AppIcon *appicon;
+extern char *appiconname;
+extern struct DiskObject AppIconDObj;
+extern struct DiskObject *externappicon;
+extern struct MsgPort *WBMsgPort;
+
+void AddFrexxAppIcon() {
+    if(!appicon && Default.appicon) {
+        appicon = AddAppIcon(1, NULL, appiconname, WBMsgPort, NULL,
+                             externappicon?externappicon:&AppIconDObj, NULL);
+    }
+}
+

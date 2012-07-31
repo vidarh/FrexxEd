@@ -57,6 +57,17 @@ extern struct AllocCache alloc_cache[];
 extern char buffer[];
 extern BOOL cache_allocs;
 
+void FreeLockedAlloc()
+{
+    char *pointer=lockedalloc;
+    lockedalloc=NULL;
+    if (freelockedalloc) {
+        Dealloc(pointer);
+        freelockedalloc=FALSE;
+    }
+}
+
+
 /*************************************
  *
  * InitAlloc()

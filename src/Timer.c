@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "Buf.h"
 #include "Alloc.h"
@@ -114,4 +115,11 @@ FrexxTimerRequest __regargs *ReAddTimerEvent(FrexxTimerRequest *timer)
   timer->flags&=time_REPEAT;
   SendIO((struct IORequest *)timer);
   return(timer);
+}
+
+
+FrexxTimerRequest * TimerGetMsg()
+{
+    assert(TimerMP > 1024);
+    return (FrexxTimerRequest *)GetMsg(TimerMP);
 }

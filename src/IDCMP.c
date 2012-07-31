@@ -71,21 +71,15 @@
 #include "WindowOutput.h"
 #include "Winsign.h"
 
-extern struct Gadget VertSlider;
-extern struct IOStdReq *WriteReq;
 extern DefaultStruct Default;
 extern int Visible;
 extern char CursorOnOff;
 extern int undoantal;
 extern char buffer[];
 extern struct TextFont *SystemFont;
-extern struct TextFont *RequestFont;
 extern int systemfont_leftmarg;
 extern int systemfont_rightmarg;
-extern char *cl_portname, *cl_startupfile;
-extern UWORD zoom[];
 extern BOOL fplabort;	/* Allow to abort FPL scripts.  Startup script shouldn't be breakable */
-extern struct Setting **sets;
 extern int mouse_x;
 extern int mouse_y;
 extern struct Window *activewindow;	// Current active FrexxEd window
@@ -96,15 +90,9 @@ extern BufStruct *NewStorageWanted;
 extern struct KeyMap *internalkeymap;
 extern struct MsgPort *WindowPort;
 
-extern char DebugOpt;
-extern struct AppIcon *appicon;
-extern char *appiconname;
-extern struct DiskObject AppIconDObj;
-extern struct DiskObject *externappicon;
 extern struct MsgPort *WBMsgPort;
 
 extern char *lockedalloc;
-extern BOOL freelockedalloc;
 extern int signalbits; /* Which signal bits to Wait() for! */
 
 extern AREXXCONTEXT RexxHandle;
@@ -114,9 +102,6 @@ extern char *fpl_executer;	/* Namn på den funktion som exekverar FPL */
 extern char cursorhidden;
 
 extern BOOL quitting;
-extern struct OwnMenu *menu_settingchain;
-
-#define RESIZE_TIMEOUT 3 // Ticks to wait until resize of window
 
 #define NUM_OF_CHARS 32 /* max number of chars to recieve from keymap */
 
@@ -142,7 +127,6 @@ extern short important_message_available;
 /*** PRIVATE ***/
 
 static struct IntuiMessage *IDCMPmsg=NULL;
-static BOOL frexxedrunning=TRUE;
 static UWORD lastmsgCode=NULL;
 static ReturnMsgStruct *firstreturnmsg=NULL;
 static int mousex, mousey=0, oldmousex=-1, oldmousey=-1;
@@ -153,7 +137,9 @@ static int rawkeypressed=0;		/* Mouse or key was pressed */
 static int commandflag=NULL;
 static char mousebutton=0;
 static BOOL idcmpbuffer=FALSE;	/* Om IDCMP-messaged ska replajas */
-static char windowresized=0;
+
+
+char windowresized=0;
 
 
 
@@ -242,13 +228,11 @@ static int ProcessAppMsg(BufStruct * Storage, int ret, int * command)
 }
 
 
-
-static void ProcessTimerRequest(BufStruct * Storage) 
+void ProcessTimerRequest(BufStruct * Storage) 
 {
     FrexxTimerRequest *ftr;
     fprintf(stderr, "ProcessTimerRequest\n");
-    assert(TimerMP > 1024);
-    while (ftr=(FrexxTimerRequest *)GetMsg(TimerMP)) {
+    while (ftr= TimerGetMsg()) {
         int fplret;
 
         fpl_executer=EXECUTED_TIMER;
@@ -273,6 +257,12 @@ static void ProcessTimerRequest(BufStruct * Storage)
     }
 }
 
+
+static void UndoDoNothing(BufStruct * Storage, int options) {
+    if (undoantal)
+        Command(Storage, DO_NOTHING | options, 0, NULL, NULL);  /* For the undo buffer */
+}
+
 /************************************************************************
  * 
  *  Splitting out the IDCMP handling
@@ -294,8 +284,7 @@ static void handle_SELECTDOWN(BufStruct * Storage, const int activated, char * r
                 rawkeypressed=MOUSELEFT;
                 ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
             } else {
-                if (undoantal)
-                    Command(Storage, DO_NOTHING, 0, NULL, NULL);  /* For the undo buffer */
+                UndoDoNothing(Storage,0);
                 Storage=Activate(Storage, Storage2, Default.full_size_buf);
                 Showstat(Storage);
                 oldmousex=-1;
@@ -323,37 +312,6 @@ static void handle_SELECTDOWN(BufStruct * Storage, const int activated, char * r
     }
 }
 
-
-
-static int handle_MENUCLEAR() {
-    int ret = OK;
-    if (build_default_menues) {
-        if (SetDefaultMenu(&menu)) /* set up the entire internal menu structure list */
-            ret = OUT_OF_MEM;     /*! Should we not bail early here? */
-        WindowStruct *wincount;
-        wincount=FRONTWINDOW;
-        while (wincount) {
-            if (menu_attach(wincount))
-                ret=OUT_OF_MEM;
-            wincount=wincount->next;
-        }
-        /*! Is it worth explicitly setting this to 0 here? Otherwise there is a 
-          potential infinite loop */
-        assert(build_default_menues == 0);
-    }
-    return ret;
-}
-
-static void handle_WINDOWSIZE(BufStruct * Storage, BufStruct * CommandStorage,   ReturnMsgStruct *retmsg) {
-    BUF(locked)++;
-    SHS(current)++;
-    Default.commandcount++;
-    Argv[0]=(char *)retmsg->args[0];
-    Argv[1]=(char *)retmsg->args[1];
-    RunHook(CommandStorage, DO_NEWWINDOWSIZE, 1, (char **)&Argv, NULL);
-    BUF(locked)--;
-    SHS(current)--;
-}
 
 
 static void handle_MENUPICK(BufStruct * Storage) {
@@ -389,15 +347,6 @@ static void handle_MOUSEMOVE(BufStruct * Storage, int resize) {
     }
 }
 
-
-static void handle_CHANGEWINDOW()
-{
-    WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
-    if (win) {
-        win->window_resized=RESIZE_TIMEOUT;
-        windowresized++;
-    }
-}
 
 /* Structure introduced to facilitate breakup of the IDCMP function */
 
@@ -438,8 +387,7 @@ static void handle_MOUSEBUTTONS(BufStruct *Storage, struct CmdState * state, Buf
                 if (state->lasty<0) state->lasty=0;
                 if (state->lasty>BUF(window)->window_lines) 
                     state->lasty=BUF(window)->window_lines;
-                if (undoantal)
-                    Command(Storage, DO_NOTHING, NULL, NULL, NULL);  /* For the undo buffer */
+                UndoDoNothing(Storage,0);
                 if (state->lasty-resizeStorage->top_offset+1!=resizeStorage->screen_lines) {
                     register int tempvisible=Visible;
                     Visible=VISIBLE_OFF;
@@ -632,20 +580,12 @@ void ProcessRetMsg(BufStruct * Storage, ReturnMsgStruct *retmsg, struct CmdState
         Argv[1]=(char *)retmsg->args[0];
         break;
     case cmd_WINDOWSIZE:
-        handle_WINDOWSIZE(Storage, state->CommandStorage, retmsg);
+        handle_WINDOWSIZE(Storage, state->CommandStorage, retmsg, &Argv);
         break;
     case cmd_MENUCLEAR:
         if ((tmperr = handle_MENUCLEAR(state->ret)) != OK) state->ret = tmperr;
         break;
     }
-}
-
-static void DeIconify(BufStruct * Storage) {
-        BUF(locked)++;
-        SHS(current)++;
-        Command(Storage, DO_DEICONIFY|NO_HOOK, 0, NULL, 0);
-        BUF(locked)--;
-        SHS(current)--;
 }
 
 static int Resize(BufStruct * Storage, struct Border * border, int lasty) {
@@ -785,7 +725,7 @@ static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct
         handle_MOUSEBUTTONS(Storage,&state, resizeStorage);
         break;
     case IDCMP_CHANGEWINDOW:
-        handle_CHANGEWINDOW();
+        handle_CHANGEWINDOW(FindWindow(IDCMPmsg->IDCMPWindow));
         break;
     case IDCMP_RAWKEY:
         if (
@@ -824,9 +764,7 @@ void IDCMP(BufStruct *Storage)
 
   BufStruct *resizeStorage=NULL;
   struct Border border={ 0, 0, 1, 0, COMPLEMENT, 5, NULL, NULL};
-  struct AppMessage *appmsg;
   ReturnMsgStruct *retmsg=NULL;
-  WORD actioncount=3900;
 
   int wbmsg_signal_bits=0;
   int rexx_signal_bits=0;
@@ -861,11 +799,6 @@ void IDCMP(BufStruct *Storage)
   CursorOnOff=TRUE;
   CursorXY(Storage, BUF(cursor_x), BUF(cursor_y));
 
-#ifdef DEBUGTEST
-  if (DebugOpt)
-    FPrintf(Output(), "Begin editing      \r");
-#endif
-
   fplabort=TRUE;
 
   semaphore_count=1;
@@ -883,7 +816,6 @@ void IDCMP(BufStruct *Storage)
       if (!retmsg) {
           ClearAllCurrents();
 
-          frexxedrunning=FALSE;
           assert(WindowPort > 1024);
           IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
 
@@ -919,15 +851,13 @@ void IDCMP(BufStruct *Storage)
               }
           }
       }
-      frexxedrunning=TRUE;
 
       if (retmsg || IDCMPmsg) {
           if (retmsg) ProcessRetMsg(Storage,retmsg,&state);
 
           if (IDCMPmsg) {
               if (!idcmpbuffer && BUF(window)->window_pointer!=IDCMPmsg->IDCMPWindow) {
-                  WindowStruct *win;
-                  win=FindWindow(IDCMPmsg->IDCMPWindow);
+                  WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
                   if (win && win->NextShowBuf) {
                       state.command=DO_NOTHING_RETMSG;
                       state.CommandStorage=win->NextShowBuf;
@@ -986,35 +916,20 @@ void IDCMP(BufStruct *Storage)
               Default.commandcount++;
 
               if (Default.hook[DO_EVENT&~LOCKINFO_BITS]) {
-                  state.CommandStorage->locked++;
-                  state.CommandStorage->shared->current++;
-                  temp=RunHook(state.CommandStorage, DO_EVENT, 1, (char **)&state.command, NULL);
-                  state.CommandStorage->locked--;
-                  state.CommandStorage->shared->current--;
+                  temp = RunEventHook(state.CommandStorage,(char **)&state.command,0);
               }
 
 
               if (!temp) {
                   state.ret=Command(state.CommandStorage, state.command, Argc, (char **)&Argv, commandflag); /* here runs *ALL* functions!!! */
-                  {
-                      char *pointer=lockedalloc;
-                      lockedalloc=NULL;
-                      if (freelockedalloc) {
-                          Dealloc(pointer);
-                          freelockedalloc=FALSE;
-                      }
-                  }
+                  FreeLockedAlloc();
               }
 
               if (NewStorageWanted)
                   state.CommandStorage=NewStorageWanted;
 
               if (Default.posthook[state.command&~LOCKINFO_BITS]) {
-                  state.CommandStorage->locked++;
-                  state.CommandStorage->shared->current++;
-                  RunHook(state.CommandStorage, DO_EVENT, 1, (char **)&state.command, HOOK_POSTHOOK);
-                  state.CommandStorage->locked--;
-                  state.CommandStorage->shared->current--;
+                  RunEventHook(state.CommandStorage,(char **)&state.command,HOOK_POSTHOOK);
               }
           }
       }
@@ -1042,8 +957,7 @@ void IDCMP(BufStruct *Storage)
       
       
       if (LFLAGS(BUF(curr_line))&FOLD_HIDDEN) {
-          if (undoantal)
-              Command(Storage, DO_NOTHING|NO_HOOK, 0, NULL, 0);
+          UndoDoNothing(Storage,NO_HOOK);
           AdjustCursorUp(Storage);
           TestCursorPos(Storage);
       }
@@ -1164,7 +1078,7 @@ int GetKey(BufStruct *Storage, int flags)
       }
       ievent.ie_Qualifier=msg->Qualifier;
       ievent.ie_EventAddress=*((APTR *)msg->IAddress);
-      chars=RawKeyConvert(&ievent, buffer+pos, 80, internalkeymap);
+      chars=RawKeyConvert(&ievent, buffer+pos, 80, internalkeymap); //! Why 80 here and "NUM_OF_CHARS" (== 32) elsewhere?
       buffer[chars+pos]=0;
       ret=msg->Code;
       buffer[81]=chars;
@@ -1191,19 +1105,11 @@ int GetKey(BufStruct *Storage, int flags)
               ignoreresize--;
             break;
           case IDCMP_CHANGEWINDOW:
-            {
-              WindowStruct *win;
-              win=FindWindow(msg->IDCMPWindow);
-              if (win) {
-                win->window_resized=RESIZE_TIMEOUT;
-                windowresized++;
-              }
-            }
-            break;
+              handle_CHANGEWINDOW(FindWindow(msg->IDCMPWindow));
+              break;
           case IDCMP_NEWSIZE:
             {
-              WindowStruct *win;
-              win=FindWindow(msg->IDCMPWindow);
+              WindowStruct *win=FindWindow(msg->IDCMPWindow);
               if (win && win->NextShowBuf) {
                 ReSizeWindow(win->NextShowBuf);
               }
@@ -1481,10 +1387,8 @@ BOOL WindowActivated(BufStruct *Storage, struct IntuiMessage *msg)
       if (msg->IDCMPWindow->Flags&WFLG_WINDOWACTIVE) {
           if(!BUF(window->appwindow_pointer) && BUF(window->appwindow) && BUF(window->window)!=FX_SCREEN)
               BUF(window->appwindow_pointer) = AddAppWindow(0, NULL, BUF(window->window_pointer), WBMsgPort, NULL);
-          if(!appicon && Default.appicon) {
-                  appicon = AddAppIcon(1, NULL, appiconname, WBMsgPort, NULL,
-                                       externappicon?externappicon:&AppIconDObj, NULL);
-          }
+
+          AddFrexxAppIcon();
           ret=TRUE;
           {
               WindowStruct *win=FindWindow(msg->IDCMPWindow);
@@ -1516,6 +1420,12 @@ int SmartInput(int qual)
 }
 
 
+int ConvertKeys(char * here) {
+    int chars = RawKeyConvert(&ievent, here, NUM_OF_CHARS, internalkeymap);
+    here[chars] = '\0';
+    return chars;
+}
+
 int ExamineKeyPress(BufStruct *Storage)
 {
     static unsigned char rawkeybuf1[NUM_OF_CHARS]; /* This recieves the keymap string and is the result string */
@@ -1544,18 +1454,17 @@ int ExamineKeyPress(BufStruct *Storage)
                 ievent.ie_Code=IDCMPmsg->Code;
                 ievent.ie_Qualifier=IDCMPmsg->Qualifier&(~RAW_CAPS);
                 ievent.ie_EventAddress= *((APTR *)IDCMPmsg->IAddress);
-                chars=RawKeyConvert(&ievent, here, NUM_OF_CHARS, internalkeymap);
-                here[chars]='\0';
+                chars = ConvertKeys(here);
                 ievent.ie_Code=IDCMPmsg->Code;
                 ievent.ie_Qualifier=NULL;
                 ievent.ie_EventAddress= *((APTR *)IDCMPmsg->IAddress);
-                here2[RawKeyConvert(&ievent, here2, NUM_OF_CHARS, internalkeymap)]='\0';
+                ConvertKeys(here2);
                 here3[0]='\0';
                 if (IDCMPmsg->Qualifier&(RAW_SHIFT)) {
                     ievent.ie_Code=IDCMPmsg->Code;
                     ievent.ie_Qualifier=IDCMPmsg->Qualifier&(RAW_SHIFT);
                     ievent.ie_EventAddress= *((APTR *)IDCMPmsg->IAddress);
-                    here3[RawKeyConvert(&ievent, here3, NUM_OF_CHARS, internalkeymap)]='\0';
+                    ConvertKeys(here3);
                 }
                 mouse_x=-1;
                 mouse_y=-1;
@@ -1687,19 +1596,11 @@ fprintf(stderr, "GetMsg(WindowPort) 6\n");
             if (IDCMPmsg) {
               switch(IDCMPmsg->Class) {
               case IDCMP_CHANGEWINDOW:
-                {
-                  register WindowStruct *win;
-                  win=FindWindow(IDCMPmsg->IDCMPWindow);
-                  if (win) {
-                    win->window_resized=RESIZE_TIMEOUT;
-                    windowresized++;
-                  }
-                }
-                break;
+                  handle_CHANGEWINDOW(FindWindow(IDCMPmsg->IDCMPWindow));
+                  break;
               case IDCMP_NEWSIZE:
                   {
-                      WindowStruct *win;
-                      win=FindWindow(IDCMPmsg->IDCMPWindow);
+                      WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
                       if (win && win->NextShowBuf) {
                           ReSizeWindow(win->NextShowBuf);
                       }
@@ -1795,8 +1696,7 @@ fprintf(stderr, "GetMsg(WindowPort) 6\n");
                 ievent.ie_Code=IDCMPmsg->Code;
                 ievent.ie_Qualifier=IDCMPmsg->Qualifier;
                 ievent.ie_EventAddress= *((APTR *)IDCMPmsg->IAddress);
-                chars=RawKeyConvert(&ievent, here, NUM_OF_CHARS, internalkeymap);
-                here[chars]='\0';
+                chars = ConvertKeys(here);
             }
             Argv[0]=here;
             Argv[1]=(char *)chars;
