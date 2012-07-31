@@ -526,7 +526,7 @@ struct Process {
 };
 struct Task * FindTask(void *);
 int Wait(int);
-void * GetMsg(void *);
+struct Message * GetMsg(struct MsgPort *);
 void Delay(long);
 
 // FIXME: Arbitrary value

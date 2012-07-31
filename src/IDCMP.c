@@ -184,6 +184,7 @@ static int ProcessAppMsg(BufStruct * Storage, int ret, int * command)
     struct AppMessage *appmsg;
 
     fprintf(stderr, "ProcessAppMsg\n");
+    assert(WBMsgPort > 1024);
     while (appmsg = (struct AppMessage *) GetMsg(WBMsgPort)) {
         struct WBArg   *argptr;
         int i;
@@ -246,6 +247,7 @@ static void ProcessTimerRequest(BufStruct * Storage)
 {
     FrexxTimerRequest *ftr;
     fprintf(stderr, "ProcessTimerRequest\n");
+    assert(TimerMP > 1024);
     while (ftr=(FrexxTimerRequest *)GetMsg(TimerMP)) {
         int fplret;
 
@@ -397,33 +399,51 @@ static void handle_CHANGEWINDOW()
     }
 }
 
+/* Structure introduced to facilitate breakup of the IDCMP function */
 
-static void handle_MOUSEBUTTONS(BufStruct *Storage, const int activated, WORD * lasty,int * resize, BufStruct * resizeStorage, struct Border * border) {
+struct CmdState {
+    int activated;
+    int ret;       /* variable to recieve exit code from commands */
+    int err;       /* Secondary error code to check subroutine response before updating ret */
+    int command;   /* which command the key should perform */
+    BufStruct *CommandStorage; /* Which Storage to send to Command() */
+    char resize;
+    int lasty;
+    struct Border * border;
+};
+
+
+static void FrexxDrawBorder(BufStruct * Storage, struct Border * border, WORD lasty)
+{
+    SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
+    DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
+               border,
+               0,
+               SystemFont->tf_YSize * lasty+BUF(window)->text_start);
+}
+
+static void handle_MOUSEBUTTONS(BufStruct *Storage, struct CmdState * state, BufStruct * resizeStorage) {
     if (!BUF(window)) return;
     switch(IDCMPmsg->Code) {
     case SELECTUP:
-        if (!activated) {
+        if (!state->activated) {
             ModifyIDCMP(BUF(window)->window_pointer, IDCMP1);
             /* IDCMP for the button released condition */
             oldmousex=-1;
-            if (*resize) {
+            if (state->resize) {
                 BufStruct *Storage2=Storage, *Storage3;
-                if (*lasty>=0 && *lasty<=BUF(window)->window_lines) {
-                    SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                    DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
-                               (struct Border *)border,
-                               0, SystemFont->tf_YSize * (*lasty)+BUF(window)->text_start);
+                if (state->lasty>=0 && state->lasty<=BUF(window)->window_lines) {
+                    FrexxDrawBorder(Storage,state->border,state->lasty);
                 }
-                if (*lasty<0) 
-                    *lasty=0;
-                if (*lasty>BUF(window)->window_lines) 
-                    *lasty=BUF(window)->window_lines;
+                if (state->lasty<0) state->lasty=0;
+                if (state->lasty>BUF(window)->window_lines) 
+                    state->lasty=BUF(window)->window_lines;
                 if (undoantal)
                     Command(Storage, DO_NOTHING, NULL, NULL, NULL);  /* For the undo buffer */
-                if (*lasty-resizeStorage->top_offset+1!=resizeStorage->screen_lines) {
+                if (state->lasty-resizeStorage->top_offset+1!=resizeStorage->screen_lines) {
                     register int tempvisible=Visible;
                     Visible=VISIBLE_OFF;
-                    Storage3=ReSizeBuf(Storage2, resizeStorage, NULL, *lasty-resizeStorage->top_offset+1);
+                    Storage3=ReSizeBuf(Storage2, resizeStorage, NULL, state->lasty-resizeStorage->top_offset+1);
                     assert(Storage3 > 1024);
                     Storage=Activate(Storage3, Storage3, Default.full_size_buf);
                     SetScreen(Storage, Col2Byte(Storage, BUF(cursor_x)+BUF(screen_x),
@@ -434,35 +454,39 @@ static void handle_MOUSEBUTTONS(BufStruct *Storage, const int activated, WORD * 
                     RefreshGList(BUF(window)->window_pointer->FirstGadget, BUF(window)->window_pointer, NULL, -1);
                     UpdateAll();
                 }
-                *lasty=-2;
+                state->lasty=-2;
             } else
                 rawkeypressed=MOUSELEFT|MOUSEUP;
-            *resize=mousebutton=0;
+            state->resize=mousebutton=0;
         }
         break;
+
     case SELECTDOWN:
-        handle_SELECTDOWN(Storage,activated,resize,&resizeStorage);
+        handle_SELECTDOWN(Storage,state->activated,&state->resize,&resizeStorage);
         break;
+
     case MIDDLEDOWN:
-        if (!*resize) {
+        if (!state->resize) {
             rawkeypressed=MOUSEMIDDLE;
             mousebutton=1;
             ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
         }
         break;
+
     case MIDDLEUP:
-        if (!*resize) {
+        if (!state->resize) {
             rawkeypressed=MOUSEMIDDLE|MOUSEUP;
             mousebutton=0;
             ModifyIDCMP(BUF(window)->window_pointer, IDCMP1);
         }
         break;
+
     case MENUUP:
-        if(*resize || (Default.RMB && 
-                       ((IDCMPmsg->Code==MENUHOT && (IDCMPmsg->MouseY<0 ||
+        if(state->resize || (Default.RMB && 
+                             ((IDCMPmsg->Code==MENUHOT && (IDCMPmsg->MouseY<0 ||
                                                      IDCMPmsg->MouseY>=BUF(window)->text_start)) ||
                         mousebutton))) {
-            if (!*resize) {
+            if (!state->resize) {
                 rawkeypressed=MOUSERIGHT|MOUSEUP;
                 ModifyIDCMP(BUF(window)->window_pointer, IDCMP1);
             }
@@ -472,21 +496,9 @@ static void handle_MOUSEBUTTONS(BufStruct *Storage, const int activated, WORD * 
     }
 }
 
-/* Structure introduced to facilitate breakup of the IDCMP function */
-
-struct CmdState {
-    int activated;
-    int ret;       /* variable to recieve exit code from commands */
-    int err;       /* Secondary error code to check subroutine response before updating ret */
-    int command;   /* which command the key should perform */
-    BufStruct *CommandStorage; /* Which Storage to send to Command() */
-    char resize;
-};
-
-
-
 
 void handle_TICKS(BufStruct * Storage,struct CmdState * state) {
+    fprintf(stderr,"Tick tock\n");
     if (face_update && Visible==VISIBLE_ON) UpdateFace();
     if (ignoreresize)
         ignoreresize--;
@@ -548,6 +560,7 @@ void ProcessRetMsg(BufStruct * Storage, ReturnMsgStruct *retmsg, struct CmdState
             state->ret=NEW_STORAGE;
         state->command=DO_NOTHING_RETMSG;
         break;
+
     case cmd_AUTOSAVE:
         state->CommandStorage=CheckBufID((BufStruct *)retmsg->retvalue);
         if (state->CommandStorage && state->CommandStorage->shared->asenabled) {
@@ -560,6 +573,7 @@ void ProcessRetMsg(BufStruct * Storage, ReturnMsgStruct *retmsg, struct CmdState
         }
         state->command=DO_NOTHING_RETMSG;
         break;
+
     case cmd_MENUPICK:
         BUF(locked)++;
         SHS(current)++;
@@ -641,11 +655,7 @@ static int Resize(BufStruct * Storage, struct Border * border, int lasty) {
     newy=(newy-((newy<0)?SystemFont->tf_YSize:0))/SystemFont->tf_YSize;
     if (newy != lasty && BUF(window)) {
         if (lasty>=0 && lasty<=BUF(window)->window_lines) {
-            SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-            DrawBorder(BUF(window)->window_pointer->RPort,
-                       border,
-                       0,
-                       SystemFont->tf_YSize * lasty+BUF(window)->text_start);
+            FrexxDrawBorder(Storage,border,lasty);
         }
         coords[0]=BUF(left_offset);
         coords[6]=coords[0];
@@ -659,14 +669,10 @@ static int Resize(BufStruct * Storage, struct Border * border, int lasty) {
         coords[9]=1;
         border->XY=coords;
         lasty=newy;
-                  if (lasty>=0 && lasty<=BUF(window)->window_lines) {
-                      SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                      DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
-                                 border,
-                                 0,
-                                 SystemFont->tf_YSize * lasty+BUF(window)->text_start);
-                  }
-              }
+        if (lasty>=0 && lasty<=BUF(window)->window_lines) {
+            FrexxDrawBorder(Storage,border,lasty);
+        }
+    }
     return lasty;
 }
 
@@ -708,6 +714,94 @@ static void ClearAllCurrents() {
     }
 }
 
+
+static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct * resizeStorage)
+{
+    switch(IDCMPmsg->Class) {
+    case IDCMP_INTUITICKS:
+        handle_TICKS(Storage, state);
+        if (activewindow==IDCMPmsg->IDCMPWindow)
+            break;
+        /* FALLING THROUGH, FALLING THROUGH */
+
+    case IDCMP_INACTIVEWINDOW:
+
+    case IDCMP_ACTIVEWINDOW:
+        if (WindowActivated(Storage, IDCMPmsg)) {
+            ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
+            state->activated=2;
+        }
+        if (NewStorageWanted)
+            state->command=DO_NOTHING_RETMSG;
+        break;
+
+    case IDCMP_NEWSIZE:
+        {
+            WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
+            if (win && win->NextShowBuf)
+                ReSizeWindow(win->NextShowBuf);
+        }
+        break;
+
+    case IDCMP_MENUVERIFY:
+        if (IDCMPmsg->Code==MENUHOT) {
+            if(state->resize || (Default.RMB && 
+                                IDCMPmsg->MouseY>=BUF(window)->text_start ||
+                                mousebutton)) {
+                if (state->resize) {
+                    if (state->lasty>=0 && state->lasty<=BUF(window)->window_lines) {
+                        FrexxDrawBorder(Storage,state->border,state->lasty);
+                    }
+                    state->resize=0;
+                    mousebutton=2;
+                    state->lasty=-2;
+                } else {
+                    rawkeypressed=MOUSERIGHT;
+                    mousebutton=1;
+                    ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
+                }
+                IDCMPmsg->Code=MENUCANCEL;
+            } else {
+                if (InitializeMenu(Storage)) {
+                    //                ResetMenuStrip(BUF(window)->window_pointer, menu.menus);  //Den här borde göras, men verkar inte behövas.  Dessutom funkar inte MagicMenu om den finns.
+                }
+            }
+        }
+        break;
+    case IDCMP_MENUPICK:
+        handle_MENUPICK(Storage);
+        break;
+    case IDCMP_CLOSEWINDOW:
+        state->command=DO_CLOSE_WINDOW;
+        break;
+    case IDCMP_GADGETDOWN:
+        state->CommandStorage=(BufStruct *)GadgetAddress(Storage, IDCMPmsg);
+        state->command=DO_SLIDER;
+        break;
+    case IDCMP_MOUSEMOVE:
+        handle_MOUSEMOVE(Storage,state->resize);
+        break;
+    case IDCMP_MOUSEBUTTONS:
+        handle_MOUSEBUTTONS(Storage,&state, resizeStorage);
+        break;
+    case IDCMP_CHANGEWINDOW:
+        handle_CHANGEWINDOW();
+        break;
+    case IDCMP_RAWKEY:
+        if (
+            (IDCMPmsg->Code&128) ||
+            (IDCMPmsg->Code>=RAWC_LEFT_SHIFT &&
+             IDCMPmsg->Code<=RAWC_MIDDLE_MOUSE));
+        else {
+            mousebutton=0;
+            rawkeypressed=RAWPRESSED;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 /***********************************************************************
  *
  * IDCMP()
@@ -730,7 +824,6 @@ void IDCMP(BufStruct *Storage)
 
   BufStruct *resizeStorage=NULL;
   struct Border border={ 0, 0, 1, 0, COMPLEMENT, 5, NULL, NULL};
-  WORD lasty=-2;
   struct AppMessage *appmsg;
   ReturnMsgStruct *retmsg=NULL;
   WORD actioncount=3900;
@@ -742,6 +835,8 @@ void IDCMP(BufStruct *Storage)
   state.CommandStorage=Storage;/* Which Storage to send to Command() */
   state.activated = 0;
   state.resize = FALSE;
+  state.lasty = -2;
+  state.border = &border;
 
   if (RexxHandle)
       rexx_signal_bits=(1L << (RexxHandle->ARexxPort->mp_SigBit));
@@ -756,13 +851,11 @@ void IDCMP(BufStruct *Storage)
       assert(menu.array_size);
   }
   
-  {
-    WindowStruct *wincount;
-    wincount=FRONTWINDOW;
-    while (wincount) {
+  WindowStruct *wincount;
+  wincount=FRONTWINDOW;
+  while (wincount) {
       menu_attach(wincount);
       wincount=wincount->next;
-    }
   }
 
   CursorOnOff=TRUE;
@@ -791,7 +884,7 @@ void IDCMP(BufStruct *Storage)
           ClearAllCurrents();
 
           frexxedrunning=FALSE;
-          fprintf(stderr, "GetMsg(WindowPort)\n");
+          assert(WindowPort > 1024);
           IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
 
           if (!IDCMPmsg) {
@@ -821,7 +914,7 @@ void IDCMP(BufStruct *Storage)
                       }
                   }
               } else {
-                  fprintf(stderr, "GetMsg(WindowPort) 2\n");
+                  assert(WindowPort > 1024);
                   IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
               }
           }
@@ -829,9 +922,7 @@ void IDCMP(BufStruct *Storage)
       frexxedrunning=TRUE;
 
       if (retmsg || IDCMPmsg) {
-          if (retmsg) {
-              ProcessRetMsg(Storage,retmsg,&state);
-          }
+          if (retmsg) ProcessRetMsg(Storage,retmsg,&state);
 
           if (IDCMPmsg) {
               if (!idcmpbuffer && BUF(window)->window_pointer!=IDCMPmsg->IDCMPWindow) {
@@ -845,88 +936,7 @@ void IDCMP(BufStruct *Storage)
               lastmsgCode=IDCMPmsg->Code;
               mousex=(IDCMPmsg->MouseX-BUF(left_offset))/SystemFont->tf_XSize-BUF(l_c_len)-BUF(fold_len);
               mousey=(IDCMPmsg->MouseY-BUF(window)->text_start)/SystemFont->tf_YSize;
-              switch(IDCMPmsg->Class) {
-              case IDCMP_INTUITICKS:
-                  handle_TICKS(Storage, &state);
-                  if (activewindow==IDCMPmsg->IDCMPWindow)
-                      break;
-                  /* FALLING THROUGH, FALLING THROUGH */
-              case IDCMP_INACTIVEWINDOW:
-              case IDCMP_ACTIVEWINDOW:
-                  if (WindowActivated(Storage, IDCMPmsg)) {
-                      ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
-                      state.activated=2;
-                  }
-                  if (NewStorageWanted)
-                      state.command=DO_NOTHING_RETMSG;
-                  break;
-              case IDCMP_NEWSIZE:
-                  {
-                      WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
-                      if (win && win->NextShowBuf)
-                          ReSizeWindow(win->NextShowBuf);
-                  }
-                  break;
-              case IDCMP_MENUVERIFY:
-                  if (IDCMPmsg->Code==MENUHOT) {
-                      if(state.resize || (Default.RMB && 
-                                    IDCMPmsg->MouseY>=BUF(window)->text_start ||
-                                    mousebutton)) {
-                          if (state.resize) {
-                              if (lasty>=0 && lasty<=BUF(window)->window_lines) {
-                                  SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                                  DrawBorder((struct RastPort *)BUF(window)->window_pointer->RPort,
-                                             (struct Border *)&border,
-                                             0, SystemFont->tf_YSize * lasty+BUF(window)->text_start);
-                              }
-                              state.resize=0;
-                              mousebutton=2;
-                              lasty=-2;
-                          } else {
-                              rawkeypressed=MOUSERIGHT;
-                              mousebutton=1;
-                              ModifyIDCMP(BUF(window)->window_pointer, IDCMP_INTUITICKS|IDCMP1);
-                          }
-                          IDCMPmsg->Code=MENUCANCEL;
-                      } else {
-                          if (InitializeMenu(Storage)) {
-                              //                ResetMenuStrip(BUF(window)->window_pointer, menu.menus);  //Den här borde göras, men verkar inte behövas.  Dessutom funkar inte MagicMenu om den finns.
-                          }
-                      }
-                  }
-                  break;
-              case IDCMP_MENUPICK:
-                  handle_MENUPICK(Storage);
-                  break;
-              case IDCMP_CLOSEWINDOW:
-                  state.command=DO_CLOSE_WINDOW;
-                  break;
-              case IDCMP_GADGETDOWN:
-                  state.CommandStorage=(BufStruct *)GadgetAddress(Storage, IDCMPmsg);
-                  state.command=DO_SLIDER;
-                  break;
-              case IDCMP_MOUSEMOVE:
-                  handle_MOUSEMOVE(Storage,state.resize);
-                  break;
-              case IDCMP_MOUSEBUTTONS:
-                  handle_MOUSEBUTTONS(Storage,state.activated, &lasty,&state.resize, resizeStorage, &border);
-                  break;
-              case IDCMP_CHANGEWINDOW:
-                  handle_CHANGEWINDOW();
-                  break;
-              case IDCMP_RAWKEY:
-                  if (
-                      (IDCMPmsg->Code&128) ||
-                      (IDCMPmsg->Code>=RAWC_LEFT_SHIFT &&
-                       IDCMPmsg->Code<=RAWC_MIDDLE_MOUSE));
-                  else {
-                      mousebutton=0;
-                      rawkeypressed=RAWPRESSED;
-                  }
-                  break;
-              default:
-                  break;
-              }
+              handle_IDCMP(Storage, &state,resizeStorage);
           }
           
           
@@ -936,7 +946,7 @@ void IDCMP(BufStruct *Storage)
 
           
           if (state.resize && IDCMPmsg) {
-              lasty = Resize(Storage, &border, lasty);
+              state.lasty = Resize(Storage, &border, state.lasty);
           }
 
           if (IDCMPmsg) {
@@ -964,15 +974,11 @@ void IDCMP(BufStruct *Storage)
 
       if (state.command>DO_NOTHING_RETMSG) {
           if (state.resize) {
-              if (BUF(window)->window_pointer && lasty>=0 && lasty<=BUF(window)->window_lines) {
-                  SetWrMsk((struct RastPort *)BUF(window)->window_pointer->RPort, 0x03);
-                  DrawBorder(BUF(window)->window_pointer->RPort,
-                             (struct Border *)&border,
-                             0,
-                             SystemFont->tf_YSize * lasty+BUF(window)->text_start);
+              if (BUF(window)->window_pointer && state.lasty>=0 && state.lasty<=BUF(window)->window_lines) {
+                  FrexxDrawBorder(Storage, &border, state.lasty);
               }
               state.resize=FALSE;
-              lasty=-1;
+              state.lasty=-1;
           }
 
           {
@@ -1131,7 +1137,7 @@ void IDCMP(BufStruct *Storage)
  *  The CAPS_LOCK is always stripped.
  *  Return RawKey value.
  **********/
-int __regargs GetKey(BufStruct *Storage, int flags)
+int GetKey(BufStruct *Storage, int flags)
 {
   struct IntuiMessage *msg;
   int chars;
@@ -1166,9 +1172,9 @@ int __regargs GetKey(BufStruct *Storage, int flags)
     } else {
       buffer[0]=0;
       if (flags & gkWAIT) {
-fprintf(stderr, "GetMsg(WindowPort) 3\n");
-        while (msg=(struct IntuiMessage *)GetMsg(WindowPort))
-          ReplyMsg((struct Message *)msg);
+          assert(WindowPort > 1024);
+          while (msg=(struct IntuiMessage *)GetMsg(WindowPort))
+              ReplyMsg((struct Message *)msg);
       }
       while (!stop) {
         if (flags & gkWAIT) {
@@ -1177,7 +1183,7 @@ fprintf(stderr, "GetMsg(WindowPort) 3\n");
           Wait(1 << WindowPort->mp_SigBit);
         } else
           stop=TRUE;
-fprintf(stderr, "GetMsg(WindowPort) 4\n");
+        assert(WindowPort > 1024);
         while (msg=(struct IntuiMessage *)GetMsg(WindowPort)) {
           switch(msg->Class) {
           case IDCMP_INTUITICKS:
@@ -1186,7 +1192,7 @@ fprintf(stderr, "GetMsg(WindowPort) 4\n");
             break;
           case IDCMP_CHANGEWINDOW:
             {
-              register WindowStruct *win;
+              WindowStruct *win;
               win=FindWindow(msg->IDCMPWindow);
               if (win) {
                 win->window_resized=RESIZE_TIMEOUT;
@@ -1196,7 +1202,7 @@ fprintf(stderr, "GetMsg(WindowPort) 4\n");
             break;
           case IDCMP_NEWSIZE:
             {
-              register WindowStruct *win;
+              WindowStruct *win;
               win=FindWindow(msg->IDCMPWindow);
               if (win && win->NextShowBuf) {
                 ReSizeWindow(win->NextShowBuf);

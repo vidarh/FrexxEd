@@ -133,11 +133,18 @@ void * OpenLibrary(const STRPTR name, long version) {
     return 0;
 }
 
+#include <assert.h>
+
 void Eat() { }
-void * GetMsg(void * port) { 
-    fprintf(stderr,"GetMsg %p\n");
+struct Message * GetMsg(struct MsgPort * port) { 
+    struct IntuiMessage msg;
+    assert(port == 0 || port > 1024);
+    fprintf(stderr,"GetMsg %p\n",port);
     sleep(1);
-    return 0;
+
+    memset(&msg, 0, sizeof(struct IntuiMessage));
+    msg.Class = IDCMP_INTUITICKS;
+    return &msg;
 }
 void GetEnd() { }
 void ModifyIDCMP() { }
@@ -246,16 +253,22 @@ void CreateContext() { fprintf(stderr,"CreateContext()\n"); }
 void CreateExtIO() { fprintf(stderr,"CreateExtIO()\n"); }
 void CreateIORequest() { fprintf(stderr,"CreateIORequest()\n"); }
 
-void CreateMsgPort() { 
+struct MsgPort * CreateMsgPort() { 
+    struct MsgPort * port;
+    port = malloc(sizeof(struct MsgPort));
+    if (!port) return 0;
+    memset(port,0,sizeof(struct MsgPort));
     fprintf(stderr,"CreateMsgPort()\n"); 
-    return 6;
+    return port;
 }
 
 void CreateNewProcTagList() { fprintf(stderr,"CreateNewProcTagList()\n"); }
 
 struct MsgPort * CreatePort() { 
+    static struct MsgPort port;
+    memset(&port,0,sizeof(struct MsgPort));
     fprintf(stderr,"CreatePort()\n"); 
-    return 5;
+    return &port;
 }
 
 void CreateRexxMsg() { fprintf(stderr,"CreateRexxMsg()\n"); }
@@ -396,7 +409,7 @@ struct Screen * OpenScreenTags() {
 
 struct Window * OpenWindowTags(struct NewWindow * newwin, ...) { 
     static struct Window win;
-    fprintf(stderr,"OpenWindowTags()\n"); 
+    fprintf(stderr,"OpenWindowTags('%s')\n",newwin->Title); 
     memset(&win, 0, sizeof(struct Window));
     return &win;
 }

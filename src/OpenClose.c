@@ -352,7 +352,6 @@ void FirstOpen() {
   if (InitFPL(1)) CloseAll(RetString(STR_INIT_FPL));
 #endif
 
-#ifdef AMIGA
   /* Create the message port to which Workbench can send messages */
   if(!(WBMsgPort = CreateMsgPort()) ) CloseAll(RetString(STR_CREATE_MESSAGE_PORT));
 
@@ -361,12 +360,14 @@ void FirstOpen() {
 
   /* create reply port and io block for reading from console */
   if (!(WindowPort=CreateMsgPort())) CloseAll(RetString(STR_CREATE_READ_PORT));
+  assert(WindowPort > 1024);
 
   /* create reply port and io block for writing to console */
   if (!(WritePort=CreateMsgPort())) CloseAll(RetString(STR_CREATE_WRITE_PORT));
   WriteReq=(struct IOStdReq *)CreateIORequest(WritePort, (LONG)sizeof(struct IOStdReq));
   if(!WriteReq) CloseAll(RetString(STR_CREATE_WRITE_REQUEST)); 
 
+#ifdef AMIGA
   if (OpenDevice("console.device", -1, (struct IORequest *)WriteReq, 1))
     CloseAll(RetString(STR_OPEN_CONSOLE_DEVICE));
   ConsoleDevice=(struct Library *)WriteReq->io_Device;
