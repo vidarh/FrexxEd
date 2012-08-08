@@ -7,6 +7,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <gtk/gtk.h>
+
+
 void * AllocMem(long size, int flags) {
     return malloc(size);
 }
@@ -140,7 +143,8 @@ struct Message * GetMsg(struct MsgPort * port) {
     struct IntuiMessage msg;
     assert(port == 0 || port > 1024);
     fprintf(stderr,"GetMsg %p\n",port);
-    sleep(1);
+
+	gtk_main_iteration();
 
     memset(&msg, 0, sizeof(struct IntuiMessage));
     msg.Class = IDCMP_INTUITICKS;
@@ -407,10 +411,23 @@ struct Screen * OpenScreenTags() {
     return 0;
 }
 
+
+
+
+static void destroy (void) {
+  gtk_main_quit ();
+}
+
 struct Window * OpenWindowTags(struct NewWindow * newwin, ...) { 
     static struct Window win;
     fprintf(stderr,"OpenWindowTags('%s')\n",newwin->Title); 
-    memset(&win, 0, sizeof(struct Window));
+    //memset(&win, 0, sizeof(struct Window));
+
+	win.gtk_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	g_signal_connect (G_OBJECT (win.gtk_window), "destroy",
+						G_CALLBACK (destroy), NULL);
+	gtk_widget_show (win.gtk_window);
+
     return &win;
 }
 

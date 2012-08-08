@@ -208,6 +208,11 @@ int main(int argc, char **argv) {
     ExecVersion = 39;
 #endif
 
+	// FIXME: Isolate this somewhere
+	//#ifdef LINUX 
+	gtk_init (&argc, &argv);
+	//#endif
+
     if (ExecVersion <= 36) {
         Write(Output(), REQUIRE, sizeof(REQUIRE));
         return 1;
