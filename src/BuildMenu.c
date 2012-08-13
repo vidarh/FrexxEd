@@ -489,6 +489,7 @@ struct NewMenu * menu_getarray(struct MenuInfo *menu)
       pnt=pnt->next;
   
     for(num=0; num<menu->array_size; num++) {
+	  fprintf(stderr,"OwnMenu: %s, %d\n",pnt->nm_Label,pnt->nm_Type);
       array[num].nm_Type=pnt->nm_Type;
       array[num].nm_Label=pnt->nm_Label;
       array[num].nm_Flags=pnt->nm_Flags; /* no such either! */

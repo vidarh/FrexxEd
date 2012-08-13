@@ -311,6 +311,9 @@ struct Menu {
     struct MenuItem * FirstItem;
     int Width;
     int LeftEdge;
+
+  // GTK specific:
+  GtkWidget * gtk_menubar;
 };
 struct Message {
     struct MsgPort * mn_ReplyPort;
@@ -481,6 +484,7 @@ struct Window {
 
   // GTK+ implementation:
   GtkWidget * gtk_window;
+  GtkWidget * gtk_vbox;
 };
 struct TextFont {
     int tf_YSize;
@@ -605,11 +609,11 @@ void Delay(long);
 #define CHECKED 0
 #define CHECKIT 0
 #define GTMENUITEM_USERDAT(arg) 0
-#define NM_BARLABEL 0
-#define NM_ITEM 2
-#define NM_TITLE 0
-#define NM_SUB 1
-#define NM_COMMANDSTRING 0
+#define NM_BARLABEL 4
+#define NM_ITEM 3
+#define NM_TITLE 1
+#define NM_SUB 2
+#define NM_COMMANDSTRING 5
 #define NM_END 0
 #define GTMN_NewLookMenus 0
 #define GTMN_TextAttr 0

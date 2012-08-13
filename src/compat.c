@@ -121,6 +121,23 @@ struct Menu * CreateMenus(struct NewMenu * menulist) {
     fprintf(stderr,"CreateMenus\n");
     static struct Menu menu;
     memset(&menu, 0, sizeof(struct Menu));
+
+	menu.gtk_menubar = gtk_menu_bar_new();
+	while (menulist && menulist->nm_Type != NM_END) {
+
+	  fprintf(stderr,"MENU: %s\n", menulist->nm_Label);
+	  GtkWidget * gmenu = gtk_menu_new();
+	  GtkWidget * menutitle = gtk_menu_item_new_with_label(menulist->nm_Label);
+	  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menutitle), gmenu);
+
+	  menulist += 1;
+	  while (menulist && menulist->nm_Type !=NM_END && menulist->nm_Type != NM_TITLE) {
+		GtkWidget * item = gtk_menu_item_new_with_label(menulist->nm_Label);
+		gtk_menu_shell_append(GTK_MENU_SHELL(gmenu), item);
+		menulist+=1;
+	  }
+	  gtk_menu_shell_append(GTK_MENU_SHELL(menu.gtk_menubar), menutitle);
+	}
     return & menu;
 }
 
@@ -424,6 +441,13 @@ struct Window * OpenWindowTags(struct NewWindow * newwin, ...) {
     //memset(&win, 0, sizeof(struct Window));
 
 	win.gtk_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	//	if (newwin->Width > 0) gtk_window_resize((GtkWindow *)win.gtk_window,newwin->Width, newwin->Height);
+	// FIXME: Do I need to strdup this?
+	if (newwin->Title) gtk_window_set_title(GTK_WINDOW(win.gtk_window), newwin->Title);
+	
+	win.gtk_vbox = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(win.gtk_window), win.gtk_vbox);
+
 	g_signal_connect (G_OBJECT (win.gtk_window), "destroy",
 						G_CALLBACK (destroy), NULL);
 	gtk_widget_show (win.gtk_window);
@@ -475,8 +499,14 @@ void SendIO() { fprintf(stderr,"SendIO()\n"); }
 void SetAfPt() { fprintf(stderr,"SetAfPt()\n"); }
 void SetComment() { fprintf(stderr,"SetComment()\n"); }
 void SetFileHandler() { fprintf(stderr,"SetFileHandler()\n"); }
-int SetMenuStrip() { fprintf(stderr,"SetMenuStrip()\n"); 
-    return 1;
+
+
+int SetMenuStrip(struct Window * window, struct Menu * menu) {
+  gtk_box_pack_start(GTK_BOX(window->gtk_vbox), menu->gtk_menubar, FALSE, FALSE, 3);
+  gtk_widget_show_all(window->gtk_window);
+
+  fprintf(stderr,"SetMenuStrip(window= %p, menu= %p)\n", window, menu); 
+  return 1;
 }
 void SetRexxVar() { fprintf(stderr,"SetRexxVar()\n"); }
 void SetRGB32() { fprintf(stderr,"SetRGB32()\n"); }
