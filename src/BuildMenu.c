@@ -54,7 +54,12 @@ extern struct OwnMenu *menu_settingchain;
 extern struct Setting **sets;
 extern char GlobalEmptyString[];
 
-static struct OwnMenu __regargs *menu_delete_item(struct MenuInfo *menu, struct OwnMenu *own);
+static struct OwnMenu * menu_delete_item(struct MenuInfo *menu, struct OwnMenu *own);
+static struct NewMenu * menu_getarray(struct MenuInfo *menu);
+static int menu_add(struct MenuInfo *, struct OwnMenu *, struct menu_position *);
+static int fill_in(struct OwnMenu **, struct OwnMenu *);
+static int menu_build(struct MenuInfo *, WindowStruct *);
+static void FixIntuiText(struct MenuItem *item, int add);
 
 
 /**********************************************************************
@@ -65,7 +70,7 @@ static struct OwnMenu __regargs *menu_delete_item(struct MenuInfo *menu, struct 
  *
  ****/
 
-int menu_add(struct MenuInfo *menu,
+static int menu_add(struct MenuInfo *menu,
              struct OwnMenu *fill,
              struct menu_position *mp)
 {
@@ -170,7 +175,7 @@ struct OwnMenu *find_menu(struct OwnMenu *item, struct menu_position *mp)
  *
  ****/
 
-int fill_in(struct OwnMenu **add, struct OwnMenu *fill)
+static int fill_in(struct OwnMenu **add, struct OwnMenu *fill)
 {
   (*add)=(struct OwnMenu *)Malloc(sizeof(struct OwnMenu));
   if (*add) {
@@ -257,7 +262,7 @@ void menu_clear()
  *
  *****/
 
-int menu_build(struct MenuInfo *menu, WindowStruct *win)
+static int menu_build(struct MenuInfo *menu, WindowStruct *win)
 {
   /*
    * First, create a nice array of NewMenu structures from our internal linked
@@ -423,7 +428,7 @@ void MenuDelete(struct menu_position *mp)
   }
 }
 
-static struct OwnMenu __regargs *menu_delete_item(struct MenuInfo *menu, struct OwnMenu *own)
+static struct OwnMenu * menu_delete_item(struct MenuInfo *menu, struct OwnMenu *own)
 {
   struct OwnMenu *next=own->next;
   if (own->next)
@@ -476,7 +481,7 @@ void menu_delete(struct MenuInfo *menu, struct OwnMenu *own)
 
 extern int ExecVersion;
 
-struct NewMenu * menu_getarray(struct MenuInfo *menu)
+static struct NewMenu * menu_getarray(struct MenuInfo *menu)
 {
   struct NewMenu *array;
   struct OwnMenu *pnt;
@@ -705,7 +710,7 @@ void FrexxLayoutMenues(struct Menu *menucount, int add)
   }
 }
 
-void FixIntuiText(struct MenuItem *item, int add)
+static void FixIntuiText(struct MenuItem *item, int add)
 {
   register struct OwnMenu *own;
   own=((struct OwnMenu *)GTMENUITEM_USERDATA(item));
