@@ -326,7 +326,11 @@ static void handle_SELECTDOWN(BufStruct * Storage, const int activated, char * r
     }
 }
 
-
+static void handle_NEWSIZE(WindowStruct * win) {
+    if (win && win->NextShowBuf) {
+        ReSizeWindow(win->NextShowBuf);
+    }
+}
 
 static void handle_MENUPICK(BufStruct * Storage) {
     UWORD menunumber=IDCMPmsg->Code;
@@ -668,6 +672,14 @@ static void ClearAllCurrents() {
     }
 }
 
+static void handle_ACTIVEWINDOW(BufStruct * Storage, struct CmdState * state) {
+    if (WindowActivated(Storage, IDCMPmsg)) {
+        ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
+        state->activated=2;
+    }
+    if (NewStorageWanted)
+        state->command=DO_NOTHING_RETMSG;
+}
 
 static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct * resizeStorage)
 {
@@ -679,22 +691,12 @@ static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct
         /* FALLING THROUGH, FALLING THROUGH */
 
     case IDCMP_INACTIVEWINDOW:
-
     case IDCMP_ACTIVEWINDOW:
-        if (WindowActivated(Storage, IDCMPmsg)) {
-            ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
-            state->activated=2;
-        }
-        if (NewStorageWanted)
-            state->command=DO_NOTHING_RETMSG;
+        handle_ACTIVEWINDOW(Storage,state);
         break;
 
     case IDCMP_NEWSIZE:
-        {
-            WindowStruct *win=FindWindow(IDCMPmsg->IDCMPWindow);
-            if (win && win->NextShowBuf)
-                ReSizeWindow(win->NextShowBuf);
-        }
+        handle_NEWSIZE(FindWindow(IDCMPmsg->IDCMPWindow));
         break;
 
     case IDCMP_MENUVERIFY:
@@ -1119,12 +1121,7 @@ int GetKey(BufStruct *Storage, int flags)
                 handle_CHANGEWINDOW(FindWindow(msg->IDCMPWindow));
                 break;
             case IDCMP_NEWSIZE:
-                {
-                    WindowStruct *win=FindWindow(msg->IDCMPWindow);
-                    if (win && win->NextShowBuf) {
-                        ReSizeWindow(win->NextShowBuf);
-                    }
-                }
+                handle_NEWSIZE(FindWindow(msg->IDCMPWindow));
                 break;
             case IDCMP_ACTIVEWINDOW:
             case IDCMP_INACTIVEWINDOW:
@@ -1133,21 +1130,20 @@ int GetKey(BufStruct *Storage, int flags)
             case IDCMP_MENUVERIFY:
                 msg->Code=MENUCANCEL;
                 stop=flags&gkNOCHACHED;
-            if (stop)
-              ret=0;
-            break;
-          case IDCMP_MOUSEBUTTONS:
-            if (flags&gkNOCHACHED) {
-              if (msg->Code==SELECTDOWN ||
-                  msg->Code==MIDDLEDOWN ||
-                  msg->Code==SELECTUP ||
-                  msg->Code==MIDDLEUP ||
-                  msg->Code==MENUUP) {
-                stop=TRUE;
-                ret=0;
-              }
-            }
-            break;
+                if (stop) ret=0;
+                break;
+            case IDCMP_MOUSEBUTTONS:
+                if (flags&gkNOCHACHED) {
+                    if (msg->Code==SELECTDOWN ||
+                        msg->Code==MIDDLEDOWN ||
+                        msg->Code==SELECTUP ||
+                        msg->Code==MIDDLEUP ||
+                        msg->Code==MENUUP) {
+                        stop=TRUE;
+                        ret=0;
+                    }
+                }
+                break;
           case IDCMP_RAWKEY:
             if ((flags & gkNOTEQ) && lastmsgCode==msg->Code)
               break;
@@ -1178,11 +1174,11 @@ int GetKey(BufStruct *Storage, int flags)
             }
             buffer[81]=chars;
           }
-          if (stop)
-            memcpy(buffer+100, (char *)msg, sizeof(struct IntuiMessage));
-          ReplyMsg((struct Message *)msg);
-          if (stop)
-            break;
+            if (stop)
+                memcpy(buffer+100, (char *)msg, sizeof(struct IntuiMessage));
+            ReplyMsg((struct Message *)msg);
+            if (stop)
+                break;
         }
       }
       if (flags & gkWAIT) {
