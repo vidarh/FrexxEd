@@ -165,13 +165,27 @@ static void ProcessRexxMsg(BufStruct * Storage)
 }
 
 
+struct AppMessage * GetWBMsg() {
+    assert(WBMsgPort > 1024);
+    return (struct AppMessage *)GetMsg(WBMsgPort);
+};
+
+void WaitForIntuiMsg() {
+    Wait(1 << WindowPort->mp_SigBit);
+};
+
+struct IntuiMessage * GetIntuiMsg() {
+    assert(WindowPort > 1024);
+    return (struct IntuiMessage *)GetMsg(WindowPort);
+};
+
+
 static int ProcessAppMsg(BufStruct * Storage, int ret, int * command)
 {
     struct AppMessage *appmsg;
 
     fprintf(stderr, "ProcessAppMsg\n");
-    assert(WBMsgPort > 1024);
-    while (appmsg = (struct AppMessage *) GetMsg(WBMsgPort)) {
+    while (appmsg = GetWBMsg()) {
         struct WBArg   *argptr;
         int i;
         
@@ -816,8 +830,7 @@ void IDCMP(BufStruct *Storage)
       if (!retmsg) {
           ClearAllCurrents();
 
-          assert(WindowPort > 1024);
-          IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
+          IDCMPmsg=GetIntuiMsg();
 
           if (!IDCMPmsg) {
               semaphore_count=0;
@@ -846,8 +859,7 @@ void IDCMP(BufStruct *Storage)
                       }
                   }
               } else {
-                  assert(WindowPort > 1024);
-                  IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
+                  IDCMPmsg=GetIntuiMsg();
               }
           }
       }
@@ -1086,8 +1098,7 @@ int GetKey(BufStruct *Storage, int flags)
     } else {
       buffer[0]=0;
       if (flags & gkWAIT) {
-          assert(WindowPort > 1024);
-          while (msg=(struct IntuiMessage *)GetMsg(WindowPort))
+          while (msg= GetIntuiMsg())
               ReplyMsg((struct Message *)msg);
       }
       while (!stop) {
@@ -1098,30 +1109,30 @@ int GetKey(BufStruct *Storage, int flags)
         } else
           stop=TRUE;
         assert(WindowPort > 1024);
-        while (msg=(struct IntuiMessage *)GetMsg(WindowPort)) {
-          switch(msg->Class) {
-          case IDCMP_INTUITICKS:
-            if (ignoreresize)
-              ignoreresize--;
-            break;
-          case IDCMP_CHANGEWINDOW:
-              handle_CHANGEWINDOW(FindWindow(msg->IDCMPWindow));
-              break;
-          case IDCMP_NEWSIZE:
-            {
-              WindowStruct *win=FindWindow(msg->IDCMPWindow);
-              if (win && win->NextShowBuf) {
-                ReSizeWindow(win->NextShowBuf);
-              }
-            }
-            break;
-          case IDCMP_ACTIVEWINDOW:
-          case IDCMP_INACTIVEWINDOW:
-            WindowActivated(Storage, msg);
-            break;
-          case IDCMP_MENUVERIFY:
-            msg->Code=MENUCANCEL;
-            stop=flags&gkNOCHACHED;
+        while (msg=GetIntuiMsg()) {
+            switch(msg->Class) {
+            case IDCMP_INTUITICKS:
+                if (ignoreresize)
+                    ignoreresize--;
+                break;
+            case IDCMP_CHANGEWINDOW:
+                handle_CHANGEWINDOW(FindWindow(msg->IDCMPWindow));
+                break;
+            case IDCMP_NEWSIZE:
+                {
+                    WindowStruct *win=FindWindow(msg->IDCMPWindow);
+                    if (win && win->NextShowBuf) {
+                        ReSizeWindow(win->NextShowBuf);
+                    }
+                }
+                break;
+            case IDCMP_ACTIVEWINDOW:
+            case IDCMP_INACTIVEWINDOW:
+                WindowActivated(Storage, msg);
+                break;
+            case IDCMP_MENUVERIFY:
+                msg->Code=MENUCANCEL;
+                stop=flags&gkNOCHACHED;
             if (stop)
               ret=0;
             break;
@@ -1585,12 +1596,10 @@ int ExamineKeyPress(BufStruct *Storage)
               IDCMPmsg=(struct IntuiMessage *)(((ReturnMsgStruct *)IDCMPmsg)->string);
               idcmpbuffer=TRUE;
             } else {
-fprintf(stderr, "GetMsg(WindowPort) 5\n");
-              IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
-              if (!IDCMPmsg) {
-                Wait(1 << WindowPort->mp_SigBit);
-fprintf(stderr, "GetMsg(WindowPort) 6\n");
-                IDCMPmsg=(struct IntuiMessage *)GetMsg(WindowPort);
+                IDCMPmsg=GetIntuiMsg();
+                if (!IDCMPmsg) {
+                    WaitForIntuiMsg();
+                    IDCMPmsg=GetIntuiMsg();
               }
             }
             if (IDCMPmsg) {
