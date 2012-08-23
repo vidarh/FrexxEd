@@ -742,6 +742,32 @@ static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct
     }
 }
 
+
+
+static void ExecuteCommand(struct CmdState * state, int argc, char ** argv, int commandflag)
+{
+  int temp=0;
+  Default.commandcount++;
+  
+  if (Default.hook[DO_EVENT&~LOCKINFO_BITS]) {
+	temp = RunEventHook(state->CommandStorage,(char **)&state->command,0);
+  }
+  
+  if (!temp) {
+	state->ret=Command(state->CommandStorage, state->command, argc, argv, commandflag); 
+	FreeLockedAlloc();
+  }
+  
+  if (NewStorageWanted)
+	state->CommandStorage=NewStorageWanted;
+  
+  if (Default.posthook[state->command&~LOCKINFO_BITS]) {
+	RunEventHook(state->CommandStorage,(char **)&state->command,HOOK_POSTHOOK);
+  }
+}
+
+
+
 /***********************************************************************
  *
  * IDCMP()
@@ -889,51 +915,23 @@ void IDCMP(BufStruct *Storage)
       } /* if IDCMPmsg */
       
       
-      if (signals & timer_signal_bits) {	/* TIMER ACTION */
-          ProcessTimerRequest(Storage);
-      }
-
-      if (signals & rexx_signal_bits) {
-          ProcessRexxMsg(Storage);
-      }
-      
+      if (signals & timer_signal_bits) ProcessTimerRequest(Storage);
+      if (signals & rexx_signal_bits) ProcessRexxMsg(Storage);
       if (signals & wbmsg_signal_bits) {
           state.ret = ProcessAppMsg(Storage,state.ret,&state.command);
       }
 
+      if (state.command > DO_NOTHING_RETMSG) {
+		if (state.resize) {
+		  if (BUF(window)->window_pointer && state.lasty>=0 && state.lasty<=BUF(window)->window_lines) {
+			FrexxDrawBorder(Storage, &border, state.lasty);
+		  }
+		  state.resize=FALSE;
+		  state.lasty=-1;
+		}
 
-      if (state.command>DO_NOTHING_RETMSG) {
-          if (state.resize) {
-              if (BUF(window)->window_pointer && state.lasty>=0 && state.lasty<=BUF(window)->window_lines) {
-                  FrexxDrawBorder(Storage, &border, state.lasty);
-              }
-              state.resize=FALSE;
-              state.lasty=-1;
-          }
-
-          {
-              int temp=0;
-              Default.commandcount++;
-
-              if (Default.hook[DO_EVENT&~LOCKINFO_BITS]) {
-                  temp = RunEventHook(state.CommandStorage,(char **)&state.command,0);
-              }
-
-
-              if (!temp) {
-                  state.ret=Command(state.CommandStorage, state.command, Argc, (char **)&Argv, commandflag); /* here runs *ALL* functions!!! */
-                  FreeLockedAlloc();
-              }
-
-              if (NewStorageWanted)
-                  state.CommandStorage=NewStorageWanted;
-
-              if (Default.posthook[state.command&~LOCKINFO_BITS]) {
-                  RunEventHook(state.CommandStorage,(char **)&state.command,HOOK_POSTHOOK);
-              }
-          }
+		ExecuteCommand(&state, Argc, (char **)&Argv, commandflag);
       }
-      
 
       if (state.ret==QUIT_COMMAND) {
           if(fh_locks || fh_opens) {
