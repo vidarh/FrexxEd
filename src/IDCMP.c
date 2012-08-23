@@ -673,12 +673,12 @@ static void ClearAllCurrents() {
 }
 
 static void handle_ACTIVEWINDOW(BufStruct * Storage, struct CmdState * state) {
-    if (WindowActivated(Storage, IDCMPmsg)) {
-        ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
-        state->activated=2;
+  if (IDCMPmsg->IDCMPWindow && WindowActivated(Storage, IDCMPmsg)) {
+	ModifyIDCMP(IDCMPmsg->IDCMPWindow, IDCMP1|IDCMP_INTUITICKS);
+	state->activated=2;
     }
-    if (NewStorageWanted)
-        state->command=DO_NOTHING_RETMSG;
+  if (NewStorageWanted)
+	state->command=DO_NOTHING_RETMSG;
 }
 
 static void handle_IDCMP(BufStruct * Storage, struct CmdState * state, BufStruct * resizeStorage)
@@ -1388,7 +1388,7 @@ BOOL WindowActivated(BufStruct *Storage, struct IntuiMessage *msg)
 {
   BOOL ret=FALSE;
   CursorXY(NULL, -1, -1);
-  if (Storage && BUF(window)) {
+  if (Storage && BUF(window) && msg->IDCMPWindow) {
       if (msg->IDCMPWindow->Flags&WFLG_WINDOWACTIVE) {
           if(!BUF(window->appwindow_pointer) && BUF(window->appwindow) && BUF(window->window)!=FX_SCREEN)
               BUF(window->appwindow_pointer) = AddAppWindow(0, NULL, BUF(window->window_pointer), WBMsgPort, NULL);
