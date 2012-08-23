@@ -6,6 +6,9 @@
 
 
 #ifndef AMIGA
+
+#include <gtk/gtk.h>
+
 #define __regargs
 #define __a0
 #define __a1
@@ -475,6 +478,9 @@ struct Window {
     int Flags;
     int MinWidth;
     void * UserData;
+
+  // GTK+ implementation:
+  GtkWidget * gtk_window;
 };
 struct TextFont {
     int tf_YSize;

@@ -33,12 +33,15 @@ CP_R=cp -Rap
 
 ifeq ($(UNAME), Linux)
 # FIXME: Handle optional AROS cross-compilation under Linux (env-variable?)
-CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -Dtest -D__AMIGADATE__="\"`date`\""
+CFLAGS += -c -unsigned-char -DLOG_FILE_EXECUTION -DTEST -D__AMIGADATE__="\"`date`\""
 ASMFLAGS = -c
 
 	ifeq ($(OS),AROS)
 	CC = i386-aros-gcc
 	AS = i386-aros-gcc -c
+	else
+	CFLAGS += `pkg-config --cflags --libs gtk+-3.0`
+	LDFLAGS += `pkg-config --cflags --libs gtk+-3.0`
 	endif
 endif
 

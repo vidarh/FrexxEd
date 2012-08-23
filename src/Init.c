@@ -519,7 +519,7 @@ void InitKeys()
       Amiga|Alt|Ctrl|Shift, Key, Command        */
 
   AddKey(akFPL|akDEFAULT, 0, NULL,"\r", (int)"Output(\"\\n\");",	&Default.key, NULL);
-#ifdef test
+#ifdef TEST
   AddKey(akCMD|akDEFAULT, RAW_AMIGA, NULL,"0",	DO_SLASK,	&Default.key, NULL);
   AddKey(akCMD|akDEFAULT, RAW_AMIGA, NULL,"9",	DO_SLASK2,	&Default.key, NULL);
 #endif
