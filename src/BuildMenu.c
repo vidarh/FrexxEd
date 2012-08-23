@@ -60,6 +60,7 @@ static int menu_add(struct MenuInfo *, struct OwnMenu *, struct menu_position *)
 static int fill_in(struct OwnMenu **, struct OwnMenu *);
 static int menu_build(struct MenuInfo *, WindowStruct *);
 static void FixIntuiText(struct MenuItem *item, int add);
+static int EnlargeMenu(struct MenuItem *firstitem, int moveitem);
 
 
 /**********************************************************************
@@ -323,14 +324,13 @@ static int menu_build(struct MenuInfo *menu, WindowStruct *win)
 #if defined(AMIGA) && !defined(V39PLUS)
   if (SysBase->LibNode.lib_Version < 39) {
     struct Menu *menucount=win->menus;
-    register int bredd=visible_width;
+    int bredd=visible_width;
     SetFont(&ButtonRastPort, RequestFont);
     while (menucount) {
-      register int size;
-      size=EnlargeMenu(menucount->FirstItem, 0);
+      int size=EnlargeMenu(menucount->FirstItem, 0);
       if (menucount->LeftEdge < bredd &&
           menucount->LeftEdge+menucount->FirstItem->LeftEdge+menucount->FirstItem->Width>bredd) {
-        register struct MenuItem *itemcount=menucount->FirstItem;
+        struct MenuItem *itemcount=menucount->FirstItem;
         while (itemcount) {
           itemcount->LeftEdge-=size;
           itemcount=itemcount->NextItem;
@@ -712,7 +712,7 @@ void FrexxLayoutMenues(struct Menu *menucount, int add)
 
 static void FixIntuiText(struct MenuItem *item, int add)
 {
-  register struct OwnMenu *own;
+  struct OwnMenu *own;
   own=((struct OwnMenu *)GTMENUITEM_USERDATA(item));
   if (own && own->keypress) {
     if (add) {
@@ -726,7 +726,7 @@ static void FixIntuiText(struct MenuItem *item, int add)
 
 
 /* Skicka in första itemet */
-int EnlargeMenu(struct MenuItem *firstitem, int moveitem)
+static int EnlargeMenu(struct MenuItem *firstitem, int moveitem)
 {
   struct MenuItem *itemcount=firstitem;
   int size=0, orgsize=firstitem->Width;
@@ -736,7 +736,7 @@ int EnlargeMenu(struct MenuItem *firstitem, int moveitem)
     orgleft=firstitem->LeftEdge;
   while (itemcount) {
     if (((struct IntuiText *)itemcount->ItemFill)->NextText) {
-      register int tempsize;
+      int tempsize;
       tempsize=TextLength(&ButtonRastPort, 
                           ((struct IntuiText *)itemcount->ItemFill)->NextText->IText,
                           strlen(((struct IntuiText *)itemcount->ItemFill)->NextText->IText));
@@ -760,7 +760,7 @@ int EnlargeMenu(struct MenuItem *firstitem, int moveitem)
       else {
         if (((struct IntuiText *)itemcount->ItemFill)->NextText) {
           {
-            register char *temp=((struct IntuiText *)itemcount->ItemFill)->NextText->IText;
+            char *temp=((struct IntuiText *)itemcount->ItemFill)->NextText->IText;
             memcpy(((struct IntuiText *)itemcount->ItemFill)->NextText, ((struct IntuiText *)itemcount->ItemFill), sizeof(struct IntuiText));
             ((struct IntuiText *)itemcount->ItemFill)->NextText->IText=temp;
           }

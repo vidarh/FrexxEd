@@ -67,19 +67,19 @@ struct MenuInfo {
 
 extern struct MenuInfo menu;
 
-int menu_attach(WindowStruct *);
+int  menu_attach(WindowStruct *);
 void menu_clear(void);
 void menu_detach(struct MenuInfo *, WindowStruct *);
-int __regargs SetDefaultMenu(struct MenuInfo *);
-void __regargs menu_delete(struct MenuInfo *, struct OwnMenu *);
-void __regargs FrexxLayoutMenues(struct Menu *menucount, int add);
-int __regargs EnlargeMenu(struct MenuItem *firstitem, int moveitem);
+void menu_delete(struct MenuInfo *, struct OwnMenu *);
+
+int  SetDefaultMenu(struct MenuInfo *);
+void FrexxLayoutMenues(struct Menu *menucount, int add);
+
+BOOL InitializeMenu(BufStruct *Storage);
+BOOL SetItem(BufStruct *Storage, struct MenuItem *item);
+
+struct OwnMenu *find_menu(struct OwnMenu *item, struct menu_position *mp);
 
 int MenuAdd(int, char **);
-
-BOOL __regargs InitializeMenu(BufStruct *Storage);
-BOOL __regargs SetItem(BufStruct *Storage, struct MenuItem *item);
-
-struct OwnMenu __regargs *find_menu(struct OwnMenu *item, struct menu_position *mp);
-void __regargs MenuDelete(struct menu_position *mp);
+void MenuDelete(struct menu_position *mp);
 
